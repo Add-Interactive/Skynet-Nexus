@@ -469,6 +469,8 @@ app.get('/rss.xml', (req, res) => {
     '  <description>Family-first daily news: STEM, robotics, play &amp; design, and music for readers ages 5–50.</description>\n' +
     '  <language>en-us</language>\n' +
     '  <lastBuildDate>' + xmlEscape(build) + '</lastBuildDate>\n' +
+    '  <copyright>© 2026 Add Interactive Studio, in partnership with STEM Nexus</copyright>\n' +
+    '  <managingEditor>editor@addinteractive.com (Skynet Nexus Newsroom / Add Interactive Studio)</managingEditor>\n' +
     '  <atom:link href="' + xmlEscape(SITE_ORIGIN + '/rss.xml') + '" rel="self" type="application/rss+xml"/>\n' +
     items.map(a => {
       const link = SITE_ORIGIN + '/pages/article.html?id=' + encodeURIComponent(a.id);

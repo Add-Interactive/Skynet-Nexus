@@ -5,6 +5,18 @@
     "audience": "Families (ages 5-50) - designed for parent-and-child co-reading.",
     "launchDate": "2026-07-01",
     "editorialSchedule": "Daily at 10:00 AM Eastern",
+    "publisher": {
+      "name": "Add Interactive Studio",
+      "url": "https://addinteractive.com",
+      "role": "Published by"
+    },
+    "partners": [
+      {
+        "name": "STEM Nexus",
+        "url": "https://stemnexus.org",
+        "role": "Editorial partner"
+      }
+    ],
     "editorialRules": [
       "Youth-first: subjects are usually under 25, quoted first.",
       "Family-safe: no violence, war, politics, celebrity drama, or social media pile-ons.",
