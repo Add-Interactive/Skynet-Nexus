@@ -150,6 +150,8 @@ Daily at **10:00 AM Eastern**, the OpenClaw cron job spawns four correspondent s
 
 Each correspondent researches (Brave Search), writes their story, and files JSON. `publish.js` validates against kid-safe schema, adds to manifest, git-commits, pushes. Railway redeploys.
 
+**Status:** Live and publishing daily since 2026-07-02.
+
 ## License
 
 All content and code © Skynet Nexus News. Free to read, free forever.
