@@ -308,6 +308,7 @@ function renderPost(a, featured, base) {
       '<div class="post-media-wrap">' +
         '<img class="post-media" src="' + makeThumb(a.cat, a.id) + '" alt="' + a.title.replace(/"/g, '&quot;') + '"/>' +
         '<span class="post-cat-tag" data-cat="' + a.cat + '">' + categoryLabel(a.cat) + '</span>' +
+        (a.ageBand ? '<span class="post-age-chip" data-age="' + a.ageBand + '">' + a.ageBand + '</span>' : '') +
         (a.live ? '<span class="post-live">Live</span>' : '') +
       '</div>' +
       '<div class="post-body">' +
@@ -315,8 +316,8 @@ function renderPost(a, featured, base) {
         '<p class="post-excerpt">' + a.excerpt + '</p>' +
         '<div class="post-meta">' +
           '<div class="post-author"><span class="author-avatar">' + a.authorInitials + '</span><span>' + a.author + '</span></div>' +
-          '<span class="dot">â€¢</span><span>' + friendlyDate(a.date) + '</span>' +
-          '<span class="dot">â€¢</span><span>' + a.readTime + ' min</span>' +
+          '<span class="dot">•</span><span>' + friendlyDate(a.date) + '</span>' +
+          '<span class="dot">•</span><span>' + a.readTime + ' min</span>' +
           '<div class="post-actions">' +
             '<button class="like-btn ' + (liked ? 'liked' : '') + '" data-id="' + a.id + '" title="Like">' + ICONS.heart + '<span>' + likesDisplay + '</span></button>' +
             '<button class="save-btn ' + (saved ? 'liked' : '') + '" data-id="' + a.id + '" title="Save">' + ICONS.bookmark + '</button>' +
@@ -441,7 +442,7 @@ function renderTrending() {
       '<span class="trend-num">' + String(i + 1).padStart(2, '0') + '</span>' +
       '<div class="trend-body">' +
         '<span class="trend-hashtag">' + t.tag + '</span>' +
-        '<span class="trend-meta">' + t.posts + ' posts â€¢ ' + categoryLabel(t.tone) + '</span>' +
+        '<span class="trend-meta">' + t.posts + ' posts • ' + categoryLabel(t.tone) + '</span>' +
       '</div>' +
     '</li>'
   ).join('');
@@ -548,7 +549,7 @@ function renderTicker() {
   if (!el) return;
   // duplicate for seamless scroll
   const html = TICKER.concat(TICKER).map(t =>
-    '<span><strong>' + t.label + '</strong> ' + t.text + '</span><span class="sep">â€¢</span>'
+    '<span><strong>' + t.label + '</strong> ' + t.text + '</span><span class="sep">•</span>'
   ).join('');
   el.innerHTML = html;
 }
@@ -625,9 +626,9 @@ function initArticlePage() {
           '<div class="article-meta">' +
             '<span class="author-avatar">' + a.authorInitials + '</span>' +
             '<span><strong>' + a.author + '</strong></span>' +
-            '<span>â€¢</span>' +
+            '<span>•</span>' +
             '<span>' + friendlyDate(a.date) + '</span>' +
-            '<span>â€¢</span>' +
+            '<span>•</span>' +
             '<span>' + a.readTime + ' min read</span>' +
           '</div>' +
         '</div>' +
@@ -808,3 +809,22 @@ async function initSimplePage(baseUrl) {
   await loadManifest(baseUrl);
   _initSimplePage(baseUrl);
 }
+
+// Newsletter form -> POST /api/newsletter (added by polish pass)
+document.addEventListener("submit", function (ev) {
+  var f = ev.target;
+  if (!f || !f.classList || !f.classList.contains("newsletter-form")) return;
+  ev.preventDefault();
+  var input = f.querySelector('input[type="email"], input[name="email"], input');
+  var email = input && input.value ? input.value.trim() : "";
+  if (!email) { if (typeof toast === "function") toast("Enter an email first."); return; }
+  fetch("/api/newsletter", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: email, kidCount: 0 }) })
+    .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+    .then(function (o) {
+      if (!o.ok) { if (typeof toast === "function") toast((o.j && o.j.error) || "Signup failed."); return; }
+      if (o.j.alreadySubscribed && typeof toast === "function") toast("You are already on the list.");
+      else if (typeof toast === "function") toast("Subscribed! Watch your inbox.");
+      if (input) input.value = "";
+    })
+    .catch(function () { if (typeof toast === "function") toast("Network error. Try again."); });
+});

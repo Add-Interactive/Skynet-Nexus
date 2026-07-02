@@ -569,3 +569,31 @@ body::before{
   margin-right: 6px;
   text-transform: uppercase;
 }
+
+/* Age band chip on post cards (added by polish pass) */
+.post-age-chip {
+  position: absolute; top: 12px; right: 12px; z-index: 2;
+  padding: 4px 10px; border-radius: 999px;
+  background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(6px);
+  color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.post-age-chip[data-age="5+"]  { background: rgba(57, 255, 20, 0.85); color: #0a0e17; border-color: #39ff14; }
+.post-age-chip[data-age="8+"]  { background: rgba(0, 229, 255, 0.85); color: #0a0e17; border-color: #00e5ff; }
+.post-age-chip[data-age="12+"] { background: rgba(168, 85, 247, 0.85); color: #fff; border-color: #a855f7; }
+
+/* Kid mode banner (added by polish pass) */
+.sky-kid-mode-banner {
+  background: linear-gradient(90deg, rgba(57, 255, 20, 0.15), rgba(57, 255, 20, 0.05));
+  border-top: 1px solid rgba(57, 255, 20, 0.4);
+  border-bottom: 1px solid rgba(57, 255, 20, 0.4);
+  color: #d4ffca; padding: 8px 22px;
+  display: flex; justify-content: space-between; align-items: center;
+  font-weight: 600; font-size: 14px;
+}
+.sky-kid-mode-banner button {
+  background: transparent; border: 1px solid rgba(57, 255, 20, 0.6);
+  color: #d4ffca; padding: 4px 12px; border-radius: 6px; cursor: pointer;
+  font-size: 12px; font-weight: 600;
+}
+.sky-kid-mode-banner button:hover { background: rgba(57, 255, 20, 0.15); }

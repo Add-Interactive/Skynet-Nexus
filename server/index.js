@@ -36,7 +36,10 @@ const session = require('express-session');
 const {
   createUser, findUserByEmail, findUserById, findUserRawById,
   updateLastLogin, updateUser, changePassword,
-  createKid, listKids, findKid, updateKid, deleteKid
+  createKid, listKids, findKid, updateKid, deleteKid,
+  deleteUser,
+  createPasswordReset, findPasswordReset, markPasswordResetUsed, purgeExpiredResets,
+  addNewsletter, listNewsletter, countNewsletter
 } = require('./db');
 const {
   hashPassword, verifyPassword,
@@ -56,6 +59,49 @@ const SESSION_SECRET = process.env.SESSION_SECRET || (() => {
 })();
 
 const IS_PROD = process.env.NODE_ENV === 'production';
+const SITE_ORIGIN = process.env.SITE_ORIGIN || (IS_PROD
+  ? 'https://skynet-nexus-production.up.railway.app'
+  : `http://localhost:${Number(process.env.PORT) || 4180}`);
+
+// --- Simple in-memory rate limiter (per-IP + route bucket) ---
+const RATE_BUCKETS = new Map();
+function rateLimit({ windowMs = 60_000, max = 20, key = 'default' } = {}) {
+  return (req, res, next) => {
+    const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown').toString().split(',')[0].trim();
+    const now = Date.now();
+    const bucketKey = key + ':' + ip;
+    const entry = RATE_BUCKETS.get(bucketKey);
+    if (!entry || entry.resetAt < now) {
+      RATE_BUCKETS.set(bucketKey, { count: 1, resetAt: now + windowMs });
+      return next();
+    }
+    entry.count++;
+    if (entry.count > max) {
+      res.set('Retry-After', String(Math.ceil((entry.resetAt - now) / 1000)));
+      return res.status(429).json({ error: 'Too many requests. Slow down and try again in a bit.' });
+    }
+    next();
+  };
+}
+// Cleanup buckets every 10 min
+setInterval(() => {
+  const now = Date.now();
+  for (const [k, v] of RATE_BUCKETS) if (v.resetAt < now) RATE_BUCKETS.delete(k);
+}, 10 * 60 * 1000).unref();
+
+// Cleanup expired password resets every hour
+setInterval(() => {
+  try { purgeExpiredResets(); } catch (e) {}
+}, 60 * 60 * 1000).unref();
+
+// Admin key for /api/newsletter/export etc.
+const ADMIN_KEY = process.env.ADMIN_KEY || null;
+function requireAdmin(req, res, next) {
+  const provided = req.query.key || req.headers['x-admin-key'];
+  if (!ADMIN_KEY) return res.status(503).json({ error: 'Admin API disabled: ADMIN_KEY not configured.' });
+  if (provided !== ADMIN_KEY) return res.status(401).json({ error: 'unauthorized' });
+  next();
+}
 
 const app = express();
 app.disable('x-powered-by');
@@ -95,7 +141,7 @@ api.get('/auth/me', (req, res) => {
 });
 
 // POST /api/auth/register — { email, password, displayName, avatarColor? }
-api.post('/auth/register', async (req, res) => {
+api.post('/auth/register', rateLimit({ windowMs: 15 * 60_000, max: 8, key: 'register' }), async (req, res) => {
   try {
     const email = String(req.body.email || '').trim().toLowerCase();
     const password = String(req.body.password || '');
@@ -124,7 +170,7 @@ api.post('/auth/register', async (req, res) => {
 });
 
 // POST /api/auth/login — { email, password }
-api.post('/auth/login', async (req, res) => {
+api.post('/auth/login', rateLimit({ windowMs: 15 * 60_000, max: 20, key: 'login' }), async (req, res) => {
   try {
     const email = String(req.body.email || '').trim().toLowerCase();
     const password = String(req.body.password || '');
@@ -175,7 +221,7 @@ api.patch('/auth/profile', requireAuth, (req, res) => {
 });
 
 // POST /api/auth/change-password — { currentPassword, newPassword }
-api.post('/auth/change-password', requireAuth, async (req, res) => {
+api.post('/auth/change-password', requireAuth, rateLimit({ windowMs: 15 * 60_000, max: 10, key: 'changepw' }), async (req, res) => {
   const currentPassword = String(req.body.currentPassword || '');
   const newPassword = String(req.body.newPassword || '');
   if (!isValidPassword(newPassword)) return res.status(400).json({ error: 'New password must be at least 8 characters.' });
@@ -240,6 +286,76 @@ api.delete('/kids/:id', requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
+// DELETE /api/auth/account — nukes the parent + all kid profiles (COPPA right-to-delete)
+api.delete('/auth/account', requireAuth, rateLimit({ windowMs: 60_000, max: 4, key: 'delacct' }), async (req, res) => {
+  const password = String((req.body && req.body.password) || '');
+  const raw = findUserRawById(req.session.userId);
+  if (!raw) return res.status(401).json({ error: 'unauthorized' });
+  const ok = await verifyPassword(password, raw.password_hash);
+  if (!ok) return res.status(401).json({ error: 'Password incorrect.' });
+  const uid = req.session.userId;
+  req.session.destroy(() => {
+    res.clearCookie('skynet.sid');
+    deleteUser(uid); // cascades kids + password_resets
+    res.json({ ok: true, deleted: true });
+  });
+});
+
+// POST /api/auth/password-reset — { email }
+// Always returns 200 (never reveal which emails exist). Logs the token to server console
+// until email delivery is wired.
+api.post('/auth/password-reset', rateLimit({ windowMs: 15 * 60_000, max: 6, key: 'pwreset' }), (req, res) => {
+  const email = String((req.body && req.body.email) || '').trim().toLowerCase();
+  if (isValidEmail(email)) {
+    const user = findUserByEmail(email);
+    if (user) {
+      const token = crypto.randomBytes(24).toString('hex');
+      const expiresAt = Date.now() + 60 * 60 * 1000; // 1 hour
+      createPasswordReset({ userId: user.id, token, expiresAt });
+      const link = `${SITE_ORIGIN}/pages/password-reset.html?token=${encodeURIComponent(token)}`;
+      console.log(`[skynet] password reset requested for ${email} — link (deliver via email once SMTP wired): ${link}`);
+    }
+  }
+  res.json({ ok: true, message: 'If that email exists, a reset link has been logged.' });
+});
+
+// POST /api/auth/password-reset/confirm — { token, newPassword }
+api.post('/auth/password-reset/confirm', rateLimit({ windowMs: 15 * 60_000, max: 10, key: 'pwresetconfirm' }), async (req, res) => {
+  const token = String((req.body && req.body.token) || '').trim();
+  const newPassword = String((req.body && req.body.newPassword) || '');
+  if (!token) return res.status(400).json({ error: 'Missing token.' });
+  if (!isValidPassword(newPassword)) return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+  const reset = findPasswordReset(token);
+  if (!reset) return res.status(400).json({ error: 'Invalid or expired token.' });
+  const hash = await hashPassword(newPassword);
+  changePassword(reset.userId, hash);
+  markPasswordResetUsed(token);
+  res.json({ ok: true, message: 'Password updated. You can sign in with your new password.' });
+});
+
+// POST /api/newsletter — { email, kidCount? }
+api.post('/newsletter', rateLimit({ windowMs: 60_000, max: 6, key: 'newsletter' }), (req, res) => {
+  const email = String((req.body && req.body.email) || '').trim().toLowerCase();
+  const kidCount = Math.max(0, Math.min(20, Number((req.body && req.body.kidCount) || 0) | 0));
+  if (!isValidEmail(email)) return res.status(400).json({ error: 'Please enter a valid email.' });
+  const { inserted } = addNewsletter({ email, source: 'site', kidCount });
+  res.json({ ok: true, alreadySubscribed: !inserted });
+});
+
+// GET /api/newsletter/export?key=ADMIN — CSV export
+api.get('/newsletter/export', requireAdmin, (req, res) => {
+  const rows = listNewsletter();
+  const csv = ['email,source,kid_count,created_at']
+    .concat(rows.map(r => [r.email, r.source, r.kid_count, r.created_at].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')))
+    .join('\n');
+  res.type('text/csv').set('Content-Disposition', 'attachment; filename="newsletter.csv"').send(csv);
+});
+
+// GET /api/newsletter/stats?key=ADMIN — quick count
+api.get('/newsletter/stats', requireAdmin, (req, res) => {
+  res.json({ count: countNewsletter() });
+});
+
 // GET /api/manifest — passthrough (filesystem read; cached client-side).
 api.get('/manifest', (req, res) => {
   try {
@@ -252,6 +368,126 @@ api.get('/manifest', (req, res) => {
 });
 
 app.use('/api', api);
+
+// favicon.ico — modern browsers already use <link rel="icon" ...> but older crawlers still hit /favicon.ico
+app.get('/favicon.ico', (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'assets', 'img', 'favicon-32.png'), {
+    headers: { 'content-type': 'image/png', 'cache-control': 'public, max-age=86400' }
+  });
+});
+
+// ------------- SEO + feed routes -------------
+// robots.txt
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain').send([
+    'User-agent: *',
+    'Allow: /',
+    'Disallow: /api/',
+    'Disallow: /pages/profile.html',
+    'Disallow: /pages/login.html',
+    'Disallow: /pages/register.html',
+    'Disallow: /pages/password-reset.html',
+    '',
+    `Sitemap: ${SITE_ORIGIN}/sitemap.xml`,
+    '',
+    '# Skynet Nexus News is a family-first publication.',
+    '# We do not run tracking on children and do not sell any user data.'
+  ].join('\n') + '\n');
+});
+
+function loadManifestSafe() {
+  try {
+    const raw = fs.readFileSync(path.join(DATA_DIR, 'manifest.json'), 'utf8');
+    return JSON.parse(raw);
+  } catch (err) {
+    return { articles: [] };
+  }
+}
+
+function loadArticleSafe(refPath) {
+  try {
+    const abs = path.join(DATA_DIR, String(refPath).replace(/^\/+/, '').replace(/^data\//, ''));
+    return JSON.parse(fs.readFileSync(abs, 'utf8'));
+  } catch (err) { return null; }
+}
+
+function xmlEscape(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+}
+
+// sitemap.xml — static pages + every article
+app.get('/sitemap.xml', (req, res) => {
+  const manifest = loadManifestSafe();
+  const urls = [
+    { loc: SITE_ORIGIN + '/', changefreq: 'daily', priority: '1.0' },
+    { loc: SITE_ORIGIN + '/pages/archive.html', changefreq: 'daily', priority: '0.8' },
+    { loc: SITE_ORIGIN + '/pages/about.html', changefreq: 'monthly', priority: '0.6' },
+    { loc: SITE_ORIGIN + '/pages/contact.html', changefreq: 'monthly', priority: '0.4' },
+    { loc: SITE_ORIGIN + '/pages/privacy.html', changefreq: 'monthly', priority: '0.4' },
+    { loc: SITE_ORIGIN + '/pages/stem.html', changefreq: 'daily', priority: '0.7' },
+    { loc: SITE_ORIGIN + '/pages/robotics.html', changefreq: 'daily', priority: '0.7' },
+    { loc: SITE_ORIGIN + '/pages/play.html', changefreq: 'daily', priority: '0.7' },
+    { loc: SITE_ORIGIN + '/pages/music.html', changefreq: 'daily', priority: '0.7' },
+    { loc: SITE_ORIGIN + '/pages/events.html', changefreq: 'weekly', priority: '0.6' },
+    { loc: SITE_ORIGIN + '/pages/leaderboard.html', changefreq: 'weekly', priority: '0.5' },
+  ];
+  for (const a of (manifest.articles || [])) {
+    urls.push({
+      loc: SITE_ORIGIN + '/pages/article.html?id=' + encodeURIComponent(a.id),
+      lastmod: (a.date || '').slice(0, 10) || undefined,
+      changefreq: 'monthly',
+      priority: '0.7'
+    });
+  }
+  const body = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    urls.map(u => '  <url>\n' +
+      '    <loc>' + xmlEscape(u.loc) + '</loc>\n' +
+      (u.lastmod ? '    <lastmod>' + xmlEscape(u.lastmod) + '</lastmod>\n' : '') +
+      (u.changefreq ? '    <changefreq>' + u.changefreq + '</changefreq>\n' : '') +
+      (u.priority ? '    <priority>' + u.priority + '</priority>\n' : '') +
+      '  </url>').join('\n') +
+    '\n</urlset>\n';
+  res.type('application/xml').send(body);
+});
+
+// rss.xml — the last 40 articles
+app.get('/rss.xml', (req, res) => {
+  const manifest = loadManifestSafe();
+  const items = (manifest.articles || [])
+    .slice()
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+    .slice(0, 40);
+  const build = new Date().toUTCString();
+  const body = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n' +
+    '<channel>\n' +
+    '  <title>Skynet Nexus News</title>\n' +
+    '  <link>' + xmlEscape(SITE_ORIGIN) + '</link>\n' +
+    '  <description>Family-first daily news: STEM, robotics, play &amp; design, and music for readers ages 5–50.</description>\n' +
+    '  <language>en-us</language>\n' +
+    '  <lastBuildDate>' + xmlEscape(build) + '</lastBuildDate>\n' +
+    '  <atom:link href="' + xmlEscape(SITE_ORIGIN + '/rss.xml') + '" rel="self" type="application/rss+xml"/>\n' +
+    items.map(a => {
+      const link = SITE_ORIGIN + '/pages/article.html?id=' + encodeURIComponent(a.id);
+      const pub = a.date ? new Date(a.date).toUTCString() : build;
+      const cat = a.cat ? '<category>' + xmlEscape(a.cat) + '</category>' : '';
+      const authorTag = a.author ? '<author>noreply@skynet.local (' + xmlEscape(a.author) + ')</author>' : '';
+      return '  <item>\n' +
+        '    <title>' + xmlEscape(a.title || 'Untitled') + '</title>\n' +
+        '    <link>' + xmlEscape(link) + '</link>\n' +
+        '    <guid isPermaLink="true">' + xmlEscape(link) + '</guid>\n' +
+        '    <pubDate>' + xmlEscape(pub) + '</pubDate>\n' +
+        '    ' + cat + '\n' +
+        '    ' + authorTag + '\n' +
+        '    <description>' + xmlEscape(a.excerpt || '') + '</description>\n' +
+        '  </item>';
+    }).join('\n') +
+    '\n</channel>\n</rss>\n';
+  res.type('application/rss+xml').send(body);
+});
 
 // ------------- Static content -------------
 // /data/... maps to data/... at repo root.

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Article — Skynet Nexus News</title>
-  <meta name="description" content="A single story from Skynet Nexus News, with a Kid Take and Family Discussion questions."/>
+  <title>Privacy - Skynet Nexus News</title>
+  <meta name="description" content="What we collect, what we do not, and how to delete your data. Family-first, no tracking, ever."/>
   <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg"/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
   <link rel="stylesheet" href="../assets/css/style.css"/>
@@ -13,19 +13,19 @@
   <!-- Open Graph + link discovery (added by polish pass) -->
   <meta property="og:type" content="website"/>
   <meta property="og:site_name" content="Skynet Nexus News"/>
-  <meta property="og:title" content="Skynet Nexus News"/>
-  <meta property="og:description" content="A single story from Skynet Nexus News, with a Kid Take and Family Discussion."/>
-  <meta property="og:url" content="https://skynet-nexus-production.up.railway.app/pages/article.html"/>
+  <meta property="og:title" content="Privacy - Skynet Nexus News"/>
+  <meta property="og:description" content="What we collect, what we do not, and how to delete your data. Family-first, no tracking, ever."/>
+  <meta property="og:url" content="https://skynet-nexus-production.up.railway.app/pages/privacy.html"/>
   <meta property="og:image" content="https://skynet-nexus-production.up.railway.app/assets/img/og-cover.png"/>
   <meta property="og:image:width" content="1200"/>
   <meta property="og:image:height" content="630"/>
   <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:title" content="Skynet Nexus News"/>
-  <meta name="twitter:description" content="A single story from Skynet Nexus News, with a Kid Take and Family Discussion."/>
+  <meta name="twitter:title" content="Privacy - Skynet Nexus News"/>
+  <meta name="twitter:description" content="What we collect, what we do not, and how to delete your data. Family-first, no tracking, ever."/>
   <meta name="twitter:image" content="https://skynet-nexus-production.up.railway.app/assets/img/og-cover.png"/>
   <meta name="theme-color" content="#0a0e17" media="(prefers-color-scheme: dark)"/>
   <meta name="theme-color" content="#f0f4ff" media="(prefers-color-scheme: light)"/>
-  <link rel="canonical" href="https://skynet-nexus-production.up.railway.app/pages/article.html"/>
+  <link rel="canonical" href="https://skynet-nexus-production.up.railway.app/pages/privacy.html"/>
   <link rel="alternate" type="application/rss+xml" title="Skynet Nexus News RSS" href="/rss.xml"/>
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png"/>
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/apple-touch-icon.png"/>
@@ -94,7 +94,7 @@
         <ul class="nav-list">
           
           
-          <li><a href="about.html" ><span class="icon" id="nav-info"></span><span>About</span></a></li>
+          <li><a href="about.html" class="active"><span class="icon" id="nav-info"></span><span>About</span></a></li>
           <li><a href="contact.html" ><span class="icon" id="nav-mail"></span><span>Contact</span></a></li>
         </ul>
       </div>
@@ -105,8 +105,67 @@
     </aside>
 
     <main class="main">
-      <div id="article-root"></div>
-    </main>
+      <div class="page">
+  <div class="page-hero">
+    <h1>Privacy at Skynet Nexus News</h1>
+    <p>Family-first also means privacy-first. Here is exactly what we collect, what we do not, and how to remove your account.</p>
+  </div>
+
+  <div class="widget" style="margin-bottom: 20px;">
+    <h2 style="margin-top:0">TL;DR</h2>
+    <ul>
+      <li>We <strong>do not track kids.</strong> No analytics run on kid profiles. No ad tech, ever.</li>
+      <li>Parents opt in to an account. We store only email, display name, and a bcrypt hash of the password.</li>
+      <li>Kid profiles store only what you type: a name, birth year, an emoji, a color.</li>
+      <li>Age-appropriate filtering happens <em>in your browser</em>. We never see which stories your kid read.</li>
+      <li>We do not sell, share, or transfer any user data. Ever.</li>
+      <li>You can delete your account (and every kid profile with it) any time from the profile page.</li>
+    </ul>
+  </div>
+
+  <div class="widget" style="margin-bottom: 20px;">
+    <h2 style="margin-top:0">What we collect</h2>
+    <p><strong>Parent account:</strong> email address, display name, hashed password, an avatar color you pick, timestamps of account creation and last login.</p>
+    <p><strong>Kid profiles:</strong> first name (or nickname), birth year (used only to choose an age band on your device), an emoji, a color. That is the entire list.</p>
+    <p><strong>Newsletter (optional):</strong> email address only, if you sign up on the homepage.</p>
+    <p><strong>Session cookie:</strong> one first-party HttpOnly cookie named <code>skynet.sid</code> so you stay signed in. No tracking pixels, no third-party cookies, no fingerprinting.</p>
+  </div>
+
+  <div class="widget" style="margin-bottom: 20px;">
+    <h2 style="margin-top:0">COPPA (US kids under 13)</h2>
+    <p>Skynet Nexus News is designed for co-reading by families. Kid profiles exist so a parent can choose what content their child sees at a glance. We treat every kid profile as belonging to the parent account it lives under. That means:</p>
+    <ul>
+      <li>Only the parent creates, edits, or deletes a kid profile.</li>
+      <li>Kid profile birth year never leaves your browser except to be stored on our server for you.</li>
+      <li>We never target advertising to any user, adult or child.</li>
+      <li>We never sell any data to any third party.</li>
+      <li>Parents can email <a href="mailto:privacy@skynet-nexus.local">privacy@skynet-nexus.local</a> to review or delete any data associated with their account.</li>
+    </ul>
+  </div>
+
+  <div class="widget" style="margin-bottom: 20px;">
+    <h2 style="margin-top:0">How we store data</h2>
+    <p>All account data lives in a single SQLite database on the server, encrypted at rest at the hosting layer. Passwords are hashed with bcrypt (cost 12). Session cookies are HttpOnly, SameSite=Lax, and Secure over HTTPS.</p>
+  </div>
+
+  <div class="widget" style="margin-bottom: 20px;">
+    <h2 style="margin-top:0">Deleting your data</h2>
+    <p>Sign in, open the <a href="profile.html">Your Family</a> page, scroll to the bottom, and click <strong>Delete account</strong>. That removes your account, every kid profile, and every session. It is immediate and cannot be undone.</p>
+    <p>You can also email <a href="mailto:privacy@skynet-nexus.local">privacy@skynet-nexus.local</a> and we will delete everything within 30 days.</p>
+  </div>
+
+  <div class="widget" style="margin-bottom: 20px;">
+    <h2 style="margin-top:0">Analytics &amp; ads</h2>
+    <p>Zero third-party analytics. Zero ads. Zero trackers. Free forever, funded by belief, not by your attention.</p>
+  </div>
+
+  <div class="widget">
+    <h2 style="margin-top:0">Questions</h2>
+    <p>Email <a href="mailto:privacy@skynet-nexus.local">privacy@skynet-nexus.local</a> or use the <a href="contact.html">Contact</a> page. A human replies.</p>
+    <p style="opacity:0.6;font-size:12px;margin-top:20px">Last updated: 2026-07-01. When we change how we handle data, we update this page and note the change here.</p>
+  </div>
+</div>
+        </main>
 
     <aside class="right-rail">
       <div class="widget countdown-card">
@@ -197,7 +256,7 @@
       's-dc': ICONS.discord, 's-tt': ICONS.tiktok
     };
     Object.keys(NAV).forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = NAV[id]; });
-    initArticle('../');
+    initSimplePage('../');
   </script>
 
   <script src="/assets/js/auth.js" defer></script>

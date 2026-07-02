@@ -46,6 +46,25 @@ db.exec(`
   );
 
   CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
+
+  CREATE TABLE IF NOT EXISTS password_resets (
+    token       TEXT PRIMARY KEY,
+    user_id     INTEGER NOT NULL,
+    expires_at  INTEGER NOT NULL,
+    used_at     TEXT,
+    created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_password_resets_user ON password_resets(user_id);
+  CREATE INDEX IF NOT EXISTS idx_password_resets_expires ON password_resets(expires_at);
+
+  CREATE TABLE IF NOT EXISTS newsletter_signups (
+    email       TEXT PRIMARY KEY,
+    source      TEXT DEFAULT 'site',
+    kid_count   INTEGER DEFAULT 0,
+    created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 // ---------- Prepared statements ----------
@@ -79,7 +98,17 @@ const stmts = {
            avatar_emoji = COALESCE(?, avatar_emoji)
      WHERE id = ? AND user_id = ?
   `),
-  deleteKid: db.prepare(`DELETE FROM kid_profiles WHERE id = ? AND user_id = ?`)
+  deleteKid: db.prepare(`DELETE FROM kid_profiles WHERE id = ? AND user_id = ?`),
+  deleteUser: db.prepare(`DELETE FROM users WHERE id = ?`),
+
+  createPasswordReset: db.prepare(`INSERT INTO password_resets (token, user_id, expires_at) VALUES (?, ?, ?)`),
+  findPasswordReset: db.prepare(`SELECT * FROM password_resets WHERE token = ? AND used_at IS NULL`),
+  markPasswordResetUsed: db.prepare(`UPDATE password_resets SET used_at = datetime('now') WHERE token = ?`),
+  purgeExpiredResets: db.prepare(`DELETE FROM password_resets WHERE expires_at < ? OR used_at IS NOT NULL`),
+
+  createNewsletter: db.prepare(`INSERT OR IGNORE INTO newsletter_signups (email, source, kid_count) VALUES (?, ?, ?)`),
+  listNewsletter: db.prepare(`SELECT email, source, kid_count, created_at FROM newsletter_signups ORDER BY created_at DESC`),
+  countNewsletter: db.prepare(`SELECT COUNT(*) AS n FROM newsletter_signups`)
 };
 
 // ---------- Serializers ----------
@@ -138,5 +167,27 @@ module.exports = {
     stmts.updateKid.run(name ?? null, birthYear ?? null, avatarColor ?? null, avatarEmoji ?? null, id, userId);
     return toPublicKid(stmts.findKid.get(id, userId));
   },
-  deleteKid(id, userId) { return stmts.deleteKid.run(id, userId).changes > 0; }
+  deleteKid(id, userId) { return stmts.deleteKid.run(id, userId).changes > 0; },
+
+  deleteUser(id) { return stmts.deleteUser.run(id).changes > 0; },
+
+  createPasswordReset({ userId, token, expiresAt }) {
+    stmts.createPasswordReset.run(token, userId, expiresAt);
+    return { token, userId, expiresAt };
+  },
+  findPasswordReset(token) {
+    const row = stmts.findPasswordReset.get(token);
+    if (!row) return null;
+    if (row.expires_at < Date.now()) return null;
+    return { token: row.token, userId: row.user_id, expiresAt: row.expires_at, usedAt: row.used_at };
+  },
+  markPasswordResetUsed(token) { stmts.markPasswordResetUsed.run(token); },
+  purgeExpiredResets() { return stmts.purgeExpiredResets.run(Date.now()).changes; },
+
+  addNewsletter({ email, source = 'site', kidCount = 0 }) {
+    const info = stmts.createNewsletter.run(email.toLowerCase(), source, kidCount);
+    return { inserted: info.changes > 0, email: email.toLowerCase() };
+  },
+  listNewsletter() { return stmts.listNewsletter.all(); },
+  countNewsletter() { return stmts.countNewsletter.get().n; }
 };

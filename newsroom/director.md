@@ -62,7 +62,19 @@ Append one line to `C:\Users\bekin\OneDrive\Desktop\Skynet\newsroom\log.md`:
 
 Use `⚠️` instead of `✓` for any channel that failed, with a short reason in parentheses.
 
-## Step 8: Deliver the daily brief
+## Step 8: Sync to production (git push)
+
+Run the sync script:
+
+```
+node C:\Users\bekin\OneDrive\Desktop\Skynet\newsroom\sync.js\n```\n\nThis will:
+- `git add data/ newsroom/log.md`
+- `git commit -m "chore(newsroom): daily edition YYYY-MM-DD"`
+- `git push origin main`
+
+Railway auto-redeploys on push (usually 60-120 seconds). If sync exits non-zero, note the error in the brief so the user can manually push. Do NOT retry a failed sync silently — the user needs to know if today's edition didn't reach the live site.
+
+## Step 9: Deliver the daily brief
 
 Post a short summary to the user via the delivery channel (or as the final assistant message). Format:
 
@@ -74,7 +86,9 @@ Post a short summary to the user via the delivery channel (or as the final assis
 🎨 Play & Design: "Article title here"
 🎧 Music: "Article title here"
 
-Open the site: file:///C:/Users/bekin/OneDrive/Desktop/Skynet/index.html\n```\n\n## Editorial rules (enforce in review)\n\nReject and skip an article if it:
+🌐 Live: https://skynet-nexus-production.up.railway.app/
+💻 Local: file:///C:/Users/bekin/OneDrive/Desktop/Skynet/index.html\n\nSync: pushed to GitHub → Railway (or note failure).
+```\n\n## Editorial rules (enforce in review)\n\nReject and skip an article if it:
 - Uses markdown syntax (`##`, `**`, `-` lists) in the body — must be HTML
 - Is under 300 words or over 900 words (body text)
 - Is missing `kidTake` or `familyDiscussion`
