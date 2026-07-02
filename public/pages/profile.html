@@ -63,7 +63,7 @@
 
   <script src="/assets/js/auth.js" defer></script>
   <script>
-    (function () {
+    document.addEventListener('DOMContentLoaded', function () {
       const EMOJIS = ['🚀','🦖','🦄','🐉','🐙','🦊','🐼','🐧','🐝','🐳','⚡','🌟','🎨','🎮','🎧','🔬','🤖','🌈','🌙','🍕','🎸','⚽','🏀','🚂'];
       const COLORS = ['#39ff14','#00e5ff','#a855f7','#ff2e63','#ff9500','#ffdc00','#ff5eb2','#7ee8ff'];
 
@@ -311,7 +311,7 @@
       // Wait for auth to load, then render
       const stopSub = SkyAuth.subscribe((s) => render(s));
       SkyAuth.refresh().then(s => render(s));
-    })();
+    });
   </script>
 
   <!-- Compact branded footer -->
