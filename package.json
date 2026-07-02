@@ -1,6 +1,6 @@
 {
   "name": "skynet-nexus-news",
-  "version": "0.0.1-beta",
+  "version": "0.0.5-beta",
   "description": "Skynet Nexus News — a family-first daily news network for young readers.",
   "private": true,
   "type": "commonjs",
