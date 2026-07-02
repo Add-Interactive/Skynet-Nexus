@@ -1,0 +1,73 @@
+{
+  "id": "2026-07-02-mit-students-just-designed-a-moon-base-and-nasa-handed-them-five-trophies",
+  "slug": "mit-students-just-designed-a-moon-base-and-nasa-handed-them-five-trophies",
+  "cat": "stem",
+  "categoryLabel": "STEM Signal",
+  "title": "MIT Students Just Designed a Moon Base — and NASA Handed Them Five Trophies",
+  "subtitle": "Three student-led teams swept the 2026 RASC-AL competition with plans for a lunar power grid, GPS network, and a robotic factory that turns moondust into bricks.",
+  "excerpt": "35 students. Eight departments. One shared blueprint for humanity's first permanent home on the Moon — and NASA judges couldn't stop giving them awards.",
+  "body": "<p>When NASA's judges added up the scores from this year's Revolutionary Aerospace Systems Concepts — Academic Linkage (RASC-AL) competition, one school kept winning: MIT. Three teams of MIT students, working alongside a partner from Wellesley College, walked away with <strong>five of the top prizes</strong> — including first place overall — for designing the essential pieces of NASA's future permanent Moon base.</p><p>The competition is a real one: NASA tells university teams what problem the space agency actually needs solved, then challenges them to design a working solution. This year the assignment was as big as it gets. NASA wants astronauts living and working on the lunar south pole by the early 2030s, and it needs power, communications, and a way to build things using the Moon's own dirt.</p><p>Thirty-five MIT students, spread across three teams and eight academic departments, spent an entire school year on it.</p><h2>Team ECLIPSE: keeping the lights on through a two-week lunar night</h2><p>The first-place winner was called <strong>ECLIPSE</strong> — the Exploration-Class Lunar Integrated Power SystEm. It's a design for a lunar electric grid that would stay up 99.995 percent of the time, the same reliability standard as the most critical data centers on Earth. That works out to fewer than 27 minutes of downtime a year.</p><p>Here's the tricky part: the Moon has an 18-day stretch each year when the Sun drops below the horizon near the south pole. Solar panels alone won't work. So the team paired 20-meter-tall solar masts in the sunlit highlands with two small buried nuclear reactors they nicknamed CARROT (Compact Autonomous Regolith-shielded Reactor Operating for Ten years).</p><blockquote>Burying each reactor 1.3 meters down shrinks the keep-out zone from kilometers to meters, so crews can work nearby, and it saves tons on required shielding mass.<footer>— Taylor Hampson, PhD student in Nuclear Science and Engineering, ECLIPSE co-lead</footer></blockquote><p>The system starts by delivering 120 kilowatts — about enough to run 30 average American homes — and can scale up as the base grows.</p><h2>Team MELIORA: cell service, but on the Moon and Mars</h2><p>The second-place team, <strong>MELIORA</strong>, designed the base's communications and GPS. They ran a <em>trade study</em> (that's engineer-speak for comparing lots of possible designs) across 5,764 different satellite arrangements before picking one. The winning setup grows from 3 satellites to 23 and can send more than 100 megabits per second back to Earth using lasers.</p><blockquote>You should never have to think about whether the network is there — it just is, the way you don't think about a cell tower. We put almost all the complexity up in orbit, so everything on the surface stays portable and simple.<footer>— Ekaterina Tiukhtikova, undergraduate in Aeronautics and Astronautics, MELIORA co-lead</footer></blockquote><h2>Team CHEESEBURGER: making air, metal, and bricks out of dirt</h2><p>The third team had the tastiest name: <strong>CHEESEBURGER</strong>. Its mission is to prove that a Moon base can live off the land using <em>regolith</em> — the powdery gray dust that covers the lunar surface. The team designed five robotic payloads with sandwich-shop nicknames: SWISS prospects for the richest ore, BRIOCHES digs and sorts it, BACON casts bricks, GRILLED MEAT extracts metal and breathable oxygen, and AVOCADO stacks it all into radiation-blocking walls.</p><p>The food theme, the team says, started as a joke during an outing to Sandwich, Massachusetts. It turned into a genuinely serious plan for the first Moon industry.</p><h2>A blueprint that fits together</h2><p>What impressed the judges most is that the three MIT designs weren't separate school projects — they were engineered to plug into each other. ECLIPSE's grid is sized to power CHEESEBURGER's regolith factory. CHEESEBURGER's digging robots are used to bury and shield ECLIPSE's cables. And MELIORA connects the whole thing back to Earth.</p><blockquote>The winning teams demonstrated how academic innovation can support Artemis mission goals. Their work highlights the important role student research plays in shaping future space exploration.<footer>— Daniel Mazanek, RASC-AL program sponsor, NASA Langley Research Center</footer></blockquote><p>NASA plans to land the first permanent-base elements in 2027.</p>",
+  "kidTake": "A bunch of college students at MIT spent a whole school year designing what a real, permanent Moon base could look like — power lines, cell towers, and even little robots that turn Moon dirt into bricks. NASA had a contest for who could design it best, and the MIT students won five awards, including first place. Their ideas might really get used when astronauts start living on the Moon in a few years.",
+  "familyDiscussion": [
+    "If you got to live on the Moon for a year, what one Earth thing would you miss the most?",
+    "The MIT students named their projects after sandwiches (SWISS, BACON, AVOCADO). Why do you think a silly name can help a serious team work better together?",
+    "The Moon has a night that lasts about two weeks. How would that change what you do every day if you lived there?"
+  ],
+  "glossary": [
+    {
+      "term": "Regolith",
+      "meaning": "The layer of loose gray dust and broken rock that covers the surface of the Moon (and other worlds without weather)."
+    },
+    {
+      "term": "Kilowatt",
+      "meaning": "A measure of how much electricity something uses. A typical American home uses about 1 kilowatt on average — a microwave running full blast is about 1 kilowatt."
+    },
+    {
+      "term": "Trade study",
+      "meaning": "An engineering process where you compare lots of possible designs side-by-side to find the one that fits your requirements best."
+    },
+    {
+      "term": "Artemis",
+      "meaning": "NASA's program to return astronauts to the Moon and eventually build a permanent base there, named after the Greek Moon goddess."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Priya Ramanathan",
+  "authorInit": "PR",
+  "authorRole": "STEM Correspondent",
+  "date": "2026-07-02",
+  "publishedAt": "2026-07-02T14:00:00.000Z",
+  "read": 4,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "nasa",
+    "moon",
+    "mit",
+    "aerospace",
+    "student-research",
+    "rasc-al"
+  ],
+  "color": "#00e5ff",
+  "gradient": "linear-gradient(135deg, #00e5ff, #a855f7)",
+  "emoji": "🧬",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "MIT News: MIT student teams win top honors in NASA competition",
+      "url": "https://news.mit.edu/2026/interdisciplinary-mit-teams-win-top-honors-nasa-competition-0630"
+    },
+    {
+      "label": "NASA: Winners of 2026 University Innovation Competition",
+      "url": "https://www.nasa.gov/directorates/stmd/prizes-challenges-crowdsourcing-program/center-of-excellence-for-collaborative-innovation-coeci/nasa-announces-winners-of-2026-university-innovation-competition/"
+    },
+    {
+      "label": "MIT Space Resources Workshop",
+      "url": "https://spaceresources.mit.edu/"
+    }
+  ]
+}

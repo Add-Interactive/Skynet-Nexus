@@ -1,0 +1,73 @@
+{
+  "id": "2026-07-02-beaverton-robotics-team-went-viral-chasing-jordan-s-world-cup-squad-it-worked",
+  "slug": "beaverton-robotics-team-went-viral-chasing-jordan-s-world-cup-squad-it-worked",
+  "cat": "robotics",
+  "categoryLabel": "Robotics Signal",
+  "title": "Beaverton Robotics Team Went Viral Chasing Jordan's World Cup Squad. It Worked.",
+  "subtitle": "The Flying Hedgehogs, FRC Team 2898, made 21 straight days of TikTok-style videos begging Jordan's national football team to visit their robot shop. Roya TV noticed.",
+  "excerpt": "About 25 high schoolers from four Beaverton, Oregon schools spent June building not just robots, but a viral internet campaign — all to bring FIRST Robotics to a country on the other side of the world.",
+  "body": "<p>\"This is Day 21 of asking the Jordan National Football Team to come visit,\" one Flying Hedgehogs team member said last Wednesday, turning her phone camera to teammates bouncing a soccer ball off a wall. That short clip, and 20 more like it, added up to one of the more unlikely viral campaigns of the 2026 FIFA World Cup — and it was engineered by high school students in the suburbs of Portland, Oregon.</p><p>The Flying Hedgehogs, officially known as <strong>FRC Team 2898</strong>, are a <em>FIRST Robotics Competition</em> team made up of about 25 students from four different Beaverton-area high schools: Westview, Beaverton Academy of Science and Engineering, Valley Catholic, and Beaverton High School. During competition season, they design and build a 125-pound, fast-driving robot to compete in the annual FRC challenge. In 2026, the game involved launching foam balls into nets — the team describes it as high-tech basketball.</p><p>But the World Cup story started in late May, when 15-year-old Akilan Pandian — the team's student outreach lead and a serious soccer fan — noticed that <strong>Jordan's national team had chosen Portland as their World Cup training base</strong>, staying at The Nines hotel downtown and practicing at the University of Portland. It was Jordan's first World Cup appearance, ever.</p><blockquote>We just were trying to do it for fun, hoping maybe we would get an answer. Definitely not expecting to go viral.<footer>— Taneesh Garg, 16, electrical co-lead, Team 2898</footer></blockquote><h2>How to invite a national football team on Instagram</h2><p>The first video went up June 4. The formula was simple: each day, one member says how many days they've been asking, followed by a short bit — a trick soccer shot, an attempt to juggle a ball, a stunt in a park or a tennis court. Robots guest-starred, too. On Day 14, a four-legged robot belonging to a team member head-butted a soccer ball. Two days later, the team's 2019 world-championship build — a robot named Armstrong — lifted a kickball into the air and rolled it to a human teammate.</p><p>Then on June 13, Jordan's Roya TV — a national news station with more than five million Instagram followers — picked up the story. From there the videos snowballed. The most-viewed reel hit nearly <strong>100,000 views</strong>, and Team 2898 gained about 800 new followers in a month, most from outside the FIRST Robotics community. Arabic-language comments and direct messages started arriving.</p><p>Jordan's players haven't visited the robot shop yet. Jordan lost enough World Cup games to be out of the tournament after this weekend's final match against Argentina. But the students say that isn't really the point.</p><blockquote>There's a way to connect to other countries and spread STEM across the world. It's just something that we look for, and we would love to go with any opportunity that we get.<footer>— Taneesh Garg, 16, Team 2898</footer></blockquote><h2>Why FRC teams keep making the news</h2><p>FIRST Robotics Competition, or <em>FRC</em>, is the high-school-level challenge of a family of student robotics programs run by the nonprofit FIRST. Every January the organization drops a brand-new game on more than 3,000 teams around the world. Teams get about eight weeks to design, build, program, and test a robot that can play it. Matches happen in three-team <em>alliances</em>, and during the first 15 seconds of each match the robot has to run <em>autonomously</em> — no driver, just pre-written code.</p><p>Team 2898 has only reached the FIRST world championship once, in 2019. But the team keeps meeting in the off-season and runs a summer engineering camp for younger kids. That kind of year-round outreach is exactly what FIRST awards its teams for — and it's a big part of why colleges love hiring FRC alumni.</p><p>Pandian says the ultimate goal of the Jordan campaign is bigger than one photo op.</p><blockquote>Our ultimate goal is really to get more STEM exposure there in Jordan.<footer>— Akilan Pandian, 15, student outreach lead, Team 2898</footer></blockquote><p>The next FRC season kicks off in January. The Flying Hedgehogs will have new videos ready.</p>",
+  "kidTake": "A group of about 25 high schoolers in Oregon build big competition robots. Their favorite World Cup team, from Jordan, came to practice in Portland — so the students made a new short video every day for three weeks asking the players to come visit their robot shop. The videos went so viral that a huge news station in Jordan showed them on TV. The soccer players haven't come by yet, but the students say the real goal was to get more kids in Jordan excited about building robots.",
+  "familyDiscussion": [
+    "The team came up with a whole new way to reach people they didn't know — by making short daily videos. What's something you'd like to ask for that you could ask for in a creative way?",
+    "The Flying Hedgehogs also run a summer engineering camp for younger kids. Why do you think older students helping younger students matters so much in a hobby like robotics?",
+    "If your favorite team from anywhere in the world visited your city, what would you want to show them about where you live?"
+  ],
+  "glossary": [
+    {
+      "term": "FRC",
+      "meaning": "FIRST Robotics Competition — a global high school program where teams get about eight weeks to design and build a big robot to play a brand-new game."
+    },
+    {
+      "term": "Alliance",
+      "meaning": "In FIRST Robotics matches, three teams team up together for a match instead of playing one against one. Choosing alliance partners well is part of the strategy."
+    },
+    {
+      "term": "Autonomous",
+      "meaning": "A robot running on its own using pre-written code — no human driving it with a controller."
+    },
+    {
+      "term": "Outreach",
+      "meaning": "When a team teaches or invites people from outside their group — like hosting a summer camp for younger kids — to grow the hobby."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Maya Ortiz",
+  "authorInit": "MO",
+  "authorRole": "Robotics Correspondent",
+  "date": "2026-07-02",
+  "publishedAt": "2026-07-02T14:00:00.000Z",
+  "read": 4,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "frc",
+    "first-robotics",
+    "team-2898",
+    "outreach",
+    "world-cup",
+    "viral"
+  ],
+  "color": "#a855f7",
+  "gradient": "linear-gradient(135deg, #a855f7, #ff2e63)",
+  "emoji": "🤖",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "OregonLive: World Cup + robot squad = viral magic for Oregon teens",
+      "url": "https://www.oregonlive.com/education/2026/06/world-cup-robot-squad-viral-magic-for-oregon-teens.html"
+    },
+    {
+      "label": "FIRST Inspires — FRC program overview",
+      "url": "https://www.firstinspires.org/robotics/frc"
+    },
+    {
+      "label": "The Blue Alliance: Team 2898 Flying Hedgehogs",
+      "url": "https://www.thebluealliance.com/team/2898"
+    }
+  ]
+}
