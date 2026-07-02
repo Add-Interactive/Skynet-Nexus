@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Sign in · Skynet Nexus News</title>
+  <meta name="description" content="Sign in to Skynet Nexus News. Free family accounts, kid profiles, saved articles."/>
+  <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
+  <link rel="stylesheet" href="/assets/css/style.css"/>
+  <link rel="stylesheet" href="/assets/css/auth.css"/>
+</head>
+<body class="sky-auth-page">
+  <main class="sky-auth-card">
+    <a class="sky-auth-brand" href="/">
+      <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="lgLogin" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#00e5ff"/>
+            <stop offset="100%" stop-color="#a855f7"/>
+          </linearGradient>
+        </defs>
+        <path d="M20 3l14 8v18l-14 8L6 29V11z" fill="none" stroke="url(#lgLogin)" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M20 12l7 4v8l-7 4-7-4v-8z" fill="url(#lgLogin)" opacity=".95"/>
+        <circle cx="20" cy="20" r="2.5" fill="#0a0e17"/>
+      </svg>
+      <span>SKYNET NEXUS</span>
+    </a>
+
+    <h1 class="sky-auth-title">Welcome back</h1>
+    <p class="sky-auth-sub">Sign in to switch to a kid profile or manage your family.</p>
+
+    <div id="sky-form-error" hidden></div>
+
+    <form id="sky-login-form" autocomplete="on" novalidate>
+      <div class="sky-field">
+        <label for="log-email">Email</label>
+        <input id="log-email" name="email" type="email" required autocomplete="email"/>
+      </div>
+      <div class="sky-field">
+        <label for="log-pw">Password</label>
+        <input id="log-pw" name="password" type="password" required minlength="8" autocomplete="current-password"/>
+      </div>
+      <button type="submit" class="sky-btn-block" id="log-submit">Sign in →</button>
+    </form>
+
+    <p class="sky-auth-alt">New to Skynet? <a href="/pages/register.html">Create your family account</a></p>
+  </main>
+
+  <script src="/assets/js/auth.js" defer></script>
+  <script>
+    (function () {
+      const form = document.getElementById('sky-login-form');
+      const errBox = document.getElementById('sky-form-error');
+      const btn = document.getElementById('log-submit');
+      function showError(msg) { errBox.className = 'sky-error'; errBox.textContent = msg; errBox.hidden = false; }
+      function clearError() { errBox.hidden = true; }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault(); clearError();
+        btn.disabled = true; btn.textContent = 'Signing in…';
+        try {
+          const res = await fetch('/api/auth/login', {
+            method: 'POST', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: form.email.value.trim(), password: form.password.value })
+          });
+          const data = await res.json();
+          if (!res.ok) { showError(data.error || 'Sign-in failed.'); btn.disabled = false; btn.textContent = 'Sign in →'; return; }
+          location.href = '/';
+        } catch (err) {
+          showError('Network error. Try again?');
+          btn.disabled = false; btn.textContent = 'Sign in →';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+.npm
+
+# Environment / secrets — NEVER commit
+.env
+.env.local
+.env.*.local
+
+# Runtime data
+server/skynet.db
+server/skynet.db-shm
+server/skynet.db-wal
+server/*.sqlite
+server/*.sqlite-journal
+
+# OS/editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.tmp
+*~
+
+# Logs
+*.log
+logs/
+
+# Backups
+*.bak
+*.bak2

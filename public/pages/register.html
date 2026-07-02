@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Create your family account · Skynet Nexus News</title>
+  <meta name="description" content="Create a free Skynet Nexus family account. Add kid profiles for age-safe reading. Free forever, no ads."/>
+  <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
+  <link rel="stylesheet" href="/assets/css/style.css"/>
+  <link rel="stylesheet" href="/assets/css/auth.css"/>
+</head>
+<body class="sky-auth-page">
+  <main class="sky-auth-card">
+    <a class="sky-auth-brand" href="/">
+      <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="lgReg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#00e5ff"/>
+            <stop offset="100%" stop-color="#a855f7"/>
+          </linearGradient>
+        </defs>
+        <path d="M20 3l14 8v18l-14 8L6 29V11z" fill="none" stroke="url(#lgReg)" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M20 12l7 4v8l-7 4-7-4v-8z" fill="url(#lgReg)" opacity=".95"/>
+        <circle cx="20" cy="20" r="2.5" fill="#0a0e17"/>
+      </svg>
+      <span>SKYNET NEXUS</span>
+    </a>
+
+    <h1 class="sky-auth-title">Create your family account</h1>
+    <p class="sky-auth-sub">Free forever. No ads targeted at kids. Add up to 6 kid profiles once you're in.</p>
+
+    <div id="sky-form-error" hidden></div>
+
+    <form id="sky-register-form" autocomplete="on" novalidate>
+      <div class="sky-field">
+        <label for="reg-name">Your display name</label>
+        <input id="reg-name" name="displayName" type="text" required minlength="2" maxlength="40" placeholder="Alex Parent" autocomplete="name"/>
+      </div>
+      <div class="sky-field">
+        <label for="reg-email">Email</label>
+        <input id="reg-email" name="email" type="email" required autocomplete="email" placeholder="you@family.com"/>
+      </div>
+      <div class="sky-field">
+        <label for="reg-pw">Password (8+ characters)</label>
+        <input id="reg-pw" name="password" type="password" required minlength="8" maxlength="200" autocomplete="new-password"/>
+      </div>
+      <div class="sky-field">
+        <label>Your avatar color</label>
+        <div class="sky-color-row" id="reg-color-row">
+          <button type="button" class="sky-color-swatch active" data-color="#00e5ff" style="background:#00e5ff" aria-label="Cyan"></button>
+          <button type="button" class="sky-color-swatch" data-color="#a855f7" style="background:#a855f7" aria-label="Purple"></button>
+          <button type="button" class="sky-color-swatch" data-color="#39ff14" style="background:#39ff14" aria-label="Green"></button>
+          <button type="button" class="sky-color-swatch" data-color="#ff2e63" style="background:#ff2e63" aria-label="Pink"></button>
+          <button type="button" class="sky-color-swatch" data-color="#ff9500" style="background:#ff9500" aria-label="Orange"></button>
+          <button type="button" class="sky-color-swatch" data-color="#ffdc00" style="background:#ffdc00" aria-label="Yellow"></button>
+        </div>
+      </div>
+      <button type="submit" class="sky-btn-block" id="reg-submit">Create account →</button>
+    </form>
+
+    <p class="sky-auth-alt">Already have an account? <a href="/pages/login.html">Sign in</a></p>
+  </main>
+
+  <script src="/assets/js/auth.js" defer></script>
+  <script>
+    (function () {
+      let selected = '#00e5ff';
+      const row = document.getElementById('reg-color-row');
+      row.addEventListener('click', (e) => {
+        const b = e.target.closest('.sky-color-swatch'); if (!b) return;
+        row.querySelectorAll('.sky-color-swatch').forEach(s => s.classList.remove('active'));
+        b.classList.add('active');
+        selected = b.getAttribute('data-color');
+      });
+
+      const form = document.getElementById('sky-register-form');
+      const errBox = document.getElementById('sky-form-error');
+      const btn = document.getElementById('reg-submit');
+
+      function showError(msg) { errBox.className = 'sky-error'; errBox.textContent = msg; errBox.hidden = false; }
+      function clearError() { errBox.hidden = true; errBox.textContent = ''; }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearError();
+        btn.disabled = true; btn.textContent = 'Creating…';
+        try {
+          const body = {
+            displayName: form.displayName.value.trim(),
+            email: form.email.value.trim(),
+            password: form.password.value,
+            avatarColor: selected
+          };
+          const res = await fetch('/api/auth/register', {
+            method: 'POST', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          const data = await res.json();
+          if (!res.ok) { showError(data.error || 'Registration failed.'); btn.disabled = false; btn.textContent = 'Create account →'; return; }
+          // Success — bounce to profile page to add kids.
+          location.href = '/pages/profile.html?welcome=1';
+        } catch (err) {
+          showError('Network error. Try again?');
+          btn.disabled = false; btn.textContent = 'Create account →';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

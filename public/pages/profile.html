@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Family profile · Skynet Nexus News</title>
+  <meta name="description" content="Manage your Skynet Nexus family: your parent profile and up to 6 kid profiles."/>
+  <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
+  <link rel="stylesheet" href="/assets/css/style.css"/>
+  <link rel="stylesheet" href="/assets/css/auth.css"/>
+  <style>
+    .sky-profile-wrap { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    .sky-profile-head { display: flex; align-items: center; gap: 16px; margin-bottom: 30px; }
+    .sky-profile-head .av { width: 72px; height: 72px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font: 800 26px/1 Inter, sans-serif; color: #0a0e17; }
+    .sky-profile-head h1 { margin: 0; font: 800 24px/1.2 Inter, sans-serif; color: var(--text, #e6ecf3); }
+    .sky-profile-head p { margin: 4px 0 0; color: var(--muted, #7c8898); font: 500 14px/1.2 Inter, sans-serif; }
+    .sky-profile-section { margin-bottom: 40px; }
+    .sky-profile-section h2 { font: 800 18px/1 Inter, sans-serif; color: var(--text, #e6ecf3); margin: 0 0 8px; }
+    .sky-profile-section p.sub { color: var(--muted, #7c8898); font: 500 14px/1.4 Inter, sans-serif; margin: 0 0 12px; }
+    .sky-back { color: #00e5ff; text-decoration: none; font: 600 13px/1 Inter, sans-serif; }
+    .sky-back:hover { text-decoration: underline; }
+    .sky-emoji-picker { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .sky-emoji-swatch {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1);
+      font-size: 18px; cursor: pointer;
+    }
+    .sky-emoji-swatch:hover { background: rgba(0,229,255,.1); }
+    .sky-emoji-swatch.active { border-color: #00e5ff; background: rgba(0,229,255,.15); }
+  </style>
+</head>
+<body>
+  <div class="sky-profile-wrap">
+    <a href="/" class="sky-back">← Back to feed</a>
+    <div id="sky-profile-content" style="margin-top:20px">
+      <p style="color:var(--muted,#7c8898)">Loading…</p>
+    </div>
+  </div>
+
+  <script src="/assets/js/auth.js" defer></script>
+  <script>
+    (function () {
+      const EMOJIS = ['🚀','🦖','🦄','🐉','🐙','🦊','🐼','🐧','🐝','🐳','⚡','🌟','🎨','🎮','🎧','🔬','🤖','🌈','🌙','🍕','🎸','⚽','🏀','🚂'];
+      const COLORS = ['#39ff14','#00e5ff','#a855f7','#ff2e63','#ff9500','#ffdc00','#ff5eb2','#7ee8ff'];
+
+      const root = document.getElementById('sky-profile-content');
+
+      function escape(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+
+      function render(state) {
+        if (!state.user) {
+          root.innerHTML = `
+            <div class="sky-auth-card" style="margin:0 auto">
+              <h1 class="sky-auth-title">Sign in first</h1>
+              <p class="sky-auth-sub">You need an account to manage family profiles.</p>
+              <a class="sky-btn-block" style="display:block;text-align:center;text-decoration:none" href="/pages/login.html">Sign in</a>
+            </div>`;
+          return;
+        }
+
+        const params = new URLSearchParams(location.search);
+        const welcome = params.get('welcome') === '1' && state.kids.length === 0;
+
+        const initials = state.user.displayName.trim().slice(0,2).toUpperCase();
+        const kidCards = state.kids.map(k => `
+          <div class="sky-kid-card" data-kid="${k.id}">
+            <div class="sky-kid-card-head">
+              <span class="sky-kid-card-av" style="background:${k.avatarColor}">${k.avatarEmoji || escape(k.name.slice(0,2).toUpperCase())}</span>
+              <div>
+                <div class="sky-kid-card-name">${escape(k.name)}</div>
+                <div class="sky-kid-card-meta">Age ${new Date().getFullYear() - k.birthYear} · born ${k.birthYear}</div>
+              </div>
+            </div>
+            <div class="sky-kid-card-actions">
+              <button class="sky-btn sky-edit-kid" data-kid="${k.id}">Edit</button>
+              <button class="sky-btn sky-delete-kid" data-kid="${k.id}" style="color:#ff2e63">Remove</button>
+            </div>
+          </div>
+        `).join('');
+
+        root.innerHTML = `
+          <div class="sky-profile-head">
+            <span class="av" style="background:${state.user.avatarColor}">${initials}</span>
+            <div>
+              <h1>${escape(state.user.displayName)}</h1>
+              <p>${escape(state.user.email)} · ${state.kids.length} kid profile${state.kids.length===1?'':'s'}</p>
+            </div>
+          </div>
+
+          ${welcome ? `<div class="sky-success">Welcome to Skynet Nexus! Add a kid profile below so we can tailor Kid Take reading for their age.</div>` : ''}
+
+          <div class="sky-profile-section">
+            <h2>Kid profiles</h2>
+            <p class="sub">Each kid gets their own avatar. Switch profiles from the header dropdown to filter content for their age.</p>
+            <div class="sky-kid-grid">
+              ${kidCards}
+              ${state.kids.length < 6 ? `<button class="sky-add-kid-card" id="sky-add-kid">＋ Add a kid</button>` : ''}
+            </div>
+          </div>
+
+          <div class="sky-profile-section">
+            <h2>Your account</h2>
+            <p class="sub">Change your display name or password.</p>
+            <div class="sky-auth-card" style="max-width:none">
+              <form id="sky-account-form">
+                <div class="sky-field">
+                  <label for="acc-name">Display name</label>
+                  <input id="acc-name" type="text" minlength="2" maxlength="40" value="${escape(state.user.displayName)}"/>
+                </div>
+                <button type="submit" class="sky-btn-block">Save changes</button>
+                <p class="sky-auth-alt" id="sky-account-status"></p>
+              </form>
+            </div>
+          </div>
+
+          <div class="sky-profile-section">
+            <h2>Sign out</h2>
+            <button class="sky-btn" id="sky-logout-btn" style="color:#ff2e63;border-color:rgba(255,46,99,.3)">Sign out of Skynet Nexus</button>
+          </div>
+        `;
+
+        wireEvents(state);
+      }
+
+      function wireEvents(state) {
+        const addBtn = document.getElementById('sky-add-kid');
+        if (addBtn) addBtn.addEventListener('click', () => openKidModal(null));
+        root.querySelectorAll('.sky-edit-kid').forEach(b => b.addEventListener('click', () => {
+          const id = Number(b.getAttribute('data-kid'));
+          const kid = state.kids.find(k => k.id === id);
+          openKidModal(kid);
+        }));
+        root.querySelectorAll('.sky-delete-kid').forEach(b => b.addEventListener('click', async () => {
+          const id = Number(b.getAttribute('data-kid'));
+          const kid = state.kids.find(k => k.id === id);
+          if (!confirm(`Remove ${kid.name}'s profile? This can't be undone.`)) return;
+          const res = await fetch('/api/kids/' + id, { method: 'DELETE', credentials: 'same-origin' });
+          if (res.ok) { await SkyAuth.refresh(); render(SkyAuth.state); }
+          else { alert('Could not delete profile.'); }
+        }));
+        const accForm = document.getElementById('sky-account-form');
+        if (accForm) accForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const name = document.getElementById('acc-name').value.trim();
+          const status = document.getElementById('sky-account-status');
+          const res = await fetch('/api/auth/profile', {
+            method: 'PATCH', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ displayName: name })
+          });
+          const d = await res.json();
+          if (!res.ok) { status.innerHTML = `<span style="color:#ff2e63">${d.error||'Save failed'}</span>`; return; }
+          status.innerHTML = '<span style="color:#39ff14">Saved ✓</span>';
+          await SkyAuth.refresh(); render(SkyAuth.state);
+        });
+        document.getElementById('sky-logout-btn').addEventListener('click', () => SkyAuth.logout());
+      }
+
+      function openKidModal(existing) {
+        const isEdit = !!existing;
+        const currentYear = new Date().getFullYear();
+        const overlay = document.createElement('div');
+        overlay.className = 'sky-splash';
+        overlay.style.cssText = 'background:rgba(10,14,23,.85);z-index:10000';
+        overlay.innerHTML = `
+          <div class="sky-auth-card" style="pointer-events:auto;position:relative;margin:0 20px">
+            <h2 class="sky-auth-title" style="margin-top:0">${isEdit ? 'Edit kid profile' : 'Add a kid profile'}</h2>
+            <div id="kid-modal-err" hidden></div>
+            <form id="kid-modal-form">
+              <div class="sky-field">
+                <label>Kid's name (or nickname)</label>
+                <input id="km-name" type="text" maxlength="40" required value="${existing ? escape(existing.name) : ''}"/>
+              </div>
+              <div class="sky-field">
+                <label>Birth year</label>
+                <input id="km-year" type="number" required min="${currentYear-25}" max="${currentYear}" value="${existing ? existing.birthYear : currentYear - 8}"/>
+              </div>
+              <div class="sky-field">
+                <label>Avatar color</label>
+                <div class="sky-color-row" id="km-colors">
+                  ${COLORS.map(c => `<button type="button" class="sky-color-swatch ${(existing && existing.avatarColor === c) || (!existing && c === '#39ff14') ? 'active' : ''}" data-c="${c}" style="background:${c}"></button>`).join('')}
+                </div>
+              </div>
+              <div class="sky-field">
+                <label>Avatar emoji</label>
+                <div class="sky-emoji-picker" id="km-emojis">
+                  ${EMOJIS.map(e => `<button type="button" class="sky-emoji-swatch ${(existing && existing.avatarEmoji === e) || (!existing && e === '🚀') ? 'active' : ''}" data-e="${e}">${e}</button>`).join('')}
+                </div>
+              </div>
+              <button type="submit" class="sky-btn-block">${isEdit ? 'Save profile' : 'Add profile'}</button>
+              <button type="button" class="sky-btn" id="km-cancel" style="margin-top:8px;width:100%">Cancel</button>
+            </form>
+          </div>
+        `;
+        document.body.appendChild(overlay);
+        document.body.classList.add('sky-splash-open');
+        const close = () => { overlay.remove(); document.body.classList.remove('sky-splash-open'); };
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+        overlay.querySelector('#km-cancel').addEventListener('click', close);
+
+        let selColor = existing ? existing.avatarColor : '#39ff14';
+        overlay.querySelector('#km-colors').addEventListener('click', (e) => {
+          const b = e.target.closest('.sky-color-swatch'); if (!b) return;
+          overlay.querySelectorAll('#km-colors .sky-color-swatch').forEach(s => s.classList.remove('active'));
+          b.classList.add('active'); selColor = b.getAttribute('data-c');
+        });
+        let selEmoji = existing ? (existing.avatarEmoji || '🚀') : '🚀';
+        overlay.querySelector('#km-emojis').addEventListener('click', (e) => {
+          const b = e.target.closest('.sky-emoji-swatch'); if (!b) return;
+          overlay.querySelectorAll('#km-emojis .sky-emoji-swatch').forEach(s => s.classList.remove('active'));
+          b.classList.add('active'); selEmoji = b.getAttribute('data-e');
+        });
+
+        overlay.querySelector('#kid-modal-form').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const err = overlay.querySelector('#kid-modal-err');
+          err.hidden = true;
+          const body = {
+            name: overlay.querySelector('#km-name').value.trim(),
+            birthYear: Number(overlay.querySelector('#km-year').value),
+            avatarColor: selColor,
+            avatarEmoji: selEmoji
+          };
+          const url = isEdit ? '/api/kids/' + existing.id : '/api/kids';
+          const method = isEdit ? 'PATCH' : 'POST';
+          const res = await fetch(url, {
+            method, credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          const d = await res.json();
+          if (!res.ok) { err.className='sky-error'; err.textContent = d.error || 'Save failed.'; err.hidden = false; return; }
+          close();
+          await SkyAuth.refresh(); render(SkyAuth.state);
+        });
+      }
+
+      // Wait for auth to load, then render
+      const stopSub = SkyAuth.subscribe((s) => render(s));
+      SkyAuth.refresh().then(s => render(s));
+    })();
+  </script>
+</body>
+</html>

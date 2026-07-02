@@ -1,0 +1,83 @@
+{
+  "network": {
+    "name": "Skynet Nexus News",
+    "tagline": "Real youth stories, worth reading together.",
+    "audience": "Families (ages 5-50) — designed for parent-and-child co-reading.",
+    "launchDate": "2026-07-01",
+    "editorialSchedule": "Daily at 10:00 AM Eastern",
+    "editorialRules": [
+      "Youth-first: subjects are usually under 25, quoted first.",
+      "Family-safe: no violence, war, politics, celebrity drama, or social media pile-ons.",
+      "No mainstream news filler: own reporting, primary sources.",
+      "Every article includes Kid Take + Family Discussion + glossary for co-reading.",
+      "Free forever."
+    ],
+    "categories": {
+      "stem": {
+        "label": "STEM",
+        "emoji": "🧬",
+        "color": "#00e5ff",
+        "scope": "Science, engineering, aerospace, math, young researchers, science fair winners."
+      },
+      "robotics": {
+        "label": "Robotics",
+        "emoji": "🤖",
+        "color": "#a855f7",
+        "scope": "FIRST (FRC/FTC/FLL), VEX, BEST, RoboCup Junior — student teams and matches."
+      },
+      "play": {
+        "label": "Play & Design",
+        "emoji": "🎨",
+        "color": "#39ff14",
+        "scope": "Minecraft creators, Roblox devs, Scratch projects, chess prodigies, scholastic esports, kid-made games."
+      },
+      "music": {
+        "label": "Music",
+        "emoji": "🎧",
+        "color": "#ff2e63",
+        "scope": "YoungArts, All-State, teen songwriters, Tiny Desk newcomers, school music programs."
+      },
+      "network": {
+        "label": "Network",
+        "emoji": "🛰️",
+        "color": "#00e5ff",
+        "scope": "Editorial notes, launch announcements, network updates."
+      }
+    }
+  },
+  "lastUpdated": "2026-07-02T00:11:45.851Z",
+  "articles": [
+    {
+      "id": "2026-07-01-welcome-to-skynet-nexus",
+      "slug": "welcome-to-skynet-nexus",
+      "path": "data/articles/2026-07-01/welcome-to-skynet-nexus.json",
+      "cat": "network",
+      "title": "Welcome to Skynet Nexus — The Signal Goes Live",
+      "excerpt": "A new daily news network for families who want to learn together — real youth achievements in science, engineering, robotics, creative play, and music. Free forever. First full edition drops tomorrow.",
+      "kidTake": "This is a new news website! Every morning it gives you four short stories about cool things kids around the world are doing — in science, robots, creative games, and music.",
+      "ageBand": "5+",
+      "author": "The Newsroom",
+      "authorInit": "SN",
+      "date": "2026-07-01",
+      "publishedAt": "2026-07-01T10:00:00-04:00",
+      "read": 4,
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "shares": 0,
+      "tags": [
+        "launch",
+        "manifesto",
+        "family",
+        "kid-safe",
+        "welcome"
+      ],
+      "color": "#00e5ff",
+      "gradient": "linear-gradient(135deg, #00e5ff, #a855f7)",
+      "emoji": "🛰️",
+      "featured": true,
+      "pinned": true,
+      "live": false
+    }
+  ]
+}

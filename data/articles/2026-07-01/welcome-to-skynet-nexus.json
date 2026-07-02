@@ -1,0 +1,39 @@
+{
+  "id": "2026-07-01-welcome-to-skynet-nexus",
+  "slug": "welcome-to-skynet-nexus",
+  "cat": "network",
+  "categoryLabel": "Network News",
+  "title": "Welcome to Skynet Nexus — The Signal Goes Live",
+  "subtitle": "A family-first newsroom for STEM, robotics, play & design, and music. This is Day Zero.",
+  "excerpt": "A new daily news network for families who want to learn together — real youth achievements in science, engineering, robotics, creative play, and music. Free forever. First full edition drops tomorrow.",
+  "body": "<p>You are reading the first article on <strong>Skynet Nexus News</strong> — a daily newsroom built for something the internet has quietly stopped doing well: <em>giving families real news they can read together</em>.</p><p>Every morning at 10 AM Eastern, we publish four short stories: one from science, one from robotics, one from creative play and design, one from music. All of them are about kids and young people building, discovering, and creating real things. All of them are written to be read out loud at the kitchen table — enjoyable for a 5-year-old asking why, and still interesting for a 50-year-old parent who wants the real details.</p><h2>What we cover</h2><ul><li><strong>🧬 STEM Signal</strong> — young scientists, aerospace projects, student research, science fair winners, and the discoveries kids are making in classrooms and labs around the world.</li><li><strong>🤖 Robotics Signal</strong> — FIRST Robotics, VEX, FLL, BEST, and RoboCup Junior. Real teams, real matches, real engineering — told like the sport it actually is.</li><li><strong>🎨 Play &amp; Design</strong> — Minecraft Education creators, Roblox young developers, Scratch projects, scholastic chess prodigies, high school esports scholarships, and the ways kids are inventing through play.</li><li><strong>🎧 Music Signal</strong> — YoungArts finalists, All-State orchestra winners, teenage songwriters, Tiny Desk newcomers, and the music scenes kids and teens are building in schools and bedrooms everywhere.</li></ul><h2>What every article gives you</h2><p>Every story we publish includes three things designed for co-reading:</p><ul><li><strong>The full story</strong>, written clearly for adults and older kids — real facts, real people, real details.</li><li><strong>Kid Take</strong> — a short summary written for younger readers (around age 8 reading level), so kids can follow along even when the main story is technical.</li><li><strong>Family Discussion</strong> — two or three questions parents can ask their kids after reading, to turn the article into a conversation instead of just information.</li></ul><p>We also define new vocabulary the first time it appears. When we say a word like <em>superconductor</em> or <em>autonomous</em>, we tell you what it means in plain English before we use it.</p><h2>Our editorial rules</h2><p><strong>Youth-first, always.</strong> The people in our stories are usually under 25, and we quote them first — not a professor talking about them.</p><p><strong>Family-safe, always.</strong> We do not cover violence, war, celebrity drama, or politics. We do not link to social media pile-ons. If a story would be uncomfortable to read to a five-year-old, we don't publish it.</p><p><strong>No mainstream news filler.</strong> You will not find us reposting cable-news stories or chasing viral outrage. We do our own reporting, and we point you to primary sources — the actual paper, the actual competition results, the actual creator's channel.</p><p><strong>Free forever.</strong> No paywall, no ads targeted at your kids, no dark patterns. Just news.</p><h2>Stay tuned — first full edition tomorrow</h2><p>Today is the launch announcement. <strong>Tomorrow — Thursday, July 2, 2026 at 10:00 AM ET</strong> — the first four stories will land here from our four correspondents. New ones every single day after that.</p><p>Bookmark the site, subscribe to the Daily Signal newsletter (over on the right), and come back at 10.</p><p>See you tomorrow.</p><p style=\"text-align:right;color:var(--text-mute);font-style:italic;\">— The Newsroom · Skynet Nexus News</p>",
+  "kidTake": "This is a new news website! Every morning it gives you four short stories about cool things kids around the world are doing — in science, robots, creative games, and music. It's made so grown-ups and kids can read it together. Come back tomorrow morning for the first real stories!",
+  "familyDiscussion": [
+    "If you could report a story about anything you've built or made, what would it be?",
+    "Which channel are you most excited about — science, robots, play, or music? Why?",
+    "What questions do you have about the world that you wish someone would answer for you?"
+  ],
+  "glossary": [
+    { "term": "Newsroom", "meaning": "The team of writers and editors who research and publish news stories together." },
+    { "term": "Correspondent", "meaning": "A reporter whose job is to cover one specific topic — like science or music — really deeply." }
+  ],
+  "ageBand": "5+",
+  "author": "The Newsroom",
+  "authorInit": "SN",
+  "authorRole": "Editorial",
+  "date": "2026-07-01",
+  "publishedAt": "2026-07-01T10:00:00-04:00",
+  "read": 4,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": ["launch", "manifesto", "family", "kid-safe", "welcome"],
+  "color": "#00e5ff",
+  "gradient": "linear-gradient(135deg, #00e5ff, #a855f7)",
+  "emoji": "🛰️",
+  "featured": true,
+  "pinned": true,
+  "live": false,
+  "sources": []
+}

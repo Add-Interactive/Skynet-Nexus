@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Music Signal — Skynet Nexus News</title>
+  <meta name="description" content="Youth music: YoungArts, All-State, teen songwriters, festivals for all ages."/>
+  <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
+  <link rel="stylesheet" href="../assets/css/style.css"/>
+  <link rel="stylesheet" href="/assets/css/auth.css"/>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="../index.html" class="brand" aria-label="Skynet Nexus News">
+        <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00e5ff"/><stop offset="100%" stop-color="#a855f7"/></linearGradient></defs>
+          <path d="M20 3l14 8v18l-14 8L6 29V11z" fill="none" stroke="url(#lg1)" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M20 12l7 4v8l-7 4-7-4v-8z" fill="url(#lg1)" opacity=".95"/>
+          <circle cx="20" cy="20" r="2.5" fill="#0a0e17"/>
+        </svg>
+        <div>
+          <div class="brand-name">SKYNET NEXUS</div>
+          <div class="brand-tag">Family Signal</div>
+        </div>
+      </a>
+
+      <div class="search-wrap">
+        <span id="ic-search"></span>
+        <input id="global-search" type="search" placeholder="Search stories, artists, teams, tags..."/>
+      </div>
+
+      <div class="top-actions">
+        <button class="icon-btn only-mobile" id="menu-toggle" aria-label="Menu"><span id="ic-menu"></span></button>
+        <button class="icon-btn" id="theme-toggle" aria-label="Toggle theme"></button>
+        
+        
+        <div class="sky-user-slot"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="ticker"><div id="ticker-inner" class="ticker-inner"></div></div>
+
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="side-section">
+        <div class="side-title">Feed</div>
+        <ul class="nav-list">
+          <li><a href="../index.html" ><span class="icon" id="nav-home"></span><span>Home</span></a></li>
+          <li><a href="../index.html#trending"><span class="icon" id="nav-flame"></span><span>Trending</span></a></li>
+          <li><a href="events.html" ><span class="icon" id="nav-events"></span><span>Events</span></a></li>
+          <li><a href="leaderboard.html" ><span class="icon" id="nav-trophy"></span><span>Leaderboard</span></a></li>
+          <li><a href="archive.html"><span class="icon">📚</span><span>Archive</span></a></li>
+        </ul>
+      </div>
+      <div class="side-section">
+        <div class="side-title">Channels</div>
+        <ul class="nav-list">
+          <li><a href="stem.html" ><span class="cat-dot cat-stem"></span><span>STEM</span><span class="count">1</span></a></li>
+          <li><a href="robotics.html" ><span class="cat-dot cat-robotics"></span><span>Robotics</span><span class="count">1</span></a></li>
+          <li><a href="play.html" ><span class="cat-dot cat-play"></span><span>Play & Design</span><span class="count">1</span></a></li>
+          <li><a href="music.html" class="active"><span class="cat-dot cat-music"></span><span>Music</span><span class="count">1</span></a></li>
+        </ul>
+      </div>
+      <div class="side-section">
+        <div class="side-title">You</div>
+        <ul class="nav-list">
+          
+          
+          <li><a href="about.html" ><span class="icon" id="nav-info"></span><span>About</span></a></li>
+          <li><a href="contact.html" ><span class="icon" id="nav-mail"></span><span>Contact</span></a></li>
+        </ul>
+      </div>
+      <div class="side-section"><div class="sky-intro-slot"></div></div>
+      <div class="side-section">
+        <div class="sky-user-card-slot"></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="hero">
+        <span class="kicker">🎧 Music Channel</span>
+        <h1>Music — Signal for the Next Generation</h1>
+        <p>Neon Bloom. Coachella Nova. Bedroom producers cracking Billboard. The 50 rising artists your For You Page has not caught up to yet.</p>
+      </section>
+
+      <div class="filter-bar" role="tablist">
+        <button class="chip" data-cat="all">🌐 All</button>
+        <button class="chip" data-cat="stem">🧬 STEM</button>
+        <button class="chip" data-cat="robotics">🤖 Robotics</button>
+        <button class="chip" data-cat="play">🎮 Play</button>
+        <button class="chip" data-cat="music">🎧 Music</button>
+        <div class="filter-spacer"></div>
+        <select id="sort-select" class="sort-select" aria-label="Sort by">
+          <option value="latest">Latest</option>
+          <option value="trending">Trending</option>
+          <option value="popular">Most liked</option>
+          <option value="commented">Most discussed</option>
+        </select>
+      </div>
+
+      <div class="section-title">
+        <h2><span class="accent-bar"></span> Music Feed</h2>
+      </div>
+
+      <section id="feed-grid" class="feed-grid"></section>
+    </main>
+
+    <aside class="right-rail">
+      <div class="widget countdown-card">
+        <div class="widget-title">Featured Event <span class="live-dot"></span></div>
+        <div class="countdown-title" id="countdown-title">—</div>
+        <div class="countdown-sub" id="countdown-sub">—</div>
+        <div class="countdown-grid" id="countdown-grid"></div>
+      </div>
+      <div class="widget">
+        <div class="widget-title">Right now <span class="live-dot"></span></div>
+        <div id="stat-tiles" class="stat-tiles"></div>
+      </div>
+      <div class="widget">
+        <div class="widget-title">Trending Now</div>
+        <ol id="trending-list" class="trend-list"></ol>
+      </div>
+      <div class="widget np-card">
+        <div class="widget-title">Now Playing <span class="live-dot"></span></div>
+        <div class="np-track">
+          <div class="np-cover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13M9 18a3 3 0 11-6 0 3 3 0 016 0zM21 16a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
+          <div class="np-info">
+            <div class="np-title">blue hour</div>
+            <div class="np-artist">tavii • #34 Billboard</div>
+          </div>
+          <div class="np-bars"><span></span><span></span><span></span><span></span></div>
+        </div>
+      </div>
+      <div class="widget">
+        <div class="widget-title">Weekly Leaderboard</div>
+        <div id="leaderboard"></div>
+      </div>
+      <div class="widget poll-card">
+        <div class="widget-title">Quick Poll</div>
+        <div class="poll-q" id="poll-q"></div>
+        <div id="poll-box"></div>
+      </div>
+      <div class="widget news-card">
+        <div class="widget-title">Get the Wire</div>
+        <p>One family-friendly digest of the best youth achievement stories, every Sunday morning. Perfect for the fridge door.</p>
+        <form id="newsletter-form">
+          <input type="email" placeholder="you@yourcrew.com" required/>
+          <button type="submit">Join</button>
+        </form>
+      </div>
+    </aside>
+
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <h4>SKYNET NEXUS</h4>
+        <p>The signal for the next generation — built for families. Every story includes a Kid Take (age 8 reading level) and Family Discussion questions. Free forever, no ads targeted at kids.</p>
+      </div>
+      <div class="footer-col"><h5>Channels</h5><ul>
+        <li><a href="stem.html">STEM</a></li>
+        <li><a href="robotics.html">Robotics</a></li>
+        <li><a href="play.html">Play & Design</a></li>
+        <li><a href="music.html">Music</a></li>
+      </ul></div>
+      <div class="footer-col"><h5>Company</h5><ul>
+        <li><a href="about.html">About</a></li>
+        <li><a href="about.html#team">Team</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="contact.html#press">Press</a></li>
+      </ul></div>
+      <div class="footer-col"><h5>Community</h5><ul>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="leaderboard.html">Leaderboard</a></li>
+        
+        
+      </ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Skynet Nexus News. Free forever, family first.</span>
+      <div class="socials"><a href="contact.html">Story tips →</a></div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/app.js"></script>
+  <script>
+    const NAV = {
+      'nav-home': ICONS.home, 'nav-flame': ICONS.flame, 'nav-events': ICONS.events,
+      'nav-trophy': ICONS.trophy, 'nav-bookmarks': ICONS.bookmarks, 'nav-users': ICONS.users,
+      'nav-info': ICONS.info, 'nav-mail': ICONS.mail,
+      's-tw': ICONS.twitter, 's-ig': ICONS.instagram, 's-yt': ICONS.youtube,
+      's-dc': ICONS.discord, 's-tt': ICONS.tiktok
+    };
+    Object.keys(NAV).forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = NAV[id]; });
+    initCategoryPage('music', '../');
+  </script>
+
+  <script src="/assets/js/auth.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "skynet-nexus-news",
+  "version": "0.0.1-beta",
+  "description": "Skynet Nexus News — a family-first daily news network for young readers.",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "publish-article": "node newsroom/publish.js",
+    "init-db": "node server/init-db.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.0",
+    "express-session": "^1.18.0"
+  }
+}

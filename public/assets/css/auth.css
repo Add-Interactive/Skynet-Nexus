@@ -1,0 +1,345 @@
+/* ==========================================================================
+   auth.css — Skynet Nexus News auth UI, splash video, kid profile switcher.
+   ========================================================================== */
+
+/* ---- Splash video overlay ---- */
+.sky-splash {
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(10,14,23,.96), rgba(0,0,0,.98));
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  animation: sky-splash-in 240ms ease-out;
+}
+@keyframes sky-splash-in { from { opacity: 0 } to { opacity: 1 } }
+.sky-splash-open { overflow: hidden; }
+.sky-splash-frame {
+  position: relative; max-width: min(96vw, 1200px); width: 100%;
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 0 60px rgba(0,229,255,.22), 0 20px 80px rgba(0,0,0,.6);
+  border: 1px solid rgba(0,229,255,.25);
+}
+.sky-splash-frame video {
+  display: block; width: 100%; height: auto;
+  background: #000;
+  aspect-ratio: 16/9;
+}
+.sky-splash-actions {
+  position: absolute; top: 14px; right: 14px; z-index: 2;
+}
+.sky-splash-skip {
+  background: rgba(0,0,0,.55); color: #fff; border: 1px solid rgba(255,255,255,.22);
+  padding: 8px 16px; border-radius: 999px; font: 700 13px/1 Inter, sans-serif;
+  letter-spacing: .05em; cursor: pointer;
+  transition: background 120ms, border-color 120ms;
+}
+.sky-splash-skip:hover { background: rgba(255,46,99,.85); border-color: rgba(255,46,99,.9); }
+
+/* ---- Header sign-in slot ---- */
+.sky-user-slot { display: inline-flex; align-items: center; }
+.sky-signin-btn {
+  display: inline-block; padding: 8px 16px; border-radius: 999px;
+  background: linear-gradient(135deg, #00e5ff, #a855f7);
+  color: #0a0e17; font: 700 13px/1 Inter, sans-serif; letter-spacing: .04em;
+  text-decoration: none; transition: transform 120ms, box-shadow 120ms;
+}
+.sky-signin-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,229,255,.35); }
+
+.sky-user-dd { position: relative; }
+.sky-user-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  padding: 6px 14px 6px 6px; border-radius: 999px;
+  color: var(--text, #e6ecf3); cursor: pointer;
+  font: 600 13px/1 Inter, sans-serif;
+  transition: background 120ms, border-color 120ms;
+}
+.sky-user-btn:hover { background: rgba(255,255,255,.08); border-color: rgba(0,229,255,.35); }
+.sky-user-av {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font: 700 12px/1 Inter, sans-serif; color: #0a0e17;
+  box-shadow: 0 0 0 2px rgba(10,14,23,.9);
+}
+.sky-user-name { display: inline-flex; align-items: center; gap: 6px; }
+.sky-kid-tag {
+  display: inline-block; padding: 2px 6px; border-radius: 6px; font-style: normal;
+  font-size: 10px; letter-spacing: .06em; text-transform: uppercase;
+  background: rgba(57,255,20,.15); color: #39ff14;
+  border: 1px solid rgba(57,255,20,.35);
+}
+
+/* ---- User menu dropdown ---- */
+.sky-user-menu {
+  position: absolute; top: calc(100% + 8px); right: 0;
+  min-width: 280px; max-width: 340px;
+  background: rgba(15,20,32,.98);
+  border: 1px solid rgba(0,229,255,.22);
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.03) inset;
+  padding: 10px;
+  z-index: 200;
+  animation: sky-menu-in 160ms ease-out;
+}
+@keyframes sky-menu-in { from { opacity: 0; transform: translateY(-6px) } to { opacity: 1; transform: none } }
+.sky-menu-head {
+  padding: 10px 12px; border-radius: 8px;
+  background: rgba(0,229,255,.06);
+  color: var(--text, #e6ecf3); font: 600 13px/1.4 Inter, sans-serif;
+  margin-bottom: 8px;
+}
+.sky-menu-head small { color: var(--muted, #7c8898); font-weight: 400; }
+.sky-menu-label {
+  padding: 8px 10px 4px; font: 600 11px/1 Inter, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--muted, #7c8898);
+}
+.sky-kid-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 6px; }
+.sky-kid-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 8px;
+  background: transparent; border: 1px solid transparent;
+  color: var(--text, #e6ecf3); font: 500 13px/1 Inter, sans-serif;
+  cursor: pointer; text-align: left; width: 100%;
+  transition: background 100ms;
+}
+.sky-kid-item:hover { background: rgba(255,255,255,.05); }
+.sky-kid-item.active { background: rgba(0,229,255,.1); border-color: rgba(0,229,255,.3); }
+.sky-kid-av {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font: 700 11px/1 Inter, sans-serif; color: #0a0e17;
+  flex-shrink: 0;
+}
+.sky-menu-link {
+  display: block; padding: 10px 12px; border-radius: 8px;
+  color: var(--text, #e6ecf3); text-decoration: none;
+  font: 500 13px/1.2 Inter, sans-serif;
+  background: transparent; border: 0; cursor: pointer; text-align: left; width: 100%;
+  transition: background 100ms;
+}
+.sky-menu-link:hover { background: rgba(255,255,255,.06); }
+.sky-menu-link-btn { font: 500 13px/1.2 Inter, sans-serif; }
+.sky-danger { color: #ff2e63; }
+.sky-danger:hover { background: rgba(255,46,99,.1); }
+
+/* ---- Sidebar user card ---- */
+.sky-user-card { text-align: center; }
+.sky-av-anon {
+  background: linear-gradient(135deg, rgba(0,229,255,.2), rgba(168,85,247,.2));
+  font-size: 24px;
+}
+.sky-cta-row {
+  display: flex; gap: 6px; margin-top: 10px; justify-content: center; flex-wrap: wrap;
+}
+.sky-btn {
+  display: inline-block; padding: 8px 14px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.15);
+  background: rgba(255,255,255,.04);
+  color: var(--text, #e6ecf3); text-decoration: none;
+  font: 600 12px/1 Inter, sans-serif; letter-spacing: .04em;
+  cursor: pointer;
+  transition: transform 100ms, background 120ms, border-color 120ms;
+}
+.sky-btn:hover { background: rgba(255,255,255,.09); border-color: rgba(0,229,255,.35); transform: translateY(-1px); }
+.sky-btn-primary {
+  background: linear-gradient(135deg, #00e5ff, #a855f7);
+  color: #0a0e17; border-color: transparent;
+}
+.sky-btn-primary:hover { box-shadow: 0 6px 20px rgba(0,229,255,.35); }
+
+/* ---- Watch-intro-again button (footer or sidebar) ---- */
+.sky-intro-slot { margin-top: 12px; }
+.sky-intro-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: 999px;
+  background: rgba(0,229,255,.08);
+  color: #00e5ff; border: 1px solid rgba(0,229,255,.3);
+  font: 600 12px/1 Inter, sans-serif;
+  cursor: pointer;
+  transition: background 120ms, transform 100ms;
+}
+.sky-intro-btn:hover { background: rgba(0,229,255,.16); transform: translateY(-1px); }
+
+/* ---- Auth pages (login/register/profile) ---- */
+.sky-auth-page {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px 20px;
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(0,229,255,.08), transparent 40%),
+    radial-gradient(ellipse at 80% 90%, rgba(168,85,247,.08), transparent 40%),
+    var(--bg, #0a0e17);
+}
+.sky-auth-card {
+  width: 100%; max-width: 440px;
+  background: rgba(15,20,32,.85);
+  border: 1px solid rgba(0,229,255,.18);
+  border-radius: 16px;
+  padding: 32px 28px;
+  box-shadow: 0 30px 90px rgba(0,0,0,.55);
+}
+.sky-auth-brand {
+  display: flex; align-items: center; gap: 10px; justify-content: center;
+  margin-bottom: 4px;
+}
+.sky-auth-brand svg { width: 32px; height: 32px; }
+.sky-auth-brand span {
+  font: 800 15px/1 Inter, sans-serif; letter-spacing: .08em;
+  background: linear-gradient(135deg, #00e5ff, #a855f7);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.sky-auth-title {
+  text-align: center; font: 800 24px/1.2 Inter, sans-serif;
+  margin: 16px 0 4px; color: var(--text, #e6ecf3);
+}
+.sky-auth-sub {
+  text-align: center; color: var(--muted, #7c8898);
+  font: 400 14px/1.4 Inter, sans-serif;
+  margin: 0 0 24px;
+}
+.sky-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.sky-field label { font: 600 12px/1 Inter, sans-serif; color: var(--muted, #7c8898); letter-spacing: .05em; text-transform: uppercase; }
+.sky-field input, .sky-field select {
+  padding: 12px 14px; border-radius: 10px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  color: var(--text, #e6ecf3);
+  font: 500 14px/1.2 Inter, sans-serif;
+  transition: border-color 120ms, background 120ms;
+}
+.sky-field input:focus, .sky-field select:focus {
+  outline: none; border-color: rgba(0,229,255,.5);
+  background: rgba(0,229,255,.04);
+}
+.sky-color-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.sky-color-swatch {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 2px solid transparent; cursor: pointer;
+  transition: transform 100ms, border-color 120ms;
+}
+.sky-color-swatch:hover { transform: scale(1.1); }
+.sky-color-swatch.active { border-color: #fff; box-shadow: 0 0 0 2px rgba(0,229,255,.5); }
+
+.sky-btn-block {
+  width: 100%; padding: 14px 16px; border-radius: 10px;
+  background: linear-gradient(135deg, #00e5ff, #a855f7);
+  color: #0a0e17; border: 0; cursor: pointer;
+  font: 700 14px/1 Inter, sans-serif; letter-spacing: .04em;
+  transition: transform 100ms, box-shadow 120ms;
+  margin-top: 8px;
+}
+.sky-btn-block:hover { transform: translateY(-1px); box-shadow: 0 10px 30px rgba(0,229,255,.4); }
+.sky-btn-block:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+.sky-auth-alt { text-align: center; margin-top: 20px; color: var(--muted, #7c8898); font-size: 13px; }
+.sky-auth-alt a { color: #00e5ff; text-decoration: none; font-weight: 600; }
+.sky-auth-alt a:hover { text-decoration: underline; }
+.sky-error {
+  padding: 10px 14px; border-radius: 8px;
+  background: rgba(255,46,99,.1); border: 1px solid rgba(255,46,99,.3);
+  color: #ff89a5; font: 500 13px/1.4 Inter, sans-serif;
+  margin-bottom: 14px;
+}
+.sky-success {
+  padding: 10px 14px; border-radius: 8px;
+  background: rgba(57,255,20,.08); border: 1px solid rgba(57,255,20,.28);
+  color: #b6ffb0; font: 500 13px/1.4 Inter, sans-serif;
+  margin-bottom: 14px;
+}
+
+/* ---- Video welcome post (pinned) ---- */
+.sky-welcome-post {
+  position: relative;
+  border-radius: 16px; overflow: hidden;
+  border: 1px solid rgba(0,229,255,.28);
+  background: linear-gradient(135deg, rgba(0,229,255,.06), rgba(168,85,247,.06));
+  margin-bottom: 22px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.35), 0 0 40px rgba(0,229,255,.08);
+}
+.sky-welcome-post-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px 0;
+}
+.sky-welcome-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  background: linear-gradient(135deg, #00e5ff, #a855f7); color: #0a0e17;
+  font: 800 11px/1 Inter, sans-serif; letter-spacing: .1em;
+}
+.sky-welcome-post-title {
+  padding: 8px 18px 4px;
+  font: 800 22px/1.2 Inter, sans-serif;
+  color: var(--text, #e6ecf3);
+}
+.sky-welcome-post-sub {
+  padding: 0 18px 12px;
+  color: var(--muted, #7c8898);
+  font: 500 14px/1.4 Inter, sans-serif;
+}
+.sky-welcome-post-video {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
+  display: block;
+}
+.sky-welcome-post-actions {
+  display: flex; gap: 8px; padding: 12px 18px 16px; flex-wrap: wrap;
+  color: var(--muted, #7c8898); font: 500 13px/1 Inter, sans-serif;
+  align-items: center;
+}
+.sky-welcome-post-actions .sky-btn { font-size: 12px; }
+
+/* ---- Kid profile management (profile page) ---- */
+.sky-kid-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px; margin-top: 16px;
+}
+.sky-kid-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 8px;
+  transition: border-color 120ms;
+}
+.sky-kid-card:hover { border-color: rgba(57,255,20,.35); }
+.sky-kid-card-head { display: flex; align-items: center; gap: 10px; }
+.sky-kid-card-av {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font: 700 16px/1 Inter, sans-serif; color: #0a0e17;
+}
+.sky-kid-card-name { font: 700 15px/1.2 Inter, sans-serif; color: var(--text, #e6ecf3); }
+.sky-kid-card-meta { font: 500 12px/1.2 Inter, sans-serif; color: var(--muted, #7c8898); }
+.sky-kid-card-actions { display: flex; gap: 6px; margin-top: 6px; }
+.sky-add-kid-card {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 140px;
+  background: transparent;
+  border: 2px dashed rgba(255,255,255,.15);
+  color: var(--muted, #7c8898);
+  font: 700 14px/1 Inter, sans-serif;
+  cursor: pointer;
+}
+.sky-add-kid-card:hover { border-color: rgba(0,229,255,.4); color: #00e5ff; }
+
+/* Kid mode banner (when a kid profile is active) */
+.sky-kid-mode-banner {
+  padding: 10px 16px;
+  background: linear-gradient(90deg, rgba(57,255,20,.12), rgba(0,229,255,.06));
+  border-bottom: 1px solid rgba(57,255,20,.3);
+  color: #39ff14;
+  font: 700 12px/1 Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 10px;
+}
+.sky-kid-mode-banner button {
+  margin-left: auto;
+  background: rgba(0,0,0,.3); color: #fff; border: 1px solid rgba(255,255,255,.2);
+  padding: 4px 10px; border-radius: 999px; cursor: pointer; font-size: 11px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 640px) {
+  .sky-user-menu { position: fixed; top: 64px; left: 12px; right: 12px; min-width: 0; max-width: none; }
+  .sky-splash-frame { border-radius: 12px; }
+  .sky-splash-actions { top: 8px; right: 8px; }
+}

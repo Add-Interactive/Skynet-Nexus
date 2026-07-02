@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Archive — Skynet Nexus News</title>
+  <meta name="description" content="Browse every daily edition of Skynet Nexus News since launch."/>
+  <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&display=swap"/>
+  <link rel="stylesheet" href="../assets/css/style.css"/>
+  <style>
+    /* Archive-specific styles */
+    .archive-toolbar { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:22px; }
+    .archive-toolbar select, .archive-toolbar input {
+      padding:10px 14px; background:var(--bg-card); border:1px solid var(--border);
+      border-radius:10px; color:var(--text); font-size:.9rem;
+    }
+    .archive-toolbar .count-pill {
+      margin-left:auto; padding:8px 14px; border-radius:999px;
+      background:linear-gradient(90deg, rgba(0,229,255,.15), rgba(168,85,247,.15));
+      border:1px solid var(--border); font-size:.85rem; color:var(--text-dim);
+    }
+    .archive-toolbar .count-pill strong { color:var(--accent); font-family:'JetBrains Mono',monospace; }
+
+    .archive-day {
+      margin-bottom:32px; position:relative; padding-left:24px;
+      border-left:2px solid var(--border);
+    }
+    .archive-day::before {
+      content:""; position:absolute; left:-8px; top:6px;
+      width:14px; height:14px; border-radius:50%;
+      background:linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: var(--glow-cyan);
+    }
+    .archive-day-header {
+      display:flex; align-items:baseline; gap:12px; margin-bottom:14px;
+    }
+    .archive-day-date {
+      font-family:'JetBrains Mono', monospace; font-weight:800;
+      font-size:1.1rem; color:var(--text);
+    }
+    .archive-day-relative {
+      font-size:.8rem; color:var(--text-mute); text-transform:uppercase; letter-spacing:1px;
+    }
+    .archive-day-count {
+      margin-left:auto; font-size:.75rem; color:var(--text-mute);
+      background:var(--bg-card); padding:3px 10px; border-radius:999px;
+      border:1px solid var(--border);
+    }
+
+    .archive-items {
+      display:grid; gap:10px;
+    }
+    .archive-item {
+      display:flex; align-items:center; gap:14px; padding:14px 16px;
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--radius); cursor:pointer;
+      transition: all .18s ease;
+    }
+    .archive-item:hover {
+      transform:translateX(4px); border-color:var(--accent);
+      box-shadow:0 6px 20px rgba(0,229,255,.12);
+    }
+    .archive-cat-dot {
+      width:10px; height:10px; border-radius:50%; flex-shrink:0;
+    }
+    .archive-item-body { flex:1; min-width:0; }
+    .archive-item-cat {
+      font-size:.68rem; font-weight:700; letter-spacing:1.2px; text-transform:uppercase;
+      margin-bottom:2px;
+    }
+    .archive-item-title {
+      font-size:1rem; font-weight:600; color:var(--text);
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+    .archive-item-meta {
+      font-size:.75rem; color:var(--text-mute); margin-top:2px;
+    }
+    .archive-item-arrow {
+      color:var(--text-mute); font-size:1.2rem; flex-shrink:0;
+    }
+
+    .archive-empty {
+      text-align:center; padding:60px 20px; color:var(--text-mute);
+      border:1px dashed var(--border); border-radius:var(--radius);
+    }
+  </style>
+  <link rel="stylesheet" href="/assets/css/auth.css"/>
+</head>
+<body>
+  <!-- Top Bar (identical to other pages) -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="icon-btn mobile-toggle" id="menu-btn" aria-label="Menu"><span id="ic-menu"></span></button>
+      <a href="../index.html" class="brand">
+        <img src="../assets/img/logo.svg" alt=""/>
+        <div>
+          <div class="brand-name">Skynet Nexus</div>
+          <div class="brand-tag">NEWS NETWORK</div>
+        </div>
+      </a>
+      <div class="search-wrap">
+        <span id="ic-search"></span>
+        <input type="text" id="search-input" placeholder="Search articles..."/>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="theme-toggle" aria-label="Toggle theme">🌓</button>
+        <button class="icon-btn has-badge"><span id="ic-bell"></span><span class="badge">4</span></button>
+        <button class="icon-btn"><span id="ic-bookmark"></span></button>
+        <button class="avatar-btn" aria-label="Profile">YN</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="side-section">
+        <div class="side-title">Newsroom</div>
+        <ul class="nav-list">
+          <li><a href="../index.html"><span class="icon">🏠</span>Home</a></li>
+          <li><a href="events.html"><span class="icon">📅</span>Events</a></li>
+          <li><a href="leaderboard.html"><span class="icon">🏆</span>Leaderboard</a></li>
+          <li><a href="archive.html" class="active"><span class="icon">📚</span>Archive</a></li>
+        </ul>
+      </div>
+      <div class="side-section">
+        <div class="side-title">Channels</div>
+        <ul class="nav-list">
+          <li><a href="stem.html"><span class="cat-dot cat-stem"></span>STEM</a></li>
+          <li><a href="robotics.html"><span class="cat-dot cat-robotics"></span>Robotics</a></li>
+          <li><a href="play.html"><span class="cat-dot cat-play"></span>Play & Design</a></li>
+          <li><a href="music.html"><span class="cat-dot cat-music"></span>Music</a></li>
+        </ul>
+      </div>
+      <div class="side-section">
+        <div class="side-title">Newsroom</div>
+        <ul class="nav-list">
+          <li><a href="about.html"><span class="icon">ℹ️</span>About</a></li>
+          <li><a href="contact.html"><span class="icon">✉️</span>Contact</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <section class="hero">
+        <span class="kicker">📚 Full History</span>
+        <h1>The Archive</h1>
+        <p>Every article, every day, all in one place. Scroll back through the Skynet Nexus signal — or filter to just the channel and date range you want.</p>
+      </section>
+
+      <div class="archive-toolbar">
+        <select id="arch-cat">
+          <option value="all">All channels</option>
+          <option value="stem">🧬 STEM</option>
+          <option value="robotics">🤖 Robotics</option>
+          <option value="play">🎮 Play</option>
+          <option value="music">🎧 Music</option>
+          <option value="network">🛰️ Network</option>
+        </select>
+        <input type="text" id="arch-search" placeholder="Search titles, authors, tags..."/>
+        <span class="count-pill"><strong id="arch-count">0</strong> articles</span>
+      </div>
+
+      <div id="archive-root">
+        <div class="archive-empty">
+          <h3>Loading the archive...</h3>
+        </div>
+      </div>
+    </main>
+
+    <!-- Right Rail -->
+    <aside class="right-rail">
+      <div class="widget countdown-card">
+        <div class="widget-title">Featured Event <span class="live-dot"></span></div>
+        <div class="countdown-title" id="countdown-title">—</div>
+        <div class="countdown-sub" id="countdown-sub">—</div>
+        <div class="countdown-grid" id="countdown-grid"></div>
+      </div>
+      <div class="widget">
+        <div class="widget-title">🔥 Trending</div>
+        <ul class="trend-list" id="trend-list"></ul>
+      </div>
+      <div class="widget news-card">
+        <div class="widget-title">📬 Daily Signal</div>
+        <p>Get every edition dropped straight in your inbox at 10am ET.</p>
+        <form id="news-form">
+          <input type="email" placeholder="your@email.com" required/>
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Ticker -->
+  <div class="ticker">
+    <div class="ticker-inner" id="ticker"></div>
+  </div>
+
+  <div class="toast" id="toast"><span id="toast-icon">🎉</span><span id="toast-msg"></span></div>
+
+  <script src="../assets/js/app.js"></script>
+  <script>
+    (async function() {
+      await loadManifest('../');
+      initSimplePage('../');
+      renderCountdown();
+      renderTrending();
+      renderTicker();
+      renderNewsletter();
+      renderArchive();
+    })();
+
+    function renderArchive() {
+      const catSel = document.getElementById('arch-cat');
+      const searchInput = document.getElementById('arch-search');
+      catSel.addEventListener('change', paint);
+      searchInput.addEventListener('input', paint);
+      paint();
+
+      function paint() {
+        const cat = catSel.value;
+        const q = (searchInput.value || '').toLowerCase().trim();
+        let list = ARTICLES.slice();
+        if (cat !== 'all') list = list.filter(a => a.cat === cat);
+        if (q) list = list.filter(a =>
+          (a.title || '').toLowerCase().includes(q) ||
+          (a.author || '').toLowerCase().includes(q) ||
+          (a.excerpt || '').toLowerCase().includes(q) ||
+          (a.tags || []).some(t => t.toLowerCase().includes(q))
+        );
+        list.sort((a, b) => new Date(b.publishedAt || b.date) - new Date(a.publishedAt || a.date));
+        document.getElementById('arch-count').textContent = list.length;
+
+        // Group by date
+        const groups = {};
+        for (const a of list) {
+          const k = a.date || (a.publishedAt || '').slice(0, 10) || 'undated';
+          (groups[k] = groups[k] || []).push(a);
+        }
+        const keys = Object.keys(groups).sort().reverse();
+        if (keys.length === 0) {
+          document.getElementById('archive-root').innerHTML =
+            '<div class="archive-empty"><h3>No stories match those filters</h3><p>Try switching channels or clearing your search.</p></div>';
+          return;
+        }
+
+        const today = new Date();
+        // Force local-time parsing for YYYY-MM-DD strings (avoids UTC midnight timezone slide)
+        function parseYMD(s) {
+          const [y, m, d] = String(s).split('-').map(Number);
+          return new Date(y, (m || 1) - 1, d || 1);
+        }
+        const html = keys.map(dateKey => {
+          const d = parseYMD(dateKey);
+          const diffDays = Math.floor((today - d) / 86400000);
+          let rel;
+          if (diffDays === 0) rel = 'TODAY';
+          else if (diffDays === 1) rel = 'YESTERDAY';
+          else if (diffDays < 7) rel = diffDays + ' DAYS AGO';
+          else if (diffDays < 30) rel = Math.floor(diffDays / 7) + 'W AGO';
+          else rel = d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+          const nice = d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+          const items = groups[dateKey].map(a => {
+            const catInfo = ({
+              stem: { color: '#00e5ff', label: 'STEM' },
+              robotics: { color: '#a855f7', label: 'ROBOTICS' },
+              play: { color: '#39ff14', label: 'PLAY &amp; DESIGN' },
+              music: { color: '#ff2e63', label: 'MUSIC' },
+              network: { color: '#00e5ff', label: 'NETWORK' }
+            })[a.cat] || { color: '#8892a8', label: (a.cat || '').toUpperCase() };
+            const url = 'article.html?id=' + encodeURIComponent(a.id);
+            return '<a class="archive-item" href="' + url + '">' +
+              '<span class="archive-cat-dot" style="background:' + catInfo.color + ';box-shadow:0 0 8px ' + catInfo.color + '"></span>' +
+              '<div class="archive-item-body">' +
+                '<div class="archive-item-cat" style="color:' + catInfo.color + '">' + catInfo.label + '</div>' +
+                '<div class="archive-item-title">' + a.title + '</div>' +
+                '<div class="archive-item-meta">by ' + a.author + ' · ' + (a.read || 5) + ' min · ' + formatCount(a.likes || 0) + ' likes</div>' +
+              '</div>' +
+              '<span class="archive-item-arrow">→</span>' +
+            '</a>';
+          }).join('');
+          return '<section class="archive-day">' +
+            '<div class="archive-day-header">' +
+              '<div class="archive-day-date">' + nice + '</div>' +
+              '<div class="archive-day-relative">' + rel + '</div>' +
+              '<div class="archive-day-count">' + groups[dateKey].length + ' article' + (groups[dateKey].length === 1 ? '' : 's') + '</div>' +
+            '</div>' +
+            '<div class="archive-items">' + items + '</div>' +
+          '</section>';
+        }).join('');
+        document.getElementById('archive-root').innerHTML = html;
+      }
+    }
+  </script>
+  <script src="/assets/js/auth.js" defer></script>
+</body>
+</html>
