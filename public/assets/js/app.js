@@ -306,7 +306,7 @@ function renderPost(a, featured, base) {
   return (
     '<article class="post-card ' + (featured ? 'featured' : '') + '" data-id="' + a.id + '" data-cat="' + a.cat + '" data-href="' + base + 'pages/article.html?id=' + a.id + '">' +
       '<div class="post-media-wrap">' +
-        '<img class="post-media" src="' + makeThumb(a.cat, a.id) + '" alt="' + a.title.replace(/"/g, '&quot;') + '"/>' +
+        '<img class="post-media" src="' + (a.heroImage || makeThumb(a.cat, a.id)) + '" alt="' + a.title.replace(/"/g, '&quot;') + '"/>' +
         '<span class="post-cat-tag" data-cat="' + a.cat + '">' + categoryLabel(a.cat) + '</span>' +
         (a.ageBand ? '<span class="post-age-chip" data-age="' + a.ageBand + '">' + a.ageBand + '</span>' : '') +
         (a.live ? '<span class="post-live">Live</span>' : '') +
@@ -619,7 +619,7 @@ function initArticlePage() {
   container.innerHTML =
     '<article class="article">' +
       '<div class="article-hero">' +
-        '<img src="' + makeThumb(a.cat, a.id) + '" alt=""/>' +
+        '<img src="' + (a.heroImage || makeThumb(a.cat, a.id)) + '" alt=""/>' +
         '<div class="overlay">' +
           '<span class="article-cat" data-cat="' + a.cat + '">' + categoryLabel(a.cat) + '</span>' +
           '<h1 class="article-title">' + a.title + '</h1>' +

@@ -121,7 +121,7 @@
     overlay.className = 'sky-splash';
     overlay.innerHTML = `
       <div class="sky-splash-frame">
-        <video id="sky-splash-video" playsinline preload="auto" controls>
+        <video id="sky-splash-video" playsinline preload="auto" controls poster="/assets/img/SNN%20logo.jpg">
           <source src="${VIDEO_URL}" type="video/mp4"/>
         </video>
         <div class="sky-splash-actions">

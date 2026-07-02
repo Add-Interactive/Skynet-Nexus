@@ -132,6 +132,7 @@ async function main() {
     cat: full.cat,
     title: full.title,
     excerpt: full.excerpt,
+    heroImage: full.heroImage,
     kidTake: full.kidTake,
     ageBand: full.ageBand,
     author: full.author,
