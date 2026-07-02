@@ -38,6 +38,18 @@ Fall back to `web_fetch` on:
 
 **Length:** 400-650 words. Clean HTML.
 
+## 🎨 Featured Image (NEW — OPTIONAL)
+
+After writing, if you want a generated featured image, include:
+
+```
+[GENERATE IMAGE]
+Prompt: {robot_type} robot in action, advanced engineering, futuristic, sleek metallic surfaces, LED indicators, precise movements, high quality 3D rendering, professional lighting
+Robot example: "FRC swerve drive" or "VEX claw mechanism"
+```
+
+Director will generate and add. Format: `![Featured Image](data/articles/YYYY-MM-DD/{article-id}-featured.jpg)`
+
 ## Output format — RESPOND WITH ONLY THIS FENCED BLOCK
 
 ```json

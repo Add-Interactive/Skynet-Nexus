@@ -43,6 +43,18 @@ Fall back to `web_fetch` on:
 
 **Length:** 400-650 words. Clean HTML.
 
+## 🎨 Featured Image (NEW — OPTIONAL)
+
+After writing, if you want a generated featured image, include:
+
+```
+[GENERATE IMAGE]
+Prompt: {topic} creative scene, playful, inspiring young creators, colorful, vibrant, high quality illustration
+Topic example: "kid building Minecraft world" or "Scratch coding project"
+```
+
+Director will generate and add. Format: `![Featured Image](data/articles/YYYY-MM-DD/{article-id}-featured.jpg)`
+
 ## Output format — RESPOND WITH ONLY THIS FENCED BLOCK
 
 ```json

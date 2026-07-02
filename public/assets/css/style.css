@@ -383,6 +383,12 @@ body::before{
 .footer-bottom .socials a{width:32px;height:32px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border);display:grid;place-items:center;color:var(--text-dim);transition:all .2s}
 .footer-bottom .socials a:hover{color:var(--accent);border-color:var(--accent);transform:translateY(-2px)}
 .footer-bottom .socials svg{width:16px;height:16px}
+.story-tips-btn{display:flex !important;align-items:center;gap:8px;width:auto !important;height:auto !important;padding:8px 16px !important;background:linear-gradient(135deg,var(--accent),var(--accent-2)) !important;border:none !important;border-radius:24px !important;color:#fff !important;font-weight:600;font-size:.9rem !important;transition:all .3s cubic-bezier(.4,.2,.2,1) !important;box-shadow:0 4px 16px rgba(0,200,255,.2) !important;cursor:pointer !important;position:relative;overflow:hidden}
+.story-tips-btn::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,var(--accent-2),var(--accent));opacity:0;transition:opacity .3s}
+.story-tips-btn:hover{transform:translateY(-3px) scale(1.05) !important;box-shadow:0 8px 24px rgba(0,200,255,.35) !important}
+.story-tips-btn:hover::before{opacity:1}
+.story-tips-btn span{position:relative;z-index:1;display:flex;align-items:center}
+.story-tips-btn svg{width:18px;height:18px;position:relative;z-index:1}
 
 /* Toast */
 .toast{position:fixed;bottom:24px;right:24px;background:var(--bg-card);border:1px solid var(--accent);border-radius:var(--radius);padding:12px 20px;box-shadow:var(--glow-cyan);z-index:100;transform:translateY(120%);transition:transform .3s cubic-bezier(.4,.2,.2,1);display:flex;align-items:center;gap:10px;color:var(--text);font-weight:500;font-size:.9rem}

@@ -40,6 +40,18 @@ Also try `--news` flag for news-mode searches. If Brave is not configured, fall 
 
 **Length:** 400-650 words in the main body. Clean HTML: `<p>`, `<h2>`, `<blockquote>`, `<ul>`. No markdown.
 
+## 🎨 Featured Image (NEW — OPTIONAL)
+
+After writing, if you want a generated featured image, include this in your filing note:
+
+```
+[GENERATE IMAGE]
+Prompt: {topic} educational illustration, scientific style, colorful diagrams, kids learning, bright backgrounds, high quality digital art
+Topic example: "quantum computing breakthrough" or "student winning science fair"
+```
+
+Director will generate and add to article. Format: `![Featured Image](data/articles/YYYY-MM-DD/{article-id}-featured.jpg)`
+
 ## Output format — RESPOND WITH ONLY THIS FENCED BLOCK
 
 ```json
