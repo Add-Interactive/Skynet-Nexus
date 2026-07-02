@@ -71,7 +71,20 @@ body::before{
 /* App Layout */
 .app{position:relative;z-index:1;max-width:1500px;margin:0 auto;display:grid;grid-template-columns:240px 1fr 320px;gap:22px;padding:22px}
 @media (max-width:1200px){.app{grid-template-columns:220px 1fr}.right-rail{display:none}}
-@media (max-width:900px){.app{grid-template-columns:1fr;padding:16px}.sidebar{display:none}.sidebar.open{display:block;position:fixed;top:66px;left:0;right:0;bottom:0;background:var(--bg);z-index:40;padding:20px;overflow-y:auto;max-height:none}}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr;padding:16px}
+  .sidebar{display:none}
+  .sidebar.open{
+    display:block;position:fixed;top:var(--drawer-top,60px);left:0;right:0;bottom:0;
+    background:var(--bg);z-index:48;padding:20px 20px 40px;overflow-y:auto;max-height:none;
+    box-shadow:0 -1px 0 var(--border) inset;-webkit-overflow-scrolling:touch;
+  }
+  .sky-drawer-backdrop{
+    position:fixed;top:var(--drawer-top,60px);left:0;right:0;bottom:0;z-index:47;
+    background:rgba(0,0,0,.5);backdrop-filter:blur(2px);
+  }
+  body.sky-drawer-open{overflow:hidden}
+}
 
 /* Sidebar */
 .sidebar{position:sticky;top:82px;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto;padding-right:4px}
@@ -213,6 +226,8 @@ body::before{
 [data-theme="light"] .countdown-cell{background:rgba(255,255,255,.6)}
 .countdown-num{font-family:'JetBrains Mono',monospace;font-size:1.35rem;font-weight:800;color:var(--accent);line-height:1}
 .countdown-lab{font-size:.62rem;color:var(--text-mute);letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+.countdown-link{display:inline-block;margin-top:14px;font-size:.8rem;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid rgba(255,46,99,.4);border-radius:8px;padding:7px 12px;transition:background .15s,border-color .15s}
+.countdown-link:hover{background:rgba(255,46,99,.15);border-color:rgba(255,46,99,.7)}
 
 /* Leaderboard */
 .lb-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}

@@ -121,6 +121,8 @@
 .sky-menu-link-btn { font: 500 13px/1.2 Inter, sans-serif; }
 .sky-danger { color: #ff2e63; }
 .sky-danger:hover { background: rgba(255,46,99,.1); }
+.sky-menu-link-admin { color: #00e5ff; font-weight: 700; }
+.sky-menu-link-admin:hover { background: rgba(0,229,255,.1); }
 
 /* ---- Sidebar user card ---- */
 .sky-user-card { text-align: center; }
@@ -146,6 +148,8 @@
   color: #0a0e17; border-color: transparent;
 }
 .sky-btn-primary:hover { box-shadow: 0 6px 20px rgba(0,229,255,.35); }
+.sky-btn-admin { border-color: rgba(0,229,255,.4); color: #00e5ff; }
+.sky-btn-admin:hover { background: rgba(0,229,255,.12); }
 
 /* ---- Watch-intro-again button (footer or sidebar) ---- */
 .sky-intro-slot { margin-top: 12px; }

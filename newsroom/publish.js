@@ -10,7 +10,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const SKYNET_ROOT = 'C:\\Users\\bekin\\OneDrive\\Desktop\\Skynet';
+// Repo root, derived from this file's location so it works on any host (Windows dev + Linux/Railway prod).
+const SKYNET_ROOT = process.env.SKYNET_ROOT || path.resolve(__dirname, '..');
 const DATA_ROOT = path.join(SKYNET_ROOT, 'data');
 const ART_ROOT = path.join(DATA_ROOT, 'articles');
 const MANIFEST = path.join(DATA_ROOT, 'manifest.json');

@@ -209,6 +209,7 @@
             `).join('')}
           </div>
           <a class="sky-menu-link" href="/pages/profile.html">👪 Family profile</a>
+          ${(State.user.role === 'admin' || State.user.role === 'editor') ? '<a class="sky-menu-link sky-menu-link-admin" href="/pages/admin.html">🛰️ Admin portal</a>' : ''}
           <button type="button" class="sky-menu-link sky-menu-link-btn" id="sky-menu-intro">▶ Watch intro again</button>
           <button type="button" class="sky-menu-link sky-menu-link-btn sky-danger" id="sky-menu-logout">Sign out</button>
         </div>
@@ -265,6 +266,7 @@
         <div class="u-tier">${kid ? '🎒 Kid mode active' : '👪 Parent account'} · ${State.kids.length} kid profile${State.kids.length === 1 ? '' : 's'}</div>
         <div class="sky-cta-row">
           <a class="sky-btn sky-btn-primary" href="/pages/profile.html">Manage family</a>
+          ${(State.user.role === 'admin' || State.user.role === 'editor') ? '<a class="sky-btn sky-btn-admin" href="/pages/admin.html">🛰️ Admin portal</a>' : ''}
         </div>
       </div>
     `;

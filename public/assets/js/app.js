@@ -146,60 +146,44 @@ let ARTICLES = [];
 /* Extended article dataset + trending + leaderboard + polls */
 
 // Note: legacy ARTICLES.push(...) block removed - articles now load from data/manifest.json
-// -------- TRENDING TOPICS --------
-const TRENDING = [
-  { tag: '#ScienceFair2026', posts: '2.1K', tone: 'stem' },
-  { tag: '#FIRSTRobotics', posts: '4.3K', tone: 'robotics' },
-  { tag: '#ScratchMakes', posts: '3.7K', tone: 'play' },
-  { tag: '#YoungArts26', posts: '1.9K', tone: 'music' },
-  { tag: '#MinecraftEDU', posts: '5.2K', tone: 'play' },
-  { tag: '#TeenAstronomer', posts: '1.4K', tone: 'stem' },
-  { tag: '#StudentComposer', posts: '890', tone: 'music' }
-];
+// -------- TRENDING TOPICS (derived from real published article tags) --------
+let TRENDING = [];
 
-// -------- LEADERBOARD (weekly reader highlights: young makers readers loved most) --------
-const LEADERBOARD = [
-  { rank: 1, name: 'Priya R.',        crew: 'Regeneron STS Finalist \u2022 STEM',   score: 1240, av: 'PR' },
-  { rank: 2, name: 'Team 254',        crew: 'FRC Champions \u2022 Robotics',        score: 1180, av: '254' },
-  { rank: 3, name: 'Amara O.',        crew: 'Scratch Creator, Age 10 \u2022 Play',  score: 1105, av: 'AO' },
-  { rank: 4, name: 'Ana K.',          crew: 'YoungArts Violin \u2022 Music',        score: 987,  av: 'AK' },
-  { rank: 5, name: 'The Ideators',    crew: 'FLL Global Innovation \u2022 Robotics', score: 942,  av: 'FLL' }
-];
+// -------- LEADERBOARD (populated from real reader activity once available) --------
+const LEADERBOARD = [];
 
 // -------- FEATURED EVENT (for countdown) --------
-const now = new Date();
 const EVENT = {
-  title: 'FIRST Robotics Championship 2026',
-  sub: 'Kick-off ceremony. 600 student teams. Free livestream.',
-  target: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 8, 18, 0, 0)
+  title: 'FIRST Robotics 2027 Kickoff',
+  sub: 'BIOCORE game reveal + free livestream \u2014 Jan 9, 2027, 12pm ET.',
+  target: new Date('2027-01-09T12:00:00-05:00'),
+  url: 'https://www.firstinspires.org/robotics/frc/game-and-season'
 };
 
 // -------- POLL --------
 const POLL = {
   question: 'Which channel are you most excited about this week?',
   options: [
-    { label: '\ud83e\uddec STEM \u2014 young scientists',        pct: 28 },
-    { label: '\ud83e\udd16 Robotics \u2014 FIRST & VEX',           pct: 32 },
-    { label: '\ud83c\udfa8 Play & Design \u2014 kid creators',    pct: 24 },
-    { label: '\ud83c\udfa7 Music \u2014 teen musicians',           pct: 16 }
+    { label: '\ud83e\uddec STEM \u2014 young scientists' },
+    { label: '\ud83e\udd16 Robotics \u2014 FIRST & VEX' },
+    { label: '\ud83c\udfa8 Play & Design \u2014 kid creators' },
+    { label: '\ud83c\udfa7 Music \u2014 teen musicians' }
   ]
 };
 
-// -------- LIVE STATS --------
+// -------- LIVE STATS (recomputed from the live manifest in renderStats) --------
 const STATS = {
-  activeReaders: 128,
-  storiesToday: 1,
-  liveEvents: 1,
-  contributors: 5
+  storiesToday: 0,
+  totalStories: 0,
+  channels: 4,
+  contributors: 0
 };
 
-// -------- TICKER MESSAGES --------
-const TICKER = [
-  { label: 'LAUNCH', text: 'Skynet Nexus News goes live \u2014 first full edition tomorrow at 10 AM ET' },
-  { label: 'STEM', text: 'FIRST Robotics Championship kicks off in Houston next week' },
-  { label: 'PLAY', text: 'Scratch Foundation announces 2026 Creator Awards' },
-  { label: 'MUSIC', text: 'YoungArts announces 2026 Winter Finalists' },
-  { label: 'FAMILY', text: 'Every article now includes a Kid Take and Family Discussion questions' }
+// -------- TICKER (falls back to these if no articles are live yet) --------
+const TICKER_FALLBACK = [
+  { label: 'LIVE', text: 'Skynet Nexus News is live in beta \u2014 a new family-first edition every day' },
+  { label: 'FAMILY', text: 'Every article includes a Kid Take and Family Discussion questions' },
+  { label: 'TIP', text: 'Spotted a young maker, scientist, or musician? Send us a story tip from the Contact page' }
 ];
 
 /* =========================================================
@@ -437,16 +421,29 @@ function initSearch() {
 function renderTrending() {
   const el = document.getElementById('trending-list');
   if (!el) return;
+  // Derive trending tags from the real published articles.
+  const counts = {};
+  ARTICLES.forEach(a => (a.tags || []).forEach(t => {
+    const key = String(t).trim();
+    if (!key) return;
+    if (!counts[key]) counts[key] = { tag: key, n: 0, tone: a.cat };
+    counts[key].n++;
+  }));
+  TRENDING = Object.values(counts).sort((a, b) => b.n - a.n).slice(0, 7);
+  if (!TRENDING.length) {
+    el.innerHTML = '<li class="trend-empty" style="color:var(--text-mute);padding:12px 4px;font-size:.85rem">Trending topics appear as stories publish.</li>';
+    return;
+  }
   el.innerHTML = TRENDING.map((t, i) =>
     '<li data-tag="' + t.tag + '">' +
       '<span class="trend-num">' + String(i + 1).padStart(2, '0') + '</span>' +
       '<div class="trend-body">' +
-        '<span class="trend-hashtag">' + t.tag + '</span>' +
-        '<span class="trend-meta">' + t.posts + ' posts • ' + categoryLabel(t.tone) + '</span>' +
+        '<span class="trend-hashtag">#' + t.tag.replace(/^#/, '') + '</span>' +
+        '<span class="trend-meta">' + t.n + ' stor' + (t.n === 1 ? 'y' : 'ies') + ' • ' + categoryLabel(t.tone) + '</span>' +
       '</div>' +
     '</li>'
   ).join('');
-  el.querySelectorAll('li').forEach(li => {
+  el.querySelectorAll('li[data-tag]').forEach(li => {
     li.addEventListener('click', () => {
       searchQuery = li.dataset.tag.replace('#', '');
       const input = document.getElementById('global-search');
@@ -460,6 +457,10 @@ function renderTrending() {
 function renderLeaderboard() {
   const el = document.getElementById('leaderboard');
   if (!el) return;
+  if (!LEADERBOARD.length) {
+    el.innerHTML = '<div class="lb-empty" style="color:var(--text-mute);padding:12px 4px;font-size:.85rem">Reader rankings open up as the community grows. Check back soon.</div>';
+    return;
+  }
   el.innerHTML = LEADERBOARD.map(u =>
     '<div class="lb-item">' +
       '<div class="lb-rank">' + u.rank + '</div>' +
@@ -480,6 +481,15 @@ function renderCountdown() {
   const subEl = document.getElementById('countdown-sub');
   if (titleEl) titleEl.textContent = EVENT.title;
   if (subEl) subEl.textContent = EVENT.sub;
+  const linkEl = document.getElementById('countdown-link');
+  if (linkEl) {
+    if (EVENT.url) {
+      linkEl.href = EVENT.url;
+      linkEl.hidden = false;
+    } else {
+      linkEl.hidden = true;
+    }
+  }
   const tick = () => {
     const diff = Math.max(0, EVENT.target - new Date());
     const d = Math.floor(diff / 86400000);
@@ -499,21 +509,22 @@ function renderCountdown() {
 function renderStats() {
   const el = document.getElementById('stat-tiles');
   if (!el) return;
+  // Compute honest numbers from the live manifest.
+  const today = new Date().toISOString().slice(0, 10);
+  const storiesToday = ARTICLES.filter(a => String(a.date || '').slice(0, 10) === today).length;
+  const authors = new Set(ARTICLES.map(a => a.author).filter(Boolean));
+  STATS.storiesToday = storiesToday;
+  STATS.totalStories = ARTICLES.length;
+  STATS.contributors = authors.size;
   const tiles = [
-    { num: STATS.activeReaders, lab: 'Reading Now' },
-    { num: STATS.storiesToday, lab: 'Stories Today' },
-    { num: STATS.liveEvents, lab: 'Live Events' },
+    { num: STATS.totalStories, lab: 'Stories Live' },
+    { num: STATS.storiesToday, lab: 'Published Today' },
+    { num: STATS.channels, lab: 'Channels' },
     { num: STATS.contributors, lab: 'Contributors' }
   ];
   el.innerHTML = tiles.map(t =>
     '<div class="stat-tile"><div class="num">' + formatCount(t.num) + '</div><div class="lab">' + t.lab + '</div></div>'
   ).join('');
-  // Roll active readers occasionally
-  setInterval(() => {
-    STATS.activeReaders += Math.floor(Math.random() * 21) - 10;
-    const first = el.querySelector('.stat-tile .num');
-    if (first) first.textContent = formatCount(STATS.activeReaders);
-  }, 4000);
 }
 
 function renderPoll() {
@@ -524,21 +535,16 @@ function renderPoll() {
   if (q) q.textContent = POLL.question;
   el.innerHTML = POLL.options.map((o, i) =>
     '<div class="poll-opt' + (voted !== null ? ' voted' : '') + (voted === i ? ' selected' : '') + '" data-i="' + i + '">' +
-      (voted !== null ? '<div class="poll-bar" data-pct="' + o.pct + '"></div>' : '') +
       '<span class="poll-label">' + o.label + '</span>' +
-      (voted !== null ? '<span class="poll-pct">' + o.pct + '%</span>' : '') +
+      (voted === i ? '<span class="poll-pct">✓ your pick</span>' : '') +
     '</div>'
   ).join('');
-  if (voted !== null) {
-    requestAnimationFrame(() => {
-      el.querySelectorAll('.poll-bar').forEach(b => { b.style.width = b.dataset.pct + '%'; });
-    });
-  } else {
+  if (voted === null) {
     el.querySelectorAll('.poll-opt').forEach(o => {
       o.addEventListener('click', () => {
         LS.set('poll_voted', Number(o.dataset.i));
         renderPoll();
-        toast('Vote counted!');
+        toast('Thanks for voting!');
       });
     });
   }
@@ -547,8 +553,14 @@ function renderPoll() {
 function renderTicker() {
   const el = document.getElementById('ticker-inner');
   if (!el) return;
+  // Prefer real, freshly published headlines; fall back to evergreen site lines.
+  let items = ARTICLES.slice()
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 6)
+    .map(a => ({ label: categoryLabel(a.cat).toUpperCase(), text: a.title }));
+  if (!items.length) items = TICKER_FALLBACK;
   // duplicate for seamless scroll
-  const html = TICKER.concat(TICKER).map(t =>
+  const html = items.concat(items).map(t =>
     '<span><strong>' + t.label + '</strong> ' + t.text + '</span><span class="sep">•</span>'
   ).join('');
   el.innerHTML = html;
@@ -658,16 +670,15 @@ function initArticlePage() {
       '</div>' +
     '</article>';
 
-  // seed sample comments
-  const seedComments = [
-    { name: 'JennyBuilds', av: 'JB', time: '2h ago', text: 'This is genuinely inspiring. Sharing with my whole class tomorrow.' },
-    { name: 'PixelPunk', av: 'PP', time: '5h ago', text: 'Ok but the fact they open sourced everything is the real MVP move.' },
-    { name: 'RhythmRae',  av: 'RR', time: '1d ago', text: 'Been waiting for coverage like this. More youth voices, less corporate takes. ðŸ™Œ' }
-  ];
+  // Comments start empty in production; only real reader comments (stored locally) show.
   const userComments = LS.get('comments_' + a.id, []);
   const cl = document.getElementById('comment-list');
   const paint = () => {
-    cl.innerHTML = userComments.concat(seedComments).map(c =>
+    if (!userComments.length) {
+      cl.innerHTML = '<div class="comment-empty" style="color:var(--text-mute);padding:16px 4px;font-size:.9rem">No comments yet — be the first to share a kind, on-topic thought.</div>';
+      return;
+    }
+    cl.innerHTML = userComments.map(c =>
       '<div class="comment">' +
         '<div class="author-avatar">' + c.av + '</div>' +
         '<div class="comment-body">' +
@@ -734,8 +745,45 @@ function initMobileMenu() {
   const btn = document.getElementById('menu-toggle');
   const sb = document.querySelector('.sidebar');
   if (!btn || !sb) return;
-  btn.addEventListener('click', () => sb.classList.toggle('open'));
-  document.querySelectorAll('.sidebar a').forEach(a => a.addEventListener('click', () => sb.classList.remove('open')));
+
+  let backdrop = null;
+
+  // Position the drawer flush below the sticky header (header height can vary on mobile).
+  function syncDrawerTop() {
+    const bar = document.querySelector('.topbar');
+    const bottom = bar ? Math.round(bar.getBoundingClientRect().bottom) : 60;
+    document.documentElement.style.setProperty('--drawer-top', bottom + 'px');
+  }
+
+  function closeMenu() {
+    sb.classList.remove('open');
+    document.body.classList.remove('sky-drawer-open');
+    if (backdrop) { backdrop.remove(); backdrop = null; }
+  }
+
+  function openMenu() {
+    syncDrawerTop();
+    sb.classList.add('open');
+    document.body.classList.add('sky-drawer-open');
+    if (!backdrop) {
+      backdrop = document.createElement('div');
+      backdrop.className = 'sky-drawer-backdrop';
+      backdrop.addEventListener('click', closeMenu);
+      document.body.appendChild(backdrop);
+    }
+  }
+
+  btn.addEventListener('click', () => {
+    if (sb.classList.contains('open')) closeMenu(); else openMenu();
+  });
+
+  // Close after tapping any nav link, or on Escape / resize to desktop.
+  document.querySelectorAll('.sidebar a').forEach(a => a.addEventListener('click', closeMenu));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 900) closeMenu();
+    else if (sb.classList.contains('open')) syncDrawerTop();
+  });
 }
 
 // ---------- Set top-bar icons ----------

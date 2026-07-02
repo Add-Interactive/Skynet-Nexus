@@ -1,0 +1,705 @@
+/* ============================================================
+   Skynet Nexus News — Admin Portal client
+   Talks to /api/admin/* (role: admin | editor).
+   Vanilla JS, no dependencies.
+   ============================================================ */
+(function () {
+  'use strict';
+
+  var API = '/api';
+  var ADMIN_ROLES = ['admin', 'editor'];
+
+  var State = {
+    user: null,
+    staff: [],
+    overview: null,
+    view: 'dashboard',
+    agentId: null,
+    agentTab: 'chat'
+  };
+
+  // ---------- DOM helpers ----------
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var gate = $('#admin-gate');
+  var app = $('#admin-app');
+  var main = $('#admin-main');
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function h(html) { var t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; }
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    var d = new Date(iso.indexOf('T') > -1 ? iso : iso.replace(' ', 'T') + 'Z');
+    if (isNaN(d)) return esc(iso);
+    var now = new Date();
+    var diff = (now - d) / 1000;
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  var toastEl = $('#admin-toast');
+  var toastTimer = null;
+  function toast(msg, isErr) {
+    toastEl.textContent = msg;
+    toastEl.classList.toggle('err', !!isErr);
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 3200);
+  }
+
+  // ---------- API ----------
+  function api(path, opts) {
+    opts = opts || {};
+    return fetch(API + path, {
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      method: opts.method || 'GET',
+      body: opts.body != null ? (typeof opts.body === 'string' ? opts.body : JSON.stringify(opts.body)) : undefined
+    }).then(function (res) {
+      return res.json().catch(function () { return null; }).then(function (data) {
+        if (!res.ok) {
+          var err = new Error((data && data.error) || ('Request failed (' + res.status + ')'));
+          err.status = res.status; err.data = data;
+          throw err;
+        }
+        return data;
+      });
+    });
+  }
+  function isFullAdmin() { return State.user && State.user.role === 'admin'; }
+
+  // ---------- Boot / auth gate ----------
+  function boot() {
+    api('/auth/me').then(function (r) {
+      var user = r && r.user;
+      if (user && ADMIN_ROLES.indexOf(user.role) > -1) {
+        State.user = user;
+        showApp();
+      } else if (user) {
+        showGate('Your account (' + esc(user.email) + ') is not an admin. Ask an administrator for access.', false);
+      } else {
+        showGate('Sign in with an admin account to continue.', true);
+      }
+    }).catch(function () {
+      showGate('Sign in with an admin account to continue.', true);
+    });
+  }
+
+  function showGate(message, showForm) {
+    app.hidden = true;
+    gate.hidden = false;
+    $('#admin-gate-status').textContent = message;
+    $('#admin-login-form').hidden = !showForm;
+  }
+
+  function showApp() {
+    gate.hidden = true;
+    app.hidden = false;
+    $('#admin-whoami').textContent = State.user.displayName + ' · ' + State.user.email;
+    $('#admin-role-pill').textContent = State.user.role;
+    document.body.classList.toggle('is-full-admin', isFullAdmin());
+    // Hide admin-only nav for editors
+    Array.prototype.forEach.call(document.querySelectorAll('.admin-only'), function (el) {
+      el.style.display = isFullAdmin() ? '' : 'none';
+    });
+    refreshBadges();
+    navTo('dashboard');
+  }
+
+  // ---------- Login ----------
+  $('#admin-login-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var errEl = $('#admin-login-error');
+    errEl.hidden = true;
+    var email = $('#admin-login-email').value.trim();
+    var password = $('#admin-login-password').value;
+    api('/auth/login', { method: 'POST', body: { email: email, password: password } })
+      .then(function (r) {
+        var user = r && r.user;
+        if (user && ADMIN_ROLES.indexOf(user.role) > -1) {
+          State.user = user; showApp();
+        } else {
+          errEl.textContent = 'That account does not have admin access.';
+          errEl.hidden = false;
+        }
+      })
+      .catch(function (err) {
+        errEl.textContent = err.message || 'Sign in failed.';
+        errEl.hidden = false;
+      });
+  });
+
+  $('#admin-logout').addEventListener('click', function () {
+    api('/auth/logout', { method: 'POST' }).finally(function () { location.reload(); });
+  });
+
+  // ---------- Nav ----------
+  var navEl = $('#admin-nav');
+  navEl.addEventListener('click', function (e) {
+    var btn = e.target.closest('.admin-nav-link');
+    if (!btn) return;
+    navTo(btn.getAttribute('data-view'));
+    navEl.classList.remove('open');
+  });
+  $('#admin-menu-btn').addEventListener('click', function () { navEl.classList.toggle('open'); });
+
+  function navTo(view) {
+    State.view = view;
+    Array.prototype.forEach.call(navEl.querySelectorAll('.admin-nav-link'), function (b) {
+      b.classList.toggle('active', b.getAttribute('data-view') === view);
+    });
+    main.innerHTML = '<div class="admin-loading">Loading…</div>';
+    var fn = Views[view];
+    if (fn) fn(); else main.innerHTML = '<div class="admin-empty">Unknown view.</div>';
+  }
+
+  function refreshBadges() {
+    api('/admin/overview').then(function (o) {
+      State.overview = o;
+      setBadge('nav-badge-submissions', o.submissions && o.submissions.pending);
+      setBadge('nav-badge-queue', o.queue && o.queue.draft);
+    }).catch(function () {});
+  }
+  function setBadge(id, n) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (n && n > 0) { el.textContent = n; el.hidden = false; } else { el.hidden = true; }
+  }
+
+  // ---------- Views ----------
+  var Views = {};
+
+  // ===== Dashboard =====
+  Views.dashboard = function () {
+    api('/admin/overview').then(function (o) {
+      State.overview = o;
+      var a = o.articles || {}, q = o.queue || {}, s = o.submissions || {}, u = o.users || {};
+      var per = a.perChannel || {};
+      main.innerHTML = '';
+      main.appendChild(h(
+        '<div class="admin-view-head"><h1>Newsroom Dashboard</h1><p>Live snapshot · ' + fmtDate(o.now) + '</p></div>'
+      ));
+      main.appendChild(h(
+        '<div class="admin-stat-grid">' +
+          stat('accent', a.total || 0, 'Published articles') +
+          stat('green', a.today || 0, 'Published today') +
+          stat('pink', s.pending || 0, 'Tips awaiting review') +
+          stat('purple', q.draft || 0, 'Drafts in queue') +
+          stat('', q.approved || 0, 'Approved, ready') +
+          stat('', u.total || 0, 'Registered users') +
+          stat('', u.newsletter || 0, 'Newsletter subs') +
+          stat('', (o.staff && o.staff.total) || 0, 'Staff & agents') +
+        '</div>'
+      ));
+      main.appendChild(h(
+        '<div class="admin-panel"><h2>Coverage by channel</h2>' +
+        '<div class="admin-stat-grid">' +
+          stat('accent', per.stem || 0, 'STEM') +
+          stat('purple', per.robotics || 0, 'Robotics') +
+          stat('green', per.play || 0, 'Play & Design') +
+          stat('pink', per.music || 0, 'Music') +
+          stat('', per.network || 0, 'Network') +
+        '</div></div>'
+      ));
+      var quick = h(
+        '<div class="admin-panel"><h2>Quick actions</h2><div class="row-actions"></div></div>'
+      );
+      var ra = quick.querySelector('.row-actions');
+      [['agents', 'Message an agent'], ['submissions', 'Review reader tips'], ['queue', 'Review story queue'], ['compose', 'Write & publish']]
+        .forEach(function (p) {
+          var b = h('<button class="admin-btn">' + p[1] + '</button>');
+          b.addEventListener('click', function () { navTo(p[0]); });
+          ra.appendChild(b);
+        });
+      main.appendChild(quick);
+    }).catch(errView);
+  };
+  function stat(cls, n, label) {
+    return '<div class="admin-stat ' + cls + '"><div class="n">' + esc(n) + '</div><div class="l">' + esc(label) + '</div></div>';
+  }
+
+  // ===== Agents & Staff =====
+  Views.agents = function () {
+    api('/admin/staff').then(function (r) {
+      State.staff = r.staff || [];
+      main.innerHTML = '';
+      main.appendChild(h('<div class="admin-view-head"><h1>Agents &amp; Staff</h1><p>Message correspondents and assign them stories to write. Tasks & messages are picked up by each agent during its next newsroom run.</p></div>'));
+      var layout = h('<div class="agents-layout"><div class="agent-list" id="agent-list"></div><div id="agent-detail"></div></div>');
+      main.appendChild(layout);
+      var list = layout.querySelector('#agent-list');
+      State.staff.forEach(function (st) {
+        var card = h(
+          '<button class="agent-card" data-id="' + st.id + '">' +
+            '<span class="agent-av" style="background:' + esc(st.accentColor || '#1a2233') + '22">' + esc(st.avatarEmoji || '🛰️') + '</span>' +
+            '<span><span class="an">' + esc(st.displayName) + '</span><br><span class="ar">' + esc(st.role) + '</span></span>' +
+          '</button>'
+        );
+        card.addEventListener('click', function () { selectAgent(st.id); });
+        list.appendChild(card);
+      });
+      if (State.staff.length) selectAgent(State.agentId || State.staff[0].id);
+      else layout.querySelector('#agent-detail').innerHTML = '<div class="admin-empty">No staff configured.</div>';
+    }).catch(errView);
+  };
+
+  function selectAgent(id) {
+    State.agentId = id;
+    Array.prototype.forEach.call(document.querySelectorAll('.agent-card'), function (c) {
+      c.classList.toggle('active', Number(c.getAttribute('data-id')) === Number(id));
+    });
+    api('/admin/staff/' + id).then(function (r) {
+      renderAgentDetail(r.staff, r.tasks || [], r.messages || []);
+    }).catch(errView);
+  }
+
+  function renderAgentDetail(st, tasks, messages) {
+    var box = document.getElementById('agent-detail');
+    if (!box) return;
+    box.className = 'agent-detail';
+    box.innerHTML = '';
+    box.appendChild(h(
+      '<div class="agent-detail-head">' +
+        '<span class="agent-av" style="background:' + esc(st.accentColor || '#1a2233') + '22">' + esc(st.avatarEmoji || '🛰️') + '</span>' +
+        '<div class="meta"><h2>' + esc(st.displayName) + '</h2><div class="sub">' + esc(st.role) + (st.channel ? ' · #' + esc(st.channel) : '') + '</div>' +
+        (st.bio ? '<div class="sub">' + esc(st.bio) + '</div>' : '') + '</div>' +
+        '<span class="pill ' + esc(st.status) + '">' + esc(st.status) + '</span>' +
+      '</div>'
+    ));
+    var tabs = h(
+      '<div class="agent-tabs">' +
+        '<button class="agent-tab" data-tab="chat">💬 Chat</button>' +
+        '<button class="agent-tab" data-tab="task">📝 Assign task</button>' +
+        '<button class="agent-tab" data-tab="tasks">📋 Tasks (' + tasks.length + ')</button>' +
+      '</div>'
+    );
+    box.appendChild(tabs);
+    var pane = h('<div class="agent-pane" id="agent-pane"></div>');
+    box.appendChild(pane);
+    tabs.addEventListener('click', function (e) {
+      var b = e.target.closest('.agent-tab'); if (!b) return;
+      State.agentTab = b.getAttribute('data-tab');
+      paintAgentTab(st, tasks, messages);
+    });
+    paintAgentTab(st, tasks, messages);
+  }
+
+  function paintAgentTab(st, tasks, messages) {
+    var tab = State.agentTab || 'chat';
+    Array.prototype.forEach.call(document.querySelectorAll('.agent-tab'), function (b) {
+      b.classList.toggle('active', b.getAttribute('data-tab') === tab);
+    });
+    var pane = document.getElementById('agent-pane');
+    if (!pane) return;
+    if (tab === 'chat') paintChat(st, messages);
+    else if (tab === 'task') paintTaskForm(st);
+    else paintTasks(st, tasks);
+  }
+
+  function paintChat(st, messages) {
+    var pane = document.getElementById('agent-pane');
+    pane.innerHTML = '';
+    var log = h('<div class="chat-log" id="chat-log"></div>');
+    if (!messages.length) log.appendChild(h('<div class="chat-empty">No messages yet. Say hello or hand over a brief below.</div>'));
+    messages.forEach(function (m) {
+      log.appendChild(h(
+        '<div class="chat-msg ' + esc(m.author) + '">' +
+          '<div class="who">' + esc(m.author) + '</div>' +
+          '<div>' + esc(m.body) + '</div>' +
+          '<div class="t">' + fmtDate(m.createdAt) + '</div>' +
+        '</div>'
+      ));
+    });
+    pane.appendChild(log);
+    var compose = h(
+      '<div class="chat-compose">' +
+        '<textarea id="chat-input" placeholder="Message ' + esc(st.displayName) + '… (Ctrl+Enter to send)"></textarea>' +
+        '<button class="admin-btn admin-btn-primary" id="chat-send">Send</button>' +
+      '</div>'
+    );
+    pane.appendChild(compose);
+    log.scrollTop = log.scrollHeight;
+    var input = compose.querySelector('#chat-input');
+    function send() {
+      var body = input.value.trim();
+      if (!body) return;
+      compose.querySelector('#chat-send').disabled = true;
+      api('/admin/staff/' + st.id + '/messages', { method: 'POST', body: { body: body } })
+        .then(function () { input.value = ''; toast('Message sent'); selectAgent(st.id); })
+        .catch(function (e) { toast(e.message, true); compose.querySelector('#chat-send').disabled = false; });
+    }
+    compose.querySelector('#chat-send').addEventListener('click', send);
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); send(); } });
+  }
+
+  function paintTaskForm(st, prefill) {
+    prefill = prefill || {};
+    var pane = document.getElementById('agent-pane');
+    pane.innerHTML = '';
+    var form = h(
+      '<form class="admin-form">' +
+        '<label>Task title<input id="task-title" maxlength="200" required value="' + esc(prefill.title || '') + '"/></label>' +
+        '<label>Instructions <span class="hint">What to research, verify, and write. Include sources if you have them.</span>' +
+          '<textarea id="task-instructions" maxlength="8000" required>' + esc(prefill.instructions || '') + '</textarea></label>' +
+        '<div class="admin-form-row">' +
+          '<label>Priority<select id="task-priority">' +
+            '<option value="low">Low</option><option value="normal" selected>Normal</option>' +
+            '<option value="high">High</option><option value="urgent">Urgent</option></select></label>' +
+        '</div>' +
+        '<button type="submit" class="admin-btn admin-btn-primary">Assign task to ' + esc(st.displayName) + '</button>' +
+      '</form>'
+    );
+    pane.appendChild(form);
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var body = {
+        title: form.querySelector('#task-title').value.trim(),
+        instructions: form.querySelector('#task-instructions').value.trim(),
+        priority: form.querySelector('#task-priority').value
+      };
+      if (prefill.submissionId) body.submissionId = prefill.submissionId;
+      api('/admin/staff/' + st.id + '/tasks', { method: 'POST', body: body })
+        .then(function () { toast('Task assigned'); State.agentTab = 'tasks'; selectAgent(st.id); refreshBadges(); })
+        .catch(function (err) { toast(err.message, true); });
+    });
+  }
+
+  function paintTasks(st, tasks) {
+    var pane = document.getElementById('agent-pane');
+    pane.innerHTML = '';
+    if (!tasks.length) { pane.appendChild(h('<div class="admin-empty">No tasks assigned yet.</div>')); return; }
+    tasks.forEach(function (t) {
+      var item = h(
+        '<div class="task-item">' +
+          '<div class="th"><span class="tt">' + esc(t.title) + '</span>' +
+            '<span><span class="pill priority-' + esc(t.priority) + '">' + esc(t.priority) + '</span> ' +
+            '<span class="pill ' + esc(t.status) + '">' + esc(t.status) + '</span></span></div>' +
+          '<div class="ti">' + esc(t.instructions) + '</div>' +
+          '<div class="tf"><span class="hint">' + fmtDate(t.createdAt) + '</span></div>' +
+        '</div>'
+      );
+      var tf = item.querySelector('.tf');
+      ['in_progress', 'delivered', 'cancelled'].forEach(function (s) {
+        if (t.status === s) return;
+        var b = h('<button class="admin-btn admin-btn-sm">Mark ' + s.replace('_', ' ') + '</button>');
+        b.addEventListener('click', function () {
+          api('/admin/tasks/' + t.id, { method: 'PATCH', body: { status: s } })
+            .then(function () { toast('Task updated'); selectAgent(st.id); }).catch(function (e) { toast(e.message, true); });
+        });
+        tf.appendChild(b);
+      });
+      pane.appendChild(item);
+    });
+  }
+
+  // ===== Submissions =====
+  Views.submissions = function () {
+    api('/admin/submissions?limit=100').then(function (r) {
+      var subs = r.submissions || [], counts = r.counts || {};
+      main.innerHTML = '';
+      main.appendChild(h('<div class="admin-view-head"><h1>Reader Submissions</h1><p>Story tips sent by readers. Review, then assign to a correspondent to write up.</p></div>'));
+      main.appendChild(h(
+        '<div class="admin-stat-grid">' +
+          stat('pink', counts.pending || 0, 'Pending') +
+          stat('green', counts.approved || 0, 'Approved') +
+          stat('purple', counts.assigned || 0, 'Assigned') +
+          stat('accent', counts.published || 0, 'Published') +
+          stat('', counts.rejected || 0, 'Rejected') +
+        '</div>'
+      ));
+      if (!subs.length) { main.appendChild(h('<div class="admin-empty">No submissions yet.</div>')); return; }
+      var panel = h('<div class="admin-panel"><table class="admin-table"><thead><tr><th>Title</th><th>Channel</th><th>Status</th><th>When</th><th></th></tr></thead><tbody></tbody></table></div>');
+      var tb = panel.querySelector('tbody');
+      subs.forEach(function (s) {
+        var tr = h(
+          '<tr><td><strong>' + esc(s.title) + '</strong></td>' +
+          '<td>' + esc(s.channel) + '</td>' +
+          '<td><span class="pill ' + esc(s.status) + '">' + esc(s.status) + '</span></td>' +
+          '<td class="num">' + fmtDate(s.createdAt) + '</td>' +
+          '<td class="row-actions"></td></tr>'
+        );
+        var actions = tr.querySelector('.row-actions');
+        var view = h('<button class="admin-btn admin-btn-sm">Open</button>');
+        view.addEventListener('click', function () { openSubmission(s); });
+        actions.appendChild(view);
+        tb.appendChild(tr);
+      });
+      main.appendChild(panel);
+    }).catch(errView);
+  };
+
+  function openSubmission(s) {
+    var panel = h('<div class="admin-panel"><h2>📥 ' + esc(s.title) + '</h2></div>');
+    panel.appendChild(h(
+      '<dl class="admin-detail-box">' +
+        '<dt>Channel</dt><dd>' + esc(s.channel) + '</dd>' +
+        '<dt>Summary</dt><dd>' + esc(s.summary) + '</dd>' +
+        (s.body ? '<dt>Body</dt><dd>' + esc(s.body) + '</dd>' : '') +
+        (s.sourceUrl ? '<dt>Source</dt><dd><a href="' + esc(s.sourceUrl) + '" target="_blank" rel="noopener">' + esc(s.sourceUrl) + '</a></dd>' : '') +
+        (s.submitterName ? '<dt>From</dt><dd>' + esc(s.submitterName) + (s.submitterEmail ? ' · ' + esc(s.submitterEmail) : '') + '</dd>' : '') +
+        '<dt>Status</dt><dd><span class="pill ' + esc(s.status) + '">' + esc(s.status) + '</span></dd>' +
+      '</dl>'
+    ));
+    var actions = h('<div class="row-actions" style="margin-top:14px"></div>');
+    var approve = h('<button class="admin-btn admin-btn-sm">Approve</button>');
+    approve.addEventListener('click', function () { patchSubmission(s.id, { status: 'approved' }); });
+    var reject = h('<button class="admin-btn admin-btn-sm admin-btn-danger">Reject</button>');
+    reject.addEventListener('click', function () { patchSubmission(s.id, { status: 'rejected' }); });
+    actions.appendChild(approve); actions.appendChild(reject);
+
+    // Assign to correspondent
+    var assignWrap = h('<div style="margin-top:14px"></div>');
+    ensureStaff().then(function () {
+      var opts = State.staff.filter(function (st) { return st.kind === 'agent'; })
+        .map(function (st) { return '<option value="' + st.id + '"' + (st.channel === s.channel ? ' selected' : '') + '>' + esc(st.displayName) + ' (' + esc(st.role) + ')</option>'; }).join('');
+      var row = h('<div class="admin-form-row"><label>Assign to correspondent<select id="assign-staff">' + opts + '</select></label></div>');
+      var btn = h('<button class="admin-btn admin-btn-primary" style="margin-top:8px">Assign & create writing task</button>');
+      btn.addEventListener('click', function () {
+        var staffId = Number(assignWrap.querySelector('#assign-staff').value);
+        api('/admin/submissions/' + s.id + '/assign', { method: 'POST', body: { staffId: staffId } })
+          .then(function () { toast('Assigned to correspondent'); Views.submissions(); refreshBadges(); })
+          .catch(function (e) { toast(e.message, true); });
+      });
+      assignWrap.appendChild(row); assignWrap.appendChild(btn);
+    });
+
+    panel.appendChild(actions);
+    panel.appendChild(assignWrap);
+    // Replace current view content below the head/stats
+    main.appendChild(panel);
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function patchSubmission(id, body) {
+    api('/admin/submissions/' + id, { method: 'PATCH', body: body })
+      .then(function () { toast('Submission updated'); Views.submissions(); refreshBadges(); })
+      .catch(function (e) { toast(e.message, true); });
+  }
+
+  // ===== Story queue =====
+  Views.queue = function () {
+    api('/admin/stories/queue?limit=100').then(function (r) {
+      var stories = r.stories || [];
+      main.innerHTML = '';
+      main.appendChild(h('<div class="admin-view-head"><h1>Story Queue</h1><p>Drafts filed by correspondents. Review, approve, and publish. Publishing runs the kid-safe guardrail pipeline and posts to the live site.</p></div>'));
+      main.appendChild(h('<div class="admin-inline-note">Auto-post: an approved draft can be published in one click — it is validated by the newsroom guardrails, written to <code>data/articles</code>, and added to the live manifest instantly.</div>'));
+      if (!stories.length) { main.appendChild(h('<div class="admin-empty">No drafts in the queue. Assign a correspondent a task, or use “Write / Publish”.</div>')); return; }
+      var panel = h('<div class="admin-panel"><table class="admin-table"><thead><tr><th>Title</th><th>Channel</th><th>By</th><th>Status</th><th>When</th><th></th></tr></thead><tbody></tbody></table></div>');
+      var tb = panel.querySelector('tbody');
+      ensureStaff().then(function () {
+        stories.forEach(function (st) {
+          var p = st.payload || {};
+          var author = staffName(st.staffId);
+          var tr = h(
+            '<tr><td><strong>' + esc(p.title || '(untitled)') + '</strong></td>' +
+            '<td>' + esc(st.channel) + '</td>' +
+            '<td>' + esc(author) + '</td>' +
+            '<td><span class="pill ' + esc(st.status) + '">' + esc(st.status) + '</span></td>' +
+            '<td class="num">' + fmtDate(st.createdAt) + '</td>' +
+            '<td class="row-actions"></td></tr>'
+          );
+          var actions = tr.querySelector('.row-actions');
+          var open = h('<button class="admin-btn admin-btn-sm">Review</button>');
+          open.addEventListener('click', function () { openStory(st); });
+          actions.appendChild(open);
+          tb.appendChild(tr);
+        });
+      });
+      main.appendChild(panel);
+    }).catch(errView);
+  };
+
+  function openStory(st) {
+    var p = st.payload || {};
+    var panel = h('<div class="admin-panel"><h2>📝 ' + esc(p.title || '(untitled)') + '</h2></div>');
+    panel.appendChild(h(
+      '<dl class="admin-detail-box">' +
+        '<dt>Channel</dt><dd>' + esc(st.channel) + '</dd>' +
+        '<dt>Status</dt><dd><span class="pill ' + esc(st.status) + '">' + esc(st.status) + '</span></dd>' +
+        (p.excerpt ? '<dt>Excerpt</dt><dd>' + esc(p.excerpt) + '</dd>' : '') +
+        (p.kidTake ? '<dt>Kid Take</dt><dd>' + esc(p.kidTake) + '</dd>' : '') +
+        (p.body ? '<dt>Body (HTML)</dt><dd style="max-height:220px;overflow:auto">' + esc(p.body) + '</dd>' : '') +
+        (st.editorNotes ? '<dt>Editor notes</dt><dd>' + esc(st.editorNotes) + '</dd>' : '') +
+        (st.publishedArticleId ? '<dt>Published as</dt><dd>' + esc(st.publishedArticleId) + '</dd>' : '') +
+      '</dl>'
+    ));
+    var actions = h('<div class="row-actions" style="margin-top:14px"></div>');
+    if (st.status !== 'published') {
+      if (st.status !== 'approved') {
+        var approve = h('<button class="admin-btn admin-btn-sm">Approve</button>');
+        approve.addEventListener('click', function () { patchStory(st.id, { status: 'approved' }); });
+        actions.appendChild(approve);
+      }
+      var pub = h('<button class="admin-btn admin-btn-primary admin-btn-sm">Publish now ▶</button>');
+      pub.addEventListener('click', function () {
+        pub.disabled = true; pub.textContent = 'Publishing…';
+        api('/admin/stories/queue/' + st.id + '/publish', { method: 'POST' })
+          .then(function () { toast('Published to the live site'); Views.queue(); refreshBadges(); })
+          .catch(function (e) { toast(e.message, true); pub.disabled = false; pub.textContent = 'Publish now ▶'; });
+      });
+      actions.appendChild(pub);
+      var reject = h('<button class="admin-btn admin-btn-sm admin-btn-danger">Reject</button>');
+      reject.addEventListener('click', function () { patchStory(st.id, { status: 'rejected' }); });
+      actions.appendChild(reject);
+    }
+    panel.appendChild(actions);
+    main.appendChild(panel);
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function patchStory(id, body) {
+    api('/admin/stories/queue/' + id, { method: 'PATCH', body: body })
+      .then(function () { toast('Draft updated'); Views.queue(); refreshBadges(); })
+      .catch(function (e) { toast(e.message, true); });
+  }
+
+  // ===== Compose / publish =====
+  Views.compose = function () {
+    main.innerHTML = '';
+    main.appendChild(h('<div class="admin-view-head"><h1>Write &amp; Publish</h1><p>Compose a story and file it to the queue as a draft, or publish it live immediately.</p></div>'));
+    ensureStaff().then(function () {
+      var agentOpts = State.staff.map(function (st) { return '<option value="' + st.id + '">' + esc(st.displayName) + '</option>'; }).join('');
+      var today = new Date().toISOString().slice(0, 10);
+      var form = h(
+        '<form class="admin-form admin-panel">' +
+          '<div class="admin-form-row">' +
+            '<label>Channel<select id="c-cat"><option value="stem">STEM</option><option value="robotics">Robotics</option><option value="play">Play &amp; Design</option><option value="music">Music</option><option value="network">Network</option></select></label>' +
+            '<label>Filed by<select id="c-staff">' + agentOpts + '</select></label>' +
+          '</div>' +
+          '<label>Title<input id="c-title" maxlength="200" required/></label>' +
+          '<label>Excerpt <span class="hint">One-sentence summary shown on cards.</span><textarea id="c-excerpt" required></textarea></label>' +
+          '<label>Body <span class="hint">HTML allowed (&lt;p&gt;, &lt;h2&gt;, &lt;ul&gt;…). Kid-safe guardrails apply on publish.</span><textarea id="c-body" style="min-height:180px" required></textarea></label>' +
+          '<label>Kid Take <span class="hint">2–3 sentences at ~age-8 reading level.</span><textarea id="c-kidtake" required></textarea></label>' +
+          '<label>Family discussion questions <span class="hint">One per line, at least 2.</span><textarea id="c-family" required>What did you find most surprising?\nHow could you try something like this yourself?</textarea></label>' +
+          '<div class="admin-form-row">' +
+            '<label>Author byline<input id="c-author" placeholder="The Newsroom"/></label>' +
+            '<label>Date<input id="c-date" type="date" value="' + today + '" required/></label>' +
+          '</div>' +
+          '<label>Tags <span class="hint">Comma-separated.</span><input id="c-tags" placeholder="robotics, first, teens"/></label>' +
+          '<div class="row-actions">' +
+            '<button type="button" class="admin-btn" id="c-draft">Save to queue as draft</button>' +
+            '<button type="submit" class="admin-btn admin-btn-primary">Publish live now ▶</button>' +
+          '</div>' +
+        '</form>'
+      );
+      main.appendChild(form);
+
+      function collect() {
+        var family = form.querySelector('#c-family').value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean);
+        var tags = form.querySelector('#c-tags').value.split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+        return {
+          cat: form.querySelector('#c-cat').value,
+          title: form.querySelector('#c-title').value.trim(),
+          excerpt: form.querySelector('#c-excerpt').value.trim(),
+          body: form.querySelector('#c-body').value.trim(),
+          kidTake: form.querySelector('#c-kidtake').value.trim(),
+          familyDiscussion: family,
+          author: form.querySelector('#c-author').value.trim() || 'The Newsroom',
+          date: form.querySelector('#c-date').value,
+          tags: tags
+        };
+      }
+      function validate(p) {
+        if (!p.title || !p.excerpt || !p.body || !p.kidTake) { toast('Fill in title, excerpt, body and kid take.', true); return false; }
+        if (p.familyDiscussion.length < 2) { toast('Add at least 2 family discussion questions.', true); return false; }
+        return true;
+      }
+
+      form.querySelector('#c-draft').addEventListener('click', function () {
+        var p = collect(); if (!validate(p)) return;
+        api('/admin/stories/queue', { method: 'POST', body: { staffId: Number(form.querySelector('#c-staff').value), channel: p.cat, payload: p, status: 'draft' } })
+          .then(function () { toast('Saved to queue'); navTo('queue'); refreshBadges(); })
+          .catch(function (e) { toast(e.message, true); });
+      });
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var p = collect(); if (!validate(p)) return;
+        var btn = form.querySelector('button[type=submit]');
+        btn.disabled = true; btn.textContent = 'Publishing…';
+        api('/admin/stories/queue', { method: 'POST', body: { staffId: Number(form.querySelector('#c-staff').value), channel: p.cat, payload: p, status: 'approved' } })
+          .then(function (r) { return api('/admin/stories/queue/' + r.story.id + '/publish', { method: 'POST' }); })
+          .then(function () { toast('Published live'); navTo('queue'); refreshBadges(); })
+          .catch(function (e) { toast(e.message, true); btn.disabled = false; btn.textContent = 'Publish live now ▶'; });
+      });
+    });
+  };
+
+  // ===== Users & roles =====
+  Views.users = function () {
+    if (!isFullAdmin()) { main.innerHTML = '<div class="admin-empty">Admin-only.</div>'; return; }
+    api('/admin/users?limit=500').then(function (r) {
+      var users = r.users || [];
+      main.innerHTML = '';
+      main.appendChild(h('<div class="admin-view-head"><h1>Users &amp; Roles</h1><p>' + users.length + ' account' + (users.length === 1 ? '' : 's') + '. Promote trusted people to editor or admin.</p></div>'));
+      var panel = h('<div class="admin-panel"><table class="admin-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Last login</th><th></th></tr></thead><tbody></tbody></table></div>');
+      var tb = panel.querySelector('tbody');
+      users.forEach(function (u) {
+        var tr = h(
+          '<tr><td><strong>' + esc(u.displayName) + '</strong></td>' +
+          '<td>' + esc(u.email) + '</td>' +
+          '<td><span class="pill ' + (u.role === 'admin' ? 'published' : u.role === 'editor' ? 'assigned' : 'paused') + '">' + esc(u.role) + '</span></td>' +
+          '<td class="num">' + fmtDate(u.createdAt) + '</td>' +
+          '<td class="num">' + fmtDate(u.lastLoginAt) + '</td>' +
+          '<td></td></tr>'
+        );
+        var cell = tr.lastElementChild;
+        var sel = h('<select class="admin-btn admin-btn-sm"><option value="parent">parent</option><option value="editor">editor</option><option value="admin">admin</option></select>');
+        sel.value = u.role;
+        sel.addEventListener('change', function () {
+          if (u.id === State.user.id && sel.value !== 'admin') {
+            toast('You cannot demote yourself.', true); sel.value = u.role; return;
+          }
+          api('/admin/users/' + u.id + '/role', { method: 'PATCH', body: { role: sel.value } })
+            .then(function () { u.role = sel.value; toast('Role updated'); })
+            .catch(function (e) { toast(e.message, true); sel.value = u.role; });
+        });
+        cell.appendChild(sel);
+        tb.appendChild(tr);
+      });
+      main.appendChild(panel);
+    }).catch(errView);
+  };
+
+  // ===== Audit log =====
+  Views.audit = function () {
+    api('/admin/actions?limit=200').then(function (r) {
+      var actions = r.actions || [];
+      main.innerHTML = '';
+      main.appendChild(h('<div class="admin-view-head"><h1>Audit Log</h1><p>Every admin action, newest first.</p></div>'));
+      if (!actions.length) { main.appendChild(h('<div class="admin-empty">No actions logged yet.</div>')); return; }
+      var panel = h('<div class="admin-panel"><table class="admin-table"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Target</th></tr></thead><tbody></tbody></table></div>');
+      var tb = panel.querySelector('tbody');
+      actions.forEach(function (a) {
+        tb.appendChild(h(
+          '<tr><td class="num">' + fmtDate(a.createdAt) + '</td>' +
+          '<td>' + esc(a.userDisplayName || a.userEmail || ('#' + a.userId)) + '</td>' +
+          '<td><code>' + esc(a.action) + '</code></td>' +
+          '<td>' + esc(a.targetKind || '') + (a.targetId ? ' #' + esc(a.targetId) : '') + '</td></tr>'
+        ));
+      });
+      main.appendChild(panel);
+    }).catch(errView);
+  };
+
+  // ---------- Shared helpers ----------
+  function ensureStaff() {
+    if (State.staff && State.staff.length) return Promise.resolve(State.staff);
+    return api('/admin/staff').then(function (r) { State.staff = r.staff || []; return State.staff; });
+  }
+  function staffName(id) {
+    var s = (State.staff || []).find(function (x) { return x.id === id; });
+    return s ? s.displayName : '#' + id;
+  }
+  function errView(err) {
+    main.innerHTML = '<div class="admin-empty">Could not load this view.<br><small>' + esc(err && err.message) + '</small></div>';
+  }
+
+  boot();
+})();

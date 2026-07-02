@@ -39,7 +39,8 @@ const {
   createKid, listKids, findKid, updateKid, deleteKid,
   deleteUser,
   createPasswordReset, findPasswordReset, markPasswordResetUsed, purgeExpiredResets,
-  addNewsletter, listNewsletter, countNewsletter
+  addNewsletter, listNewsletter, countNewsletter,
+  createSubmission, findStaffBySlug, setUserRole
 } = require('./db');
 const {
   hashPassword, verifyPassword,
@@ -367,7 +368,75 @@ api.get('/manifest', (req, res) => {
   }
 });
 
+// ---- Public story submission (readers send tips) ----
+const SUBMISSION_CHANNELS = new Set(['stem', 'robotics', 'play', 'music']);
+
+api.post('/submissions', rateLimit({ windowMs: 60 * 60_000, max: 8, key: 'submissions' }), (req, res) => {
+  try {
+    const b = req.body || {};
+    const channel = String(b.channel || '').trim().toLowerCase();
+    const title = String(b.title || '').trim();
+    const summary = String(b.summary || '').trim();
+    const body = b.body ? String(b.body).trim() : null;
+    const sourceUrl = b.sourceUrl ? String(b.sourceUrl).trim() : null;
+    const submitterName = b.submitterName ? String(b.submitterName).trim().slice(0, 80) : null;
+    const submitterEmail = b.submitterEmail ? String(b.submitterEmail).trim().slice(0, 200).toLowerCase() : null;
+
+    if (!SUBMISSION_CHANNELS.has(channel)) return res.status(400).json({ error: 'channel must be one of: stem, robotics, play, music.' });
+    if (title.length < 6 || title.length > 200) return res.status(400).json({ error: 'title must be 6-200 chars.' });
+    if (summary.length < 20 || summary.length > 800) return res.status(400).json({ error: 'summary must be 20-800 chars.' });
+    if (body && body.length > 6000) return res.status(400).json({ error: 'body too long (max 6000).' });
+    if (submitterEmail && submitterEmail.length && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(submitterEmail)) {
+      return res.status(400).json({ error: 'invalid submitter email.' });
+    }
+    if (sourceUrl && !/^https?:\/\//i.test(sourceUrl)) {
+      return res.status(400).json({ error: 'sourceUrl must start with http(s)://' });
+    }
+
+    const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').toString().split(',')[0].trim();
+    const ipHash = ip ? crypto.createHash('sha256').update(ip).digest('hex').slice(0, 32) : null;
+
+    const submission = createSubmission({
+      submitterName, submitterEmail,
+      submitterUserId: req.session && req.session.userId ? req.session.userId : null,
+      channel, title, summary, body, sourceUrl, ipHash
+    });
+    res.status(201).json({ ok: true, submission: { id: submission.id, status: submission.status } });
+  } catch (err) {
+    console.error('[submissions]', err);
+    res.status(500).json({ error: 'Submission failed. Please try again.' });
+  }
+});
+
 app.use('/api', api);
+
+// -------------- ADMIN ROUTER --------------
+app.use('/api/admin', require('./admin-routes'));
+
+// -------------- SEED ADMIN ACCOUNT (env-driven, one-time) --------------
+// If ADMIN_SEED_EMAIL + ADMIN_SEED_PASSWORD are set (via .env or Railway env), ensure
+// that user exists AND has role='admin'. Safe to run every boot: idempotent.
+(async function seedAdminAccount() {
+  const email = (process.env.ADMIN_SEED_EMAIL || '').trim().toLowerCase();
+  const password = process.env.ADMIN_SEED_PASSWORD || '';
+  const displayName = (process.env.ADMIN_SEED_DISPLAY_NAME || 'Add Interactive').trim();
+  if (!email || !password) return;
+  try {
+    const { hashPassword } = require('./auth');
+    let user = findUserByEmail(email);
+    if (!user) {
+      const hash = await hashPassword(password);
+      const created = createUser({ email, displayName, passwordHash: hash, avatarColor: '#00e5ff' });
+      setUserRole(created.id, 'admin');
+      console.log(`[skynet] seeded admin account: ${email}`);
+    } else if (user.role !== 'admin') {
+      setUserRole(user.id, 'admin');
+      console.log(`[skynet] promoted existing account to admin: ${email}`);
+    }
+  } catch (err) {
+    console.warn('[skynet] admin seed failed:', err.message);
+  }
+})();
 
 // favicon.ico — modern browsers already use <link rel="icon" ...> but older crawlers still hit /favicon.ico
 app.get('/favicon.ico', (req, res) => {

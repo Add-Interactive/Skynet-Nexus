@@ -135,17 +135,6 @@
         <div class="widget-title">Trending Now</div>
         <ol id="trending-list" class="trend-list"></ol>
       </div>
-      <div class="widget np-card">
-        <div class="widget-title">Now Playing <span class="live-dot"></span></div>
-        <div class="np-track">
-          <div class="np-cover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13M9 18a3 3 0 11-6 0 3 3 0 016 0zM21 16a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
-          <div class="np-info">
-            <div class="np-title">blue hour</div>
-            <div class="np-artist">tavii • #34 Billboard</div>
-          </div>
-          <div class="np-bars"><span></span><span></span><span></span><span></span></div>
-        </div>
-      </div>
       <div class="widget">
         <div class="widget-title">Weekly Leaderboard</div>
         <div id="leaderboard"></div>
@@ -231,31 +220,21 @@
     Object.keys(NAV).forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = NAV[id]; });
     initSimplePage('../');
     renderCountdown(); renderTrending(); renderStats(); renderPoll(); renderTicker(); renderNewsletter();
-    // Extended leaderboard: LEADERBOARD + generated
-    const extras = [
-      { rank: 6,  name: 'moonswimmer',  crew: 'Aurora Stage • Music',     score: 8110, av: 'MS' },
-      { rank: 7,  name: 'Aisling Byrne', crew: 'Trinity Robotics • FRC',   score: 7920, av: 'AB' },
-      { rank: 8,  name: 'Kento Ishida', crew: 'Kyoto STEM • Physics',      score: 7810, av: 'KI' },
-      { rank: 9,  name: 'FLL Ideators',  crew: 'FIRST LEGO League ' + String.fromCharCode(0x2022) + ' Robotics',          score: 7620, av: 'RU' },
-      { rank: 10, name: 'Vantablack Sundae', crew: 'Detroit Post-Pop',     score: 7411, av: 'VS' },
-      { rank: 11, name: 'DJ Kombucha',  crew: 'Neon Bloom • DJ',           score: 7301, av: 'DK' },
-      { rank: 12, name: 'Amara Njoku',  crew: 'Team Cypher-9 • Driver',    score: 7180, av: 'AJ' },
-      { rank: 13, name: 'Kid Meridian', crew: 'Manila Bass Collective',    score: 7010, av: 'KM' },
-      { rank: 14, name: 'the fig tree', crew: 'Folk Trio • Nashville',     score: 6892, av: 'FT' },
-      { rank: 15, name: 'YUKI//STATIC', crew: 'Cyberpunk DnB • Tokyo',     score: 6721, av: 'YS' },
-      { rank: 16, name: 'clover.exe',   crew: 'Chiptune • Berlin',         score: 6540, av: 'CE' },
-      { rank: 17, name: 'Team Loop-de-Loo', crew: 'Milwaukee • NASA',      score: 6398, av: 'LD' },
-      { rank: 18, name: 'Prism Choir',  crew: 'Gospel Collective • ATL',   score: 6210, av: 'PC' },
-      { rank: 19, name: 'Solstice Mecha', crew: 'Symphonic Metal',         score: 6081, av: 'SM' },
-      { rank: 20, name: 'Ridgeway Elem FLL', crew: 'Prosthetics Team',     score: 5921, av: 'RE' }
-    ];
-    const full = LEADERBOARD.concat(extras);
-    document.getElementById('lb-full').innerHTML = full.map(u =>
-      '<div class="lb-item"><div class="lb-rank">' + u.rank + '</div>' +
-      '<div class="lb-avatar">' + u.av + '</div>' +
-      '<div class="lb-body"><div class="lb-name">' + u.name + '</div><div class="lb-crew">' + u.crew + '</div></div>' +
-      '<div class="lb-score">' + formatCount(u.score) + '</div></div>'
-    ).join('');
+    // Full leaderboard: populated from real reader activity once available.
+    const full = LEADERBOARD;
+    const lbFull = document.getElementById('lb-full');
+    if (!full.length) {
+      lbFull.innerHTML = '<div class="admin-empty" style="color:var(--text-mute);padding:40px;text-align:center">' +
+        '<h3 style="margin-bottom:8px">Rankings are warming up</h3>' +
+        '<p>The Nexus Leaderboard fills in as readers explore, react to, and share stories during the beta. Check back soon.</p></div>';
+    } else {
+      lbFull.innerHTML = full.map(u =>
+        '<div class="lb-item"><div class="lb-rank">' + u.rank + '</div>' +
+        '<div class="lb-avatar">' + u.av + '</div>' +
+        '<div class="lb-body"><div class="lb-name">' + u.name + '</div><div class="lb-crew">' + u.crew + '</div></div>' +
+        '<div class="lb-score">' + formatCount(u.score) + '</div></div>'
+      ).join('');
+    }
   </script>
 
   <script src="/assets/js/auth.js" defer></script>
