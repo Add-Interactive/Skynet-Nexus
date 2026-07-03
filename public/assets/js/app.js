@@ -368,10 +368,7 @@ function renderFeed() {
   if (!grid) return;
   const list = getFilteredArticles();
   if (list.length === 0) {
-    grid.innerHTML =
-      '<div class="empty-state">' + ICONS.search +
-      '<h3>No stories match your filters</h3>' +
-      '<p>Try switching categories or clearing your search.</p></div>';
+    grid.innerHTML = '';
     return;
   }
   grid.innerHTML = list.map((a, i) => renderPost(a, i === 0 && currentFilter === 'all' && !searchQuery, feedBase)).join('');
