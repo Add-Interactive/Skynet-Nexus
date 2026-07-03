@@ -779,7 +779,7 @@ body::before{
 .feeds-toolbar{align-items:center}
 .feeds-sources-btn{cursor:pointer;font-weight:700}
 .feeds-sources-btn.active{border-color:var(--accent);color:var(--accent)}
-.rss-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.rss-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
 .rss-loading,.rss-card{min-height:1px}
 .rss-loading{color:var(--text-mute);font-size:.9rem;padding:26px 4px}
 .rss-card{display:flex;flex-direction:column;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-card);overflow:hidden;transition:border-color .2s,transform .2s,box-shadow .2s}

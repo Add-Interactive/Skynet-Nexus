@@ -569,11 +569,13 @@ function renderNextDrop() {
   _nextDropTimer = setInterval(tick, 1000);
 }
 
-// Live curated RSS headlines for a channel's "From around the web" section.
+// Live curated RSS headlines for a channel. If the channel has no editorial
+// articles, the live feeds become the channel's main content (rendered into
+// #feed-grid); otherwise they appear in the "From around the web" section.
 function renderChannelRss(channelId) {
-  const grid = document.getElementById('rss-grid');
+  const rssGrid = document.getElementById('rss-grid');
   const section = document.getElementById('rss-section');
-  if (!grid || !channelId) return;
+  if (!channelId) return;
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const ch = getChannel(channelId);
   const timeAgo = iso => {
@@ -584,23 +586,41 @@ function renderChannelRss(channelId) {
     if (s < 86400) return Math.round(s / 3600) + 'h ago';
     const d = Math.round(s / 86400); return d + (d === 1 ? ' day ago' : ' days ago');
   };
+  const cardHtml = it => {
+    const img = it.image ? '<div class="rss-thumb" style="background-image:url(' + esc(it.image) + ')"></div>' : '';
+    const chan = ch ? '<span class="rss-chan" style="--cc:' + (ch.color || '#00e5ff') + '">' + esc(ch.icon) + ' ' + esc(ch.short || ch.label) + '</span>' : '';
+    return '<a class="rss-card" href="' + esc(it.link) + '" target="_blank" rel="noopener">' + img +
+      '<div class="rss-body"><div class="rss-top">' + chan + '<span class="rss-src">' + esc(it.source) + '</span></div>' +
+      '<h3 class="rss-title">' + esc(it.title) + '</h3>' +
+      (it.summary ? '<p class="rss-sum">' + esc(it.summary) + '</p>' : '') +
+      '<div class="rss-meta"><span>' + esc(it.site) + '</span>' + (it.publishedAt ? '<span>' + timeAgo(it.publishedAt) + '</span>' : '') + '</div></div></a>';
+  };
   const more = document.getElementById('rss-more');
   if (more) more.href = (feedBase || '') + 'pages/feeds.html?c=' + channelId;
-  fetch('/api/rss?limit=9&all=1&channel=' + encodeURIComponent(channelId))
+
+  // Does this channel have any editorial articles?
+  const hasEditorial = getFilteredArticles().length > 0;
+
+  fetch('/api/rss?limit=40&all=1&channel=' + encodeURIComponent(channelId))
     .then(r => r.ok ? r.json() : null)
     .then(data => {
       const items = (data && data.items) || [];
       if (!items.length) return;
-      grid.innerHTML = items.map(it => {
-        const img = it.image ? '<div class="rss-thumb" style="background-image:url(' + esc(it.image) + ')"></div>' : '';
-        const chan = ch ? '<span class="rss-chan" style="--cc:' + (ch.color || '#00e5ff') + '">' + esc(ch.icon) + ' ' + esc(ch.short || ch.label) + '</span>' : '';
-        return '<a class="rss-card" href="' + esc(it.link) + '" target="_blank" rel="noopener">' + img +
-          '<div class="rss-body"><div class="rss-top">' + chan + '<span class="rss-src">' + esc(it.source) + '</span></div>' +
-          '<h3 class="rss-title">' + esc(it.title) + '</h3>' +
-          (it.summary ? '<p class="rss-sum">' + esc(it.summary) + '</p>' : '') +
-          '<div class="rss-meta"><span>' + esc(it.site) + '</span>' + (it.publishedAt ? '<span>' + timeAgo(it.publishedAt) + '</span>' : '') + '</div></div></a>';
-      }).join('');
-      grid.hidden = false;
+      if (!hasEditorial) {
+        // Live feeds ARE the channel — render them into the main feed grid.
+        const feedGrid = document.getElementById('feed-grid');
+        if (feedGrid) {
+          feedGrid.className = 'rss-grid';
+          feedGrid.innerHTML = items.map(cardHtml).join('');
+        }
+        if (section) section.hidden = true;
+        if (rssGrid) rssGrid.hidden = true;
+        return;
+      }
+      // Channel has editorial stories — show feeds in the secondary section.
+      if (!rssGrid) return;
+      rssGrid.innerHTML = items.slice(0, 9).map(cardHtml).join('');
+      rssGrid.hidden = false;
       if (section) section.hidden = false;
     })
     .catch(() => {});
