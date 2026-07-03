@@ -48,6 +48,7 @@ const {
   requireAuth
 } = require('./auth');
 const SqliteSessionStore = require('./session-store');
+const { sendMail, passwordResetEmail } = require('./mailer');
 
 const ROOT = path.resolve(__dirname, '..');
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -303,9 +304,9 @@ api.delete('/auth/account', requireAuth, rateLimit({ windowMs: 60_000, max: 4, k
 });
 
 // POST /api/auth/password-reset — { email }
-// Always returns 200 (never reveal which emails exist). Logs the token to server console
-// until email delivery is wired.
-api.post('/auth/password-reset', rateLimit({ windowMs: 15 * 60_000, max: 6, key: 'pwreset' }), (req, res) => {
+// Always returns 200 (never reveal which emails exist). Emails the reset link
+// via the mailer; if email isn't configured, the mailer logs the link instead.
+api.post('/auth/password-reset', rateLimit({ windowMs: 15 * 60_000, max: 6, key: 'pwreset' }), async (req, res) => {
   const email = String((req.body && req.body.email) || '').trim().toLowerCase();
   if (isValidEmail(email)) {
     const user = findUserByEmail(email);
@@ -314,10 +315,15 @@ api.post('/auth/password-reset', rateLimit({ windowMs: 15 * 60_000, max: 6, key:
       const expiresAt = Date.now() + 60 * 60 * 1000; // 1 hour
       createPasswordReset({ userId: user.id, token, expiresAt });
       const link = `${SITE_ORIGIN}/pages/password-reset.html?token=${encodeURIComponent(token)}`;
-      console.log(`[skynet] password reset requested for ${email} — link (deliver via email once SMTP wired): ${link}`);
+      const mail = passwordResetEmail(link);
+      const result = await sendMail({ to: email, subject: mail.subject, html: mail.html, text: mail.text });
+      if (!result.ok) {
+        // Delivery unavailable/unconfigured — keep the link discoverable in logs.
+        console.log(`[skynet] password reset link for ${email}: ${link}`);
+      }
     }
   }
-  res.json({ ok: true, message: 'If that email exists, a reset link has been logged.' });
+  res.json({ ok: true, message: 'If that email exists, a reset link is on its way.' });
 });
 
 // POST /api/auth/password-reset/confirm — { token, newPassword }
@@ -458,34 +464,43 @@ app.use('/api/admin', require('./admin-routes'));
 // -------------- SEED ADMIN ACCOUNT (env-driven, one-time) --------------
 // Ensures the primary admin account exists AND has role='admin'. Reads
 // ADMIN_SEED_EMAIL / ADMIN_SEED_PASSWORD from the environment (Railway vars or
-// .env) and falls back to the project's default owner account so the portal is
-// reachable on a fresh deploy. Idempotent: safe to run on every boot.
+// .env). No password is ever hardcoded: if ADMIN_SEED_PASSWORD is unset and the
+// account must be created, a strong random one is generated and printed to the
+// logs ONCE so the owner can sign in and change it. Idempotent on every boot.
 (async function seedAdminAccount() {
   const email = (process.env.ADMIN_SEED_EMAIL || 'ageofai2024@gmail.com').trim().toLowerCase();
-  const password = process.env.ADMIN_SEED_PASSWORD || 'weed4200';
+  const envPassword = process.env.ADMIN_SEED_PASSWORD || '';
   const displayName = (process.env.ADMIN_SEED_DISPLAY_NAME || 'Age of AI').trim();
-  if (!email || !password) return;
+  if (!email) return;
   try {
     const { hashPassword, verifyPassword } = require('./auth');
     let user = findUserByEmail(email);
     if (!user) {
+      // Never invent a guessable default. Use the provided password, or mint a
+      // strong random one and surface it in the logs a single time.
+      const generated = !envPassword;
+      const password = envPassword || crypto.randomBytes(12).toString('base64url');
       const hash = await hashPassword(password);
       const created = createUser({ email, displayName, passwordHash: hash, avatarColor: '#00e5ff' });
       setUserRole(created.id, 'admin');
-      console.log(`[skynet] seeded admin account: ${email}`);
+      if (generated) {
+        console.log(`[skynet] seeded admin account ${email} with a RANDOM password (set ADMIN_SEED_PASSWORD to control this): ${password}`);
+      } else {
+        console.log(`[skynet] seeded admin account: ${email}`);
+      }
     } else {
       if (user.role !== 'admin') {
         setUserRole(user.id, 'admin');
         console.log(`[skynet] promoted existing account to admin: ${email}`);
       }
-      // If this account has never been logged into, make sure the documented
-      // seed password still works (repairs a stale seed without ever clobbering
-      // a password the owner set themselves after signing in).
-      if (!user.last_login_at) {
+      // If an explicit seed password is configured AND this account has never
+      // been logged into, make sure that password still works (repairs a stale
+      // seed without ever clobbering a password the owner set after signing in).
+      if (envPassword && !user.last_login_at) {
         const raw = findUserRawById(user.id);
-        const ok = raw && await verifyPassword(password, raw.password_hash);
+        const ok = raw && await verifyPassword(envPassword, raw.password_hash);
         if (!ok) {
-          changePassword(user.id, await hashPassword(password));
+          changePassword(user.id, await hashPassword(envPassword));
           console.log(`[skynet] reset admin seed password for: ${email}`);
         }
       }
