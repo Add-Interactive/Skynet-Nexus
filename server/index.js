@@ -704,42 +704,33 @@ app.get('/sitemap.xml', (req, res) => {
   res.type('application/xml').send(body);
 });
 
-// rss.xml — the last 40 articles
+// RSS feed generators (all channels + agents)
+const { generateMainFeed, generateChannelFeed, generateAgentFeed } = require('./rss-feeds');
+
+// Main RSS feed
 app.get('/rss.xml', (req, res) => {
-  const manifest = loadManifestSafe();
-  const items = (manifest.articles || [])
-    .slice()
-    .sort((a, b) => String(b.date).localeCompare(String(a.date)))
-    .slice(0, 40);
-  const build = new Date().toUTCString();
-  const body = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-    '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n' +
-    '<channel>\n' +
-    '  <title>Skynet Nexus News</title>\n' +
-    '  <link>' + xmlEscape(SITE_ORIGIN) + '</link>\n' +
-    '  <description>Family-first daily news: STEM, robotics, play &amp; design, and music for readers ages 5–50.</description>\n' +
-    '  <language>en-us</language>\n' +
-    '  <lastBuildDate>' + xmlEscape(build) + '</lastBuildDate>\n' +
-    '  <copyright>© 2026 Add Interactive Studio, in partnership with STEM Nexus</copyright>\n' +
-    '  <managingEditor>editor@addinteractive.com (Skynet Nexus Newsroom / Add Interactive Studio)</managingEditor>\n' +
-    '  <atom:link href="' + xmlEscape(SITE_ORIGIN + '/rss.xml') + '" rel="self" type="application/rss+xml"/>\n' +
-    items.map(a => {
-      const link = SITE_ORIGIN + '/pages/article.html?id=' + encodeURIComponent(a.id);
-      const pub = a.date ? new Date(a.date).toUTCString() : build;
-      const cat = a.cat ? '<category>' + xmlEscape(a.cat) + '</category>' : '';
-      const authorTag = a.author ? '<author>noreply@skynet.local (' + xmlEscape(a.author) + ')</author>' : '';
-      return '  <item>\n' +
-        '    <title>' + xmlEscape(a.title || 'Untitled') + '</title>\n' +
-        '    <link>' + xmlEscape(link) + '</link>\n' +
-        '    <guid isPermaLink="true">' + xmlEscape(link) + '</guid>\n' +
-        '    <pubDate>' + xmlEscape(pub) + '</pubDate>\n' +
-        '    ' + cat + '\n' +
-        '    ' + authorTag + '\n' +
-        '    <description>' + xmlEscape(a.excerpt || '') + '</description>\n' +
-        '  </item>';
-    }).join('\n') +
-    '\n</channel>\n</rss>\n';
-  res.type('application/rss+xml').send(body);
+  res.set('Cache-Control', 'public, max-age=300');
+  res.type('application/rss+xml').send(generateMainFeed(SITE_ORIGIN));
+});
+
+// Channel-specific RSS feeds
+app.get('/rss-:channel.xml', (req, res) => {
+  const channel = String(req.params.channel || '').toLowerCase();
+  if (!/^[a-z0-9-]+$/.test(channel)) {
+    return res.status(400).type('text/plain').send('Invalid channel');
+  }
+  res.set('Cache-Control', 'public, max-age=300');
+  res.type('application/rss+xml').send(generateChannelFeed(channel, SITE_ORIGIN));
+});
+
+// Agent-specific RSS feeds
+app.get('/rss-agent-:agent.xml', (req, res) => {
+  const agent = String(req.params.agent || '').toLowerCase();
+  if (!/^[a-z0-9-]+$/.test(agent)) {
+    return res.status(400).type('text/plain').send('Invalid agent');
+  }
+  res.set('Cache-Control', 'public, max-age=300');
+  res.type('application/rss+xml').send(generateAgentFeed(agent, SITE_ORIGIN));
 });
 
 // ------------- Static content -------------
