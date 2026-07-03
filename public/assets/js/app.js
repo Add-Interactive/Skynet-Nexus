@@ -1182,3 +1182,41 @@ document.addEventListener("submit", function (ev) {
     })
     .catch(function () { if (typeof toast === "function") toast("Network error. Try again."); });
 });
+
+// -------- External links open in a popup window (keep readers on the site) --------
+// Global, delegated handler so it also covers dynamically rendered links
+// (RSS cards, article source lists, creator/program links, etc.).
+(function initExternalLinkPopups() {
+  function openExternalPopup(href) {
+    var aw = screen.availWidth || 1280, ah = screen.availHeight || 800;
+    var w = Math.min(1100, Math.max(480, Math.floor(aw * 0.7)));
+    var h = Math.min(900, Math.max(420, Math.floor(ah * 0.82)));
+    var left = Math.max(0, Math.floor((aw - w) / 2 + (screen.availLeft || 0)));
+    var top = Math.max(0, Math.floor((ah - h) / 2 + (screen.availTop || 0)));
+    var features = 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',scrollbars=yes,resizable=yes';
+    var win = window.open(href, '_blank', features);
+    if (win) { try { win.opener = null; } catch (e) {} try { win.focus(); } catch (e) {} return; }
+    // Popup blocked: fall back to a normal new tab so the reader still gets there.
+    window.open(href, '_blank', 'noopener,noreferrer');
+  }
+
+  function isExternal(a) {
+    var href = a.getAttribute('href');
+    if (!href) return false;
+    if (/^(mailto:|tel:|javascript:|sms:|#)/i.test(href)) return false;
+    if (a.hasAttribute('download')) return false;
+    var url;
+    try { url = new URL(a.href, location.href); } catch (e) { return false; }
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return false;
+    return url.hostname !== location.hostname;
+  }
+
+  document.addEventListener('click', function (ev) {
+    // Respect user intent to open in a new tab/window their own way.
+    if (ev.defaultPrevented || ev.button !== 0 || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) return;
+    var a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null;
+    if (!a || !isExternal(a)) return;
+    ev.preventDefault();
+    openExternalPopup(a.href);
+  });
+})();
