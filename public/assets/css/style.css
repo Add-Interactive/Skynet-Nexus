@@ -785,8 +785,10 @@ body::before{
 
 /* ===== STEM Feeds reader (RSS aggregator) ===== */
 .feeds-toolbar{align-items:center}
-.feeds-sources-btn{cursor:pointer;font-weight:700}
-.feeds-sources-btn.active{border-color:var(--accent);color:var(--accent)}
+.feeds-sources-btn{cursor:pointer;font-weight:800;font-size:1rem;padding:12px 22px;border:none;border-radius:12px;color:#04121a;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 6px 20px color-mix(in srgb,var(--accent) 40%,transparent);transition:filter .15s,transform .15s,box-shadow .15s}
+.feeds-sources-btn:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 8px 26px color-mix(in srgb,var(--accent) 55%,transparent)}
+.feeds-sources-btn:active{transform:translateY(0)}
+.feeds-sources-btn.active{filter:brightness(1.12);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 45%,transparent),0 8px 26px color-mix(in srgb,var(--accent) 45%,transparent)}
 .rss-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
 .rss-loading,.rss-card{min-height:1px}
 .rss-loading{color:var(--text-mute);font-size:.9rem;padding:26px 4px}
