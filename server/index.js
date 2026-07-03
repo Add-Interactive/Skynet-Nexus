@@ -40,7 +40,7 @@ const {
   deleteUser,
   createPasswordReset, findPasswordReset, markPasswordResetUsed, purgeExpiredResets,
   addNewsletter, listNewsletter, countNewsletter,
-  createSubmission, findStaffBySlug, setUserRole
+  createSubmission, findStaffBySlug, setUserRole, countAdmins
 } = require('./db');
 const {
   hashPassword, verifyPassword,
@@ -167,6 +167,61 @@ api.post('/auth/register', rateLimit({ windowMs: 15 * 60_000, max: 8, key: 'regi
     });
   } catch (err) {
     console.error('[register]', err);
+    res.status(500).json({ error: 'Something went wrong.' });
+  }
+});
+
+// GET /api/auth/setup-status — public. Tells the signup page whether the very
+// first owner/admin account still needs to be created (zero admins exist).
+api.get('/auth/setup-status', (req, res) => {
+  let needed = false;
+  try { needed = countAdmins() === 0; } catch (e) {}
+  res.json({ setupNeeded: needed });
+});
+
+// POST /api/auth/setup-admin — public, but ONLY works while zero admins exist.
+// Creates the first owner account with role='admin' and signs them in. Once an
+// admin exists this endpoint is permanently closed (409), so it auto-disables
+// after first use. Afterwards, roles are managed from the admin member panel.
+api.post('/auth/setup-admin', rateLimit({ windowMs: 15 * 60_000, max: 8, key: 'setupadmin' }), async (req, res) => {
+  try {
+    if (countAdmins() > 0) {
+      return res.status(409).json({ error: 'Setup already complete. An admin account exists.' });
+    }
+    const email = String(req.body.email || '').trim().toLowerCase();
+    const password = String(req.body.password || '');
+    const displayName = String(req.body.displayName || '').trim();
+    const avatarColor = isValidHexColor(req.body.avatarColor, '#00e5ff');
+
+    if (!isValidEmail(email))             return res.status(400).json({ error: 'Enter a valid email.' });
+    if (!isValidPassword(password))       return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+    if (!isValidDisplayName(displayName)) return res.status(400).json({ error: 'Display name must be 2–40 characters.' });
+
+    // Re-check under no-concurrency assumption right before writing.
+    if (countAdmins() > 0) {
+      return res.status(409).json({ error: 'Setup already complete. An admin account exists.' });
+    }
+
+    let user = findUserByEmail(email);
+    if (user) {
+      // Promote an existing account to owner admin.
+      setUserRole(user.id, 'admin');
+    } else {
+      const passwordHash = await hashPassword(password);
+      user = createUser({ email, displayName, passwordHash, avatarColor });
+      setUserRole(user.id, 'admin');
+    }
+    updateLastLogin(user.id);
+    const fresh = findUserById(user.id);
+
+    req.session.regenerate(err => {
+      if (err) return res.status(500).json({ error: 'Session error.' });
+      req.session.userId = user.id;
+      console.log('[skynet] first-time setup created owner admin: ' + email);
+      res.status(201).json({ ok: true, user: fresh });
+    });
+  } catch (err) {
+    console.error('[setup-admin]', err);
     res.status(500).json({ error: 'Something went wrong.' });
   }
 });

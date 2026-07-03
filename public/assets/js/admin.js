@@ -772,6 +772,7 @@
         '<div class="user-actions">' +
         '<button id="um-save" class="admin-btn admin-btn-primary">Save changes</button>' +
         '<button id="um-reset" class="admin-btn">Reset password</button>' +
+        '<button id="um-sendreset" class="admin-btn">Email reset link</button>' +
         '<button id="um-delete" class="admin-btn admin-btn-danger">Delete account</button>' +
         '</div></div>';
 
@@ -799,6 +800,21 @@
           box.hidden = false;
           box.innerHTML = 'Temporary password (share securely, shown once):<br><code>' + esc(r.tempPassword) + '</code>';
           toast('Password reset');
+        }).catch(function (e) { toast(e.message, true); });
+      });
+
+      modal.body.querySelector('#um-sendreset').addEventListener('click', function () {
+        if (!confirm('Send a self-service password reset link to ' + u.email + '? Their current password keeps working until they use it.')) return;
+        api('/admin/users/' + id + '/send-reset', { method: 'POST', body: {} }).then(function (r) {
+          var box = modal.body.querySelector('#um-temp');
+          box.hidden = false;
+          if (r.emailed) {
+            box.innerHTML = 'Reset link emailed to <strong>' + esc(u.email) + '</strong> (valid 1 hour).';
+            toast('Reset link emailed');
+          } else {
+            box.innerHTML = 'Email not configured — copy this reset link and share it securely (valid 1 hour):<br><code>' + esc(r.link) + '</code>';
+            toast('Reset link generated');
+          }
         }).catch(function (e) { toast(e.message, true); });
       });
 

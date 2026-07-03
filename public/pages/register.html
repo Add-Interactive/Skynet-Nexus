@@ -49,8 +49,13 @@
       <span>SKYNET NEXUS</span>
     </a>
 
-    <h1 class="sky-auth-title">Create your family account</h1>
-    <p class="sky-auth-sub">Free forever. No ads targeted at kids. Add up to 6 kid profiles once you're in.</p>
+    <h1 class="sky-auth-title" id="reg-title">Create your family account</h1>
+    <p class="sky-auth-sub" id="reg-sub">Free forever. No ads targeted at kids. Add up to 6 kid profiles once you're in.</p>
+
+    <div id="setup-banner" hidden style="margin:0 0 18px;padding:14px 16px;border:1px solid var(--accent,#00e5ff);border-radius:12px;background:color-mix(in srgb,var(--accent,#00e5ff) 12%,transparent)">
+      <div style="font-weight:800;font-size:.95rem;margin-bottom:4px">🛠️ First-time setup</div>
+      <div style="font-size:.85rem;color:var(--text-mute,#9fb0c3);line-height:1.5">No owner account exists yet. The account you create here becomes the <strong>site admin</strong>. This setup screen disappears automatically once your admin is created — after that, everyone else signs up as a member and you manage roles from the admin panel.</div>
+    </div>
 
     <div id="sky-form-error" hidden></div>
 
@@ -103,10 +108,28 @@
       function showError(msg) { errBox.className = 'sky-error'; errBox.textContent = msg; errBox.hidden = false; }
       function clearError() { errBox.hidden = true; errBox.textContent = ''; }
 
+      // First-time setup: if no admin exists yet, this signup creates the owner
+      // admin. Detected once on load; auto-disables after the first admin exists.
+      let setupMode = false;
+      const idleBtnText = () => setupMode ? 'Create admin account →' : 'Create account →';
+      (async function detectSetup() {
+        try {
+          const r = await fetch('/api/auth/setup-status', { credentials: 'same-origin' });
+          const d = await r.json();
+          if (d && d.setupNeeded) {
+            setupMode = true;
+            document.getElementById('setup-banner').hidden = false;
+            document.getElementById('reg-title').textContent = 'Create the owner admin';
+            document.getElementById('reg-sub').textContent = 'This is the one-time site setup. Your account will have full admin access.';
+            btn.textContent = idleBtnText();
+          }
+        } catch (e) { /* fall back to normal signup */ }
+      })();
+
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         clearError();
-        btn.disabled = true; btn.textContent = 'Creating…';
+        btn.disabled = true; btn.textContent = setupMode ? 'Creating admin…' : 'Creating…';
         try {
           const body = {
             displayName: form.displayName.value.trim(),
@@ -114,18 +137,19 @@
             password: form.password.value,
             avatarColor: selected
           };
-          const res = await fetch('/api/auth/register', {
+          const endpoint = setupMode ? '/api/auth/setup-admin' : '/api/auth/register';
+          const res = await fetch(endpoint, {
             method: 'POST', credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
           });
           const data = await res.json();
-          if (!res.ok) { showError(data.error || 'Registration failed.'); btn.disabled = false; btn.textContent = 'Create account →'; return; }
-          // Success — bounce to profile page to add kids.
-          location.href = '/pages/profile.html?welcome=1';
+          if (!res.ok) { showError(data.error || 'Registration failed.'); btn.disabled = false; btn.textContent = idleBtnText(); return; }
+          // Owner admin -> straight to the admin panel; members -> add kids.
+          location.href = setupMode ? '/pages/admin.html' : '/pages/profile.html?welcome=1';
         } catch (err) {
           showError('Network error. Try again?');
-          btn.disabled = false; btn.textContent = 'Create account →';
+          btn.disabled = false; btn.textContent = idleBtnText();
         }
       });
     })();

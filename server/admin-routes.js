@@ -536,6 +536,36 @@ router.post('/users/:id/reset-password', requireFullAdmin, async (req, res) => {
   res.json({ ok: true, generated, tempPassword: generated ? password : undefined });
 });
 
+// Admin-initiated *self-service* reset: mint a reset token, email the member a
+// link, and also return the link so the admin can copy/share it when email
+// delivery isn't configured yet. Does not change the member's current password.
+router.post('/users/:id/send-reset', requireFullAdmin, async (req, res) => {
+  const id = Number(req.params.id);
+  const target = db.findUserById(id);
+  if (!target) return res.status(404).json({ error: 'not found' });
+
+  const token = crypto.randomBytes(24).toString('hex');
+  const expiresAt = Date.now() + 60 * 60 * 1000; // 1 hour
+  db.createPasswordReset({ userId: id, token, expiresAt });
+
+  const origin = process.env.SITE_ORIGIN ||
+    (process.env.NODE_ENV === 'production'
+      ? 'https://skynet-nexus-production.up.railway.app'
+      : 'http://localhost:' + (Number(process.env.PORT) || 4180));
+  const link = origin + '/pages/password-reset.html?token=' + encodeURIComponent(token);
+
+  let emailed = false;
+  try {
+    const { sendMail, passwordResetEmail } = require('./mailer');
+    const mail = passwordResetEmail(link);
+    const result = await sendMail({ to: target.email, subject: mail.subject, html: mail.html, text: mail.text });
+    emailed = !!(result && result.ok);
+  } catch (e) { /* fall through to returning the link */ }
+
+  logAction(req.adminUser.id, 'user.password.send-reset', 'user', id, { emailed });
+  res.json({ ok: true, emailed, link });
+});
+
 router.delete('/users/:id', requireFullAdmin, (req, res) => {
   const id = Number(req.params.id);
   const target = db.findUserById(id);
