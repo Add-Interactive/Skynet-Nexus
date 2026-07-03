@@ -713,6 +713,18 @@ app.get('/rss.xml', (req, res) => {
   res.type('application/rss+xml').send(generateMainFeed(SITE_ORIGIN));
 });
 
+// Agent-specific RSS feeds — MUST be registered before the generic channel
+// route below, otherwise "/rss-agent-space.xml" matches "/rss-:channel.xml"
+// with channel="agent-space" and the agent handler never runs.
+app.get('/rss-agent-:agent.xml', (req, res) => {
+  const agent = String(req.params.agent || '').toLowerCase();
+  if (!/^[a-z0-9-]+$/.test(agent)) {
+    return res.status(400).type('text/plain').send('Invalid agent');
+  }
+  res.set('Cache-Control', 'public, max-age=300');
+  res.type('application/rss+xml').send(generateAgentFeed('agent-' + agent, SITE_ORIGIN));
+});
+
 // Channel-specific RSS feeds
 app.get('/rss-:channel.xml', (req, res) => {
   const channel = String(req.params.channel || '').toLowerCase();
@@ -721,16 +733,6 @@ app.get('/rss-:channel.xml', (req, res) => {
   }
   res.set('Cache-Control', 'public, max-age=300');
   res.type('application/rss+xml').send(generateChannelFeed(channel, SITE_ORIGIN));
-});
-
-// Agent-specific RSS feeds
-app.get('/rss-agent-:agent.xml', (req, res) => {
-  const agent = String(req.params.agent || '').toLowerCase();
-  if (!/^[a-z0-9-]+$/.test(agent)) {
-    return res.status(400).type('text/plain').send('Invalid agent');
-  }
-  res.set('Cache-Control', 'public, max-age=300');
-  res.type('application/rss+xml').send(generateAgentFeed(agent, SITE_ORIGIN));
 });
 
 // ------------- Static content -------------

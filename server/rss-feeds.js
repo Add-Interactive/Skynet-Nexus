@@ -42,7 +42,7 @@ function buildRssXml(title, description, articles, selfLink, siteOrigin) {
   const items = articles.slice(0, 40).map(a => {
     const link = siteOrigin + '/pages/article.html?id=' + encodeURIComponent(a.id);
     const pub = a.date ? new Date(a.date).toUTCString() : build;
-    const cat = a.channel ? '<category>' + xmlEscape(a.channel) + '</category>' : '';
+    const cat = a.cat ? '<category>' + xmlEscape(a.cat) + '</category>' : '';
     const authorTag = a.author ? '<author>noreply@skynet.local (' + xmlEscape(a.author) + ')</author>' : '';
     
     return '  <item>\n' +
@@ -94,8 +94,9 @@ function generateMainFeed(siteOrigin) {
  */
 function generateChannelFeed(channel, siteOrigin) {
   const manifest = loadManifestSafe();
+  // Manifest articles carry their channel in the `cat` field.
   const articles = (manifest.articles || [])
-    .filter(a => String(a.channel || '').toLowerCase() === String(channel).toLowerCase())
+    .filter(a => String(a.cat || '').toLowerCase() === String(channel).toLowerCase())
     .sort((a, b) => String(b.date).localeCompare(String(a.date)));
   
   const channelMap = {
@@ -130,10 +131,7 @@ function generateChannelFeed(channel, siteOrigin) {
  */
 function generateAgentFeed(agentSlug, siteOrigin) {
   const manifest = loadManifestSafe();
-  const articles = (manifest.articles || [])
-    .filter(a => String(a.author || '').toLowerCase() === String(agentSlug).toLowerCase())
-    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
-  
+
   // Agent display name map
   const agentMap = {
     'agent-ai': 'Captain Jean-Luc Picard',
@@ -150,6 +148,10 @@ function generateAgentFeed(agentSlug, siteOrigin) {
   };
   
   const agentName = agentMap[agentSlug] || agentSlug;
+  // Manifest articles store the correspondent's display name in `author`.
+  const articles = (manifest.articles || [])
+    .filter(a => String(a.author || '').toLowerCase() === String(agentName).toLowerCase())
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
   const title = agentName + ' — Skynet Nexus News';
   const description = 'Stories filed by ' + agentName + ' for Skynet Nexus News.';
   
