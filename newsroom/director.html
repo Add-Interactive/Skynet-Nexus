@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>🛰️ SKYNET NEXUS — Director's Office</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      background: #000;
+      color: #00ff41;
+      font-family: 'Orbitron', monospace;
+      line-height: 1.5;
+      letter-spacing: 0.05em;
+      overflow-x: hidden;
+    }
+    
+    /* Scanlines */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.15) 0, rgba(0, 0, 0, 0.15) 1px, transparent 1px, transparent 2px);
+      pointer-events: none;
+      z-index: 999;
+    }
+    
+    .office {
+      display: grid;
+      grid-template-rows: 80px 1fr;
+      min-height: 100vh;
+      gap: 8px;
+      padding: 8px;
+      background: #000;
+    }
+    
+    /* TOP BAR */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 16px 24px;
+      background: linear-gradient(90deg, #001a4d 0%, #0d0d26 100%);
+      border: 2px solid #00ff41;
+      border-radius: 0 12px 0 0;
+      box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+    }
+    
+    .topbar-title {
+      font-size: 18px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+    }
+    
+    .topbar-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px;
+      background: rgba(0, 255, 65, 0.05);
+      border: 1px solid #00ccff;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #00ff00;
+      box-shadow: 0 0 10px #00ff00;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    
+    .topbar-time {
+      margin-left: auto;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: right;
+    }
+    
+    .topbar-time-value {
+      display: block;
+      font-size: 14px;
+      color: #00ccff;
+    }
+    
+    /* MAIN CONTENT */
+    .content {
+      display: grid;
+      grid-template-rows: 120px 1fr 140px;
+      gap: 8px;
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    /* STATUS BANNER */
+    .status-banner {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 24px;
+      background: linear-gradient(90deg, #001a4d 0%, #000d26 100%);
+      border: 2px solid #00ccff;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0, 204, 255, 0.3);
+      overflow-x: auto;
+    }
+    
+    .banner-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 0 16px;
+      border-right: 1px dashed #00ccff;
+      font-size: 11px;
+      white-space: nowrap;
+      min-width: fit-content;
+    }
+    
+    .banner-item:last-child {
+      border-right: none;
+    }
+    
+    .banner-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #00ccff;
+    }
+    
+    .banner-value {
+      font-size: 12px;
+      font-weight: 700;
+      text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+    }
+    
+    /* DASHBOARD GRID */
+    .dashboard {
+      display: grid;
+      grid-template-columns: 260px 1fr 300px;
+      gap: 8px;
+      overflow: hidden;
+    }
+    
+    .panel {
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(135deg, #001a4d 0%, #000d26 100%);
+      border: 2px solid #00ff41;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+      overflow: hidden;
+    }
+    
+    .panel-header {
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      border-bottom: 1px dashed #00ff41;
+      padding-bottom: 8px;
+      color: #00ff41;
+      text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    }
+    
+    .kpi-card {
+      padding: 12px;
+      background: rgba(0, 255, 65, 0.05);
+      border: 1px solid #00ccff;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      font-size: 11px;
+    }
+    
+    .kpi-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #00ccff;
+      margin-bottom: 4px;
+    }
+    
+    .kpi-value {
+      font-size: 16px;
+      font-weight: 900;
+      text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    }
+    
+    .kpi-sub {
+      font-size: 10px;
+      opacity: 0.7;
+      margin-top: 4px;
+    }
+    
+    /* CHARTS AREA */
+    .charts-area {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 8px;
+      overflow-y: auto;
+    }
+    
+    .chart-panel {
+      background: linear-gradient(135deg, #001a4d 0%, #000d26 100%);
+      border: 2px solid #00ff41;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+    }
+    
+    .chart-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #00ccff;
+      margin-bottom: 8px;
+      border-bottom: 1px dashed #00ccff;
+      padding-bottom: 6px;
+    }
+    
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 80px;
+    }
+    
+    .bar {
+      flex: 1;
+      background: linear-gradient(180deg, #00ff41 0%, #00ccff 100%);
+      border-radius: 2px 2px 0 0;
+      min-height: 4px;
+      position: relative;
+    }
+    
+    .bar:hover {
+      opacity: 0.8;
+      box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    }
+    
+    .bar-label {
+      position: absolute;
+      bottom: -16px;
+      left: 0;
+      right: 0;
+      font-size: 8px;
+      text-align: center;
+      opacity: 0.6;
+    }
+    
+    /* AGENT SCOREBOARD */
+    .agent-item {
+      padding: 8px;
+      background: rgba(0, 255, 65, 0.05);
+      border: 1px solid #00ccff;
+      border-radius: 4px;
+      margin-bottom: 6px;
+      font-size: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .agent-name {
+      font-weight: 700;
+      flex: 1;
+    }
+    
+    .agent-stats {
+      display: flex;
+      gap: 8px;
+      font-size: 9px;
+      opacity: 0.7;
+    }
+    
+    /* QUEUE STATUS */
+    .queue-status {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px;
+      background: rgba(0, 255, 65, 0.05);
+      border: 1px solid #00ccff;
+      border-radius: 4px;
+      font-size: 10px;
+    }
+    
+    .queue-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .queue-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #00ccff;
+    }
+    
+    .queue-value {
+      font-weight: 700;
+      color: #00ff41;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(0, 255, 65, 0.1);
+      border: 1px solid #00ccff;
+      border-radius: 2px;
+      margin-top: 4px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00ff41 0%, #00ccff 100%);
+      border-radius: 1px;
+    }
+    
+    /* DROPDOWN SECTIONS */
+    .section-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    
+    .section-collapsed {
+      height: auto;
+    }
+    
+    /* BUTTONS */
+    .btn-action {
+      padding: 8px 12px;
+      background: transparent;
+      border: 1px solid #00ff41;
+      color: #00ff41;
+      font-family: 'Orbitron', monospace;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-radius: 2px;
+    }
+    
+    .btn-action:hover {
+      background: #00ff41;
+      color: #000;
+      box-shadow: 0 0 10px #00ff41;
+    }
+    
+    /* SCROLLBAR */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #00ff41;
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #00ccff;
+      box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+    }
+    
+    /* BOTTOM PANEL */
+    .bottom-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      padding: 8px;
+    }
+    
+    .drop-card {
+      background: linear-gradient(135deg, #001a4d 0%, #000d26 100%);
+      border: 2px solid #00ff41;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+      font-size: 10px;
+    }
+    
+    .drop-time {
+      font-size: 12px;
+      font-weight: 700;
+      color: #00ff41;
+      text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+      margin-bottom: 6px;
+    }
+    
+    .drop-status {
+      font-size: 9px;
+      color: #00ccff;
+      margin-bottom: 4px;
+    }
+    
+    .drop-bar {
+      width: 100%;
+      height: 4px;
+      background: rgba(0, 255, 65, 0.1);
+      border-radius: 1px;
+      margin-top: 4px;
+      overflow: hidden;
+    }
+    
+    .drop-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00ff41 0%, #00ccff 100%);
+      border-radius: 1px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="office">
+  
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-title">🛰️ DIRECTOR'S OFFICE</div>
+    <div class="topbar-status">
+      <div class="status-dot"></div>
+      <span>SYSTEM</span>
+      <span>●NOMINAL</span>
+    </div>
+    <div class="topbar-status">
+      <span>API: ✓ DB: ✓ SCHEDULER: ✓</span>
+    </div>
+    <div class="topbar-status">
+      <span>UPTIME: 99.8%</span>
+    </div>
+    <div class="topbar-time">
+      <div>Next Drop</div>
+      <div class="topbar-time-value" id="time-display">10:15 AM ET (1:28 left)</div>
+    </div>
+  </div>
+  
+  <!-- MAIN CONTENT -->
+  <div class="content">
+    
+    <!-- STATUS BANNER -->
+    <div class="status-banner">
+      <div class="banner-item">
+        <div class="banner-label">Today Filed</div>
+        <div class="banner-value">47 / 55</div>
+      </div>
+      <div class="banner-item">
+        <div class="banner-label">Published</div>
+        <div class="banner-value">12 / 15</div>
+      </div>
+      <div class="banner-item">
+        <div class="banner-label">In Review</div>
+        <div class="banner-value">3 Stories</div>
+      </div>
+      <div class="banner-item">
+        <div class="banner-label">Revisions</div>
+        <div class="banner-value">2 Pending</div>
+      </div>
+      <div class="banner-item">
+        <div class="banner-label">Quality Avg</div>
+        <div class="banner-value">8.4 / 10</div>
+      </div>
+      <div class="banner-item">
+        <div class="banner-label">Guardrail</div>
+        <div class="banner-value">97.1% Pass</div>
+      </div>
+      <div class="banner-item">
+        <div class="banner-label">Time-to-Pub</div>
+        <div class="banner-value">22 min avg</div>
+      </div>
+    </div>
+    
+    <!-- DASHBOARD GRID -->
+    <div class="dashboard">
+      
+      <!-- LEFT: KPI CARDS -->
+      <div class="panel section-container">
+        <div class="panel-header">📊 Key Metrics</div>
+        
+        <div class="kpi-card">
+          <div class="kpi-label">Stories Filed</div>
+          <div class="kpi-value">47</div>
+          <div class="kpi-sub">Target: 55 | 85% capacity</div>
+        </div>
+        
+        <div class="kpi-card">
+          <div class="kpi-label">Quality Score</div>
+          <div class="kpi-value">8.4/10</div>
+          <div class="kpi-sub">↑ +0.3 from yesterday</div>
+        </div>
+        
+        <div class="kpi-card">
+          <div class="kpi-label">Publish Rate</div>
+          <div class="kpi-value">94.1%</div>
+          <div class="kpi-sub">Target: 90% ✓</div>
+        </div>
+        
+        <div class="kpi-card">
+          <div class="kpi-label">Revision Requests</div>
+          <div class="kpi-value">4.2%</div>
+          <div class="kpi-sub">Target: 5% ✓</div>
+        </div>
+        
+        <div class="kpi-card">
+          <div class="kpi-label">Guardrail Pass</div>
+          <div class="kpi-value">97.1%</div>
+          <div class="kpi-sub">Failures: 3</div>
+        </div>
+        
+        <div class="kpi-card">
+          <div class="kpi-label">Avg Time-to-Pub</div>
+          <div class="kpi-value">22 min</div>
+          <div class="kpi-sub">Target: <30 min ✓</div>
+        </div>
+        
+        <button class="btn-action" style="width: 100%; margin-top: auto;">📊 VIEW FULL ANALYTICS</button>
+      </div>
+      
+      <!-- CENTER: CHARTS & AGENT BOARD -->
+      <div class="section-container">
+        
+        <div class="charts-area">
+          
+          <!-- CHANNEL PERFORMANCE -->
+          <div class="chart-panel">
+            <div class="chart-title">📈 Channel Breakdown</div>
+            <div class="bar-chart">
+              <div class="bar" style="height: 85%;" title="AI: 28 stories">
+                <div class="bar-label">AI</div>
+              </div>
+              <div class="bar" style="height: 78%;" title="Space: 24 stories">
+                <div class="bar-label">Space</div>
+              </div>
+              <div class="bar" style="height: 92%;" title="Robotics: 26 stories">
+                <div class="bar-label">Robotics</div>
+              </div>
+              <div class="bar" style="height: 68%;" title="Biotech: 18 stories">
+                <div class="bar-label">Biotech</div>
+              </div>
+              <div class="bar" style="height: 71%;" title="Quantum: 20 stories">
+                <div class="bar-label">Quantum</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- PERFORMANCE TREND -->
+          <div class="chart-panel">
+            <div class="chart-title">📊 Quality Trend (7 days)</div>
+            <div style="padding: 20px 0; text-align: center; font-size: 12px; color: #00ff41;">
+              ▁▂▃▄▅▆▇█ 8.4
+            </div>
+            <div style="font-size: 9px; text-align: center; opacity: 0.7;">
+              Steady upward trend ↑ +2.1 avg
+            </div>
+          </div>
+          
+        </div>
+        
+        <!-- AGENT SCOREBOARD -->
+        <div class="panel">
+          <div class="panel-header">👥 Agent Performance</div>
+          <div class="agent-item">
+            <div class="agent-name">🧠 Picard</div>
+            <div class="agent-stats"><span>5 filed</span><span>0 rev</span></div>
+          </div>
+          <div class="agent-item">
+            <div class="agent-name">🚀 Riker</div>
+            <div class="agent-stats"><span>4 filed</span><span>1 rev</span></div>
+          </div>
+          <div class="agent-item">
+            <div class="agent-name">🤖 Data</div>
+            <div class="agent-stats"><span>5 filed</span><span>0 rev</span></div>
+          </div>
+          <div class="agent-item">
+            <div class="agent-name">🧬 Crusher</div>
+            <div class="agent-stats"><span>3 filed</span><span>2 rev</span></div>
+          </div>
+          <div class="agent-item">
+            <div class="agent-name">⚛️ Worf</div>
+            <div class="agent-stats"><span>4 filed</span><span>0 rev</span></div>
+          </div>
+          <div class="agent-item">
+            <div class="agent-name">... 6 more agents</div>
+            <div class="agent-stats"><span>22 filed</span><span>3 rev</span></div>
+          </div>
+          <div style="font-size: 9px; margin-top: 8px; padding: 6px; background: rgba(0, 255, 65, 0.05); border-radius: 2px;">
+            Top: Picard (8.7/10) | Trend: ↑ All agents improving
+          </div>
+        </div>
+        
+      </div>
+      
+      <!-- RIGHT: QUEUE & INCIDENTS -->
+      <div class="panel section-container">
+        <div class="panel-header">📋 Queue Status</div>
+        
+        <div class="queue-status">
+          <div class="queue-row">
+            <span class="queue-label">In Progress</span>
+            <span class="queue-value">47</span>
+          </div>
+          <div class="queue-row">
+            <span class="queue-label">Awaiting Review</span>
+            <span class="queue-value">3</span>
+          </div>
+          <div class="queue-row">
+            <span class="queue-label">Revision Requested</span>
+            <span class="queue-value">2</span>
+          </div>
+          <div class="queue-row">
+            <span class="queue-label">Rejected</span>
+            <span class="queue-value">1</span>
+          </div>
+          <div style="border-top: 1px dashed #00ccff; margin-top: 6px; padding-top: 6px;">
+            <div class="queue-label">Overall Load</div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 85%;"></div>
+            </div>
+            <div style="font-size: 9px; margin-top: 4px; color: #00ccff;">
+              85% capacity | Speed: NORMAL
+            </div>
+          </div>
+        </div>
+        
+        <div class="panel-header" style="margin-top: 16px;">⚠️ Alerts</div>
+        <div style="font-size: 9px; padding: 8px; background: rgba(0, 255, 65, 0.05); border-radius: 4px; border-left: 3px solid #00ccff;">
+          <div style="margin-bottom: 6px;">🟡 <strong>Crusher Revisions</strong></div>
+          <div style="opacity: 0.7;">Revision rate at 40% (normal: 10%)</div>
+          <div style="opacity: 0.5; margin-top: 4px;">Action: Review next brief</div>
+        </div>
+        
+        <button class="btn-action" style="width: 100%; margin-top: auto;">🚨 INCIDENT LOG</button>
+        <button class="btn-action" style="width: 100%; margin-top: 4px;">⚙️ SETTINGS</button>
+      </div>
+      
+    </div>
+    
+    <!-- BOTTOM: UPCOMING DROPS -->
+    <div class="bottom-panel">
+      
+      <div class="drop-card">
+        <div class="drop-time">10:15 AM ET</div>
+        <div class="drop-status">📰 Morning Edition</div>
+        <div class="drop-status">Ready: 12 / 15</div>
+        <div class="drop-bar">
+          <div class="drop-fill" style="width: 80%;"></div>
+        </div>
+        <div style="font-size: 9px; margin-top: 6px; opacity: 0.7;">
+          In review: 2 | Rejected: 1
+        </div>
+      </div>
+      
+      <div class="drop-card">
+        <div class="drop-time">2:15 PM ET</div>
+        <div class="drop-status">📰 Midday Edition</div>
+        <div class="drop-status">Ready: 10 / 15</div>
+        <div class="drop-bar">
+          <div class="drop-fill" style="width: 67%;"></div>
+        </div>
+        <div style="font-size: 9px; margin-top: 6px; opacity: 0.7;">
+          More to file before 1:15 PM
+        </div>
+      </div>
+      
+      <div class="drop-card">
+        <div class="drop-time">6:15 PM ET</div>
+        <div class="drop-status">📰 Evening Edition</div>
+        <div class="drop-status">Ready: 8 / 15</div>
+        <div class="drop-bar">
+          <div class="drop-fill" style="width: 53%;"></div>
+        </div>
+        <div style="font-size: 9px; margin-top: 6px; opacity: 0.7;">
+          Still collecting stories
+        </div>
+      </div>
+      
+    </div>
+    
+  </div>
+  
+</div>
+
+<script>
+  // Update time countdown
+  function updateTime() {
+    const now = new Date();
+    const et = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    }).format(now);
+    
+    // Calculate next drop
+    const etHour = parseInt(et.split(':')[0]);
+    const etMin = parseInt(et.split(':')[1]);
+    
+    let nextDropHour = 10;
+    let nextDropMin = 15;
+    
+    if (etHour > 10 || (etHour === 10 && etMin > 15)) {
+      nextDropHour = 14;
+      nextDropMin = 15;
+    }
+    if (etHour > 14 || (etHour === 14 && etMin > 15)) {
+      nextDropHour = 18;
+      nextDropMin = 15;
+    }
+    if (etHour > 18 || (etHour === 18 && etMin > 15)) {
+      nextDropHour = 10;
+      nextDropMin = 15;
+    }
+    
+    // Calculate countdown
+    const currentMins = etHour * 60 + etMin;
+    const targetMins = nextDropHour * 60 + nextDropMin;
+    let diff = targetMins - currentMins;
+    if (diff <= 0) diff += 24 * 60;
+    
+    const hours = Math.floor(diff / 60);
+    const mins = diff % 60;
+    
+    document.getElementById('time-display').textContent = 
+      `${String(nextDropHour).padStart(2, '0')}:${String(nextDropMin).padStart(2, '0')} ET (${hours}:${String(mins).padStart(2, '0')} left)`;
+  }
+  
+  updateTime();
+  setInterval(updateTime, 1000);
+</script>
+
+</body>
+</html>
