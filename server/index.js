@@ -627,9 +627,17 @@ app.use('/data', express.static(DATA_DIR, {
 
 // Everything else -> /public.
 app.use(express.static(PUBLIC_DIR, {
-  maxAge: IS_PROD ? '1h' : 0,
   etag: true,
-  extensions: ['html']
+  extensions: ['html'],
+  setHeaders(res, filePath) {
+    // Code/markup must revalidate so deploys propagate immediately (ETag -> 304
+    // when unchanged). Media can be cached for longer.
+    if (/\.(html|js|css|json)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'no-cache');
+    } else {
+      res.setHeader('Cache-Control', IS_PROD ? 'public, max-age=86400' : 'no-cache');
+    }
+  }
 }));
 
 // 404 fallback for unknown non-API paths -> homepage (SPA-ish soft fallback).
