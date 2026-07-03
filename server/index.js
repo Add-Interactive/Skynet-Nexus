@@ -369,7 +369,18 @@ api.get('/manifest', (req, res) => {
 });
 
 // ---- Public story submission (readers send tips) ----
-const SUBMISSION_CHANNELS = new Set(['stem', 'robotics', 'play', 'music']);
+const { SUBMISSION_IDS: SUBMISSION_CHANNELS, CHANNELS: CHANNEL_LIST } = require('./channels');
+const scheduler = require('./scheduler');
+
+// GET /api/schedule — public cadence info for the submit page + homepage countdown.
+api.get('/schedule', (req, res) => {
+  res.json(scheduler.scheduleInfo());
+});
+
+// GET /api/channels — public channel registry (id/label/icon/color).
+api.get('/channels', (req, res) => {
+  res.json({ channels: CHANNEL_LIST });
+});
 
 api.post('/submissions', rateLimit({ windowMs: 60 * 60_000, max: 8, key: 'submissions' }), (req, res) => {
   try {
@@ -382,7 +393,7 @@ api.post('/submissions', rateLimit({ windowMs: 60 * 60_000, max: 8, key: 'submis
     const submitterName = b.submitterName ? String(b.submitterName).trim().slice(0, 80) : null;
     const submitterEmail = b.submitterEmail ? String(b.submitterEmail).trim().slice(0, 200).toLowerCase() : null;
 
-    if (!SUBMISSION_CHANNELS.has(channel)) return res.status(400).json({ error: 'channel must be one of: stem, robotics, play, music.' });
+    if (!SUBMISSION_CHANNELS.has(channel)) return res.status(400).json({ error: 'channel must be one of the live Skynet Nexus channels.' });
     if (title.length < 6 || title.length > 200) return res.status(400).json({ error: 'title must be 6-200 chars.' });
     if (summary.length < 20 || summary.length > 800) return res.status(400).json({ error: 'summary must be 20-800 chars.' });
     if (body && body.length > 6000) return res.status(400).json({ error: 'body too long (max 6000).' });
@@ -608,4 +619,5 @@ app.listen(PORT, () => {
   console.log(`[skynet] public:  ${PUBLIC_DIR}`);
   console.log(`[skynet] data:    ${DATA_DIR}`);
   console.log(`[skynet] session: ${IS_PROD ? 'secure' : 'insecure (dev)'} cookies`);
+  scheduler.start();
 });

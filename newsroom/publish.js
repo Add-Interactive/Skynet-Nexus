@@ -63,7 +63,7 @@ async function main() {
   if (!article.familyDiscussion || !Array.isArray(article.familyDiscussion) || article.familyDiscussion.length < 2) {
     errors.push('familyDiscussion required (array of 2-3 question strings)');
   }
-  const validCats = ['stem', 'robotics', 'play', 'music', 'network'];
+  const validCats = ['ai', 'space', 'robotics', 'biotech', 'quantum', 'climate', 'engineering', 'math', 'cyber', 'gaming', 'music', 'stem', 'play', 'network'];
   if (article.cat && !validCats.includes(article.cat)) errors.push('cat must be one of: ' + validCats.join(', '));
   // Kid-safe content guardrails: block flagged terms
   const flagged = ['killed', 'murder', 'suicide', 'terrorist', 'assault', 'rape', 'overdose', 'nazi', 'slavery', 'gun ', 'shooting', 'weapon', 'combat'];
@@ -75,9 +75,9 @@ async function main() {
 
   const slug = article.slug || slugify(article.title);
   const id = article.id || (article.date + '-' + slug);
-  const emojiByCat = { stem: '🧬', robotics: '🤖', play: '🎨', music: '🎧', network: '🛰️' };
-  const colorByCat = { stem: '#00e5ff', robotics: '#a855f7', play: '#39ff14', music: '#ff2e63', network: '#00e5ff' };
-  const partnerByCat = { stem: '#a855f7', robotics: '#ff2e63', play: '#00e5ff', music: '#ffb800', network: '#ff2e63' };
+  const emojiByCat = { ai:'🧠', space:'🚀', robotics:'🤖', biotech:'🧬', quantum:'⚛️', climate:'🌍', engineering:'🔧', math:'📐', cyber:'🔐', gaming:'🎮', music:'🎧', stem:'🧬', play:'🎨', network:'🛰️' };
+  const colorByCat = { ai:'#00e5ff', space:'#7c5cff', robotics:'#a855f7', biotech:'#2dd4bf', quantum:'#22d3ee', climate:'#34d399', engineering:'#ffb800', math:'#f472b6', cyber:'#38bdf8', gaming:'#39ff14', music:'#ff2e63', stem:'#00e5ff', play:'#39ff14', network:'#00e5ff' };
+  const partnerByCat = { ai:'#a855f7', space:'#00e5ff', robotics:'#ff2e63', biotech:'#00e5ff', quantum:'#7c5cff', climate:'#00e5ff', engineering:'#ff2e63', math:'#a855f7', cyber:'#a855f7', gaming:'#00e5ff', music:'#ffb800', stem:'#a855f7', play:'#00e5ff', network:'#ff2e63' };
 
   const author = article.author || 'The Newsroom';
   const authorInit = article.authorInit || author.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
@@ -88,7 +88,7 @@ async function main() {
     id,
     slug,
     cat: article.cat,
-    categoryLabel: article.categoryLabel || (({stem:'STEM Signal',robotics:'Robotics Signal',play:'Play & Design',music:'Music Signal',network:'Network News'})[article.cat] || article.cat),
+    categoryLabel: article.categoryLabel || (({ai:'AI & Machine Learning',space:'Space & Aerospace',robotics:'Robotics & Automation',biotech:'Biotech & Health',quantum:'Quantum & Computing',climate:'Climate & Energy',engineering:'Engineering & Making',math:'Math & Data Science',cyber:'Cybersecurity & Code',gaming:'Gaming Tournaments',music:'Music Festivals',stem:'STEM Signal',play:'Play & Design',network:'Network News'})[article.cat] || article.cat),
     title: article.title,
     subtitle: article.subtitle || '',
     excerpt: article.excerpt,
@@ -99,7 +99,7 @@ async function main() {
     ageBand: article.ageBand || '8+',
     author,
     authorInit,
-    authorRole: article.authorRole || (({stem:'STEM Correspondent',robotics:'Robotics Correspondent',play:'Play & Design Correspondent',music:'Music Correspondent',network:'Newsroom'})[article.cat] || 'Correspondent'),
+    authorRole: article.authorRole || (({ai:'AI Correspondent',space:'Aerospace Correspondent',robotics:'Robotics Correspondent',biotech:'Biotech Correspondent',quantum:'Quantum Correspondent',climate:'Climate Correspondent',engineering:'Engineering Correspondent',math:'Data Science Correspondent',cyber:'Cybersecurity Correspondent',gaming:'Esports Correspondent',music:'Music Correspondent',stem:'STEM Correspondent',play:'Play & Design Correspondent',network:'Newsroom'})[article.cat] || 'Correspondent'),
     date: article.date,
     publishedAt,
     read: article.read || Math.max(2, Math.ceil((article.body.replace(/<[^>]+>/g, ' ').split(/\s+/).length) / 220)),

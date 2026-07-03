@@ -207,6 +207,9 @@ function _addColumnIfMissing(table, col, decl) {
 _addColumnIfMissing('users', 'role', "TEXT NOT NULL DEFAULT 'parent'");
 // admin_notes lets an admin annotate any user account.
 _addColumnIfMissing('users', 'admin_notes', 'TEXT');
+// Cadence engine: queued stories can be scheduled for a timed edition release.
+_addColumnIfMissing('queued_stories', 'publish_at', 'TEXT');
+_addColumnIfMissing('queued_stories', 'edition', 'TEXT');
 
 
 // ---------- Prepared statements ----------
@@ -311,6 +314,24 @@ const stmts = {
   findQueuedStory: db.prepare(`SELECT * FROM queued_stories WHERE id = ?`),
   listQueuedStories: db.prepare(`SELECT * FROM queued_stories ORDER BY id DESC LIMIT ? OFFSET ?`),
   listQueuedByStatus: db.prepare(`SELECT * FROM queued_stories WHERE status = ? ORDER BY id DESC LIMIT ? OFFSET ?`),
+  scheduleQueuedStory: db.prepare(`
+    UPDATE queued_stories SET
+      status = 'scheduled',
+      publish_at = ?,
+      edition = ?,
+      updated_at = datetime('now')
+    WHERE id = ?
+  `),
+  listDueScheduled: db.prepare(`
+    SELECT * FROM queued_stories
+     WHERE status = 'scheduled' AND publish_at IS NOT NULL AND publish_at <= ?
+     ORDER BY publish_at ASC LIMIT 20
+  `),
+  listScheduledUpcoming: db.prepare(`
+    SELECT * FROM queued_stories
+     WHERE status = 'scheduled'
+     ORDER BY publish_at ASC LIMIT ? OFFSET ?
+  `),
 
   createAgentTask: db.prepare(`
     INSERT INTO agent_tasks (staff_id, created_by, title, instructions, priority, status, submission_id)
@@ -416,6 +437,8 @@ function toPublicQueuedStory(row) {
     editorNotes: row.editor_notes,
     publishedArticleId: row.published_article_id,
     publishedAt: row.published_at,
+    scheduledAt: row.publish_at,
+    edition: row.edition,
     createdAt: row.created_at,
     updatedAt: row.updated_at
   };
@@ -633,6 +656,16 @@ module.exports = {
       ? stmts.listQueuedByStatus.all(status, limit, offset)
       : stmts.listQueuedStories.all(limit, offset);
     return rows.map(toPublicQueuedStory);
+  },
+  scheduleQueuedStory({ id, publishAt, edition = null }) {
+    stmts.scheduleQueuedStory.run(publishAt, edition, id);
+    return toPublicQueuedStory(stmts.findQueuedStory.get(id));
+  },
+  listDueScheduledStories(nowIso) {
+    return stmts.listDueScheduled.all(nowIso).map(toPublicQueuedStory);
+  },
+  listScheduledStories({ limit = 50, offset = 0 } = {}) {
+    return stmts.listScheduledUpcoming.all(limit, offset).map(toPublicQueuedStory);
   },
 
   createAgentTask({ staffId, createdBy, title, instructions, priority = 'normal', submissionId = null }) {

@@ -15,7 +15,8 @@ const ROOT = path.resolve(__dirname, '..');
 const TMP_DIR = path.join(ROOT, '.tmp');
 const PUBLISH_SCRIPT = path.join(ROOT, 'newsroom', 'publish.js');
 
-const CHANNELS = new Set(['stem', 'robotics', 'play', 'music', 'network']);
+const CHANNELS = require('./channels').PUBLISH_IDS;
+const scheduler = require('./scheduler');
 const ADMIN_ROLES = new Set(['admin', 'editor']);
 const FULL_ADMIN_ROLES = new Set(['admin']);
 
@@ -410,6 +411,44 @@ router.post('/stories/queue/:id/publish', async (req, res) => {
   } finally {
     try { fs.unlinkSync(tmpFile); } catch {}
   }
+});
+
+// Schedule a queued story for a timed edition release (cadence engine).
+// Body: { at?: ISO } — if omitted, uses the next eligible drop honoring the
+// 1-hour review cutoff. A scheduled story is auto-published at its drop time.
+router.post('/stories/queue/:id/schedule', (req, res) => {
+  const id = Number(req.params.id);
+  const current = db.findQueuedStory(id);
+  if (!current) return res.status(404).json({ error: 'not found' });
+  if (current.status === 'published') return res.status(400).json({ error: 'already published' });
+  if (current.status === 'rejected') return res.status(400).json({ error: 'rejected story cannot be scheduled' });
+
+  const b = req.body || {};
+  let drop;
+  if (b.at) {
+    const at = new Date(b.at);
+    if (isNaN(at.getTime())) return res.status(400).json({ error: 'invalid at timestamp' });
+    const minTime = Date.now() + scheduler.CUTOFF_MIN * 60_000;
+    if (at.getTime() < minTime) {
+      return res.status(400).json({ error: `scheduled time must be at least ${scheduler.CUTOFF_MIN} minutes out (review cutoff).` });
+    }
+    drop = { at, edition: null };
+  } else {
+    const ne = scheduler.nextEligibleDrop();
+    drop = { at: ne.at, edition: ne.edition };
+  }
+
+  const story = db.scheduleQueuedStory({ id, publishAt: drop.at.toISOString(), edition: drop.edition });
+  if (current.submissionId) {
+    db.updateSubmission({ id: current.submissionId, status: 'approved', reviewedBy: req.adminUser.id, reviewedAt: new Date().toISOString() });
+  }
+  logAction(req.adminUser.id, 'story.schedule', 'story', id, { publishAt: drop.at.toISOString(), edition: drop.edition });
+  res.json({ story });
+});
+
+// List all scheduled (not yet released) stories.
+router.get('/stories/scheduled', (req, res) => {
+  res.json({ stories: db.listScheduledStories({ limit: 100 }), schedule: scheduler.scheduleInfo() });
 });
 
 // -------------------- USERS / ROLES --------------------

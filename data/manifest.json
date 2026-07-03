@@ -26,29 +26,83 @@
       "Free forever."
     ],
     "categories": {
+      "ai": {
+        "label": "AI & Machine Learning",
+        "emoji": "🧠",
+        "color": "#00e5ff",
+        "scope": "Young ML researchers, student AI projects, model builders, AI for good."
+      },
+      "space": {
+        "label": "Space & Aerospace",
+        "emoji": "🚀",
+        "color": "#7c5cff",
+        "scope": "CubeSats, rocketry clubs, NASA challenges, student astronomers and aerospace teams."
+      },
+      "robotics": {
+        "label": "Robotics & Automation",
+        "emoji": "🤖",
+        "color": "#a855f7",
+        "scope": "FIRST (FRC/FTC/FLL), VEX, BEST, RoboCup Junior - student teams and matches."
+      },
+      "biotech": {
+        "label": "Biotech & Health",
+        "emoji": "🧬",
+        "color": "#2dd4bf",
+        "scope": "Young bioengineers, health hackers, genetics, med-tech science fair work."
+      },
+      "quantum": {
+        "label": "Quantum & Computing",
+        "emoji": "⚛️",
+        "color": "#22d3ee",
+        "scope": "Quantum computing, semiconductors, computing research by students."
+      },
+      "climate": {
+        "label": "Climate & Energy",
+        "emoji": "🌍",
+        "color": "#34d399",
+        "scope": "Young climate innovators, clean energy builds, sustainability projects."
+      },
+      "engineering": {
+        "label": "Engineering & Making",
+        "emoji": "🔧",
+        "color": "#ffb800",
+        "scope": "Makers, hardware hackers, civil/mechanical builds, invention conventions."
+      },
+      "math": {
+        "label": "Math & Data Science",
+        "emoji": "📐",
+        "color": "#f472b6",
+        "scope": "Math olympiads, data science projects, statistics and modeling by youth."
+      },
+      "cyber": {
+        "label": "Cybersecurity & Code",
+        "emoji": "🔐",
+        "color": "#38bdf8",
+        "scope": "CTF teams, student developers, open-source contributors, security research."
+      },
+      "gaming": {
+        "label": "Gaming Tournaments",
+        "emoji": "🎮",
+        "color": "#39ff14",
+        "scope": "Scholastic esports, chess, speedrunning, kid-made games and tournaments."
+      },
+      "music": {
+        "label": "Music Festivals",
+        "emoji": "🎧",
+        "color": "#ff2e63",
+        "scope": "YoungArts, All-State, teen songwriters, youth ensembles and festivals."
+      },
       "stem": {
         "label": "STEM",
         "emoji": "🧬",
         "color": "#00e5ff",
-        "scope": "Science, engineering, aerospace, math, young researchers, science fair winners."
-      },
-      "robotics": {
-        "label": "Robotics",
-        "emoji": "🤖",
-        "color": "#a855f7",
-        "scope": "FIRST (FRC/FTC/FLL), VEX, BEST, RoboCup Junior - student teams and matches."
+        "scope": "Legacy: general science, engineering, math and young researchers."
       },
       "play": {
         "label": "Play & Design",
         "emoji": "🎨",
         "color": "#39ff14",
-        "scope": "Minecraft creators, Roblox devs, Scratch projects, chess prodigies, scholastic esports, kid-made games."
-      },
-      "music": {
-        "label": "Music",
-        "emoji": "🎧",
-        "color": "#ff2e63",
-        "scope": "YoungArts, All-State, teen songwriters, Tiny Desk newcomers, school music programs."
+        "scope": "Legacy: Minecraft/Roblox/Scratch creators, chess prodigies, kid-made games."
       },
       "network": {
         "label": "Network",

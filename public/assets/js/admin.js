@@ -551,6 +551,7 @@
         (p.kidTake ? '<dt>Kid Take</dt><dd>' + esc(p.kidTake) + '</dd>' : '') +
         (p.body ? '<dt>Body (HTML)</dt><dd style="max-height:220px;overflow:auto">' + esc(p.body) + '</dd>' : '') +
         (st.editorNotes ? '<dt>Editor notes</dt><dd>' + esc(st.editorNotes) + '</dd>' : '') +
+        (st.scheduledAt ? '<dt>Scheduled for</dt><dd>' + fmtDate(st.scheduledAt) + (st.edition ? ' (' + esc(st.edition) + ')' : '') + '</dd>' : '') +
         (st.publishedArticleId ? '<dt>Published as</dt><dd>' + esc(st.publishedArticleId) + '</dd>' : '') +
       '</dl>'
     ));
@@ -569,6 +570,17 @@
           .catch(function (e) { toast(e.message, true); pub.disabled = false; pub.textContent = 'Publish now ▶'; });
       });
       actions.appendChild(pub);
+      var sched = h('<button class="admin-btn admin-btn-sm">Schedule next drop ⏱</button>');
+      sched.addEventListener('click', function () {
+        sched.disabled = true; sched.textContent = 'Scheduling…';
+        api('/admin/stories/queue/' + st.id + '/schedule', { method: 'POST', body: {} })
+          .then(function (r) {
+            var when = r && r.story && r.story.scheduledAt ? fmtDate(r.story.scheduledAt) : 'next drop';
+            toast('Scheduled for ' + when); Views.queue(); refreshBadges();
+          })
+          .catch(function (e) { toast(e.message, true); sched.disabled = false; sched.textContent = 'Schedule next drop ⏱'; });
+      });
+      actions.appendChild(sched);
       var reject = h('<button class="admin-btn admin-btn-sm admin-btn-danger">Reject</button>');
       reject.addEventListener('click', function () { patchStory(st.id, { status: 'rejected' }); });
       actions.appendChild(reject);
@@ -594,7 +606,7 @@
       var form = h(
         '<form class="admin-form admin-panel">' +
           '<div class="admin-form-row">' +
-            '<label>Channel<select id="c-cat"><option value="stem">STEM</option><option value="robotics">Robotics</option><option value="play">Play &amp; Design</option><option value="music">Music</option><option value="network">Network</option></select></label>' +
+            '<label>Channel<select id="c-cat"><option value="ai">AI &amp; Machine Learning</option><option value="space">Space &amp; Aerospace</option><option value="robotics">Robotics &amp; Automation</option><option value="biotech">Biotech &amp; Health</option><option value="quantum">Quantum &amp; Computing</option><option value="climate">Climate &amp; Energy</option><option value="engineering">Engineering &amp; Making</option><option value="math">Math &amp; Data Science</option><option value="cyber">Cybersecurity &amp; Code</option><option value="gaming">Gaming Tournaments</option><option value="music">Music Festivals</option><option value="stem">STEM (legacy)</option><option value="play">Play &amp; Design (legacy)</option><option value="network">Network</option></select></label>' +
             '<label>Filed by<select id="c-staff">' + agentOpts + '</select></label>' +
           '</div>' +
           '<label>Title<input id="c-title" maxlength="200" required/></label>' +

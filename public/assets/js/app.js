@@ -100,16 +100,36 @@ function loadArticleFull(idOrSlug, baseUrl) {
    Youth-focused STEM / Robotics / Play / Music
    ========================================================= */
 
+// ---------- CHANNEL REGISTRY ----------
+// Mirror of server/channels.js. The 11 live channels + legacy aliases so any
+// pre-existing article category still resolves to a label/color/icon.
+const CHANNELS = [
+  { id: 'ai',          label: 'AI & Machine Learning', short: 'AI',          icon: '\ud83e\udde0', color: '#00e5ff', color2: '#7c3aed' },
+  { id: 'space',       label: 'Space & Aerospace',     short: 'Space',       icon: '\ud83d\ude80', color: '#7c5cff', color2: '#00e5ff' },
+  { id: 'robotics',    label: 'Robotics & Automation', short: 'Robotics',    icon: '\ud83e\udd16', color: '#a855f7', color2: '#ff2e63' },
+  { id: 'biotech',     label: 'Biotech & Health',      short: 'Biotech',     icon: '\ud83e\uddec', color: '#2dd4bf', color2: '#00e5ff' },
+  { id: 'quantum',     label: 'Quantum & Computing',   short: 'Quantum',     icon: '\u269b\ufe0f', color: '#22d3ee', color2: '#7c5cff' },
+  { id: 'climate',     label: 'Climate & Energy',      short: 'Climate',     icon: '\ud83c\udf0d', color: '#34d399', color2: '#00e5ff' },
+  { id: 'engineering', label: 'Engineering & Making',  short: 'Engineering', icon: '\ud83d\udd27', color: '#ffb800', color2: '#ff2e63' },
+  { id: 'math',        label: 'Math & Data Science',   short: 'Math',        icon: '\ud83d\udcd0', color: '#f472b6', color2: '#a855f7' },
+  { id: 'cyber',       label: 'Cybersecurity & Code',  short: 'Cyber',       icon: '\ud83d\udd10', color: '#38bdf8', color2: '#a855f7' },
+  { id: 'gaming',      label: 'Gaming Tournaments',    short: 'Gaming',      icon: '\ud83c\udfae', color: '#39ff14', color2: '#00e5ff' },
+  { id: 'music',       label: 'Music Festivals',       short: 'Music',       icon: '\ud83c\udfa7', color: '#ff2e63', color2: '#ffb800' }
+];
+const LEGACY_CHANNELS = {
+  stem:    { id: 'stem',    label: 'STEM',          short: 'STEM',    icon: '\ud83e\uddec', color: '#00e5ff', color2: '#7c3aed' },
+  play:    { id: 'play',    label: 'Play & Design', short: 'Play',    icon: '\ud83c\udfa8', color: '#39ff14', color2: '#00e5ff' },
+  network: { id: 'network', label: 'Network',       short: 'Network', icon: '\ud83d\udef0\ufe0f', color: '#00e5ff', color2: '#a855f7' }
+};
+const CHANNEL_MAP = {};
+CHANNELS.forEach(c => { CHANNEL_MAP[c.id] = c; });
+function getChannel(id) { return CHANNEL_MAP[id] || LEGACY_CHANNELS[id] || null; }
+
 // Utility: color-coded SVG placeholder for post thumbnails
 function makeThumb(cat, id) {
-  const palettes = {
-    stem:     ['#00e5ff', '#7c3aed'],
-    robotics: ['#a855f7', '#ff2e63'],
-    play:     ['#39ff14', '#00e5ff'],
-    music:    ['#ff2e63', '#ffb800'],
-    network:  ['#00e5ff', '#a855f7']
-  };
-  const [c1, c2] = palettes[cat] || palettes.stem;
+  const ch = getChannel(cat);
+  const [c1, c2] = ch ? [ch.color, ch.color2] : ['#00e5ff', '#7c3aed'];
+  const shortLabel = ch ? ch.short : String(cat || '');
   // Hash id to a stable number (id may be a string like '2026-07-01-slug' or a number)
   const idStr = String(id || 'x');
   let hash = 0;
@@ -131,7 +151,7 @@ function makeThumb(cat, id) {
     <rect width='640' height='360' fill='url(#g${uid})'/>
     <rect width='640' height='360' fill='url(#p${uid})'/>
     <g fill='rgba(255,255,255,0.85)' font-family='Inter,system-ui,sans-serif' font-weight='800'>
-      <text x='40' y='320' font-size='42' letter-spacing='-1'>${(cat || '').toUpperCase()}</text>
+      <text x='40' y='320' font-size='42' letter-spacing='-1'>${(shortLabel || '').toUpperCase()}</text>
       <text x='40' y='345' font-size='14' opacity='0.7' letter-spacing='4'>SKYNET NEXUS</text>
     </g>
   </svg>`;
@@ -173,7 +193,7 @@ const POLL = {
 const STATS = {
   storiesToday: 0,
   totalStories: 0,
-  channels: 4,
+  channels: CHANNELS.length,
   contributors: 0
 };
 
@@ -225,7 +245,8 @@ const $ = (sel, root=document) => root.querySelector(sel);
 const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
 function categoryLabel(cat) {
-  return ({stem: 'STEM', robotics: 'Robotics', play: 'Play & Design', music: 'Music', network: 'Network'})[cat] || cat;
+  const ch = getChannel(cat);
+  return ch ? ch.short : cat;
 }
 function friendlyDate(iso) {
   const d = new Date(iso);
@@ -523,6 +544,7 @@ function renderStats() {
   STATS.storiesToday = storiesToday;
   STATS.totalStories = ARTICLES.length;
   STATS.contributors = authors.size;
+  STATS.channels = CHANNELS.length;
   const tiles = [
     { num: STATS.totalStories, lab: 'Stories Live' },
     { num: STATS.storiesToday, lab: 'Published Today' },
@@ -805,6 +827,79 @@ function initMobileMenu() {
   });
 }
 
+// ---------- Dynamic channel nav + filter chips ----------
+function getCurrentChannel() {
+  const params = new URLSearchParams(location.search);
+  const c = params.get('c');
+  return c && getChannel(c) ? c : null;
+}
+
+// Rewrite the sidebar "Channels" list to the 11 live channels. Located by its
+// section title so no per-page HTML edits are needed.
+function renderChannelNav(base) {
+  base = base || '';
+  let ul = null;
+  document.querySelectorAll('.side-title').forEach(t => {
+    if (t.textContent.trim().toLowerCase() === 'channels') {
+      const n = t.nextElementSibling;
+      if (n && n.classList.contains('nav-list')) ul = n;
+    }
+  });
+  if (!ul) return;
+  const current = getCurrentChannel();
+  ul.innerHTML = CHANNELS.map(c => {
+    const active = c.id === current ? ' active' : '';
+    return '<li><a class="nav-link' + active + '" href="' + base + 'pages/channel.html?c=' + c.id + '">'
+      + '<span class="cat-dot" style="background:' + c.color + '"></span>' + c.label + '</a></li>';
+  }).join('');
+  ensureSubmitLink(base);
+}
+
+// Make sure the "Submit a Story" link exists in the Feed nav on every page.
+function ensureSubmitLink(base) {
+  base = base || '';
+  let feed = null;
+  document.querySelectorAll('.side-title').forEach(t => {
+    if (t.textContent.trim().toLowerCase() === 'feed') {
+      const n = t.nextElementSibling;
+      if (n && n.classList.contains('nav-list')) feed = n;
+    }
+  });
+  if (!feed) return;
+  if (feed.querySelector('a[href$="submit.html"]')) return;
+  const li = document.createElement('li');
+  li.innerHTML = '<a href="' + base + 'pages/submit.html"><span class="icon">\u270d\ufe0f</span><span>Submit a Story</span></a>';
+  // Insert before the Summer STEM link if present, else append.
+  const summer = feed.querySelector('a[href$="summer.html"]');
+  if (summer && summer.parentElement) feed.insertBefore(li, summer.parentElement);
+  else feed.appendChild(li);
+}
+
+// Rebuild the filter chips in every .filter-bar from the channel registry,
+// preserving any trailing spacer/sort controls, then (re)bind filter events.
+function renderFilterChips() {
+  document.querySelectorAll('.filter-bar').forEach(bar => {
+    const spacer = bar.querySelector('.filter-spacer');
+    bar.querySelectorAll('.chip').forEach(ch => ch.remove());
+    const frag = document.createDocumentFragment();
+    const all = document.createElement('button');
+    all.className = 'chip' + (currentFilter === 'all' ? ' active' : '');
+    all.dataset.cat = 'all';
+    all.textContent = 'All';
+    frag.appendChild(all);
+    CHANNELS.forEach(c => {
+      const b = document.createElement('button');
+      b.className = 'chip' + (currentFilter === c.id ? ' active' : '');
+      b.dataset.cat = c.id;
+      b.textContent = c.icon + ' ' + c.short;
+      frag.appendChild(b);
+    });
+    if (spacer) bar.insertBefore(frag, spacer);
+    else bar.appendChild(frag);
+  });
+  initFilters();
+}
+
 // ---------- Set top-bar icons ----------
 function paintTopBarIcons() {
   const map = { 'ic-search': ICONS.search, 'ic-bell': ICONS.bell, 'ic-bookmark': ICONS.bookmark, 'ic-menu': ICONS.menu };
@@ -817,7 +912,8 @@ function _initHome(baseUrl) {
   initTheme();
   paintTopBarIcons();
   initSearch();
-  initFilters();
+  renderChannelNav(feedBase);
+  renderFilterChips();
   initMobileMenu();
   renderFeed();
   renderTrending();
@@ -837,18 +933,54 @@ function _initCategoryPage(cat, baseUrl) {
   if (chip) { document.querySelectorAll('.chip').forEach(c => c.classList.remove('active')); chip.classList.add('active'); }
 }
 
-function _initArticle() {
+// Generic channel page (channel.html?c=<id>): scopes the feed to one channel
+// and paints its hero from the registry.
+function _initChannelPage(baseUrl) {
+  feedBase = baseUrl || '';
+  const cid = getCurrentChannel();
+  const ch = getChannel(cid);
+  currentFilter = cid || 'all';
+  if (ch) {
+    const t = document.getElementById('channel-title');
+    const d = document.getElementById('channel-icon');
+    const l = document.getElementById('channel-label');
+    if (t) t.textContent = ch.label;
+    if (d) d.textContent = ch.icon;
+    if (l) l.textContent = ch.label;
+    document.title = ch.label + ' \u00b7 Skynet Nexus News';
+    const hero = document.querySelector('.channel-hero');
+    if (hero) hero.style.background = 'linear-gradient(135deg, ' + ch.color + '22, ' + ch.color2 + '22)';
+  }
   initTheme();
   paintTopBarIcons();
   initSearch();
+  renderChannelNav(feedBase);
+  renderFilterChips();
+  initMobileMenu();
+  renderFeed();
+  renderTrending();
+  renderLeaderboard();
+  renderCountdown();
+  renderStats();
+  renderPoll();
+  renderTicker();
+  renderNewsletter();
+}
+
+function _initArticle(baseUrl) {
+  initTheme();
+  paintTopBarIcons();
+  initSearch();
+  renderChannelNav(baseUrl);
   initMobileMenu();
   initArticlePage();
 }
 
-function _initSimplePage() {
+function _initSimplePage(baseUrl) {
   initTheme();
   paintTopBarIcons();
   initSearch();
+  renderChannelNav(baseUrl);
   initMobileMenu();
   initContactForm();
 }
@@ -875,6 +1007,10 @@ async function initArticle(baseUrl) {
 async function initSimplePage(baseUrl) {
   await loadManifest(baseUrl);
   _initSimplePage(baseUrl);
+}
+async function initChannelPage(baseUrl) {
+  await loadManifest(baseUrl);
+  _initChannelPage(baseUrl);
 }
 
 // Newsletter form -> POST /api/newsletter (added by polish pass)
