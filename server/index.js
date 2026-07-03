@@ -52,7 +52,7 @@ const { sendMail, passwordResetEmail } = require('./mailer');
 
 const ROOT = path.resolve(__dirname, '..');
 const PUBLIC_DIR = path.join(ROOT, 'public');
-const { DATA_DIR } = require('./storage');
+const { DATA_DIR, DB_PATH, VOLUME } = require('./storage');
 const PORT = Number(process.env.PORT) || 4180;
 const SESSION_SECRET = process.env.SESSION_SECRET || (() => {
   const generated = crypto.randomBytes(32).toString('hex');
@@ -129,6 +129,36 @@ app.use(session({
 
 // ------------- API routes -------------
 const api = express.Router();
+
+// Server boot time for uptime reporting.
+const BOOT_TIME = Date.now();
+
+// GET /api/health — lightweight liveness/readiness probe.
+// Reports process uptime, whether a persistent volume is attached, and
+// whether the SQLite database answers a trivial query. Used by Railway's
+// healthcheck and for quick "is my data safe?" verification after a deploy.
+api.get('/health', (req, res) => {
+  let dbOk = false;
+  try {
+    countAdmins();
+    dbOk = true;
+  } catch (e) {
+    dbOk = false;
+  }
+  const persistent = !!VOLUME;
+  const ok = dbOk; // liveness depends on the DB responding
+  res.status(ok ? 200 : 503).json({
+    status: ok ? 'ok' : 'degraded',
+    uptimeSeconds: Math.round((Date.now() - BOOT_TIME) / 1000),
+    db: dbOk ? 'ok' : 'error',
+    persistent,                 // true = users + articles survive deploys
+    storage: persistent ? 'volume' : 'ephemeral',
+    dataDir: DATA_DIR,
+    dbPath: DB_PATH,
+    env: IS_PROD ? 'production' : 'development',
+    time: new Date().toISOString()
+  });
+});
 
 // GET /api/auth/me — current user + kid profiles
 api.get('/auth/me', (req, res) => {
