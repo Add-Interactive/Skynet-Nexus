@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>STEM Summer in America — Skynet Nexus News</title>
+  <meta name="description" content="A national directory of STEM summer programs, camps, and research institutes students can attend across the USA. Filter by focus, location, and cost, with links to every official program."/>
+  <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
+  <link rel="stylesheet" href="../assets/css/style.css"/>
+  <link rel="stylesheet" href="/assets/css/auth.css"/>
+
+  <!-- Open Graph + link discovery -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="Skynet Nexus News"/>
+  <meta property="og:title" content="STEM Summer in America - Skynet Nexus News"/>
+  <meta property="og:description" content="The national directory of STEM summer programs, camps, and research institutes students can attend across the USA."/>
+  <meta property="og:url" content="https://skynet-nexus-production.up.railway.app/pages/summer.html"/>
+  <meta property="og:image" content="https://skynet-nexus-production.up.railway.app/assets/img/og-cover.png"/>
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="STEM Summer in America - Skynet Nexus News"/>
+  <meta name="twitter:description" content="The national directory of STEM summer programs, camps, and research institutes students can attend across the USA."/>
+  <meta name="twitter:image" content="https://skynet-nexus-production.up.railway.app/assets/img/og-cover.png"/>
+  <meta name="theme-color" content="#0a0e17" media="(prefers-color-scheme: dark)"/>
+  <meta name="theme-color" content="#f0f4ff" media="(prefers-color-scheme: light)"/>
+  <link rel="canonical" href="https://skynet-nexus-production.up.railway.app/pages/summer.html"/>
+  <link rel="alternate" type="application/rss+xml" title="Skynet Nexus News RSS" href="/rss.xml"/>
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/apple-touch-icon.png"/>
+  <meta name="apple-mobile-web-app-title" content="Skynet Nexus"/>
+  <meta name="application-name" content="Skynet Nexus"/>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="../index.html" class="brand" aria-label="Skynet Nexus News">
+        <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00e5ff"/><stop offset="100%" stop-color="#a855f7"/></linearGradient></defs>
+          <path d="M20 3l14 8v18l-14 8L6 29V11z" fill="none" stroke="url(#lg1)" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M20 12l7 4v8l-7 4-7-4v-8z" fill="url(#lg1)" opacity=".95"/>
+          <circle cx="20" cy="20" r="2.5" fill="#0a0e17"/>
+        </svg>
+        <div>
+          <div class="brand-name">SKYNET NEXUS</div>
+          <div class="brand-tag">Family Signal</div>
+        </div>
+      </a>
+
+      <div class="search-wrap">
+        <span id="ic-search"></span>
+        <input id="global-search" type="search" placeholder="Search stories, artists, teams, tags..."/>
+      </div>
+
+      <div class="top-actions">
+        <button class="icon-btn only-mobile" id="menu-toggle" aria-label="Menu"><span id="ic-menu"></span></button>
+        <button class="icon-btn" id="theme-toggle" aria-label="Toggle theme"></button>
+        
+        
+        <div class="sky-user-slot"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="ticker"><div id="ticker-inner" class="ticker-inner"></div></div>
+
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="side-section">
+        <div class="side-title">Feed</div>
+        <ul class="nav-list">
+          <li><a href="../index.html" ><span class="icon" id="nav-home"></span><span>Home</span></a></li>
+          <li><a href="../index.html#trending"><span class="icon" id="nav-flame"></span><span>Trending</span></a></li>
+          <li><a href="events.html" ><span class="icon" id="nav-events"></span><span>Events</span></a></li>
+          <li><a href="leaderboard.html" ><span class="icon" id="nav-trophy"></span><span>Leaderboard</span></a></li>
+          <li><a href="summer.html" class="active"><span class="icon">🏕️</span><span>Summer STEM</span></a></li>
+          <li><a href="archive.html"><span class="icon">📚</span><span>Archive</span></a></li>
+        </ul>
+      </div>
+      <div class="side-section">
+        <div class="side-title">Channels</div>
+        <ul class="nav-list">
+          <li><a href="stem.html" ><span class="cat-dot cat-stem"></span><span>STEM</span><span class="count">1</span></a></li>
+          <li><a href="robotics.html" ><span class="cat-dot cat-robotics"></span><span>Robotics</span><span class="count">1</span></a></li>
+          <li><a href="play.html" ><span class="cat-dot cat-play"></span><span>Play & Design</span><span class="count">1</span></a></li>
+          <li><a href="music.html" ><span class="cat-dot cat-music"></span><span>Music</span><span class="count">1</span></a></li>
+        </ul>
+      </div>
+      <div class="side-section">
+        <div class="side-title">You</div>
+        <ul class="nav-list">
+          
+          
+          <li><a href="about.html" ><span class="icon" id="nav-info"></span><span>About</span></a></li>
+          <li><a href="contact.html" ><span class="icon" id="nav-mail"></span><span>Contact</span></a></li>
+        </ul>
+      </div>
+      <div class="side-section"><div class="sky-intro-slot"></div></div>
+      <div class="side-section">
+        <div class="sky-user-card-slot"></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="hero">
+        <span class="kicker">🏕️ Summer 2026</span>
+        <h1>STEM Summer in America</h1>
+        <p>The national directory of STEM summer programs, camps, and research institutes students can actually attend — from free NASA internships and university research to coding camps for every age. Filter by focus, location, and cost.</p>
+        <div class="meta">
+          <span id="prog-stat-count">Loading programs…</span>
+          <span id="prog-stat-free"></span>
+          <span>Verify every deadline on the official site</span>
+        </div>
+      </section>
+
+      <div class="filter-bar" id="prog-cats" role="tablist"></div>
+
+      <div class="prog-filters">
+        <select id="prog-state" class="sort-select" aria-label="Filter by location"><option value="">All locations</option></select>
+        <select id="prog-cost" class="sort-select" aria-label="Filter by cost">
+          <option value="">Any cost</option>
+          <option value="free">Free / funded</option>
+          <option value="scholarships">Offers scholarships</option>
+        </select>
+        <select id="prog-format" class="sort-select" aria-label="Filter by format"><option value="">Any format</option></select>
+        <div class="filter-spacer"></div>
+        <input id="prog-search" type="search" class="admin-input prog-search" placeholder="Search programs, topics…"/>
+      </div>
+
+      <div class="section-title">
+        <h2><span class="accent-bar"></span> <span id="prog-heading">Programs across the USA</span></h2>
+      </div>
+
+      <section id="prog-grid" class="prog-grid" aria-live="polite"></section>
+
+      <p class="prog-disclaimer" id="prog-disclaimer"></p>
+
+      <section class="prog-tip">
+        <h3>Know a program families should see?</h3>
+        <p>We're building the most complete map of STEM summer opportunities in the country. If your camp, lab, or program isn't listed, tell us.</p>
+        <a class="prog-tip-btn" href="contact.html">Suggest a program →</a>
+      </section>
+    </main>
+
+    <aside class="right-rail">
+      <div class="widget">
+        <div class="widget-title">How to use this list</div>
+        <ul class="prog-howto">
+          <li><strong>Filter</strong> by focus, location, and cost to shortlist fast.</li>
+          <li><strong>Check the badges</strong> — <span class="prog-badge prog-badge-free">Free</span> and <span class="prog-badge prog-badge-aid">Aid</span> flag funded options.</li>
+          <li><strong>Open the official site</strong> to confirm this year's dates and deadlines.</li>
+          <li><strong>Apply early</strong> — the best programs close months before summer.</li>
+        </ul>
+      </div>
+      <div class="widget">
+        <div class="widget-title">Right now <span class="live-dot"></span></div>
+        <div id="stat-tiles" class="stat-tiles"></div>
+      </div>
+      <div class="widget">
+        <div class="widget-title">Trending Now</div>
+        <ol id="trending-list" class="trend-list"></ol>
+      </div>
+      <div class="widget news-card">
+        <div class="widget-title">Get the Wire</div>
+        <p>One family-friendly digest of the best youth achievement stories, every Sunday morning. Perfect for the fridge door.</p>
+        <form id="newsletter-form">
+          <input type="email" placeholder="you@yourcrew.com" required/>
+          <button type="submit">Join</button>
+        </form>
+      </div>
+    </aside>
+
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <h4>SKYNET NEXUS</h4>
+        <p>The signal for the next generation — built for families. Every story includes a Kid Take (age 8 reading level) and Family Discussion questions. Free forever, no ads targeted at kids.</p>
+      </div>
+      <div class="footer-col"><h5>Channels</h5><ul>
+        <li><a href="stem.html">STEM</a></li>
+        <li><a href="robotics.html">Robotics</a></li>
+        <li><a href="play.html">Play & Design</a></li>
+        <li><a href="music.html">Music</a></li>
+      </ul></div>
+      <div class="footer-col"><h5>Company</h5><ul>
+        <li><a href="about.html">About</a></li>
+        <li><a href="about.html#team">Team</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="contact.html#press">Press</a></li>
+      </ul></div>
+      <div class="footer-col"><h5>Community</h5><ul>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="summer.html">Summer STEM</a></li>
+        <li><a href="leaderboard.html">Leaderboard</a></li>
+          <li><a href="/rss.xml">RSS feed</a></li>
+        
+        
+      </ul></div>
+      <div class="footer-col footer-col-partners">
+        <h5>Network</h5>
+        <ul class="partners-list">
+          <li>
+            <a href="https://addinteractive.com" target="_blank" rel="noopener">
+              <span class="partner-role">Published by</span>
+              <span class="partner-name">Add Interactive Studio</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://stemnexus.org" target="_blank" rel="noopener">
+              <span class="partner-role">In partnership with</span>
+              <span class="partner-name">STEM Nexus</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-legal">
+        <span class="footer-parent-line">An <a href="https://addinteractive.com" target="_blank" rel="noopener"><strong>Add Interactive Studio</strong></a> production &middot; In partnership with <a href="https://stemnexus.org" target="_blank" rel="noopener"><strong>STEM Nexus</strong></a></span>
+        <span class="footer-copyright">&copy; 2026 Skynet Nexus News. Free forever, family first.</span>
+      </div>
+      <div class="socials"><a href="contact.html">Story tips &rarr;</a></div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/app.js"></script>
+  <script>
+    const NAV = {
+      'nav-home': ICONS.home, 'nav-flame': ICONS.flame, 'nav-events': ICONS.events,
+      'nav-trophy': ICONS.trophy, 'nav-bookmarks': ICONS.bookmarks, 'nav-users': ICONS.users,
+      'nav-info': ICONS.info, 'nav-mail': ICONS.mail,
+      's-tw': ICONS.twitter, 's-ig': ICONS.instagram, 's-yt': ICONS.youtube,
+      's-dc': ICONS.discord, 's-tt': ICONS.tiktok
+    };
+    Object.keys(NAV).forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = NAV[id]; });
+    initSimplePage('../');
+    renderTrending(); renderStats(); renderTicker(); renderNewsletter();
+
+    // ---- Summer STEM directory ----
+    (function () {
+      const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const state = { data: null, cat: 'all', loc: '', cost: '', format: '', q: '' };
+      const grid = document.getElementById('prog-grid');
+      const catsEl = document.getElementById('prog-cats');
+
+      function badges(p) {
+        const out = [];
+        if (/free|funded|stipend/i.test(p.cost)) out.push('<span class="prog-badge prog-badge-free">Free</span>');
+        else if (p.scholarships) out.push('<span class="prog-badge prog-badge-aid">Aid</span>');
+        return out.join('');
+      }
+
+      function card(p) {
+        const cat = (state.data.categories.find(c => c.id === p.category) || {});
+        const tags = (p.tags || []).slice(0, 3).map(t => '<span class="prog-tag">' + esc(t) + '</span>').join('');
+        return '<article class="prog-card">' +
+          '<div class="prog-card-top">' +
+            '<span class="prog-cat">' + esc(cat.icon || '🔬') + ' ' + esc(cat.label || 'STEM') + '</span>' +
+            badges(p) +
+          '</div>' +
+          '<h3 class="prog-name">' + esc(p.name) + '</h3>' +
+          '<div class="prog-org">' + esc(p.org) + '</div>' +
+          '<p class="prog-summary">' + esc(p.summary) + '</p>' +
+          '<div class="prog-facts">' +
+            '<span>📍 ' + esc(p.location) + '</span>' +
+            '<span>🎓 ' + esc(p.grades) + '</span>' +
+            '<span>🖥️ ' + esc(p.format) + '</span>' +
+            '<span>💵 ' + esc(p.cost) + '</span>' +
+          '</div>' +
+          '<div class="prog-tags">' + tags + '</div>' +
+          '<a class="prog-link" href="' + esc(p.url) + '" target="_blank" rel="noopener">Official program site ↗</a>' +
+        '</article>';
+      }
+
+      function apply() {
+        const list = (state.data.programs || []).filter(p => {
+          if (state.cat !== 'all' && p.category !== state.cat) return false;
+          if (state.loc && p.state !== state.loc) return false;
+          if (state.cost === 'free' && !/free|funded|stipend/i.test(p.cost)) return false;
+          if (state.cost === 'scholarships' && !p.scholarships) return false;
+          if (state.format && !p.format.toLowerCase().includes(state.format.toLowerCase())) return false;
+          if (state.q) {
+            const hay = (p.name + ' ' + p.org + ' ' + p.summary + ' ' + (p.tags || []).join(' ')).toLowerCase();
+            if (!hay.includes(state.q.toLowerCase())) return false;
+          }
+          return true;
+        });
+        document.getElementById('prog-heading').textContent =
+          list.length + (list.length === 1 ? ' program' : ' programs') + ' across the USA';
+        if (!list.length) {
+          grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--text-mute)">' +
+            '<h3 style="margin-bottom:8px;color:var(--text)">No programs match those filters</h3>' +
+            '<p>Try widening the location, cost, or focus filters.</p></div>';
+          return;
+        }
+        grid.innerHTML = list.map(card).join('');
+      }
+
+      function renderCats() {
+        catsEl.innerHTML = state.data.categories.map(c =>
+          '<button class="chip' + (c.id === state.cat ? ' active' : '') + '" data-cat="' + esc(c.id) + '">' +
+          esc(c.icon) + ' ' + esc(c.label) + '</button>'
+        ).join('');
+        catsEl.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
+          state.cat = btn.dataset.cat;
+          catsEl.querySelectorAll('.chip').forEach(b => b.classList.toggle('active', b === btn));
+          apply();
+        }));
+      }
+
+      function fillSelectors() {
+        const locSel = document.getElementById('prog-state');
+        const fmtSel = document.getElementById('prog-format');
+        const locs = [...new Set(state.data.programs.map(p => p.state))].sort((a, b) =>
+          a === 'National' ? -1 : b === 'National' ? 1 : a === 'Online' ? -1 : b === 'Online' ? 1 : a.localeCompare(b));
+        locs.forEach(l => { const o = document.createElement('option'); o.value = l; o.textContent = l; locSel.appendChild(o); });
+        const fmts = [...new Set(state.data.programs.map(p => p.format))].sort();
+        fmts.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = f; fmtSel.appendChild(o); });
+        locSel.addEventListener('change', () => { state.loc = locSel.value; apply(); });
+        fmtSel.addEventListener('change', () => { state.format = fmtSel.value; apply(); });
+        document.getElementById('prog-cost').addEventListener('change', e => { state.cost = e.target.value; apply(); });
+        let t; document.getElementById('prog-search').addEventListener('input', e => {
+          clearTimeout(t); t = setTimeout(() => { state.q = e.target.value.trim(); apply(); }, 180);
+        });
+      }
+
+      fetch('../assets/data/summer-programs.json', { cache: 'no-store' })
+        .then(r => r.json())
+        .then(data => {
+          state.data = data;
+          const total = data.programs.length;
+          const free = data.programs.filter(p => /free|funded|stipend/i.test(p.cost)).length;
+          document.getElementById('prog-stat-count').textContent = total + ' programs listed';
+          document.getElementById('prog-stat-free').textContent = free + ' free or fully funded';
+          document.getElementById('prog-disclaimer').textContent = data.disclaimer || '';
+          renderCats();
+          fillSelectors();
+          apply();
+        })
+        .catch(() => {
+          grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--text-mute)">' +
+            '<h3 style="color:var(--text)">Couldn\'t load the program directory</h3><p>Please refresh the page.</p></div>';
+        });
+    })();
+  </script>
+
+  <script src="/assets/js/auth.js" defer></script>
+</body>
+</html>

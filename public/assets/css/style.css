@@ -681,3 +681,47 @@ body::before{
 .widget-partner:hover{border-color:var(--accent);background:rgba(0,229,255,.08);transform:translateX(2px)}
 .widget-partner-role{font-size:.65rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-mute);font-weight:700}
 .widget-partner-name{font-size:.95rem;color:var(--text);font-weight:700;margin-top:2px}
+
+/* ===== Summer STEM directory ===== */
+.prog-filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-6px 0 18px}
+.prog-filters .filter-spacer{flex:1 1 40px}
+.prog-search{min-width:180px;max-width:260px;padding:8px 14px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-size:.85rem}
+.prog-search:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,229,255,.15)}
+.prog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+.prog-card{display:flex;flex-direction:column;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:border-color .2s,transform .2s,box-shadow .2s}
+.prog-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.prog-card-top{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.prog-cat{font-size:.7rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--accent);background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.25);padding:4px 10px;border-radius:999px}
+.prog-badge{font-size:.62rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:3px 8px;border-radius:999px;margin-left:auto}
+.prog-badge-free{color:#001a00;background:var(--accent-4)}
+.prog-badge-aid{color:#001820;background:var(--accent-5)}
+.prog-name{font-size:1.08rem;font-weight:800;line-height:1.25;margin:0 0 4px;color:var(--text)}
+.prog-org{font-size:.78rem;color:var(--text-dim);margin-bottom:10px}
+.prog-summary{font-size:.88rem;color:var(--text-dim);line-height:1.5;margin-bottom:14px}
+.prog-facts{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;font-size:.76rem;color:var(--text-mute);margin-bottom:12px}
+.prog-facts span{display:flex;gap:5px;align-items:flex-start}
+.prog-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.prog-tag{font-size:.68rem;color:var(--text-dim);background:var(--bg-alt);border:1px solid var(--border);padding:3px 9px;border-radius:999px}
+.prog-link{margin-top:auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border-radius:10px;font-size:.85rem;font-weight:700;color:#001820;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:opacity .2s,transform .2s}
+.prog-link:hover{opacity:.9;transform:translateY(-1px)}
+.prog-disclaimer{margin:22px 0 0;font-size:.76rem;color:var(--text-mute);line-height:1.5;border-top:1px solid var(--border);padding-top:14px}
+.prog-tip{margin-top:24px;padding:22px;border-radius:var(--radius);background:linear-gradient(135deg,rgba(0,229,255,.08),rgba(168,85,247,.08));border:1px solid var(--border)}
+.prog-tip h3{font-size:1.1rem;font-weight:800;margin:0 0 6px;color:var(--text)}
+.prog-tip p{font-size:.9rem;color:var(--text-dim);margin:0 0 12px;max-width:560px}
+.prog-tip-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:10px;font-size:.85rem;font-weight:700;color:#001820;background:var(--accent)}
+.prog-howto{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.prog-howto li{font-size:.82rem;color:var(--text-dim);line-height:1.45}
+.prog-howto strong{color:var(--text)}
+.prog-howto .prog-badge{margin-left:0;display:inline-block}
+@media(max-width:520px){.prog-facts{grid-template-columns:1fr}}
+
+/* Summer STEM homepage promo */
+.summer-promo{display:flex;align-items:center;gap:18px;padding:20px 22px;margin-bottom:22px;border-radius:var(--radius);background:linear-gradient(120deg,rgba(255,184,0,.14),rgba(0,229,255,.12),rgba(168,85,247,.12));border:1px solid var(--border);transition:border-color .2s,transform .2s,box-shadow .2s}
+.summer-promo:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 12px 34px rgba(0,0,0,.25)}
+.summer-promo-emoji{font-size:2.4rem;line-height:1;flex-shrink:0}
+.summer-promo-body{flex:1;min-width:0}
+.summer-promo-kicker{display:inline-block;font-size:.66rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent-5);margin-bottom:6px}
+.summer-promo-body h2{font-size:1.15rem;font-weight:800;margin:0 0 4px;color:var(--text)}
+.summer-promo-body p{font-size:.86rem;color:var(--text-dim);margin:0;line-height:1.45}
+.summer-promo-cta{flex-shrink:0;font-size:.85rem;font-weight:700;color:var(--accent);white-space:nowrap}
+@media(max-width:640px){.summer-promo{flex-wrap:wrap}.summer-promo-cta{width:100%}}
