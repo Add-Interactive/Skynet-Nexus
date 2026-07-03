@@ -534,6 +534,43 @@ function renderCountdown() {
   setInterval(tick, 1000);
 }
 
+// Live "next edition" countdown bar. Reads /api/schedule once, then ticks down
+// to the next drop; when it hits zero it refreshes the schedule for the next one.
+let _nextDropTimer = null;
+function renderNextDrop() {
+  const bar = document.getElementById('drop-countdown');
+  if (!bar) return;
+  const labelEl = document.getElementById('drop-label');
+  const timerEl = document.getElementById('drop-timer');
+  let target = null;
+  let edition = '';
+
+  const load = () => fetch('/api/schedule')
+    .then(r => r.ok ? r.json() : null)
+    .then(s => {
+      if (!s || !s.nextDrop) { bar.hidden = true; return; }
+      target = new Date(s.nextDrop.at);
+      edition = s.nextDrop.edition || '';
+      bar.hidden = false;
+    })
+    .catch(() => { bar.hidden = true; });
+
+  const tick = () => {
+    if (!target) return;
+    const diff = target - new Date();
+    if (diff <= 0) { target = null; load(); return; }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff / 60000) % 60);
+    const s = Math.floor((diff / 1000) % 60);
+    if (timerEl) timerEl.textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    if (labelEl) labelEl.textContent = edition ? (edition.charAt(0).toUpperCase() + edition.slice(1) + ' edition') : 'Next edition';
+  };
+
+  if (_nextDropTimer) clearInterval(_nextDropTimer);
+  load().then(tick);
+  _nextDropTimer = setInterval(tick, 1000);
+}
+
 function renderStats() {
   const el = document.getElementById('stat-tiles');
   if (!el) return;
@@ -922,6 +959,7 @@ function _initHome(baseUrl) {
   renderStats();
   renderPoll();
   renderTicker();
+  renderNextDrop();
   renderNewsletter();
 }
 
@@ -964,6 +1002,7 @@ function _initChannelPage(baseUrl) {
   renderStats();
   renderPoll();
   renderTicker();
+  renderNextDrop();
   renderNewsletter();
 }
 
