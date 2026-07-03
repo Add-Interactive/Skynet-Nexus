@@ -414,24 +414,39 @@ app.use('/api', api);
 app.use('/api/admin', require('./admin-routes'));
 
 // -------------- SEED ADMIN ACCOUNT (env-driven, one-time) --------------
-// If ADMIN_SEED_EMAIL + ADMIN_SEED_PASSWORD are set (via .env or Railway env), ensure
-// that user exists AND has role='admin'. Safe to run every boot: idempotent.
+// Ensures the primary admin account exists AND has role='admin'. Reads
+// ADMIN_SEED_EMAIL / ADMIN_SEED_PASSWORD from the environment (Railway vars or
+// .env) and falls back to the project's default owner account so the portal is
+// reachable on a fresh deploy. Idempotent: safe to run on every boot.
 (async function seedAdminAccount() {
-  const email = (process.env.ADMIN_SEED_EMAIL || '').trim().toLowerCase();
-  const password = process.env.ADMIN_SEED_PASSWORD || '';
-  const displayName = (process.env.ADMIN_SEED_DISPLAY_NAME || 'Add Interactive').trim();
+  const email = (process.env.ADMIN_SEED_EMAIL || 'ageofai2024@gmail.com').trim().toLowerCase();
+  const password = process.env.ADMIN_SEED_PASSWORD || 'weed4200';
+  const displayName = (process.env.ADMIN_SEED_DISPLAY_NAME || 'Age of AI').trim();
   if (!email || !password) return;
   try {
-    const { hashPassword } = require('./auth');
+    const { hashPassword, verifyPassword } = require('./auth');
     let user = findUserByEmail(email);
     if (!user) {
       const hash = await hashPassword(password);
       const created = createUser({ email, displayName, passwordHash: hash, avatarColor: '#00e5ff' });
       setUserRole(created.id, 'admin');
       console.log(`[skynet] seeded admin account: ${email}`);
-    } else if (user.role !== 'admin') {
-      setUserRole(user.id, 'admin');
-      console.log(`[skynet] promoted existing account to admin: ${email}`);
+    } else {
+      if (user.role !== 'admin') {
+        setUserRole(user.id, 'admin');
+        console.log(`[skynet] promoted existing account to admin: ${email}`);
+      }
+      // If this account has never been logged into, make sure the documented
+      // seed password still works (repairs a stale seed without ever clobbering
+      // a password the owner set themselves after signing in).
+      if (!user.last_login_at) {
+        const raw = findUserRawById(user.id);
+        const ok = raw && await verifyPassword(password, raw.password_hash);
+        if (!ok) {
+          changePassword(user.id, await hashPassword(password));
+          console.log(`[skynet] reset admin seed password for: ${email}`);
+        }
+      }
     }
   } catch (err) {
     console.warn('[skynet] admin seed failed:', err.message);

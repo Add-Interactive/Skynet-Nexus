@@ -153,12 +153,10 @@ let TRENDING = [];
 const LEADERBOARD = [];
 
 // -------- FEATURED EVENT (for countdown) --------
-const EVENT = {
-  title: 'FIRST Robotics 2027 Kickoff',
-  sub: 'BIOCORE game reveal + free livestream \u2014 Jan 9, 2027, 12pm ET.',
-  target: new Date('2027-01-09T12:00:00-05:00'),
-  url: 'https://www.firstinspires.org/robotics/frc/game-and-season'
-};
+// No fabricated events in production. Populate this from a real, verified event
+// (title/sub/target date/url) to light up the countdown card; until then the
+// card is hidden automatically by renderCountdown().
+const EVENT = null;
 
 // -------- POLL --------
 const POLL = {
@@ -213,6 +211,7 @@ const ICONS = {
   info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>',
   mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 6l10 7 10-7"/></svg>',
   menu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>',
+  close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>',
   play: '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>',
   twitter: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 5.9a8.5 8.5 0 01-2.4.7 4.2 4.2 0 001.8-2.3 8.4 8.4 0 01-2.7 1 4.2 4.2 0 00-7.3 3.8A11.9 11.9 0 013 4.7a4.2 4.2 0 001.3 5.6 4 4 0 01-1.9-.5v.1a4.2 4.2 0 003.4 4.1 4 4 0 01-1.9.1 4.2 4.2 0 004 2.9A8.5 8.5 0 012 18.6a12 12 0 006.5 1.9c7.7 0 12-6.4 12-12v-.5A8.7 8.7 0 0022 5.9z"/></svg>',
   instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.4a4 4 0 11-8 0 4 4 0 018 0zM17.5 6.5h.01"/></svg>',
@@ -477,6 +476,14 @@ function renderLeaderboard() {
 function renderCountdown() {
   const el = document.getElementById('countdown-grid');
   if (!el) return;
+  // Hide the whole "Featured Event" card unless a real, future event is set.
+  const card = el.closest('.countdown-card') || el.closest('.widget');
+  const hasEvent = EVENT && EVENT.title && EVENT.target instanceof Date && !isNaN(EVENT.target) && (EVENT.target - new Date()) > 0;
+  if (!hasEvent) {
+    if (card) card.hidden = true;
+    return;
+  }
+  if (card) card.hidden = false;
   const titleEl = document.getElementById('countdown-title');
   const subEl = document.getElementById('countdown-sub');
   if (titleEl) titleEl.textContent = EVENT.title;
@@ -742,10 +749,14 @@ function initContactForm() {
 
 // ---------- Mobile menu ----------
 function initMobileMenu() {
-  const btn = document.getElementById('menu-toggle');
+  // Support both button ids used across the site (menu-toggle / menu-btn).
+  const btn = document.getElementById('menu-toggle') || document.getElementById('menu-btn');
   const sb = document.querySelector('.sidebar');
   if (!btn || !sb) return;
 
+  // Give the nav a stable id so the toggle can point at it for assistive tech.
+  if (!sb.id) sb.id = 'primary-nav';
+  const iconSpan = btn.querySelector('span') || btn;
   let backdrop = null;
 
   // Position the drawer flush below the sticky header (header height can vary on mobile).
@@ -758,6 +769,8 @@ function initMobileMenu() {
   function closeMenu() {
     sb.classList.remove('open');
     document.body.classList.remove('sky-drawer-open');
+    btn.setAttribute('aria-expanded', 'false');
+    if (iconSpan) iconSpan.innerHTML = ICONS.menu;
     if (backdrop) { backdrop.remove(); backdrop = null; }
   }
 
@@ -765,14 +778,20 @@ function initMobileMenu() {
     syncDrawerTop();
     sb.classList.add('open');
     document.body.classList.add('sky-drawer-open');
+    btn.setAttribute('aria-expanded', 'true');
+    if (iconSpan) iconSpan.innerHTML = ICONS.close;
     if (!backdrop) {
       backdrop = document.createElement('div');
       backdrop.className = 'sky-drawer-backdrop';
       backdrop.addEventListener('click', closeMenu);
-      document.body.appendChild(backdrop);
+      // Append into the sidebar's OWN parent so both share one stacking context;
+      // otherwise the backdrop (on <body>) paints over the drawer and blocks taps.
+      sb.parentElement.appendChild(backdrop);
     }
   }
 
+  btn.setAttribute('aria-controls', sb.id);
+  btn.setAttribute('aria-expanded', 'false');
   btn.addEventListener('click', () => {
     if (sb.classList.contains('open')) closeMenu(); else openMenu();
   });

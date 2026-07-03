@@ -72,19 +72,38 @@ body::before{
 .app{position:relative;z-index:1;max-width:1500px;margin:0 auto;display:grid;grid-template-columns:240px 1fr 320px;gap:22px;padding:22px}
 @media (max-width:1200px){.app{grid-template-columns:220px 1fr}.right-rail{display:none}}
 @media (max-width:900px){
-  .app{grid-template-columns:1fr;padding:16px}
+  /* Drop .app's z-index:1 stacking context on mobile so the nav drawer is not
+     trapped *behind* the sticky header (which sits at z-index:50). */
+  .app{grid-template-columns:1fr;padding:16px;z-index:auto}
   .sidebar{display:none}
   .sidebar.open{
-    display:block;position:fixed;top:var(--drawer-top,60px);left:0;right:0;bottom:0;
-    background:var(--bg);z-index:48;padding:20px 20px 40px;overflow-y:auto;max-height:none;
-    box-shadow:0 -1px 0 var(--border) inset;-webkit-overflow-scrolling:touch;
+    display:block;position:fixed;top:var(--drawer-top,60px);left:0;
+    height:calc(100vh - var(--drawer-top,60px));
+    height:calc(100dvh - var(--drawer-top,60px));
+    width:min(330px,86vw);
+    background:var(--bg);z-index:60;
+    padding:14px 16px 40px;
+    overflow-y:auto;border-right:1px solid var(--border);box-shadow:6px 0 30px rgba(0,0,0,.45);
+    -webkit-overflow-scrolling:touch;animation:sky-drawer-in .22s cubic-bezier(.4,.2,.2,1);
   }
   .sky-drawer-backdrop{
-    position:fixed;top:var(--drawer-top,60px);left:0;right:0;bottom:0;z-index:47;
-    background:rgba(0,0,0,.5);backdrop-filter:blur(2px);
+    position:fixed;top:var(--drawer-top,60px);left:0;right:0;bottom:0;z-index:59;
+    background:rgba(0,0,0,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+    animation:sky-fade-in .22s ease;
   }
   body.sky-drawer-open{overflow:hidden}
+
+  /* Mobile top-bar polish so the header stays uncramped */
+  .topbar-inner{gap:10px;padding:10px 14px;flex-wrap:wrap}
+  .brand-tag{display:none}
+  .brand svg{width:30px;height:30px}
+  .brand-name{font-size:.95rem}
+  .top-actions{gap:6px}
+  /* Search drops to its own full-width row instead of overlapping the buttons */
+  .search-wrap{order:3;flex:0 0 100%;max-width:none;min-width:0}
 }
+@keyframes sky-drawer-in{from{transform:translateX(-100%);opacity:.4}to{transform:translateX(0);opacity:1}}
+@keyframes sky-fade-in{from{opacity:0}to{opacity:1}}
 
 /* Sidebar */
 .sidebar{position:sticky;top:82px;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto;padding-right:4px}
@@ -413,7 +432,7 @@ body::before{
 /* Utility */
 .hidden{display:none !important}
 .only-mobile{display:none}
-@media (max-width:900px){.only-mobile{display:block}}
+@media (max-width:900px){.only-mobile{display:grid}}
 
 
 
