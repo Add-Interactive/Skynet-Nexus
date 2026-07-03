@@ -5,9 +5,10 @@
 const path = require('path');
 const fs = require('fs');
 const { DatabaseSync } = require('node:sqlite');
+const { DB_PATH, ensureStorage } = require('./storage');
 
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'skynet.db');
-fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
+// Prepare persistent storage (creates volume dirs + seeds data on first boot).
+ensureStorage();
 
 const db = new DatabaseSync(DB_PATH);
 db.exec('PRAGMA journal_mode = WAL');
@@ -341,7 +342,21 @@ const stmts = {
 
   updateUserRole: db.prepare(`UPDATE users SET role = ? WHERE id = ?`),
   listAllUsers: db.prepare(`SELECT id, email, display_name, avatar_color, role, created_at, last_login_at FROM users ORDER BY id ASC LIMIT ? OFFSET ?`),
-  countUsers: db.prepare(`SELECT COUNT(*) AS n FROM users`)
+  countUsers: db.prepare(`SELECT COUNT(*) AS n FROM users`),
+
+  // Admin user management: search + kid counts + admin-only fields.
+  listUsersSearch: db.prepare(`
+    SELECT u.id, u.email, u.display_name, u.avatar_color, u.role, u.created_at, u.last_login_at, u.admin_notes,
+           (SELECT COUNT(*) FROM kid_profiles k WHERE k.user_id = u.id) AS kid_count
+      FROM users u
+     WHERE lower(u.email) LIKE ? OR lower(u.display_name) LIKE ?
+     ORDER BY u.id DESC
+     LIMIT ? OFFSET ?`),
+  countUsersSearch: db.prepare(`
+    SELECT COUNT(*) AS n FROM users u
+     WHERE lower(u.email) LIKE ? OR lower(u.display_name) LIKE ?`),
+  countAdmins: db.prepare(`SELECT COUNT(*) AS n FROM users WHERE role = 'admin'`),
+  setAdminNotes: db.prepare(`UPDATE users SET admin_notes = ? WHERE id = ?`)
 };
 
 function toPublicStaff(row) {
@@ -478,6 +493,22 @@ function toPublicKid(row) {
     avatarColor: row.avatar_color,
     avatarEmoji: row.avatar_emoji,
     createdAt: row.created_at
+  };
+}
+
+// Admin-facing user shape: adds admin_notes + kid_count on top of the public user.
+function toAdminUser(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    email: row.email,
+    displayName: row.display_name,
+    avatarColor: row.avatar_color,
+    role: row.role,
+    createdAt: row.created_at,
+    lastLoginAt: row.last_login_at,
+    adminNotes: row.admin_notes || '',
+    kidCount: row.kid_count != null ? row.kid_count : 0
   };
 }
 
@@ -647,7 +678,31 @@ module.exports = {
   listAllUsers({ limit = 200, offset = 0 } = {}) {
     return stmts.listAllUsers.all(limit, offset).map(toPublicUser);
   },
-  countUsers() { return stmts.countUsers.get().n; }
+  countUsers() { return stmts.countUsers.get().n; },
+
+  // ---------- Admin user management ----------
+  searchUsers({ q = '', limit = 100, offset = 0 } = {}) {
+    const like = '%' + String(q).toLowerCase() + '%';
+    return stmts.listUsersSearch.all(like, like, limit, offset).map(toAdminUser);
+  },
+  countUsersSearch(q = '') {
+    const like = '%' + String(q).toLowerCase() + '%';
+    return stmts.countUsersSearch.get(like, like).n;
+  },
+  countAdmins() { return stmts.countAdmins.get().n; },
+  setAdminNotes(id, notes) {
+    stmts.setAdminNotes.run(notes != null ? String(notes) : null, id);
+    return toAdminUser(stmts.findUserById.get(id));
+  },
+  // Full admin view of a single user including their kid profiles.
+  findUserForAdmin(id) {
+    const row = stmts.findUserById.get(id);
+    if (!row) return null;
+    const user = toAdminUser(row);
+    user.kids = stmts.listKids.all(id).map(toPublicKid);
+    user.kidCount = user.kids.length;
+    return user;
+  }
 };
 
 // ---------- Bootstrap: seed core correspondent staff on first run ----------

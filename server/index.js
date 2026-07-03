@@ -51,7 +51,7 @@ const SqliteSessionStore = require('./session-store');
 
 const ROOT = path.resolve(__dirname, '..');
 const PUBLIC_DIR = path.join(ROOT, 'public');
-const DATA_DIR = path.join(ROOT, 'data');
+const { DATA_DIR } = require('./storage');
 const PORT = Number(process.env.PORT) || 4180;
 const SESSION_SECRET = process.env.SESSION_SECRET || (() => {
   const generated = crypto.randomBytes(32).toString('hex');

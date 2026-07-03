@@ -9,9 +9,9 @@ const crypto = require('crypto');
 const express = require('express');
 const db = require('./db');
 const { hashPassword, isValidPassword, isValidDisplayName, isValidEmail } = require('./auth');
+const { DATA_DIR } = require('./storage');
 
 const ROOT = path.resolve(__dirname, '..');
-const DATA_DIR = path.join(ROOT, 'data');
 const TMP_DIR = path.join(ROOT, '.tmp');
 const PUBLISH_SCRIPT = path.join(ROOT, 'newsroom', 'publish.js');
 
@@ -53,7 +53,9 @@ function publishArticleFile(absJsonPath) {
     const child = spawn(process.execPath, [PUBLISH_SCRIPT, '--file', absJsonPath], {
       cwd: ROOT,
       windowsHide: true,
-      env: process.env
+      // Point the publisher at the persistent data dir so runtime-published
+      // articles land on the volume (and survive redeploys), not the image.
+      env: Object.assign({}, process.env, { SKYNET_DATA_DIR: DATA_DIR })
     });
     let stdout = '';
     let stderr = '';
@@ -412,20 +414,101 @@ router.post('/stories/queue/:id/publish', async (req, res) => {
 
 // -------------------- USERS / ROLES --------------------
 
+const USER_ROLES = ['parent', 'editor', 'admin'];
+
 router.get('/users', requireFullAdmin, (req, res) => {
+  const q = String(req.query.q || '').trim();
   const limit = Math.min(500, Math.max(1, Number(req.query.limit) || 200));
   const offset = Math.max(0, Number(req.query.offset) || 0);
-  res.json({ users: db.listAllUsers({ limit, offset }), total: db.countUsers() });
+  res.json({
+    users: db.searchUsers({ q, limit, offset }),
+    total: db.countUsersSearch(q),
+    admins: db.countAdmins()
+  });
+});
+
+router.get('/users/:id', requireFullAdmin, (req, res) => {
+  const user = db.findUserForAdmin(Number(req.params.id));
+  if (!user) return res.status(404).json({ error: 'not found' });
+  res.json({ user });
 });
 
 router.patch('/users/:id/role', requireFullAdmin, (req, res) => {
   const id = Number(req.params.id);
   const role = String(req.body.role || '').trim();
-  if (!['parent', 'editor', 'admin'].includes(role)) return res.status(400).json({ error: 'role must be parent|editor|admin' });
+  if (!USER_ROLES.includes(role)) return res.status(400).json({ error: 'role must be parent|editor|admin' });
+  const target = db.findUserById(id);
+  if (!target) return res.status(404).json({ error: 'not found' });
+  // Guard: never leave the site without an admin.
+  if (target.role === 'admin' && role !== 'admin' && db.countAdmins() <= 1) {
+    return res.status(400).json({ error: 'Cannot demote the last remaining admin.' });
+  }
+  if (id === req.adminUser.id && role !== 'admin') {
+    return res.status(400).json({ error: 'You cannot remove your own admin access.' });
+  }
   const user = db.setUserRole(id, role);
-  if (!user) return res.status(404).json({ error: 'not found' });
   logAction(req.adminUser.id, 'user.role.set', 'user', id, { role });
-  res.json({ user });
+  res.json({ user: db.findUserForAdmin(id) });
+});
+
+// Update editable profile fields + admin notes.
+router.patch('/users/:id', requireFullAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  const target = db.findUserById(id);
+  if (!target) return res.status(404).json({ error: 'not found' });
+
+  const body = req.body || {};
+  if (body.displayName != null) {
+    const name = String(body.displayName).trim();
+    if (!isValidDisplayName(name)) return res.status(400).json({ error: 'display name must be 2-40 chars.' });
+    db.updateUser({ id, displayName: name });
+  }
+  if (body.adminNotes != null) {
+    const notes = String(body.adminNotes).slice(0, 2000);
+    db.setAdminNotes(id, notes);
+  }
+  logAction(req.adminUser.id, 'user.update', 'user', id, {
+    fields: Object.keys(body).filter(k => ['displayName', 'adminNotes'].includes(k))
+  });
+  res.json({ user: db.findUserForAdmin(id) });
+});
+
+// Admin-initiated password reset. If no password is supplied, we generate a
+// strong temporary one and return it once so the admin can share it securely.
+router.post('/users/:id/reset-password', requireFullAdmin, async (req, res) => {
+  const id = Number(req.params.id);
+  const target = db.findUserById(id);
+  if (!target) return res.status(404).json({ error: 'not found' });
+
+  let password = String((req.body && req.body.password) || '');
+  let generated = false;
+  if (!password) {
+    // 12-char temp password: unambiguous alphabet, mixed case + digits.
+    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+    const bytes = crypto.randomBytes(12);
+    password = Array.from(bytes, b => alphabet[b % alphabet.length]).join('');
+    generated = true;
+  }
+  if (!isValidPassword(password)) return res.status(400).json({ error: 'password must be 8-200 chars.' });
+
+  const hash = await hashPassword(password);
+  db.changePassword(id, hash);
+  logAction(req.adminUser.id, 'user.password.reset', 'user', id, { generated });
+  res.json({ ok: true, generated, tempPassword: generated ? password : undefined });
+});
+
+router.delete('/users/:id', requireFullAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  const target = db.findUserById(id);
+  if (!target) return res.status(404).json({ error: 'not found' });
+  if (id === req.adminUser.id) return res.status(400).json({ error: 'You cannot delete your own account here.' });
+  if (target.role === 'admin' && db.countAdmins() <= 1) {
+    return res.status(400).json({ error: 'Cannot delete the last remaining admin.' });
+  }
+  const ok = db.deleteUser(id);
+  if (!ok) return res.status(404).json({ error: 'not found' });
+  logAction(req.adminUser.id, 'user.delete', 'user', id, { email: target.email });
+  res.json({ ok: true });
 });
 
 // -------------------- AUDIT LOG --------------------

@@ -12,7 +12,8 @@ const path = require('path');
 
 // Repo root, derived from this file's location so it works on any host (Windows dev + Linux/Railway prod).
 const SKYNET_ROOT = process.env.SKYNET_ROOT || path.resolve(__dirname, '..');
-const DATA_ROOT = path.join(SKYNET_ROOT, 'data');
+// Data dir can be overridden to a persistent volume (set by the server at publish time).
+const DATA_ROOT = process.env.SKYNET_DATA_DIR || path.join(SKYNET_ROOT, 'data');
 const ART_ROOT = path.join(DATA_ROOT, 'articles');
 const MANIFEST = path.join(DATA_ROOT, 'manifest.json');
 

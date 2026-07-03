@@ -11,6 +11,10 @@
   display: grid; place-items: center; padding: 24px;
   background: var(--bg);
 }
+/* The .admin-gate display:grid rule beats the UA [hidden] rule, so hiding via
+   the attribute alone leaves an invisible overlay intercepting every click.
+   Force it gone when hidden. */
+.admin-gate[hidden] { display: none; }
 .admin-gate-card {
   width: 100%; max-width: 400px;
   background: var(--bg-card); border: 1px solid var(--border);
@@ -203,6 +207,51 @@
 .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 
 .admin-inline-note { font-size: .8rem; color: var(--text-mute); background: var(--bg-alt); border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 0 8px 8px 0; margin-bottom: 16px; }
+
+/* ---------- User management ---------- */
+.admin-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.admin-input {
+  width: 100%; padding: 10px 13px; background: var(--bg-alt); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text); font-size: .92rem; font-family: inherit;
+}
+.admin-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,229,255,.15); }
+.admin-toolbar .admin-input { max-width: 340px; }
+.admin-toolbar-stat { color: var(--text-mute); font-size: .82rem; }
+.admin-label { display: block; font-size: .78rem; color: var(--text-dim); font-weight: 600; margin: 14px 0 6px; }
+.admin-hint { color: var(--text-mute); font-weight: 400; font-size: .74rem; }
+
+.user-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+.user-dot.lg { width: 20px; height: 20px; margin-right: 0; }
+.user-row td:last-child { text-align: right; }
+
+.user-detail-head { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; }
+.user-detail-email { font-weight: 700; font-size: 1rem; }
+.user-detail-meta { color: var(--text-mute); font-size: .8rem; margin-top: 2px; }
+.user-kids { margin-top: 14px; }
+.kid-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin: 6px 0 0; padding: 0; }
+.kid-list li { display: flex; align-items: center; gap: 10px; font-size: .88rem; }
+.kid-badge { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; font-size: 1rem; flex-shrink: 0; color: #06121a; }
+.user-temp { margin-top: 14px; padding: 12px 14px; background: rgba(255,184,0,.1); border: 1px solid rgba(255,184,0,.35); border-radius: var(--radius-sm); font-size: .82rem; color: var(--text-dim); }
+.user-temp code { display: inline-block; margin-top: 6px; font-size: 1rem; color: var(--accent-5); font-weight: 700; letter-spacing: 1px; }
+.user-actions { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+
+/* ---------- Modal ---------- */
+.admin-modal-open { overflow: hidden; }
+.admin-modal-overlay {
+  position: fixed; inset: 0; z-index: 250;
+  display: grid; place-items: center; padding: 20px;
+  background: rgba(6,10,18,.72); backdrop-filter: blur(4px);
+}
+.admin-modal {
+  width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
+}
+.admin-modal-head { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg-card); }
+.admin-modal-title { margin: 0; font-size: 1.15rem; font-weight: 800; flex: 1; }
+.admin-modal-close { background: transparent; border: 0; color: var(--text-mute); font-size: 1.1rem; cursor: pointer; padding: 4px 8px; border-radius: 8px; }
+.admin-modal-close:hover { color: var(--accent-3); background: var(--bg-alt); }
+.admin-modal-body { padding: 20px; }
 
 /* Toast */
 .admin-toast {

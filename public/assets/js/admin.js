@@ -75,6 +75,31 @@
   }
   function isFullAdmin() { return State.user && State.user.role === 'admin'; }
 
+  // ---------- Modal ----------
+  function openModal(title) {
+    var overlay = h('<div class="admin-modal-overlay"><div class="admin-modal" role="dialog" aria-modal="true"><div class="admin-modal-head"><h2 class="admin-modal-title"></h2><button class="admin-modal-close" aria-label="Close">✕</button></div><div class="admin-modal-body"></div></div></div>');
+    var modal = {
+      overlay: overlay,
+      body: overlay.querySelector('.admin-modal-body'),
+      setTitle: function (t) { overlay.querySelector('.admin-modal-title').textContent = t; }
+    };
+    modal.setTitle(title || '');
+    function onEsc(e) { if (e.key === 'Escape') closeModal(modal); }
+    modal._esc = onEsc;
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) closeModal(modal); });
+    overlay.querySelector('.admin-modal-close').addEventListener('click', function () { closeModal(modal); });
+    document.addEventListener('keydown', onEsc);
+    document.body.appendChild(overlay);
+    document.body.classList.add('admin-modal-open');
+    return modal;
+  }
+  function closeModal(modal) {
+    if (!modal || !modal.overlay) return;
+    document.removeEventListener('keydown', modal._esc);
+    modal.overlay.remove();
+    document.body.classList.remove('admin-modal-open');
+  }
+
   // ---------- Boot / auth gate ----------
   function boot() {
     api('/auth/me').then(function (r) {
@@ -632,40 +657,147 @@
   };
 
   // ===== Users & roles =====
+  var usersState = { q: '', users: [], total: 0, admins: 0 };
+
   Views.users = function () {
     if (!isFullAdmin()) { main.innerHTML = '<div class="admin-empty">Admin-only.</div>'; return; }
-    api('/admin/users?limit=500').then(function (r) {
-      var users = r.users || [];
-      main.innerHTML = '';
-      main.appendChild(h('<div class="admin-view-head"><h1>Users &amp; Roles</h1><p>' + users.length + ' account' + (users.length === 1 ? '' : 's') + '. Promote trusted people to editor or admin.</p></div>'));
-      var panel = h('<div class="admin-panel"><table class="admin-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Last login</th><th></th></tr></thead><tbody></tbody></table></div>');
-      var tb = panel.querySelector('tbody');
-      users.forEach(function (u) {
-        var tr = h(
-          '<tr><td><strong>' + esc(u.displayName) + '</strong></td>' +
-          '<td>' + esc(u.email) + '</td>' +
-          '<td><span class="pill ' + (u.role === 'admin' ? 'published' : u.role === 'editor' ? 'assigned' : 'paused') + '">' + esc(u.role) + '</span></td>' +
-          '<td class="num">' + fmtDate(u.createdAt) + '</td>' +
-          '<td class="num">' + fmtDate(u.lastLoginAt) + '</td>' +
-          '<td></td></tr>'
-        );
-        var cell = tr.lastElementChild;
-        var sel = h('<select class="admin-btn admin-btn-sm"><option value="parent">parent</option><option value="editor">editor</option><option value="admin">admin</option></select>');
-        sel.value = u.role;
-        sel.addEventListener('change', function () {
-          if (u.id === State.user.id && sel.value !== 'admin') {
-            toast('You cannot demote yourself.', true); sel.value = u.role; return;
-          }
-          api('/admin/users/' + u.id + '/role', { method: 'PATCH', body: { role: sel.value } })
-            .then(function () { u.role = sel.value; toast('Role updated'); })
-            .catch(function (e) { toast(e.message, true); sel.value = u.role; });
-        });
-        cell.appendChild(sel);
-        tb.appendChild(tr);
-      });
-      main.appendChild(panel);
-    }).catch(errView);
+    main.innerHTML = '';
+    main.appendChild(h(
+      '<div class="admin-view-head"><h1>Users &amp; Accounts</h1>' +
+      '<p>Manage every registered account — search, change roles, reset passwords, review kid profiles, and remove accounts.</p></div>'
+    ));
+    var bar = h(
+      '<div class="admin-toolbar">' +
+      '<input id="user-search" class="admin-input" type="search" placeholder="Search name or email…" autocomplete="off"/>' +
+      '<span class="admin-toolbar-stat" id="user-count">—</span>' +
+      '</div>'
+    );
+    main.appendChild(bar);
+    var panelWrap = h('<div id="users-panel-wrap"></div>');
+    main.appendChild(panelWrap);
+
+    var searchEl = bar.querySelector('#user-search');
+    searchEl.value = usersState.q;
+    var t = null;
+    searchEl.addEventListener('input', function () {
+      clearTimeout(t);
+      t = setTimeout(function () { usersState.q = searchEl.value.trim(); loadUsers(); }, 200);
+    });
+    loadUsers();
   };
+
+  function loadUsers() {
+    var wrap = document.getElementById('users-panel-wrap');
+    if (!wrap) return;
+    wrap.innerHTML = '<div class="admin-loading">Loading…</div>';
+    api('/admin/users?limit=500&q=' + encodeURIComponent(usersState.q)).then(function (r) {
+      usersState.users = r.users || [];
+      usersState.total = r.total || usersState.users.length;
+      usersState.admins = r.admins || 0;
+      var cnt = document.getElementById('user-count');
+      if (cnt) cnt.textContent = usersState.total + ' account' + (usersState.total === 1 ? '' : 's') + ' · ' + usersState.admins + ' admin' + (usersState.admins === 1 ? '' : 's');
+      renderUsersTable(wrap);
+    }).catch(function (e) { wrap.innerHTML = '<div class="admin-empty">' + esc(e.message) + '</div>'; });
+  }
+
+  function renderUsersTable(wrap) {
+    var users = usersState.users;
+    wrap.innerHTML = '';
+    if (!users.length) { wrap.appendChild(h('<div class="admin-empty">No accounts match “' + esc(usersState.q) + '”.</div>')); return; }
+    var panel = h('<div class="admin-panel"><table class="admin-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Kids</th><th>Joined</th><th>Last login</th><th></th></tr></thead><tbody></tbody></table></div>');
+    var tb = panel.querySelector('tbody');
+    users.forEach(function (u) {
+      var tr = h(
+        '<tr class="user-row">' +
+        '<td><span class="user-dot" style="background:' + esc(u.avatarColor || '#00e5ff') + '"></span><strong>' + esc(u.displayName) + '</strong></td>' +
+        '<td>' + esc(u.email) + '</td>' +
+        '<td><span class="pill ' + rolePill(u.role) + '">' + esc(u.role) + '</span></td>' +
+        '<td class="num">' + (u.kidCount || 0) + '</td>' +
+        '<td class="num">' + fmtDate(u.createdAt) + '</td>' +
+        '<td class="num">' + fmtDate(u.lastLoginAt) + '</td>' +
+        '<td><button class="admin-btn admin-btn-sm">Manage</button></td>' +
+        '</tr>'
+      );
+      tr.querySelector('button').addEventListener('click', function () { openUserModal(u.id); });
+      tb.appendChild(tr);
+    });
+    wrap.appendChild(panel);
+  }
+
+  function rolePill(role) {
+    return role === 'admin' ? 'published' : role === 'editor' ? 'assigned' : 'paused';
+  }
+
+  function openUserModal(id) {
+    var modal = openModal('Loading…');
+    api('/admin/users/' + id).then(function (r) {
+      var u = r.user;
+      modal.setTitle(u.displayName);
+      var kids = (u.kids || []).map(function (k) {
+        return '<li><span class="kid-badge" style="background:' + esc(k.avatarColor || '#39ff14') + '">' + esc(k.avatarEmoji || '🚀') + '</span>' +
+          '<span><strong>' + esc(k.name) + '</strong> · born ' + esc(String(k.birthYear)) + '</span></li>';
+      }).join('');
+      modal.body.innerHTML =
+        '<div class="user-detail">' +
+        '<div class="user-detail-head"><span class="user-dot lg" style="background:' + esc(u.avatarColor || '#00e5ff') + '"></span>' +
+        '<div><div class="user-detail-email">' + esc(u.email) + '</div>' +
+        '<div class="user-detail-meta">Joined ' + fmtDate(u.createdAt) + ' · Last login ' + fmtDate(u.lastLoginAt) + '</div></div></div>' +
+
+        '<label class="admin-label">Display name</label>' +
+        '<input id="um-name" class="admin-input" value="' + esc(u.displayName) + '" maxlength="40"/>' +
+
+        '<label class="admin-label">Role</label>' +
+        '<select id="um-role" class="admin-input"><option value="parent">parent</option><option value="editor">editor</option><option value="admin">admin</option></select>' +
+
+        '<label class="admin-label">Admin notes <span class="admin-hint">(private, staff-only)</span></label>' +
+        '<textarea id="um-notes" class="admin-input" rows="3" maxlength="2000" placeholder="Notes about this account…">' + esc(u.adminNotes || '') + '</textarea>' +
+
+        '<div class="user-kids"><div class="admin-label">Kid profiles (' + (u.kids ? u.kids.length : 0) + ')</div>' +
+        (kids ? '<ul class="kid-list">' + kids + '</ul>' : '<div class="admin-hint">No kid profiles.</div>') + '</div>' +
+
+        '<div id="um-temp" class="user-temp" hidden></div>' +
+
+        '<div class="user-actions">' +
+        '<button id="um-save" class="admin-btn admin-btn-primary">Save changes</button>' +
+        '<button id="um-reset" class="admin-btn">Reset password</button>' +
+        '<button id="um-delete" class="admin-btn admin-btn-danger">Delete account</button>' +
+        '</div></div>';
+
+      modal.body.querySelector('#um-role').value = u.role;
+
+      modal.body.querySelector('#um-save').addEventListener('click', function () {
+        var name = modal.body.querySelector('#um-name').value.trim();
+        var notes = modal.body.querySelector('#um-notes').value;
+        var role = modal.body.querySelector('#um-role').value;
+        var chain = Promise.resolve();
+        if (name !== u.displayName || notes !== (u.adminNotes || '')) {
+          chain = chain.then(function () { return api('/admin/users/' + id, { method: 'PATCH', body: { displayName: name, adminNotes: notes } }); });
+        }
+        if (role !== u.role) {
+          chain = chain.then(function () { return api('/admin/users/' + id + '/role', { method: 'PATCH', body: { role: role } }); });
+        }
+        chain.then(function () { toast('Account updated'); closeModal(modal); loadUsers(); })
+          .catch(function (e) { toast(e.message, true); });
+      });
+
+      modal.body.querySelector('#um-reset').addEventListener('click', function () {
+        if (!confirm('Generate a new temporary password for ' + u.email + '? Their current password will stop working.')) return;
+        api('/admin/users/' + id + '/reset-password', { method: 'POST', body: {} }).then(function (r) {
+          var box = modal.body.querySelector('#um-temp');
+          box.hidden = false;
+          box.innerHTML = 'Temporary password (share securely, shown once):<br><code>' + esc(r.tempPassword) + '</code>';
+          toast('Password reset');
+        }).catch(function (e) { toast(e.message, true); });
+      });
+
+      modal.body.querySelector('#um-delete').addEventListener('click', function () {
+        if (!confirm('Permanently delete ' + u.email + ' and all their kid profiles? This cannot be undone.')) return;
+        api('/admin/users/' + id, { method: 'DELETE' }).then(function () {
+          toast('Account deleted'); closeModal(modal); loadUsers();
+        }).catch(function (e) { toast(e.message, true); });
+      });
+    }).catch(function (e) { modal.body.innerHTML = '<div class="admin-empty">' + esc(e.message) + '</div>'; });
+  }
 
   // ===== Audit log =====
   Views.audit = function () {
