@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skynet Newsroom Floor — Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      background: #0a0e14;
+      color: #e8eef7;
+      font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+    }
+
+    .floor {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      background: #0d1620;
+      border-right: 1px solid #1e3a5f;
+      padding: 24px 16px;
+      overflow-y: auto;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+      font-size: 20px;
+      font-weight: 800;
+      color: #00e5ff;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-brand svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-item {
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: #9fb0c3;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .nav-item:hover {
+      background: rgba(0, 229, 255, 0.08);
+      color: #00e5ff;
+    }
+
+    .nav-item.active {
+      background: rgba(0, 229, 255, 0.15);
+      color: #00e5ff;
+    }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      background: #0d1620;
+      border-bottom: 1px solid #1e3a5f;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .topbar-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .topbar-time {
+      font-size: 12px;
+      color: #6b7d92;
+    }
+
+    .content {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+    }
+
+    /* Views */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* Dashboard */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: #0d1620;
+      border: 1px solid #1e3a5f;
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #6b7d92;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    .card-value {
+      font-size: 32px;
+      font-weight: 800;
+      color: #00e5ff;
+    }
+
+    .card-meta {
+      font-size: 12px;
+      color: #6b7d92;
+      margin-top: 8px;
+    }
+
+    /* Queue table */
+    .queue-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+
+    .queue-table th {
+      background: rgba(0, 229, 255, 0.05);
+      padding: 12px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7d92;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #1e3a5f;
+    }
+
+    .queue-table td {
+      padding: 12px;
+      border-bottom: 1px solid #1e3a5f;
+      font-size: 14px;
+    }
+
+    .queue-table tr:hover {
+      background: rgba(0, 229, 255, 0.03);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-draft { background: rgba(107, 125, 146, 0.2); color: #9fb0c3; }
+    .status-approved { background: rgba(52, 211, 153, 0.2); color: #34d399; }
+    .status-published { background: rgba(0, 229, 255, 0.2); color: #00e5ff; }
+
+    /* Image editor */
+    .image-editor {
+      display: flex;
+      gap: 24px;
+      margin-top: 16px;
+    }
+
+    .image-preview {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .preview-img {
+      width: 100%;
+      max-height: 400px;
+      background: #1e3a5f;
+      border-radius: 8px;
+      border: 1px solid #1e3a5f;
+      object-fit: cover;
+    }
+
+    .image-controls {
+      flex: 0 0 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .control-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7d92;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="text"],
+    input[type="url"],
+    textarea,
+    select {
+      background: #0a0e14;
+      border: 1px solid #1e3a5f;
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: #e8eef7;
+      font-family: inherit;
+      font-size: 13px;
+    }
+
+    input[type="text"]:focus,
+    input[type="url"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: #00e5ff;
+      background: rgba(0, 229, 255, 0.03);
+    }
+
+    button {
+      background: #00e5ff;
+      color: #0a0e14;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+    }
+
+    button:hover {
+      background: #00d9f0;
+    }
+
+    button.secondary {
+      background: transparent;
+      border: 1px solid #1e3a5f;
+      color: #e8eef7;
+    }
+
+    button.secondary:hover {
+      background: rgba(0, 229, 255, 0.1);
+      border-color: #00e5ff;
+      color: #00e5ff;
+    }
+
+    /* Help text */
+    .help-text {
+      font-size: 12px;
+      color: #6b7d92;
+      margin-top: 4px;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 64px 32px;
+      color: #6b7d92;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-state-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #9fb0c3;
+    }
+  </style>
+</head>
+<body>
+
+<div class="floor">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="skynet-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#00e5ff"/>
+          <stop offset="100%" stop-color="#a855f7"/>
+        </linearGradient></defs>
+        <path d="M20 3l14 8v18l-14 8L6 29V11z" fill="none" stroke="url(#skynet-grad)" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M20 12l7 4v8l-7 4-7-4v-8z" fill="url(#skynet-grad)" opacity=".95"/>
+      </svg>
+      NEWSROOM
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-view="dashboard">📊 Dashboard</button>
+      <button class="nav-item" data-view="queue">📥 Story Queue</button>
+      <button class="nav-item" data-view="images">📸 Image Editor</button>
+      <button class="nav-item" data-view="agents">🛰️ Agents</button>
+      <button class="nav-item" data-view="schedule">⏰ Schedule</button>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <h1 class="topbar-title" id="view-title">Newsroom Dashboard</h1>
+      <div class="topbar-time" id="current-time"></div>
+    </header>
+
+    <div class="content">
+      <!-- Dashboard -->
+      <div class="view active" id="view-dashboard" data-view="dashboard">
+        <div class="dashboard-grid">
+          <div class="card">
+            <div class="card-title">Today's Articles</div>
+            <div class="card-value" id="metric-today">0</div>
+            <div class="card-meta">Published</div>
+          </div>
+          <div class="card">
+            <div class="card-title">In Queue</div>
+            <div class="card-value" id="metric-queue">0</div>
+            <div class="card-meta">Waiting review</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Next Drop</div>
+            <div class="card-value" id="metric-next">—</div>
+            <div class="card-meta" id="next-drop-time"></div>
+          </div>
+        </div>
+
+        <h2 style="margin-bottom: 16px; font-size: 16px; font-weight: 700;">Recent Queue</h2>
+        <table class="queue-table">
+          <thead>
+            <tr>
+              <th>Channel</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="queue-recent">
+            <tr>
+              <td colspan="4" style="text-align: center; color: #6b7d92; padding: 32px;">
+                Loading from /api/admin/stories/queue...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Queue -->
+      <div class="view" id="view-queue" data-view="queue">
+        <h2 style="margin-bottom: 16px; font-size: 16px; font-weight: 700;">Story Queue</h2>
+        <table class="queue-table">
+          <thead>
+            <tr>
+              <th>Channel</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Agent</th>
+              <th>Time</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="queue-all">
+            <tr>
+              <td colspan="6" style="text-align: center; color: #6b7d92; padding: 32px;">
+                Loading from /api/admin/stories/queue...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Images -->
+      <div class="view" id="view-images" data-view="images">
+        <h2 style="margin-bottom: 16px; font-size: 16px; font-weight: 700;">Image Editor</h2>
+        <p style="color: #6b7d92; margin-bottom: 24px;">
+          Upload, edit, and replace images for articles. Scrapes images from source URLs.
+        </p>
+        <div class="image-editor">
+          <div class="image-preview">
+            <img id="preview-img" src="" alt="No image selected" class="preview-img" style="display: none;">
+            <div class="empty-state" id="image-empty" style="background: #0d1620; border: 1px dashed #1e3a5f; border-radius: 8px; padding: 48px 24px;">
+              <div class="empty-state-icon">📸</div>
+              <div class="empty-state-title">No image selected</div>
+              <p style="font-size: 13px;">Choose an article to edit its images.</p>
+            </div>
+          </div>
+          <div class="image-controls">
+            <div class="control-group">
+              <label class="control-label">Article ID</label>
+              <input type="text" id="img-article-id" placeholder="e.g. 2026-07-02-story-title" readonly>
+            </div>
+            <div class="control-group">
+              <label class="control-label">Image URL</label>
+              <input type="url" id="img-url" placeholder="https://...">
+              <p class="help-text">Paste image URL or scrape from source</p>
+            </div>
+            <div class="control-group">
+              <label class="control-label">Alt Text</label>
+              <input type="text" id="img-alt" placeholder="Describe the image for accessibility">
+            </div>
+            <div class="control-group">
+              <label class="control-label">Credit</label>
+              <input type="text" id="img-credit" placeholder="e.g. NASA, Reuters">
+            </div>
+            <button onclick="scrapeImage()">🔗 Scrape from Source</button>
+            <button class="secondary" onclick="uploadImage()">📤 Upload Local Image</button>
+            <button class="secondary" onclick="removeImage()" style="background: rgba(255, 46, 99, 0.1); color: #ff2e63;">🗑️ Remove Image</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agents -->
+      <div class="view" id="view-agents" data-view="agents">
+        <h2 style="margin-bottom: 16px; font-size: 16px; font-weight: 700;">Correspondent Agents</h2>
+        <div class="dashboard-grid" id="agents-grid">
+          <div class="empty-state">
+            <div class="empty-state-icon">🛰️</div>
+            <div class="empty-state-title">Loading agents...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule -->
+      <div class="view" id="view-schedule" data-view="schedule">
+        <h2 style="margin-bottom: 16px; font-size: 16px; font-weight: 700;">Publication Schedule</h2>
+        <div class="dashboard-grid">
+          <div class="card">
+            <div class="card-title">Next Drop</div>
+            <div class="card-value" id="sched-next">—</div>
+            <div class="card-meta" id="sched-next-time"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Review Cutoff</div>
+            <div class="card-value">60 min</div>
+            <div class="card-meta">before each drop</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Drop Times (ET)</div>
+            <div style="margin-top: 8px; font-size: 13px; line-height: 1.8;">
+              ⏰ 10:00 AM<br>
+              ⏰ 2:00 PM<br>
+              ⏰ 6:00 PM
+            </div>
+          </div>
+        </div>
+        <h3 style="margin-top: 32px; margin-bottom: 16px; font-size: 14px; font-weight: 700;">Scheduled Stories</h3>
+        <table class="queue-table" id="scheduled-table">
+          <thead>
+            <tr>
+              <th>Channel</th>
+              <th>Title</th>
+              <th>Publish At</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="4" style="text-align: center; color: #6b7d92; padding: 32px;">
+                Loading schedule...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const ADMIN_API = 'https://skynet-nexus-production.up.railway.app/api/admin';
+
+// Nav
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    btn.classList.add('active');
+    const view = btn.dataset.view;
+    document.getElementById('view-' + view).classList.add('active');
+    document.getElementById('view-title').textContent = btn.textContent.slice(2); // remove emoji
+    loadView(view);
+  });
+});
+
+// Clock
+setInterval(() => {
+  const now = new Date();
+  document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}, 1000);
+
+async function loadView(view) {
+  try {
+    if (view === 'dashboard') {
+      const resp = await fetch(ADMIN_API + '/overview');
+      const data = await resp.json();
+      document.getElementById('metric-today').textContent = data.articles?.today || 0;
+      document.getElementById('metric-queue').textContent = data.queue?.draft || 0;
+      // Fetch queue
+      const qresp = await fetch(ADMIN_API + '/stories/queue?limit=5');
+      const qdata = await qresp.json();
+      const tbody = document.getElementById('queue-recent');
+      tbody.innerHTML = (qdata.stories || []).map(s => `
+        <tr>
+          <td><strong>${s.channel}</strong></td>
+          <td>${(s.payload?.title || 'Untitled').slice(0, 40)}</td>
+          <td><span class="status-badge status-${s.status}">${s.status}</span></td>
+          <td style="font-size: 12px; color: #6b7d92;">${new Date(s.created_at).toLocaleDateString()}</td>
+        </tr>
+      `).join('') || '<tr><td colspan="4" style="text-align: center; color: #6b7d92; padding: 32px;">No stories in queue yet.</td></tr>';
+    } else if (view === 'queue') {
+      const resp = await fetch(ADMIN_API + '/stories/queue?limit=100');
+      const data = await resp.json();
+      const tbody = document.getElementById('queue-all');
+      tbody.innerHTML = (data.stories || []).map(s => `
+        <tr>
+          <td><strong>${s.channel}</strong></td>
+          <td>${(s.payload?.title || 'Untitled').slice(0, 50)}</td>
+          <td><span class="status-badge status-${s.status}">${s.status}</span></td>
+          <td style="font-size: 12px;">${s.staff_id || '—'}</td>
+          <td style="font-size: 12px; color: #6b7d92;">${new Date(s.created_at).toLocaleDateString()}</td>
+          <td><button class="secondary" style="padding: 4px 8px; font-size: 11px;">Edit</button></td>
+        </tr>
+      `).join('') || '<tr><td colspan="6" style="text-align: center; color: #6b7d92; padding: 32px;">No stories in queue.</td></tr>';
+    } else if (view === 'agents') {
+      const resp = await fetch(ADMIN_API + '/staff');
+      const data = await resp.json();
+      const grid = document.getElementById('agents-grid');
+      grid.innerHTML = (data.staff || []).filter(s => s.kind === 'agent').map(s => `
+        <div class="card">
+          <div style="font-size: 24px; margin-bottom: 12px;">${s.avatar_emoji}</div>
+          <div class="card-title">${s.channel}</div>
+          <div style="font-weight: 700; margin-bottom: 8px;">${s.display_name}</div>
+          <div style="font-size: 12px; color: #6b7d92; margin-bottom: 12px;">${s.role}</div>
+          <div style="font-size: 12px; padding: 8px; background: rgba(0, 229, 255, 0.05); border-radius: 6px; color: #9fb0c3;">
+            Status: <strong>${s.status}</strong>
+          </div>
+        </div>
+      `).join('');
+    } else if (view === 'schedule') {
+      const resp = await fetch(ADMIN_API + '/stories/scheduled');
+      const data = await resp.json();
+      const tbody = document.querySelector('#scheduled-table tbody');
+      tbody.innerHTML = (data.stories || []).map(s => `
+        <tr>
+          <td><strong>${s.channel}</strong></td>
+          <td>${(s.payload?.title || 'Untitled').slice(0, 40)}</td>
+          <td style="font-size: 12px;">${new Date(s.publish_at).toLocaleString()}</td>
+          <td><span class="status-badge status-${s.status}">${s.status}</span></td>
+        </tr>
+      `).join('') || '<tr><td colspan="4" style="text-align: center; color: #6b7d92; padding: 32px;">No scheduled stories.</td></tr>';
+    }
+  } catch (err) {
+    console.error('Failed to load view:', err);
+  }
+}
+
+function scrapeImage() {
+  alert('Image scraping from sources coming soon. Select an article first.');
+}
+
+function uploadImage() {
+  alert('Local image upload coming soon.');
+}
+
+function removeImage() {
+  alert('Image removal coming soon.');
+}
+
+// Load dashboard on start
+loadView('dashboard');
+</script>
+
+</body>
+</html>
