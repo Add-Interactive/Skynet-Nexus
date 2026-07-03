@@ -813,6 +813,15 @@ body::before{
 .feeds-src-item input{grid-row:1 / span 2;width:16px;height:16px;accent-color:var(--accent)}
 .feeds-src-name{font-size:.85rem;font-weight:700;color:var(--text)}
 .feeds-src-desc{grid-column:2;font-size:.74rem;color:var(--text-mute);line-height:1.4}
+.feeds-sources-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+.feeds-selcount{font-size:.8rem;color:var(--text-mute);font-weight:700}
+.feeds-selcount b{color:var(--accent)}
+.feeds-foot-spacer{flex:1 1 auto}
+.feeds-linkbtn{background:none;border:none;color:var(--text-dim);font-size:.8rem;font-weight:700;cursor:pointer;padding:4px 6px;text-decoration:underline;border-radius:6px}
+.feeds-linkbtn:hover{color:var(--accent)}
+.feeds-apply-btn{cursor:pointer;font-weight:800;border:none;border-radius:10px;padding:9px 20px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#04121a;font-size:.85rem;transition:filter .15s,transform .15s}
+.feeds-apply-btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.feeds-apply-btn:active{transform:translateY(0)}
 
 /* ===== STEM Creators Nexus ===== */
 .creators-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}

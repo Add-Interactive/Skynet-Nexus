@@ -283,7 +283,7 @@
         const byChan = {};
         state.registry.forEach(f => { (byChan[f.channel] = byChan[f.channel] || []).push(f); });
         const sel = new Set(loadSelection());
-        let html = '<div class="feeds-sources-head"><strong>Choose your sources</strong><span>Selected feeds become <em>⭐ My Feeds</em></span></div>';
+        let html = '<div class="feeds-sources-head"><strong>Choose your sources</strong><span>Tick the feeds you want, then press <em>Update feed</em> to load them as <em>⭐ My Feeds</em>.</span></div>';
         channels.forEach(c => {
           const feeds = byChan[c.id]; if (!feeds || !feeds.length) return;
           html += '<div class="feeds-src-group"><div class="feeds-src-chan">' + esc(c.icon) + ' ' + esc(c.label) + '</div>';
@@ -295,12 +295,43 @@
           });
           html += '</div>';
         });
+        html += '<div class="feeds-sources-foot">' +
+            '<span class="feeds-selcount" id="feeds-selcount"></span>' +
+            '<span class="feeds-foot-spacer"></span>' +
+            '<button type="button" class="feeds-linkbtn" id="feeds-selall">Select all</button>' +
+            '<button type="button" class="feeds-linkbtn" id="feeds-clear">Clear</button>' +
+            '<button type="button" class="feeds-apply-btn" id="feeds-apply">Update feed</button>' +
+          '</div>';
         sourcesEl.innerHTML = html;
-        sourcesEl.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', () => {
-          const ids = [...sourcesEl.querySelectorAll('input[type=checkbox]:checked')].map(x => x.value);
+
+        const boxes = () => [...sourcesEl.querySelectorAll('input[type=checkbox]')];
+        const checkedIds = () => boxes().filter(x => x.checked).map(x => x.value);
+        function updateCount() {
+          const n = checkedIds().length;
+          const el = document.getElementById('feeds-selcount');
+          if (el) el.innerHTML = '<b>' + n + '</b> source' + (n === 1 ? '' : 's') + ' selected';
+        }
+        updateCount();
+
+        boxes().forEach(cb => cb.addEventListener('change', updateCount));
+        document.getElementById('feeds-selall').addEventListener('click', () => { boxes().forEach(x => x.checked = true); updateCount(); });
+        document.getElementById('feeds-clear').addEventListener('click', () => { boxes().forEach(x => x.checked = false); updateCount(); });
+        document.getElementById('feeds-apply').addEventListener('click', () => {
+          const ids = checkedIds();
           saveSelection(ids);
           renderChips();
-        }));
+          if (ids.length) {
+            loadView('mine');
+            if (typeof toast === 'function') toast('Feed updated · ' + ids.length + ' source' + (ids.length === 1 ? '' : 's'));
+          } else {
+            loadView('skynet');
+            if (typeof toast === 'function') toast('Cleared My Feeds');
+          }
+          // Collapse the sources panel so the refreshed headlines are visible.
+          sourcesEl.hidden = true;
+          toggleBtn.setAttribute('aria-expanded', 'false');
+          toggleBtn.classList.remove('active');
+        });
       }
 
       toggleBtn.addEventListener('click', () => {
