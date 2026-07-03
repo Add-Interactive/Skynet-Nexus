@@ -190,15 +190,30 @@
       const statEl = document.getElementById('cr-stat');
       let platMap = {};
 
+      function initials(name) {
+        const parts = String(name || '').replace(/[^\w\s]/g, ' ').trim().split(/\s+/).filter(Boolean);
+        if (!parts.length) return '★';
+        return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+      }
+
       function card(c) {
         const p = platMap[c.platform] || {};
+        const pc = esc(p.color || '#00e5ff');
+        const avatar = '<div class="creator-avatar" style="--pc:' + pc + '">' +
+          '<span class="creator-initials">' + esc(initials(c.name)) + '</span>' +
+          (c.image ? '<img class="creator-img" src="' + esc(c.image) + '" alt="" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">' : '') +
+        '</div>';
         return '<article class="creator-card">' +
           '<div class="creator-top">' +
-            '<span class="creator-plat" style="--pc:' + esc(p.color || '#00e5ff') + '">' + esc(p.icon || '🔬') + ' ' + esc(p.label || c.platform) + '</span>' +
+            '<span class="creator-plat" style="--pc:' + pc + '">' + esc(p.icon || '🔬') + ' ' + esc(p.label || c.platform) + '</span>' +
             (c.focus ? '<span class="creator-focus">' + esc(c.focus) + '</span>' : '') +
           '</div>' +
-          '<h3 class="creator-name">' + esc(c.name) + '</h3>' +
-          (c.handle ? '<p class="creator-handle">' + esc(c.handle) + '</p>' : '') +
+          '<div class="creator-head">' + avatar +
+            '<div class="creator-headmeta">' +
+              '<h3 class="creator-name">' + esc(c.name) + '</h3>' +
+              (c.handle ? '<p class="creator-handle">' + esc(c.handle) + '</p>' : '') +
+            '</div>' +
+          '</div>' +
           (c.description ? '<p class="creator-desc">' + esc(c.description) + '</p>' : '') +
           '<a class="creator-link" href="' + esc(c.url) + '" target="_blank" rel="noopener">Visit ' + esc(p.label || 'page') + ' ↗</a>' +
         '</article>';
