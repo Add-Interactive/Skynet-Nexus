@@ -382,6 +382,37 @@ api.get('/channels', (req, res) => {
   res.json({ channels: CHANNEL_LIST });
 });
 
+// ---- RSS feed aggregation (curated, kid-safe, cached) ----
+const rss = require('./rss');
+
+// GET /api/rss/feeds[?channel=ai] — curated feed registry (source picker).
+api.get('/rss/feeds', (req, res) => {
+  const channel = req.query.channel ? String(req.query.channel).toLowerCase() : null;
+  res.set('Cache-Control', 'public, max-age=300');
+  res.json(rss.getRegistry(channel));
+});
+
+// GET /api/rss?channel=ai  OR  /api/rss?feeds=id1,id2 — aggregated items.
+api.get('/rss', async (req, res) => {
+  try {
+    const limit = Math.min(60, Math.max(1, parseInt(req.query.limit, 10) || 40));
+    res.set('Cache-Control', 'public, max-age=300');
+    if (req.query.feeds) {
+      const ids = String(req.query.feeds).split(',').map(s => s.trim()).filter(Boolean).slice(0, 20);
+      const out = await rss.aggregateFeeds(ids, { limit });
+      return res.json(out);
+    }
+    const channel = String(req.query.channel || '').toLowerCase();
+    if (!channel) return res.status(400).json({ error: 'channel or feeds parameter required.' });
+    const onlyDefault = req.query.all !== '1';
+    const out = await rss.aggregateChannel(channel, { onlyDefault, limit });
+    res.json(out);
+  } catch (err) {
+    console.error('[rss]', err);
+    res.status(500).json({ error: 'Feed aggregation failed.' });
+  }
+});
+
 api.post('/submissions', rateLimit({ windowMs: 60 * 60_000, max: 8, key: 'submissions' }), (req, res) => {
   try {
     const b = req.body || {};

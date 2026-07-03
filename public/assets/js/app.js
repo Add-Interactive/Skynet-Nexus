@@ -104,6 +104,7 @@ function loadArticleFull(idOrSlug, baseUrl) {
 // Mirror of server/channels.js. The 11 live channels + legacy aliases so any
 // pre-existing article category still resolves to a label/color/icon.
 const CHANNELS = [
+  { id: 'skynet',      label: 'Skynet',                short: 'Skynet',      icon: '\ud83d\udef0\ufe0f', color: '#00e5ff', color2: '#a855f7' },
   { id: 'ai',          label: 'AI & Machine Learning', short: 'AI',          icon: '\ud83e\udde0', color: '#00e5ff', color2: '#7c3aed' },
   { id: 'space',       label: 'Space & Aerospace',     short: 'Space',       icon: '\ud83d\ude80', color: '#7c5cff', color2: '#00e5ff' },
   { id: 'robotics',    label: 'Robotics & Automation', short: 'Robotics',    icon: '\ud83e\udd16', color: '#a855f7', color2: '#ff2e63' },
@@ -571,6 +572,43 @@ function renderNextDrop() {
   _nextDropTimer = setInterval(tick, 1000);
 }
 
+// Live curated RSS headlines for a channel's "From around the web" section.
+function renderChannelRss(channelId) {
+  const grid = document.getElementById('rss-grid');
+  const section = document.getElementById('rss-section');
+  if (!grid || !channelId) return;
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const ch = getChannel(channelId);
+  const timeAgo = iso => {
+    if (!iso) return '';
+    const t = Date.parse(iso); if (isNaN(t)) return '';
+    const s = Math.max(0, (Date.now() - t) / 1000);
+    if (s < 3600) return Math.round(s / 60) + 'm ago';
+    if (s < 86400) return Math.round(s / 3600) + 'h ago';
+    const d = Math.round(s / 86400); return d + (d === 1 ? ' day ago' : ' days ago');
+  };
+  const more = document.getElementById('rss-more');
+  if (more) more.href = (feedBase || '') + 'pages/feeds.html?c=' + channelId;
+  fetch('/api/rss?limit=9&all=1&channel=' + encodeURIComponent(channelId))
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      const items = (data && data.items) || [];
+      if (!items.length) return;
+      grid.innerHTML = items.map(it => {
+        const img = it.image ? '<div class="rss-thumb" style="background-image:url(' + esc(it.image) + ')"></div>' : '';
+        const chan = ch ? '<span class="rss-chan" style="--cc:' + (ch.color || '#00e5ff') + '">' + esc(ch.icon) + ' ' + esc(ch.short || ch.label) + '</span>' : '';
+        return '<a class="rss-card" href="' + esc(it.link) + '" target="_blank" rel="noopener">' + img +
+          '<div class="rss-body"><div class="rss-top">' + chan + '<span class="rss-src">' + esc(it.source) + '</span></div>' +
+          '<h3 class="rss-title">' + esc(it.title) + '</h3>' +
+          (it.summary ? '<p class="rss-sum">' + esc(it.summary) + '</p>' : '') +
+          '<div class="rss-meta"><span>' + esc(it.site) + '</span>' + (it.publishedAt ? '<span>' + timeAgo(it.publishedAt) + '</span>' : '') + '</div></div></a>';
+      }).join('');
+      grid.hidden = false;
+      if (section) section.hidden = false;
+    })
+    .catch(() => {});
+}
+
 function renderStats() {
   const el = document.getElementById('stat-tiles');
   if (!el) return;
@@ -903,13 +941,18 @@ function ensureSubmitLink(base) {
     }
   });
   if (!feed) return;
-  if (feed.querySelector('a[href$="submit.html"]')) return;
-  const li = document.createElement('li');
-  li.innerHTML = '<a href="' + base + 'pages/submit.html"><span class="icon">\u270d\ufe0f</span><span>Submit a Story</span></a>';
-  // Insert before the Summer STEM link if present, else append.
   const summer = feed.querySelector('a[href$="summer.html"]');
-  if (summer && summer.parentElement) feed.insertBefore(li, summer.parentElement);
-  else feed.appendChild(li);
+  const before = summer && summer.parentElement ? summer.parentElement : null;
+  const add = (href, iconHtml, label) => {
+    if (feed.querySelector('a[href$="' + href + '"]')) return;
+    const li = document.createElement('li');
+    li.innerHTML = '<a href="' + base + 'pages/' + href + '"><span class="icon">' + iconHtml + '</span><span>' + label + '</span></a>';
+    if (before) feed.insertBefore(li, before);
+    else feed.appendChild(li);
+  };
+  add('submit.html', '\u270d\ufe0f', 'Submit a Story');
+  add('feeds.html', '\ud83d\udce1', 'STEM Feeds');
+  add('creators.html', '\ud83c\udf1f', 'STEM Creators');
 }
 
 // Rebuild the filter chips in every .filter-bar from the channel registry,
@@ -1004,6 +1047,7 @@ function _initChannelPage(baseUrl) {
   renderTicker();
   renderNextDrop();
   renderNewsletter();
+  renderChannelRss(cid);
 }
 
 function _initArticle(baseUrl) {

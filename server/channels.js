@@ -4,6 +4,7 @@
 
 // The 11 live channels: 9 edge-STEM + 2 culture.
 const CHANNELS = [
+  { id: 'skynet',      label: 'Skynet',                icon: '🛰️', color: '#00e5ff' },
   { id: 'ai',          label: 'AI & Machine Learning',  icon: '🧠', color: '#00e5ff' },
   { id: 'space',       label: 'Space & Aerospace',      icon: '🚀', color: '#7c5cff' },
   { id: 'robotics',    label: 'Robotics & Automation',  icon: '🤖', color: '#a855f7' },
@@ -17,8 +18,11 @@ const CHANNELS = [
   { id: 'music',       label: 'Music Festivals',        icon: '🎧', color: '#ff2e63' }
 ];
 
-// Channels a reader may submit a story to (all live channels).
-const SUBMISSION_IDS = new Set(CHANNELS.map(c => c.id));
+// The Skynet channel is editorial (SNN original content), not a reader-submission target.
+const EDITORIAL_ONLY = new Set(['skynet']);
+
+// Channels a reader may submit a story to (all live channels except editorial-only).
+const SUBMISSION_IDS = new Set(CHANNELS.map(c => c.id).filter(id => !EDITORIAL_ONLY.has(id)));
 
 // Legacy category ids kept valid so pre-existing articles still resolve/publish.
 const LEGACY_IDS = new Set(['stem', 'play', 'network']);

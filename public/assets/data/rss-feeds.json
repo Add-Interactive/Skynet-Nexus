@@ -1,0 +1,48 @@
+{
+  "note": "Curated, reputable STEM RSS/Atom feeds powering the Skynet Nexus feed aggregator. Feeds degrade gracefully if a source is unavailable. 'default' feeds load automatically for a channel; users can toggle any feed on the Feeds page.",
+  "updated": "2026-07-02",
+  "feeds": [
+    { "id": "snn-home", "channel": "skynet", "name": "Skynet Nexus News", "site": "Skynet Nexus", "url": "/rss.xml", "default": true, "description": "Our own daily family-first youth-achievement edition." },
+
+    { "id": "sd-ai", "channel": "ai", "name": "ScienceDaily — Artificial Intelligence", "site": "sciencedaily.com", "url": "https://www.sciencedaily.com/rss/computers_math/artificial_intelligence.xml", "default": true, "description": "Latest AI and machine-learning research news." },
+    { "id": "mit-ai", "channel": "ai", "name": "MIT News — Artificial Intelligence", "site": "news.mit.edu", "url": "https://news.mit.edu/rss/topic/artificial-intelligence2", "default": true, "description": "AI research and projects from MIT." },
+    { "id": "ieee-ai", "channel": "ai", "name": "IEEE Spectrum — AI", "site": "spectrum.ieee.org", "url": "https://spectrum.ieee.org/feeds/topic/artificial-intelligence.rss", "default": false, "description": "Engineering-focused coverage of artificial intelligence." },
+
+    { "id": "nasa-news", "channel": "space", "name": "NASA — Breaking News", "site": "nasa.gov", "url": "https://www.nasa.gov/rss/dyn/breaking_news.rss", "default": true, "description": "Official NASA mission and discovery news." },
+    { "id": "sd-space", "channel": "space", "name": "ScienceDaily — Space Exploration", "site": "sciencedaily.com", "url": "https://www.sciencedaily.com/rss/space_time/space_exploration.xml", "default": true, "description": "Space exploration and astronomy research." },
+    { "id": "phys-space", "channel": "space", "name": "Phys.org — Space News", "site": "phys.org", "url": "https://phys.org/rss-feed/space-news/", "default": false, "description": "Astronomy and space science updates." },
+
+    { "id": "ieee-robotics", "channel": "robotics", "name": "IEEE Spectrum — Robotics", "site": "spectrum.ieee.org", "url": "https://spectrum.ieee.org/feeds/topic/robotics.rss", "default": true, "description": "Robots, drones, and automation from IEEE." },
+    { "id": "mit-robotics", "channel": "robotics", "name": "MIT News — Robotics", "site": "news.mit.edu", "url": "https://news.mit.edu/rss/topic/robotics", "default": true, "description": "Robotics research from MIT." },
+    { "id": "sd-robotics", "channel": "robotics", "name": "ScienceDaily — Robotics", "site": "sciencedaily.com", "url": "https://www.sciencedaily.com/rss/matter_energy/robotics.xml", "default": false, "description": "Robotics research news." },
+
+    { "id": "sd-biotech", "channel": "biotech", "name": "ScienceDaily — Biotechnology", "site": "sciencedaily.com", "url": "https://www.sciencedaily.com/rss/plants_animals/biotechnology.xml", "default": true, "description": "Biotech and bioengineering research." },
+    { "id": "sciencenews", "channel": "biotech", "name": "Science News", "site": "sciencenews.org", "url": "https://www.sciencenews.org/feed", "default": true, "description": "General science and health, written clearly." },
+    { "id": "phys-bio", "channel": "biotech", "name": "Phys.org — Biology", "site": "phys.org", "url": "https://phys.org/rss-feed/biology-news/", "default": false, "description": "Biology and life-science research." },
+
+    { "id": "sd-quantum", "channel": "quantum", "name": "ScienceDaily — Quantum Computers", "site": "sciencedaily.com", "url": "https://www.sciencedaily.com/rss/matter_energy/quantum_computers.xml", "default": true, "description": "Quantum computing research." },
+    { "id": "mit-quantum", "channel": "quantum", "name": "MIT News — Quantum Computing", "site": "news.mit.edu", "url": "https://news.mit.edu/rss/topic/quantum-computing", "default": true, "description": "Quantum computing from MIT." },
+    { "id": "phys-quantum", "channel": "quantum", "name": "Phys.org — Quantum Physics", "site": "phys.org", "url": "https://phys.org/rss-feed/physics-news/quantum-physics/", "default": false, "description": "Quantum physics updates." },
+
+    { "id": "nasa-climate", "channel": "climate", "name": "NASA — Climate Change", "site": "climate.nasa.gov", "url": "https://climate.nasa.gov/news/rss.xml", "default": true, "description": "Earth and climate science from NASA." },
+    { "id": "yale-climate", "channel": "climate", "name": "Yale Climate Connections", "site": "yaleclimateconnections.org", "url": "https://yaleclimateconnections.org/feed/", "default": true, "description": "Approachable climate and energy stories." },
+    { "id": "sd-climate", "channel": "climate", "name": "ScienceDaily — Climate", "site": "sciencedaily.com", "url": "https://www.sciencedaily.com/rss/earth_climate/climate.xml", "default": false, "description": "Climate science research." },
+
+    { "id": "hackaday", "channel": "engineering", "name": "Hackaday", "site": "hackaday.com", "url": "https://hackaday.com/feed/", "default": true, "description": "Hardware hacks and maker projects." },
+    { "id": "ieee-spectrum", "channel": "engineering", "name": "IEEE Spectrum", "site": "spectrum.ieee.org", "url": "https://spectrum.ieee.org/feeds/feed.rss", "default": true, "description": "Engineering and technology across disciplines." },
+    { "id": "sd-engineering", "channel": "engineering", "name": "ScienceDaily — Engineering", "site": "sciencedaily.com", "url": "https://www.sciencedaily.com/rss/matter_energy/engineering.xml", "default": false, "description": "Engineering research news." },
+
+    { "id": "quanta", "channel": "math", "name": "Quanta Magazine", "site": "quantamagazine.org", "url": "https://www.quantamagazine.org/feed/", "default": true, "description": "Beautifully written math and science journalism." },
+    { "id": "sd-math", "channel": "math", "name": "ScienceDaily — Mathematics", "site": "sciencedaily.com", "url": "https://www.sciencedaily.com/rss/computers_math/mathematics.xml", "default": true, "description": "Mathematics research news." },
+    { "id": "phys-math", "channel": "math", "name": "Phys.org — Mathematics", "site": "phys.org", "url": "https://phys.org/rss-feed/science-news/mathematics/", "default": false, "description": "Math and data-science stories." },
+
+    { "id": "krebs", "channel": "cyber", "name": "Krebs on Security", "site": "krebsonsecurity.com", "url": "https://krebsonsecurity.com/feed/", "default": true, "description": "In-depth security journalism." },
+    { "id": "thn", "channel": "cyber", "name": "The Hacker News", "site": "thehackernews.com", "url": "https://feeds.feedburner.com/TheHackersNews", "default": true, "description": "Cybersecurity news and code." },
+    { "id": "cisa", "channel": "cyber", "name": "CISA — Advisories", "site": "cisa.gov", "url": "https://www.cisa.gov/cybersecurity-advisories/all.xml", "default": false, "description": "Official U.S. cybersecurity advisories." },
+
+    { "id": "xbox-wire", "channel": "gaming", "name": "Xbox Wire", "site": "news.xbox.com", "url": "https://news.xbox.com/en-us/feed/", "default": true, "description": "Family-friendly gaming news." },
+    { "id": "nintendo-life", "channel": "gaming", "name": "Nintendo Life", "site": "nintendolife.com", "url": "https://www.nintendolife.com/feeds/latest", "default": true, "description": "Nintendo and all-ages gaming coverage." },
+
+    { "id": "npr-music", "channel": "music", "name": "NPR Music", "site": "npr.org", "url": "https://feeds.npr.org/1039/rss.xml", "default": true, "description": "NPR Music: Tiny Desk, new artists, and more." }
+  ]
+}

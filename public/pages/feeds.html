@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>STEM Feeds — Skynet Nexus News</title>
+  <meta name="description" content="The Skynet Nexus feed reader: live, curated, kid-safe STEM headlines from the best science, tech, and engineering sources on the web. Pick your channels and build your own feed."/>
+  <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
+  <link rel="stylesheet" href="../assets/css/style.css"/>
+  <link rel="stylesheet" href="/assets/css/auth.css"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="Skynet Nexus News"/>
+  <meta property="og:title" content="STEM Feeds - Skynet Nexus News"/>
+  <meta property="og:description" content="Live, curated, kid-safe STEM headlines from the best sources on the web. Build your own feed."/>
+  <meta property="og:url" content="https://skynet-nexus-production.up.railway.app/pages/feeds.html"/>
+  <meta property="og:image" content="https://skynet-nexus-production.up.railway.app/assets/img/og-cover.png"/>
+  <meta name="theme-color" content="#0a0e17" media="(prefers-color-scheme: dark)"/>
+  <meta name="theme-color" content="#f0f4ff" media="(prefers-color-scheme: light)"/>
+  <link rel="canonical" href="https://skynet-nexus-production.up.railway.app/pages/feeds.html"/>
+  <link rel="alternate" type="application/rss+xml" title="Skynet Nexus News RSS" href="/rss.xml"/>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="../index.html" class="brand" aria-label="Skynet Nexus News">
+        <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00e5ff"/><stop offset="100%" stop-color="#a855f7"/></linearGradient></defs>
+          <path d="M20 3l14 8v18l-14 8L6 29V11z" fill="none" stroke="url(#lg1)" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M20 12l7 4v8l-7 4-7-4v-8z" fill="url(#lg1)" opacity=".95"/>
+          <circle cx="20" cy="20" r="2.5" fill="#0a0e17"/>
+        </svg>
+        <div>
+          <div class="brand-name">SKYNET NEXUS</div>
+          <div class="brand-tag">Family Signal</div>
+        </div>
+      </a>
+      <div class="search-wrap">
+        <span id="ic-search"></span>
+        <input id="global-search" type="search" placeholder="Search stories, artists, teams, tags..."/>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn only-mobile" id="menu-toggle" aria-label="Menu"><span id="ic-menu"></span></button>
+        <button class="icon-btn" id="theme-toggle" aria-label="Toggle theme"></button>
+        <div class="sky-user-slot"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="ticker"><div id="ticker-inner" class="ticker-inner"></div></div>
+
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="side-section">
+        <div class="side-title">Feed</div>
+        <ul class="nav-list">
+          <li><a href="../index.html"><span class="icon" id="nav-home"></span><span>Home</span></a></li>
+          <li><a href="../index.html#trending"><span class="icon" id="nav-flame"></span><span>Trending</span></a></li>
+          <li><a href="events.html"><span class="icon" id="nav-events"></span><span>Events</span></a></li>
+          <li><a href="leaderboard.html"><span class="icon" id="nav-trophy"></span><span>Leaderboard</span></a></li>
+          <li><a href="summer.html"><span class="icon">🏕️</span><span>Summer STEM</span></a></li>
+          <li><a href="archive.html"><span class="icon">📚</span><span>Archive</span></a></li>
+        </ul>
+      </div>
+      <div class="side-section">
+        <div class="side-title">Channels</div>
+        <ul class="nav-list"></ul>
+      </div>
+      <div class="side-section">
+        <div class="side-title">You</div>
+        <ul class="nav-list">
+          <li><a href="about.html"><span class="icon" id="nav-info"></span><span>About</span></a></li>
+          <li><a href="contact.html"><span class="icon" id="nav-mail"></span><span>Contact</span></a></li>
+        </ul>
+      </div>
+      <div class="side-section"><div class="sky-intro-slot"></div></div>
+      <div class="side-section"><div class="sky-user-card-slot"></div></div>
+    </aside>
+
+    <main class="main">
+      <section class="hero">
+        <span class="kicker">📡 Live Feed Nexus</span>
+        <h1>STEM Feeds</h1>
+        <p>One place for the best STEM signal on the internet. We pull live, curated headlines from trusted science, tech, and engineering sources, run them through our kid-safe filter, and let you build your own feed. Pick a channel — or open <strong>Sources</strong> and choose exactly what you want to see.</p>
+        <div class="meta">
+          <span id="feed-stat">Loading feeds…</span>
+          <span>Kid-safe filtered</span>
+          <span>Updated every 15 min</span>
+        </div>
+      </section>
+
+      <div class="filter-bar" id="feed-chips" role="tablist"></div>
+
+      <div class="prog-filters feeds-toolbar">
+        <button class="sort-select feeds-sources-btn" id="feed-sources-toggle" aria-expanded="false">⚙️ Sources</button>
+        <div class="filter-spacer"></div>
+        <input id="feed-search" type="search" class="admin-input prog-search" placeholder="Search headlines…"/>
+      </div>
+
+      <section id="feed-sources" class="feeds-sources" hidden aria-live="polite"></section>
+
+      <div class="section-title">
+        <h2><span class="accent-bar"></span> <span id="feed-heading">Latest headlines</span></h2>
+      </div>
+
+      <section id="feed-list" class="rss-grid" aria-live="polite"></section>
+
+      <p class="prog-disclaimer">Headlines link out to their original publishers. Skynet Nexus curates reputable sources and filters flagged terms, but external sites are not part of our kid-safe editorial pipeline — a grown-up should preview before younger readers click through.</p>
+    </main>
+
+    <aside class="right-rail">
+      <div class="widget">
+        <div class="widget-title">How feeds work</div>
+        <ul class="prog-howto">
+          <li><strong>Pick a channel</strong> above to load its live headlines.</li>
+          <li><strong>Open Sources</strong> to switch individual feeds on or off.</li>
+          <li><strong>Your picks are saved</strong> on this device as <em>My Feeds</em>.</li>
+          <li><strong>Every link opens the original site</strong> — verify before sharing.</li>
+        </ul>
+      </div>
+      <div class="widget">
+        <div class="widget-title">Right now <span class="live-dot"></span></div>
+        <div id="stat-tiles" class="stat-tiles"></div>
+      </div>
+      <div class="widget news-card">
+        <div class="widget-title">Get the Wire</div>
+        <p>One family-friendly digest of the best youth achievement stories, every Sunday morning.</p>
+        <form id="newsletter-form">
+          <input type="email" placeholder="you@yourcrew.com" required/>
+          <button type="submit">Join</button>
+        </form>
+      </div>
+    </aside>
+
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <h4>SKYNET NEXUS</h4>
+        <p>The signal for the next generation — built for families. Every story includes a Kid Take and Family Discussion questions. Free forever, no ads targeted at kids.</p>
+      </div>
+      <div class="footer-col"><h5>Explore</h5><ul>
+        <li><a href="feeds.html">STEM Feeds</a></li>
+        <li><a href="creators.html">STEM Creators</a></li>
+        <li><a href="summer.html">Summer STEM</a></li>
+        <li><a href="archive.html">Archive</a></li>
+      </ul></div>
+      <div class="footer-col"><h5>Company</h5><ul>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="/rss.xml">RSS feed</a></li>
+      </ul></div>
+      <div class="footer-col footer-col-partners">
+        <h5>Network</h5>
+        <ul class="partners-list">
+          <li><a href="https://addinteractive.com" target="_blank" rel="noopener"><span class="partner-role">Published by</span><span class="partner-name">Add Interactive Studio</span></a></li>
+          <li><a href="https://stemnexus.org" target="_blank" rel="noopener"><span class="partner-role">In partnership with</span><span class="partner-name">STEM Nexus</span></a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-legal">
+        <span class="footer-parent-line">An <a href="https://addinteractive.com" target="_blank" rel="noopener"><strong>Add Interactive Studio</strong></a> production &middot; In partnership with <a href="https://stemnexus.org" target="_blank" rel="noopener"><strong>STEM Nexus</strong></a></span>
+        <span class="footer-copyright">&copy; 2026 Skynet Nexus News. Free forever, family first.</span>
+      </div>
+      <div class="socials"><a href="contact.html">Story tips &rarr;</a></div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/app.js"></script>
+  <script>
+    const NAV = {
+      'nav-home': ICONS.home, 'nav-flame': ICONS.flame, 'nav-events': ICONS.events,
+      'nav-trophy': ICONS.trophy, 'nav-info': ICONS.info, 'nav-mail': ICONS.mail
+    };
+    Object.keys(NAV).forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = NAV[id]; });
+    initSimplePage('../');
+    renderStats(); renderTicker(); renderNewsletter();
+
+    // ---- STEM Feeds reader ----
+    (function () {
+      const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const LS_KEY = 'skynet.feeds.selection';
+      const chipsEl = document.getElementById('feed-chips');
+      const listEl = document.getElementById('feed-list');
+      const headingEl = document.getElementById('feed-heading');
+      const statEl = document.getElementById('feed-stat');
+      const sourcesEl = document.getElementById('feed-sources');
+      const toggleBtn = document.getElementById('feed-sources-toggle');
+      const searchEl = document.getElementById('feed-search');
+
+      const state = { registry: [], view: 'skynet', items: [], q: '' };
+      const channels = (typeof CHANNELS !== 'undefined') ? CHANNELS : [];
+      const chanMap = {}; channels.forEach(c => chanMap[c.id] = c);
+
+      function loadSelection() {
+        try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch (e) { return []; }
+      }
+      function saveSelection(ids) { localStorage.setItem(LS_KEY, JSON.stringify(ids)); }
+
+      function timeAgo(iso) {
+        if (!iso) return '';
+        const then = Date.parse(iso); if (isNaN(then)) return '';
+        const s = Math.max(0, (Date.now() - then) / 1000);
+        if (s < 3600) return Math.round(s / 60) + 'm ago';
+        if (s < 86400) return Math.round(s / 3600) + 'h ago';
+        const d = Math.round(s / 86400);
+        return d + (d === 1 ? ' day ago' : ' days ago');
+      }
+
+      function chanBadge(id) {
+        const c = chanMap[id];
+        if (!c) return '';
+        return '<span class="rss-chan" style="--cc:' + (c.color || '#00e5ff') + '">' + esc(c.icon) + ' ' + esc(c.short || c.label) + '</span>';
+      }
+
+      function card(it) {
+        const img = it.image ? '<div class="rss-thumb" style="background-image:url(' + esc(it.image) + ')"></div>' : '';
+        return '<a class="rss-card" href="' + esc(it.link) + '" target="_blank" rel="noopener">' +
+          img +
+          '<div class="rss-body">' +
+            '<div class="rss-top">' + chanBadge(it.channel) + '<span class="rss-src">' + esc(it.source) + '</span></div>' +
+            '<h3 class="rss-title">' + esc(it.title) + '</h3>' +
+            (it.summary ? '<p class="rss-sum">' + esc(it.summary) + '</p>' : '') +
+            '<div class="rss-meta"><span>' + esc(it.site) + '</span>' + (it.publishedAt ? '<span>' + timeAgo(it.publishedAt) + '</span>' : '') + '</div>' +
+          '</div>' +
+        '</a>';
+      }
+
+      function applySearch() {
+        const q = state.q.trim().toLowerCase();
+        const items = !q ? state.items : state.items.filter(it =>
+          (it.title + ' ' + it.summary + ' ' + it.source).toLowerCase().includes(q));
+        headingEl.textContent = items.length + (items.length === 1 ? ' headline' : ' headlines');
+        if (!items.length) {
+          listEl.innerHTML = '<div class="empty-state" style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--text-mute)">' +
+            '<h3 style="margin-bottom:8px;color:var(--text)">No headlines right now</h3>' +
+            '<p>Try another channel or turn on more sources.</p></div>';
+          return;
+        }
+        listEl.innerHTML = items.map(card).join('');
+      }
+
+      async function loadView(view) {
+        state.view = view;
+        listEl.innerHTML = '<div class="rss-loading" style="grid-column:1/-1">Pulling the latest signal…</div>';
+        renderChips();
+        let url;
+        if (view === 'mine') {
+          const ids = loadSelection();
+          if (!ids.length) { state.items = []; applySearch(); statEl.textContent = 'Pick sources to build My Feeds'; return; }
+          url = '/api/rss?limit=60&feeds=' + encodeURIComponent(ids.join(','));
+        } else {
+          url = '/api/rss?limit=50&all=1&channel=' + encodeURIComponent(view);
+        }
+        try {
+          const res = await fetch(url);
+          const data = await res.json();
+          state.items = data.items || [];
+          statEl.textContent = state.items.length + ' live headlines · ' + (data.sources ? data.sources.length : 0) + ' sources';
+        } catch (e) {
+          state.items = [];
+          statEl.textContent = 'Could not reach the feed service';
+        }
+        applySearch();
+      }
+
+      function renderChips() {
+        const hasMine = loadSelection().length > 0;
+        const items = [];
+        if (hasMine) items.push({ id: 'mine', label: '⭐ My Feeds' });
+        channels.forEach(c => items.push({ id: c.id, label: c.icon + ' ' + (c.short || c.label) }));
+        chipsEl.innerHTML = items.map(i =>
+          '<button class="chip' + (i.id === state.view ? ' active' : '') + '" data-view="' + esc(i.id) + '">' + esc(i.label) + '</button>'
+        ).join('');
+        chipsEl.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => loadView(btn.dataset.view)));
+      }
+
+      function renderSources() {
+        const byChan = {};
+        state.registry.forEach(f => { (byChan[f.channel] = byChan[f.channel] || []).push(f); });
+        const sel = new Set(loadSelection());
+        let html = '<div class="feeds-sources-head"><strong>Choose your sources</strong><span>Selected feeds become <em>⭐ My Feeds</em></span></div>';
+        channels.forEach(c => {
+          const feeds = byChan[c.id]; if (!feeds || !feeds.length) return;
+          html += '<div class="feeds-src-group"><div class="feeds-src-chan">' + esc(c.icon) + ' ' + esc(c.label) + '</div>';
+          feeds.forEach(f => {
+            const checked = sel.has(f.id) ? ' checked' : '';
+            html += '<label class="feeds-src-item"><input type="checkbox" value="' + esc(f.id) + '"' + checked + '/>' +
+              '<span class="feeds-src-name">' + esc(f.name) + '</span>' +
+              '<span class="feeds-src-desc">' + esc(f.description || f.site) + '</span></label>';
+          });
+          html += '</div>';
+        });
+        sourcesEl.innerHTML = html;
+        sourcesEl.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', () => {
+          const ids = [...sourcesEl.querySelectorAll('input[type=checkbox]:checked')].map(x => x.value);
+          saveSelection(ids);
+          renderChips();
+        }));
+      }
+
+      toggleBtn.addEventListener('click', () => {
+        const open = sourcesEl.hidden;
+        sourcesEl.hidden = !open;
+        toggleBtn.setAttribute('aria-expanded', String(open));
+        toggleBtn.classList.toggle('active', open);
+      });
+      searchEl.addEventListener('input', () => { state.q = searchEl.value; applySearch(); });
+
+      (async function init() {
+        try {
+          const res = await fetch('/api/rss/feeds');
+          const data = await res.json();
+          state.registry = data.feeds || [];
+        } catch (e) { state.registry = []; }
+        renderSources();
+        // Deep link ?c=channel or ?view=mine
+        const params = new URLSearchParams(location.search);
+        const c = params.get('c') || params.get('view');
+        const start = (c && (c === 'mine' || chanMap[c])) ? c : (loadSelection().length ? 'mine' : 'skynet');
+        loadView(start);
+      })();
+    })();
+  </script>
+</body>
+</html>

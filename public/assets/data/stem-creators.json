@@ -1,0 +1,70 @@
+{
+  "note": "STEM Creators Nexus — a curated directory of top STEM content creators across platforms. Verify links before sharing with younger viewers; external channels are not part of the Skynet kid-safe editorial pipeline.",
+  "updated": "2026-07-02",
+  "platforms": [
+    { "id": "youtube",   "label": "YouTube",       "icon": "📺", "color": "#ff2e63" },
+    { "id": "tiktok",    "label": "TikTok",        "icon": "🎵", "color": "#39ff14" },
+    { "id": "instagram", "label": "Instagram",     "icon": "📸", "color": "#a855f7" },
+    { "id": "x",         "label": "X (Twitter)",   "icon": "🐦", "color": "#38bdf8" },
+    { "id": "twitch",    "label": "Twitch",        "icon": "🎮", "color": "#7c5cff" },
+    { "id": "podcast",   "label": "Podcasts",      "icon": "🎧", "color": "#ffb800" },
+    { "id": "blog",      "label": "Blogs & Newsletters", "icon": "✍️", "color": "#2dd4bf" }
+  ],
+  "creators": [
+    { "id": "veritasium", "name": "Veritasium", "handle": "Derek Muller", "platform": "youtube", "focus": "Physics & Science", "url": "https://www.youtube.com/@veritasium", "description": "Deep, beautifully-shot science explainers that make hard ideas click." },
+    { "id": "markrober", "name": "Mark Rober", "handle": "@MarkRober", "platform": "youtube", "focus": "Engineering & DIY", "url": "https://www.youtube.com/@MarkRober", "description": "Former NASA engineer building glitter bombs, squirrel mazes, and giant builds." },
+    { "id": "kurzgesagt", "name": "Kurzgesagt – In a Nutshell", "handle": "@kurzgesagt", "platform": "youtube", "focus": "Science Animation", "url": "https://www.youtube.com/@kurzgesagt", "description": "Gorgeous animated dives into space, biology, and big questions." },
+    { "id": "smartereveryday", "name": "SmarterEveryDay", "handle": "Destin Sandlin", "platform": "youtube", "focus": "Engineering & Physics", "url": "https://www.youtube.com/@smartereveryday", "description": "Curiosity-driven experiments and slow-motion science." },
+    { "id": "3blue1brown", "name": "3Blue1Brown", "handle": "Grant Sanderson", "platform": "youtube", "focus": "Mathematics", "url": "https://www.youtube.com/@3blue1brown", "description": "Visual, animated math — linear algebra, calculus, and neural nets." },
+    { "id": "physicsgirl", "name": "Physics Girl", "handle": "Dianna Cowern", "platform": "youtube", "focus": "Physics", "url": "https://www.youtube.com/@physicsgirl", "description": "Playful physics demos and experiments for all ages." },
+    { "id": "numberphile", "name": "Numberphile", "handle": "@numberphile", "platform": "youtube", "focus": "Mathematics", "url": "https://www.youtube.com/@numberphile", "description": "The internet's favorite math channel, one number at a time." },
+    { "id": "scishow", "name": "SciShow", "handle": "@SciShow", "platform": "youtube", "focus": "General Science", "url": "https://www.youtube.com/@SciShow", "description": "Quick, curious science news and explainers from Hank Green's team." },
+    { "id": "realengineering", "name": "Real Engineering", "handle": "@RealEngineering", "platform": "youtube", "focus": "Engineering", "url": "https://www.youtube.com/@RealEngineering", "description": "How real machines, planes, and infrastructure actually work." },
+    { "id": "branch-education", "name": "Branch Education", "handle": "@BranchEducation", "platform": "youtube", "focus": "Technology", "url": "https://www.youtube.com/@BranchEducation", "description": "3D-animated tours inside the tech we use every day." },
+    { "id": "cleo-abram", "name": "Cleo Abram", "handle": "@CleoAbram", "platform": "youtube", "focus": "Tech & Optimism", "url": "https://www.youtube.com/@CleoAbram", "description": "Hopeful, clear stories about the technology shaping our future." },
+    { "id": "two-minute-papers", "name": "Two Minute Papers", "handle": "@TwoMinutePapers", "platform": "youtube", "focus": "AI Research", "url": "https://www.youtube.com/@TwoMinutePapers", "description": "Bite-sized tours of the latest AI and graphics research." },
+
+    { "id": "hankgreen-tt", "name": "Hank Green", "handle": "@hankgreen1", "platform": "tiktok", "focus": "General Science", "url": "https://www.tiktok.com/@hankgreen1", "description": "Fast, funny, genuinely useful science takes." },
+    { "id": "kyne-tt", "name": "Kyne", "handle": "@onlinekyne", "platform": "tiktok", "focus": "Mathematics", "url": "https://www.tiktok.com/@onlinekyne", "description": "Math made glamorous and approachable." },
+    { "id": "science-sam", "name": "Science Sam", "handle": "@science.sam", "platform": "tiktok", "focus": "Neuroscience", "url": "https://www.tiktok.com/@science.sam", "description": "PhD scientist sharing bite-sized brain and body science." },
+    { "id": "big-manny", "name": "Big Manny", "handle": "@big_manny", "platform": "tiktok", "focus": "Chemistry", "url": "https://www.tiktok.com/@big_manny", "description": "Home-lab experiments explained with contagious energy." },
+    { "id": "billnye-tt", "name": "Bill Nye", "handle": "@billnye", "platform": "tiktok", "focus": "General Science", "url": "https://www.tiktok.com/@billnye", "description": "The Science Guy, answering questions for a new generation." },
+    { "id": "andrea-love", "name": "Andrea Love", "handle": "@immunologam", "platform": "tiktok", "focus": "Immunology", "url": "https://www.tiktok.com/@immunologam", "description": "Microscopy and immunology, clearly explained." },
+
+    { "id": "nasa-ig", "name": "NASA", "handle": "@nasa", "platform": "instagram", "focus": "Space", "url": "https://www.instagram.com/nasa/", "description": "The universe, straight from the source." },
+    { "id": "natgeo-ig", "name": "National Geographic", "handle": "@natgeo", "platform": "instagram", "focus": "Science & Nature", "url": "https://www.instagram.com/natgeo/", "description": "Breathtaking science, exploration, and wildlife imagery." },
+    { "id": "spacegal-ig", "name": "Emily Calandrelli", "handle": "@thespacegal", "platform": "instagram", "focus": "Space & STEM", "url": "https://www.instagram.com/thespacegal/", "description": "MIT engineer and kids' science host championing STEM for everyone." },
+    { "id": "physicsfun", "name": "Physics Fun", "handle": "@physicsfun", "platform": "instagram", "focus": "Physics", "url": "https://www.instagram.com/physicsfun/", "description": "Mesmerizing physics toys and demonstrations." },
+    { "id": "ndt-ig", "name": "Neil deGrasse Tyson", "handle": "@neildegrassetyson", "platform": "instagram", "focus": "Astrophysics", "url": "https://www.instagram.com/neildegrassetyson/", "description": "Cosmic perspective from America's favorite astrophysicist." },
+    { "id": "science-mag-ig", "name": "Science Magazine", "handle": "@sciencemagazine", "platform": "instagram", "focus": "Research", "url": "https://www.instagram.com/sciencemagazine/", "description": "Highlights from one of the world's top research journals." },
+
+    { "id": "ndt-x", "name": "Neil deGrasse Tyson", "handle": "@neiltyson", "platform": "x", "focus": "Astrophysics", "url": "https://twitter.com/neiltyson", "description": "Cosmic one-liners and science commentary." },
+    { "id": "nasa-x", "name": "NASA", "handle": "@NASA", "platform": "x", "focus": "Space", "url": "https://twitter.com/NASA", "description": "Live mission updates and discoveries." },
+    { "id": "astrokatie", "name": "Katie Mack", "handle": "@AstroKatie", "platform": "x", "focus": "Cosmology", "url": "https://twitter.com/AstroKatie", "description": "Cosmologist explaining the universe (and how it might end)." },
+    { "id": "andrewyng", "name": "Andrew Ng", "handle": "@AndrewYNg", "platform": "x", "focus": "Artificial Intelligence", "url": "https://twitter.com/AndrewYNg", "description": "AI pioneer sharing accessible machine-learning insight." },
+    { "id": "spacegal-x", "name": "Emily Calandrelli", "handle": "@TheSpaceGal", "platform": "x", "focus": "Space & STEM", "url": "https://twitter.com/TheSpaceGal", "description": "Space, science TV, and STEM advocacy." },
+    { "id": "cern-x", "name": "CERN", "handle": "@CERN", "platform": "x", "focus": "Particle Physics", "url": "https://twitter.com/CERN", "description": "Frontier physics from the world's biggest particle collider." },
+    { "id": "erictopol", "name": "Eric Topol", "handle": "@EricTopol", "platform": "x", "focus": "Biotech & Medicine", "url": "https://twitter.com/EricTopol", "description": "Where medicine, genomics, and AI meet." },
+
+    { "id": "coding-train", "name": "The Coding Train", "handle": "Daniel Shiffman", "platform": "twitch", "focus": "Creative Coding", "url": "https://www.twitch.tv/thecodingtrain", "description": "Joyful live coding of generative art and algorithms." },
+    { "id": "freecodecamp-tw", "name": "freeCodeCamp", "handle": "@freecodecamp", "platform": "twitch", "focus": "Programming", "url": "https://www.twitch.tv/freecodecamp", "description": "Free live coding lessons and project builds." },
+    { "id": "adafruit-tw", "name": "Adafruit Industries", "handle": "@adafruit", "platform": "twitch", "focus": "Electronics & Making", "url": "https://www.twitch.tv/adafruit", "description": "Live electronics, wearables, and Ask-an-Engineer sessions." },
+    { "id": "theprimeagen", "name": "ThePrimeagen", "handle": "@theprimeagen", "platform": "twitch", "focus": "Software Engineering", "url": "https://www.twitch.tv/theprimeagen", "description": "High-energy programming, tooling, and computer science." },
+    { "id": "noopkat", "name": "Suz Hinton", "handle": "noopkat", "platform": "twitch", "focus": "Hardware & IoT", "url": "https://www.twitch.tv/noopkat", "description": "Live hardware hacking and connected-device coding." },
+
+    { "id": "brains-on", "name": "Brains On!", "handle": "APM / Tinkercast", "platform": "podcast", "focus": "Science for Kids", "url": "https://www.brainson.org/", "description": "Award-winning science podcast made for curious kids and families." },
+    { "id": "wow-in-the-world", "name": "Wow in the World", "handle": "Tinkercast", "platform": "podcast", "focus": "Science for Kids", "url": "https://tinkercast.com/shows/wow-in-the-world/", "description": "Guy Raz and Mindy Thomas explore the wonders of science." },
+    { "id": "tumble", "name": "Tumble Science Podcast", "handle": "@tumblepodcast", "platform": "podcast", "focus": "Science for Kids", "url": "https://www.sciencepodcastforkids.com/", "description": "Real science stories told with the scientists who discover them." },
+    { "id": "but-why", "name": "But Why", "handle": "Vermont Public", "platform": "podcast", "focus": "Curious Kids", "url": "https://www.vermontpublic.org/programs/but-why", "description": "Answering the big questions kids actually ask." },
+    { "id": "short-wave", "name": "Short Wave", "handle": "NPR", "platform": "podcast", "focus": "Daily Science", "url": "https://www.npr.org/podcasts/510351/short-wave", "description": "NPR's short, friendly daily science podcast." },
+    { "id": "startalk", "name": "StarTalk", "handle": "Neil deGrasse Tyson", "platform": "podcast", "focus": "Space & Science", "url": "https://startalkmedia.com/shows/", "description": "Science meets pop culture and comedy." },
+    { "id": "ologies", "name": "Ologies", "handle": "Alie Ward", "platform": "podcast", "focus": "Every -ology", "url": "https://www.alieward.com/ologies", "description": "A funny, deep dive into a different science each episode." },
+
+    { "id": "quanta-blog", "name": "Quanta Magazine", "handle": "quantamagazine.org", "platform": "blog", "focus": "Math & Physics", "url": "https://www.quantamagazine.org/", "description": "Award-winning journalism on math, physics, biology, and CS." },
+    { "id": "import-ai", "name": "Import AI", "handle": "Jack Clark", "platform": "blog", "focus": "Artificial Intelligence", "url": "https://importai.substack.com/", "description": "A widely-read weekly newsletter on AI progress and policy." },
+    { "id": "the-batch", "name": "The Batch", "handle": "DeepLearning.AI", "platform": "blog", "focus": "AI News", "url": "https://www.deeplearning.ai/the-batch/", "description": "Andrew Ng's team on what matters in AI each week." },
+    { "id": "construction-physics", "name": "Construction Physics", "handle": "Brian Potter", "platform": "blog", "focus": "Engineering", "url": "https://www.construction-physics.com/", "description": "How we build things — infrastructure, factories, and hardware." },
+    { "id": "mit-tech-review", "name": "MIT Technology Review", "handle": "technologyreview.com", "platform": "blog", "focus": "Emerging Tech", "url": "https://www.technologyreview.com/", "description": "Independent reporting on the technologies changing the world." },
+    { "id": "sabine", "name": "Sabine Hossenfelder", "handle": "BackReaction", "platform": "blog", "focus": "Physics", "url": "https://www.sabinehossenfelder.com/", "description": "A physicist's clear-eyed take on science and hype." }
+  ]
+}
