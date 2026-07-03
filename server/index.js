@@ -602,6 +602,24 @@ app.use('/api/admin', require('./admin-routes'));
   }
 })();
 
+// -------------- SEED ALL AGENTS (runs on every boot) --------------
+// Seeds all 11 correspondent agents from newsroom/agents-config.js into the database.
+// Idempotent: skips agents that already exist by slug.
+(function seedAllAgents() {
+  try {
+    const { seedAgents } = require('./seed-agents');
+    const result = seedAgents();
+    if (result.created > 0) {
+      console.log(`[skynet] seeded ${result.created} new agent(s), ${result.skipped} already existed.`);
+    }
+    if (result.errors.length > 0) {
+      console.warn(`[skynet] agent seed had ${result.errors.length} error(s):`, result.errors);
+    }
+  } catch (err) {
+    console.warn('[skynet] agent seed failed:', err.message);
+  }
+})();
+
 // favicon.ico — modern browsers already use <link rel="icon" ...> but older crawlers still hit /favicon.ico
 app.get('/favicon.ico', (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'assets', 'img', 'favicon-32.png'), {
