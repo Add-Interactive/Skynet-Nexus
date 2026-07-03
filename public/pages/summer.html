@@ -256,16 +256,30 @@
         return out.join('');
       }
 
+      function faviconFor(url) {
+        try { return 'https://www.google.com/s2/favicons?domain=' + new URL(url).hostname + '&sz=128'; }
+        catch (e) { return ''; }
+      }
+
       function card(p) {
         const cat = (state.data.categories.find(c => c.id === p.category) || {});
         const tags = (p.tags || []).slice(0, 3).map(t => '<span class="prog-tag">' + esc(t) + '</span>').join('');
+        const fav = faviconFor(p.url);
+        const logo = '<div class="prog-logo">' +
+          '<span class="prog-logo-emoji">' + esc(cat.icon || '🔬') + '</span>' +
+          (fav ? '<img class="prog-logo-img" src="' + esc(fav) + '" alt="" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">' : '') +
+        '</div>';
         return '<article class="prog-card">' +
           '<div class="prog-card-top">' +
             '<span class="prog-cat">' + esc(cat.icon || '🔬') + ' ' + esc(cat.label || 'STEM') + '</span>' +
             badges(p) +
           '</div>' +
-          '<h3 class="prog-name">' + esc(p.name) + '</h3>' +
-          '<div class="prog-org">' + esc(p.org) + '</div>' +
+          '<div class="prog-head">' + logo +
+            '<div class="prog-headmeta">' +
+              '<h3 class="prog-name">' + esc(p.name) + '</h3>' +
+              '<div class="prog-org">' + esc(p.org) + '</div>' +
+            '</div>' +
+          '</div>' +
           '<p class="prog-summary">' + esc(p.summary) + '</p>' +
           '<div class="prog-facts">' +
             '<span>📍 ' + esc(p.location) + '</span>' +

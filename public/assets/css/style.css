@@ -692,6 +692,13 @@ body::before{
 .prog-card{display:flex;flex-direction:column;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:border-color .2s,transform .2s,box-shadow .2s}
 .prog-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.25)}
 .prog-card-top{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.prog-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.prog-headmeta{min-width:0}
+.prog-head .prog-name{margin:0 0 2px}
+.prog-head .prog-org{margin:0}
+.prog-logo{position:relative;flex:0 0 auto;width:48px;height:48px;border-radius:12px;overflow:hidden;display:grid;place-items:center;background:var(--bg-alt);border:1px solid var(--border)}
+.prog-logo-emoji{font-size:1.35rem;line-height:1}
+.prog-logo-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;padding:5px}
 .prog-cat{font-size:.7rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--accent);background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.25);padding:4px 10px;border-radius:999px}
 .prog-badge{font-size:.62rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:3px 8px;border-radius:999px;margin-left:auto}
 .prog-badge-free{color:#001a00;background:var(--accent-4)}

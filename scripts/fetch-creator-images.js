@@ -1,14 +1,20 @@
 #!/usr/bin/env node
-// Grabs an avatar/image for each STEM creator directly from their source page
-// (Open Graph `og:image` / `twitter:image`) and writes it into stem-creators.json
+// Grabs an image for each entry directly from its source page
+// (Open Graph `og:image` / `twitter:image`) and writes it into the target JSON
 // under an `image` field. Sources that don't expose an image (JS-rendered pages
-// like TikTok / X) are left without one so the UI can fall back to an initials
-// avatar. Re-run any time to refresh: `node scripts/fetch-creator-images.js`.
+// like TikTok / X) are left without one so the UI can fall back gracefully.
+//
+// Usage:
+//   node scripts/fetch-creator-images.js                       # STEM creators
+//   node scripts/fetch-creator-images.js summer-programs.json programs
 
 const fs = require('fs');
 const path = require('path');
 
-const DATA = path.join(__dirname, '..', 'public', 'assets', 'data', 'stem-creators.json');
+const DATA_DIR = path.join(__dirname, '..', 'public', 'assets', 'data');
+const FILE = process.argv[2] || 'stem-creators.json';
+const KEY = process.argv[3] || 'creators';
+const DATA = path.isAbsolute(FILE) ? FILE : path.join(DATA_DIR, FILE);
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122 Safari/537.36';
 
 function extractImage(html) {
@@ -43,21 +49,21 @@ async function fetchImage(url) {
 
 (async function main() {
   const data = JSON.parse(fs.readFileSync(DATA, 'utf8'));
-  const creators = data.creators || [];
+  const items = data[KEY] || [];
   let found = 0;
-  for (const c of creators) {
+  for (const c of items) {
     if (!c.url) { console.log('—  ', c.id, '(no url)'); continue; }
     const r = await fetchImage(c.url);
     if (r.ok && r.image) {
       c.image = r.image;
       found++;
-      console.log('✓  ', c.id.padEnd(22), r.image.slice(0, 70));
+      console.log('✓  ', String(c.id).padEnd(22), r.image.slice(0, 70));
     } else {
       delete c.image;
-      console.log('·  ', c.id.padEnd(22), r.status ? 'no og:image (' + r.status + ')' : (r.error || 'none'));
+      console.log('·  ', String(c.id).padEnd(22), r.status ? 'no og:image (' + r.status + ')' : (r.error || 'none'));
     }
   }
   data.updated = new Date().toISOString().slice(0, 10);
   fs.writeFileSync(DATA, JSON.stringify(data, null, 2) + '\n');
-  console.log('\nDone. ' + found + '/' + creators.length + ' creators now have a source image.');
+  console.log('\nDone. ' + found + '/' + items.length + ' ' + KEY + ' now have a source image.');
 })();
