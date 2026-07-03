@@ -516,13 +516,20 @@ app.use('/api', api);
 // -------------- ADMIN ROUTER --------------
 app.use('/api/admin', require('./admin-routes'));
 
-// -------------- SEED ADMIN ACCOUNT (env-driven, one-time) --------------
-// Ensures the primary admin account exists AND has role='admin'. Reads
-// ADMIN_SEED_EMAIL / ADMIN_SEED_PASSWORD from the environment (Railway vars or
-// .env). No password is ever hardcoded: if ADMIN_SEED_PASSWORD is unset and the
-// account must be created, a strong random one is generated and printed to the
-// logs ONCE so the owner can sign in and change it. Idempotent on every boot.
+// -------------- SEED ADMIN ACCOUNT (opt-in via env) --------------
+// This is now OPT-IN. It only runs when you explicitly set ADMIN_SEED_EMAIL
+// (and/or ADMIN_SEED_PASSWORD). When neither is set, seeding is skipped so the
+// site boots with zero admins and the public first-time setup flow
+// (/pages/register.html -> /api/auth/setup-admin) becomes the single source of
+// truth for creating the owner account. Idempotent on every boot.
 (async function seedAdminAccount() {
+  const hasSeedEnv = !!(process.env.ADMIN_SEED_EMAIL || process.env.ADMIN_SEED_PASSWORD);
+  if (!hasSeedEnv) {
+    if (countAdmins() === 0) {
+      console.log('[skynet] No admin seed configured and no admin exists yet — use the first-time setup at /pages/register.html to create the owner account.');
+    }
+    return;
+  }
   const email = (process.env.ADMIN_SEED_EMAIL || 'ageofai2024@gmail.com').trim().toLowerCase();
   const envPassword = process.env.ADMIN_SEED_PASSWORD || '';
   const displayName = (process.env.ADMIN_SEED_DISPLAY_NAME || 'Age of AI').trim();

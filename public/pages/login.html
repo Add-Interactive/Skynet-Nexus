@@ -52,6 +52,12 @@
     <h1 class="sky-auth-title">Welcome back</h1>
     <p class="sky-auth-sub">Sign in to switch to a kid profile or manage your family.</p>
 
+    <div id="setup-banner" hidden style="margin:0 0 18px;padding:14px 16px;border:1px solid var(--accent,#00e5ff);border-radius:12px;background:color-mix(in srgb,var(--accent,#00e5ff) 12%,transparent)">
+      <div style="font-weight:800;font-size:.95rem;margin-bottom:4px">🛠️ First-time setup</div>
+      <div style="font-size:.85rem;color:var(--text-mute,#9fb0c3);line-height:1.5;margin-bottom:10px">No owner account exists yet. Create the site admin to get started — this only appears until the first admin is set up.</div>
+      <a href="/pages/register.html" class="sky-btn-block" style="display:inline-block;text-align:center;text-decoration:none">Set up the owner admin →</a>
+    </div>
+
     <div id="sky-form-error" hidden></div>
 
     <form id="sky-login-form" autocomplete="on" novalidate>
@@ -78,6 +84,15 @@
       const btn = document.getElementById('log-submit');
       function showError(msg) { errBox.className = 'sky-error'; errBox.textContent = msg; errBox.hidden = false; }
       function clearError() { errBox.hidden = true; }
+
+      // Surface first-time setup if no admin exists yet (auto-hides afterward).
+      (async function detectSetup() {
+        try {
+          const r = await fetch('/api/auth/setup-status', { credentials: 'same-origin' });
+          const d = await r.json();
+          if (d && d.setupNeeded) document.getElementById('setup-banner').hidden = false;
+        } catch (e) { /* ignore */ }
+      })();
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault(); clearError();
