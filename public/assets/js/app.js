@@ -343,6 +343,27 @@ let currentFilter = 'all';
 let currentSort = 'latest';
 let searchQuery = '';
 let feedBase = '';
+let _feedRssToken = 0;
+
+// Shared helpers for rendering curated RSS "live headline" cards.
+function rssEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function rssTimeAgo(iso) {
+  if (!iso) return '';
+  const t = Date.parse(iso); if (isNaN(t)) return '';
+  const s = Math.max(0, (Date.now() - t) / 1000);
+  if (s < 3600) return Math.round(s / 60) + 'm ago';
+  if (s < 86400) return Math.round(s / 3600) + 'h ago';
+  const d = Math.round(s / 86400); return d + (d === 1 ? ' day ago' : ' days ago');
+}
+function rssCardHtml(it, ch) {
+  const img = it.image ? '<div class="rss-thumb" style="background-image:url(' + rssEsc(it.image) + ')"></div>' : '';
+  const chan = ch ? '<span class="rss-chan" style="--cc:' + (ch.color || '#00e5ff') + '">' + rssEsc(ch.icon) + ' ' + rssEsc(ch.short || ch.label) + '</span>' : '';
+  return '<a class="rss-card" href="' + rssEsc(it.link) + '" target="_blank" rel="noopener">' + img +
+    '<div class="rss-body"><div class="rss-top">' + chan + '<span class="rss-src">' + rssEsc(it.source) + '</span></div>' +
+    '<h3 class="rss-title">' + rssEsc(it.title) + '</h3>' +
+    (it.summary ? '<p class="rss-sum">' + rssEsc(it.summary) + '</p>' : '') +
+    '<div class="rss-meta"><span>' + rssEsc(it.site) + '</span>' + (it.publishedAt ? '<span>' + rssTimeAgo(it.publishedAt) + '</span>' : '') + '</div></div></a>';
+}
 
 function getFilteredArticles() {
   let list = [...ARTICLES];
@@ -367,12 +388,59 @@ function renderFeed() {
   const grid = document.getElementById('feed-grid');
   if (!grid) return;
   const list = getFilteredArticles();
-  if (list.length === 0) {
-    grid.innerHTML = '';
+  const token = ++_feedRssToken;
+
+  // 1) Editorial stories first (if any match the current filter/search).
+  if (list.length) {
+    grid.className = 'feed-grid';
+    grid.innerHTML = list.map((a, i) => renderPost(a, i === 0 && currentFilter === 'all' && !searchQuery, feedBase)).join('');
+    bindPostEvents();
+  } else {
+    grid.className = 'feed-grid';
+    grid.innerHTML = '<div class="feed-loading" style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--text-mute)">Loading live headlines…</div>';
+  }
+
+  // 2) Search is editorial-only — don't mix in live feeds while searching.
+  if (searchQuery) {
+    if (!list.length) grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--text-mute)"><h3 style="margin-bottom:8px;color:var(--text)">No stories match “' + rssEsc(searchQuery) + '”</h3><p>Try a different search or clear it to see the live feed.</p></div>';
     return;
   }
-  grid.innerHTML = list.map((a, i) => renderPost(a, i === 0 && currentFilter === 'all' && !searchQuery, feedBase)).join('');
-  bindPostEvents();
+
+  // 3) Fill the feed with live curated RSS for the current channel (or all).
+  loadFeedRss(currentFilter || 'all', grid, list.length, token);
+}
+
+// Loads curated RSS items into the main feed grid. Editorial cards (if any)
+// stay on top; live headline cards are appended below.
+function loadFeedRss(channel, grid, hadEditorial, token) {
+  fetch('/api/rss?limit=40&all=1&channel=' + encodeURIComponent(channel))
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (token !== _feedRssToken) return; // a newer filter click superseded us
+      const items = (data && data.items) || [];
+      const ph = grid.querySelector('.feed-loading');
+      if (ph) ph.remove();
+      if (!items.length) {
+        if (!hadEditorial) {
+          grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--text-mute)"><h3 style="margin-bottom:8px;color:var(--text)">Live feed is catching its breath</h3><p>These headlines refresh every few minutes — check back shortly.</p></div>';
+        }
+        return;
+      }
+      const rssHtml = items.map(it => rssCardHtml(it, getChannel(it.channel))).join('');
+      if (hadEditorial) {
+        grid.className = 'feed-grid';
+        grid.insertAdjacentHTML('beforeend', rssHtml);
+      } else {
+        grid.className = 'rss-grid';
+        grid.innerHTML = rssHtml;
+      }
+    })
+    .catch(() => {
+      if (token !== _feedRssToken) return;
+      const ph = grid.querySelector('.feed-loading');
+      if (ph) ph.remove();
+      if (!hadEditorial) grid.innerHTML = '';
+    });
 }
 
 function bindPostEvents() {
@@ -576,25 +644,8 @@ function renderChannelRss(channelId) {
   const rssGrid = document.getElementById('rss-grid');
   const section = document.getElementById('rss-section');
   if (!channelId) return;
-  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const ch = getChannel(channelId);
-  const timeAgo = iso => {
-    if (!iso) return '';
-    const t = Date.parse(iso); if (isNaN(t)) return '';
-    const s = Math.max(0, (Date.now() - t) / 1000);
-    if (s < 3600) return Math.round(s / 60) + 'm ago';
-    if (s < 86400) return Math.round(s / 3600) + 'h ago';
-    const d = Math.round(s / 86400); return d + (d === 1 ? ' day ago' : ' days ago');
-  };
-  const cardHtml = it => {
-    const img = it.image ? '<div class="rss-thumb" style="background-image:url(' + esc(it.image) + ')"></div>' : '';
-    const chan = ch ? '<span class="rss-chan" style="--cc:' + (ch.color || '#00e5ff') + '">' + esc(ch.icon) + ' ' + esc(ch.short || ch.label) + '</span>' : '';
-    return '<a class="rss-card" href="' + esc(it.link) + '" target="_blank" rel="noopener">' + img +
-      '<div class="rss-body"><div class="rss-top">' + chan + '<span class="rss-src">' + esc(it.source) + '</span></div>' +
-      '<h3 class="rss-title">' + esc(it.title) + '</h3>' +
-      (it.summary ? '<p class="rss-sum">' + esc(it.summary) + '</p>' : '') +
-      '<div class="rss-meta"><span>' + esc(it.site) + '</span>' + (it.publishedAt ? '<span>' + timeAgo(it.publishedAt) + '</span>' : '') + '</div></div></a>';
-  };
+  const cardHtml = it => rssCardHtml(it, ch);
   const more = document.getElementById('rss-more');
   if (more) more.href = (feedBase || '') + 'pages/feeds.html?c=' + channelId;
 

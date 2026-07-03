@@ -36,6 +36,7 @@ function feedById(id) {
   return REGISTRY.feeds.find(f => f.id === id) || null;
 }
 function feedsForChannel(channel) {
+  if (channel === 'all' || channel === 'network') return REGISTRY.feeds.slice();
   return REGISTRY.feeds.filter(f => f.channel === channel);
 }
 
