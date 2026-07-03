@@ -17,6 +17,7 @@ const PUBLISH_SCRIPT = path.join(ROOT, 'newsroom', 'publish.js');
 
 const CHANNELS = require('./channels').PUBLISH_IDS;
 const scheduler = require('./scheduler');
+const analytics = require('./analytics');
 const ADMIN_ROLES = new Set(['admin', 'editor']);
 const FULL_ADMIN_ROLES = new Set(['admin']);
 
@@ -597,6 +598,56 @@ router.get('/articles', (req, res) => {
 });
 
 // -------------------- SEED / RESET UTILITY: create admin account --------------------
+// -------------------- ANALYTICS --------------------
+
+router.get('/analytics/aggregate', (req, res) => {
+  const days = Number(req.query.days) || 7;
+  const data = analytics.getAggregateAnalytics({ days });
+  res.json(data);
+});
+
+router.get('/analytics/agent/:slug', (req, res) => {
+  const slug = String(req.params.slug || '');
+  const days = Number(req.query.days) || 7;
+  if (!slug) return res.status(400).json({ error: 'slug required' });
+  const data = analytics.getAgentAnalytics(slug, { days });
+  if (!data) return res.status(404).json({ error: 'agent not found' });
+  res.json(data);
+});
+
+router.get('/analytics/channel/:channel', (req, res) => {
+  const channel = String(req.params.channel || '');
+  const days = Number(req.query.days) || 7;
+  if (!channel) return res.status(400).json({ error: 'channel required' });
+  const data = analytics.getChannelAnalytics(channel, { days });
+  if (!data) return res.status(404).json({ error: 'channel not found' });
+  res.json(data);
+});
+
+router.get('/analytics/story/:id', (req, res) => {
+  const id = String(req.params.id || '');
+  if (!id) return res.status(400).json({ error: 'id required' });
+  const data = analytics.getStoryAnalytics(id);
+  if (!data) return res.status(404).json({ error: 'story not found' });
+  res.json(data);
+});
+
+router.get('/analytics/export/stories', (req, res) => {
+  const format = req.query.format || 'json';
+  const channel = req.query.channel || null;
+  const filter = channel ? { channel } : {};
+  
+  if (format === 'csv') {
+    const csv = analytics.exportStoriesAsCSV(filter);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename=stories.csv');
+    res.send(csv);
+  } else {
+    const json = analytics.exportStoriesAsJSON(filter);
+    res.json({ stories: json });
+  }
+});
+
 // POST /api/admin/bootstrap-admin - only usable if there are ZERO admins yet, or by an existing admin.
 // Accepts { email, password, displayName } and creates or promotes.
 router.post('/bootstrap-admin', async (req, res) => {

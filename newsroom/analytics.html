@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>📊 SKYNET NEXUS — Analytics Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      background: #000;
+      color: #00ff41;
+      font-family: 'Orbitron', monospace;
+      line-height: 1.5;
+      letter-spacing: 0.05em;
+      overflow-x: hidden;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.15) 0, rgba(0, 0, 0, 0.15) 1px, transparent 1px, transparent 2px);
+      pointer-events: none;
+      z-index: 999;
+    }
+    
+    .dashboard {
+      display: grid;
+      grid-template-rows: 60px 1fr;
+      min-height: 100vh;
+      gap: 8px;
+      padding: 8px;
+      background: #000;
+    }
+    
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 20px;
+      background: linear-gradient(90deg, #001a4d 0%, #0d0d26 100%);
+      border: 2px solid #00ff41;
+      border-radius: 0 8px 0 0;
+      box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+    }
+    
+    .topbar-title {
+      font-size: 14px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+    }
+    
+    .tab-buttons {
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+    }
+    
+    .tab-btn {
+      padding: 6px 12px;
+      background: transparent;
+      border: 1px solid #00ccff;
+      color: #00ccff;
+      font-family: 'Orbitron', monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+    
+    .tab-btn:hover, .tab-btn.active {
+      background: #00ff41;
+      color: #000;
+      border-color: #00ff41;
+      box-shadow: 0 0 10px #00ff41;
+    }
+    
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      overflow: auto;
+      padding: 0 8px 8px 8px;
+    }
+    
+    .panel {
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(135deg, #001a4d 0%, #000d26 100%);
+      border: 2px solid #00ff41;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+      overflow: hidden;
+    }
+    
+    .panel-header {
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      border-bottom: 1px dashed #00ff41;
+      padding-bottom: 8px;
+      color: #00ff41;
+      text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    }
+    
+    .metric-card {
+      padding: 12px;
+      background: rgba(0, 255, 65, 0.05);
+      border: 1px solid #00ccff;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      font-size: 10px;
+    }
+    
+    .metric-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #00ccff;
+      margin-bottom: 4px;
+    }
+    
+    .metric-value {
+      font-size: 14px;
+      font-weight: 900;
+      text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+    }
+    
+    .metric-sub {
+      font-size: 9px;
+      opacity: 0.7;
+      margin-top: 4px;
+    }
+    
+    .chart-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    
+    .chart-panel {
+      background: linear-gradient(135deg, #001a4d 0%, #000d26 100%);
+      border: 2px solid #00ff41;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+    }
+    
+    .chart-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #00ccff;
+      margin-bottom: 8px;
+      border-bottom: 1px dashed #00ccff;
+      padding-bottom: 6px;
+    }
+    
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 100px;
+    }
+    
+    .bar {
+      flex: 1;
+      background: linear-gradient(180deg, #00ff41 0%, #00ccff 100%);
+      border-radius: 2px 2px 0 0;
+      min-height: 4px;
+      position: relative;
+    }
+    
+    .bar:hover {
+      opacity: 0.8;
+      box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    }
+    
+    .bar-label {
+      position: absolute;
+      bottom: -14px;
+      left: 0;
+      right: 0;
+      font-size: 7px;
+      text-align: center;
+      opacity: 0.6;
+      white-space: nowrap;
+    }
+    
+    .mini-table {
+      font-size: 9px;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    .mini-table th, .mini-table td {
+      padding: 6px 4px;
+      border-bottom: 1px dashed #00ccff;
+      text-align: left;
+    }
+    
+    .mini-table th {
+      color: #00ccff;
+      font-weight: 700;
+    }
+    
+    .mini-table td {
+      color: #00ff41;
+    }
+    
+    .mini-table tr:hover {
+      background: rgba(0, 255, 65, 0.05);
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #00ccff;
+    }
+    
+    .error {
+      padding: 12px;
+      background: rgba(255, 0, 65, 0.1);
+      border: 1px solid #ff0041;
+      border-radius: 4px;
+      color: #ff0041;
+      font-size: 10px;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      overflow: auto;
+    }
+    
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #00ff41;
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #00ccff;
+    }
+  </style>
+</head>
+<body>
+
+<div class="dashboard">
+  
+  <div class="topbar">
+    <div class="topbar-title">📊 ANALYTICS DASHBOARD</div>
+    <div class="tab-buttons">
+      <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+      <button class="tab-btn" onclick="switchTab('agents')">Agents</button>
+      <button class="tab-btn" onclick="switchTab('channels')">Channels</button>
+      <button class="tab-btn" onclick="switchTab('export')">Export</button>
+    </div>
+  </div>
+
+  <!-- OVERVIEW TAB -->
+  <div id="overview" class="tab-content active">
+    
+    <!-- LEFT: AGGREGATE METRICS -->
+    <div class="panel">
+      <div class="panel-header">📈 System Metrics (7 days)</div>
+      
+      <div class="metric-card">
+        <div class="metric-label">Total Filed</div>
+        <div class="metric-value" id="agg-filed">--</div>
+        <div class="metric-sub" id="agg-filed-sub"></div>
+      </div>
+      
+      <div class="metric-card">
+        <div class="metric-label">Total Published</div>
+        <div class="metric-value" id="agg-published">--</div>
+        <div class="metric-sub" id="agg-pub-rate"></div>
+      </div>
+      
+      <div class="metric-card">
+        <div class="metric-label">Avg Quality</div>
+        <div class="metric-value" id="agg-quality">--</div>
+        <div class="metric-sub">Trending: stable</div>
+      </div>
+      
+      <div class="metric-card">
+        <div class="metric-label">Guardrail Pass</div>
+        <div class="metric-value" id="agg-guardrail">--</div>
+        <div class="metric-sub" id="agg-gr-failures"></div>
+      </div>
+      
+      <div class="metric-card">
+        <div class="metric-label">Revision Rate</div>
+        <div class="metric-value" id="agg-revision">--</div>
+        <div class="metric-sub" id="agg-rev-total"></div>
+      </div>
+      
+      <div class="metric-card">
+        <div class="metric-label">Rejected</div>
+        <div class="metric-value" id="agg-rejected">--</div>
+        <div class="metric-sub">Removed from queue</div>
+      </div>
+    </div>
+    
+    <!-- RIGHT: CHANNEL BREAKDOWN -->
+    <div class="chart-container">
+      <div class="chart-panel">
+        <div class="chart-title">📊 Channel Performance</div>
+        <table class="mini-table" id="channel-table">
+          <thead>
+            <tr>
+              <th>Channel</th>
+              <th>Filed</th>
+              <th>Published</th>
+              <th>Avg Quality</th>
+            </tr>
+          </thead>
+          <tbody id="channel-tbody">
+            <tr>
+              <td colspan="4" class="loading">Loading channels...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="chart-panel">
+        <div class="chart-title">👥 Agent Leaderboard</div>
+        <table class="mini-table" id="agent-table">
+          <thead>
+            <tr>
+              <th>Agent</th>
+              <th>Filed</th>
+              <th>Quality</th>
+              <th>Pass Rate</th>
+            </tr>
+          </thead>
+          <tbody id="agent-tbody">
+            <tr>
+              <td colspan="4" class="loading">Loading agents...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="chart-panel">
+        <div class="chart-title">📅 Daily Trend (Last 7 Days)</div>
+        <div class="bar-chart" id="trend-chart">
+          <div class="bar loading" style="flex: 1; height: 40px; display: flex; align-items: center; justify-content: center;">Loading...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AGENTS TAB -->
+  <div id="agents" class="tab-content">
+    <div class="panel">
+      <div class="panel-header">👥 Agent Details</div>
+      <div id="agent-selector" style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px;">
+        <button class="tab-btn" onclick="loadAgentDetails('picard')">Picard</button>
+        <button class="tab-btn" onclick="loadAgentDetails('riker')">Riker</button>
+        <button class="tab-btn" onclick="loadAgentDetails('data')">Data</button>
+        <button class="tab-btn" onclick="loadAgentDetails('crusher')">Crusher</button>
+      </div>
+      <div id="agent-details-content" style="overflow-y: auto; flex: 1;"></div>
+    </div>
+    
+    <div class="chart-container" id="agent-charts">
+      <!-- Populated dynamically -->
+    </div>
+  </div>
+
+  <!-- CHANNELS TAB -->
+  <div id="channels" class="tab-content">
+    <div class="panel">
+      <div class="panel-header">📡 Channel Details</div>
+      <div id="channel-selector" style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px;">
+        <button class="tab-btn" onclick="loadChannelDetails('ai')">AI</button>
+        <button class="tab-btn" onclick="loadChannelDetails('space')">Space</button>
+        <button class="tab-btn" onclick="loadChannelDetails('robotics')">Robotics</button>
+        <button class="tab-btn" onclick="loadChannelDetails('biotech')">Biotech</button>
+      </div>
+      <div id="channel-details-content" style="overflow-y: auto; flex: 1;"></div>
+    </div>
+    
+    <div class="chart-container" id="channel-charts">
+      <!-- Populated dynamically -->
+    </div>
+  </div>
+
+  <!-- EXPORT TAB -->
+  <div id="export" class="tab-content">
+    <div class="panel">
+      <div class="panel-header">📥 Export Data</div>
+      <p style="margin-bottom: 16px; font-size: 10px; opacity: 0.7;">Download story analytics in CSV or JSON format</p>
+      
+      <div class="metric-card" style="margin-bottom: 8px;">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input type="radio" name="format" value="json" checked>
+          <span>JSON Format</span>
+        </label>
+      </div>
+      
+      <div class="metric-card" style="margin-bottom: 8px;">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input type="radio" name="format" value="csv">
+          <span>CSV Format</span>
+        </label>
+      </div>
+      
+      <div class="metric-card" style="margin-bottom: 16px;">
+        <label style="display: block; margin-bottom: 6px; font-size: 9px; color: #00ccff;">Filter by Channel (optional):</label>
+        <select id="export-channel" style="width: 100%; padding: 6px; background: #000; color: #00ff41; border: 1px solid #00ccff; font-family: monospace; border-radius: 2px;">
+          <option value="">All Channels</option>
+          <option value="ai">AI</option>
+          <option value="space">Space</option>
+          <option value="robotics">Robotics</option>
+          <option value="biotech">Biotech</option>
+        </select>
+      </div>
+      
+      <button onclick="exportData()" style="width: 100%; padding: 12px; background: #00ff41; color: #000; border: none; border-radius: 4px; font-family: Orbitron; font-weight: 700; cursor: pointer; text-transform: uppercase;">📥 Download</button>
+    </div>
+    
+    <div class="panel">
+      <div class="panel-header">ℹ️ About</div>
+      <p style="font-size: 9px; line-height: 1.6; opacity: 0.8;">
+        <strong>Aggregate Metrics:</strong> System-wide story performance over 7 days.<br>
+        <strong>Agent Details:</strong> Individual correspondent performance and trends.<br>
+        <strong>Channel Details:</strong> Per-channel volume, quality, and top agents.<br>
+        <strong>Export:</strong> Download raw story data for external analysis.<br><br>
+        All metrics refresh automatically. Click agents/channels to drill down.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API_BASE = '/api/admin';
+
+let currentTab = 'overview';
+let aggregateData = null;
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(tab).classList.add('active');
+  document.event.target?.closest('button')?.classList?.add?.('active');
+  currentTab = tab;
+  
+  if (tab === 'overview' && !aggregateData) loadOverview();
+}
+
+async function loadOverview() {
+  try {
+    const response = await fetch(`${API_BASE}/analytics/aggregate?days=7`);
+    if (!response.ok) throw new Error('Failed to load analytics');
+    
+    const data = await response.json();
+    aggregateData = data;
+    
+    // Update aggregate cards
+    const { total, quality, guardrail, revisions, channels, agents, dailyMetrics } = data;
+    
+    document.getElementById('agg-filed').textContent = total.filed;
+    document.getElementById('agg-filed-sub').textContent = `(${total.rejected} rejected)`;
+    document.getElementById('agg-published').textContent = total.published;
+    document.getElementById('agg-pub-rate').textContent = `${((total.published / total.filed) * 100).toFixed(1)}% publish rate`;
+    document.getElementById('agg-quality').textContent = quality.averageScore;
+    document.getElementById('agg-guardrail').textContent = guardrail.passRate + '%';
+    document.getElementById('agg-gr-failures').textContent = `${guardrail.failures} failures`;
+    document.getElementById('agg-revision').textContent = revisions.rate + '%';
+    document.getElementById('agg-rev-total').textContent = `${revisions.totalRequests} requests`;
+    document.getElementById('agg-rejected').textContent = total.rejected;
+    
+    // Populate channel table
+    const channelTbody = document.getElementById('channel-tbody');
+    channelTbody.innerHTML = '';
+    for (const [ch, stats] of Object.entries(channels)) {
+      channelTbody.innerHTML += `
+        <tr>
+          <td>${ch}</td>
+          <td>${stats.filed}</td>
+          <td>${stats.published}</td>
+          <td>${stats.avgQuality}/10</td>
+        </tr>
+      `;
+    }
+    
+    // Populate agent table
+    const agentTbody = document.getElementById('agent-tbody');
+    agentTbody.innerHTML = '';
+    const agentSorted = Object.entries(agents)
+      .sort((a, b) => b[1].filed - a[1].filed)
+      .slice(0, 10);
+    for (const [agent, stats] of agentSorted) {
+      agentTbody.innerHTML += `
+        <tr>
+          <td>${agent}</td>
+          <td>${stats.filed}</td>
+          <td>${stats.avgQuality}/10</td>
+          <td>--</td>
+        </tr>
+      `;
+    }
+    
+    // Populate trend chart
+    const trendChart = document.getElementById('trend-chart');
+    trendChart.innerHTML = '';
+    if (dailyMetrics.length > 0) {
+      const maxFiled = Math.max(...dailyMetrics.map(m => m.filed));
+      for (const metric of dailyMetrics) {
+        const height = (metric.filed / maxFiled) * 100;
+        trendChart.innerHTML += `
+          <div class="bar" style="height: ${height}%;" title="${metric.date}: ${metric.filed} filed">
+            <div class="bar-label">${metric.date.slice(5)}</div>
+          </div>
+        `;
+      }
+    }
+  } catch (err) {
+    console.error('Failed to load overview:', err);
+    document.getElementById('agg-filed').textContent = 'Error';
+  }
+}
+
+async function loadAgentDetails(agent) {
+  try {
+    const response = await fetch(`${API_BASE}/analytics/agent/${agent}?days=7`);
+    if (!response.ok) throw new Error('Agent not found');
+    const data = await response.json();
+    
+    const content = document.getElementById('agent-details-content');
+    content.innerHTML = `
+      <div class="metric-card">
+        <div class="metric-label">Stories Filed</div>
+        <div class="metric-value">${data.total.filed}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Published</div>
+        <div class="metric-value">${data.total.published}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Avg Quality</div>
+        <div class="metric-value">${data.quality.averageScore}/10</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Guardrail Pass</div>
+        <div class="metric-value">${data.guardrail.passRate}%</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Revision Rate</div>
+        <div class="metric-value">${data.revisions.averagePerStory}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Avg Time-to-Publish</div>
+        <div class="metric-value">${data.timing.averageTimeToPublishMinutes}min</div>
+      </div>
+    `;
+  } catch (err) {
+    console.error('Failed to load agent details:', err);
+    document.getElementById('agent-details-content').innerHTML = '<div class="error">❌ Failed to load agent data</div>';
+  }
+}
+
+async function loadChannelDetails(channel) {
+  try {
+    const response = await fetch(`${API_BASE}/analytics/channel/${channel}?days=7`);
+    if (!response.ok) throw new Error('Channel not found');
+    const data = await response.json();
+    
+    const content = document.getElementById('channel-details-content');
+    content.innerHTML = `
+      <div class="metric-card">
+        <div class="metric-label">Stories Filed</div>
+        <div class="metric-value">${data.volume.filed}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Published</div>
+        <div class="metric-value">${data.volume.published}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Avg Quality</div>
+        <div class="metric-value">${data.quality.averageScore}/10</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Guardrail Pass</div>
+        <div class="metric-value">${data.guardrail.passRate}%</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Revision Rate</div>
+        <div class="metric-value">${data.revisions.rate}%</div>
+      </div>
+    `;
+  } catch (err) {
+    console.error('Failed to load channel details:', err);
+    document.getElementById('channel-details-content').innerHTML = '<div class="error">❌ Failed to load channel data</div>';
+  }
+}
+
+async function exportData() {
+  const format = document.querySelector('input[name="format"]:checked').value;
+  const channel = document.getElementById('export-channel').value;
+  
+  let url = `${API_BASE}/analytics/export/stories?format=${format}`;
+  if (channel) url += `&channel=${channel}`;
+  
+  const response = await fetch(url);
+  if (!response.ok) {
+    alert('Export failed');
+    return;
+  }
+  
+  const blob = await response.blob();
+  const downloadUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = downloadUrl;
+  a.download = format === 'csv' ? 'stories.csv' : 'stories.json';
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(downloadUrl);
+  a.remove();
+}
+
+// Load overview on page load
+window.addEventListener('load', () => {
+  loadOverview();
+});
+</script>
+
+</body>
+</html>
