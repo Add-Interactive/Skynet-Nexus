@@ -107,22 +107,34 @@
 
     <main class="main">
       <section class="hero">
-        <span class="kicker">Upcoming</span>
-        <h1>The Youth Events Calendar</h1>
-        <p>Every FIRST regional, YoungArts finale, science fair, and Scratch showcase on our radar — one calendar, all four channels.</p>
+        <span class="kicker">Summer 2026 · US & Global</span>
+        <h1>The STEM Events Calendar</h1>
+        <p>Robotics championships, rocket launches, air shows, AI conferences, and hackathons — mapped across the summer. Tap any highlighted day to see what's on.</p>
+      </section>
+
+      <div class="cal-filters" id="cal-filters" role="tablist" aria-label="Filter events by category"></div>
+
+      <section class="cal-shell">
+        <div class="cal-toolbar">
+          <div class="cal-nav">
+            <button class="cal-navbtn" id="cal-prev" aria-label="Previous month">‹</button>
+            <h2 class="cal-month" id="cal-month">—</h2>
+            <button class="cal-navbtn" id="cal-next" aria-label="Next month">›</button>
+          </div>
+          <button class="cal-today" id="cal-today">Jump to summer</button>
+        </div>
+
+        <div class="cal-weekdays" aria-hidden="true">
+          <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <p class="cal-note" id="cal-note"></p>
       </section>
 
       <div class="section-title">
-        <h2><span class="accent-bar"></span> On the horizon</h2>
+        <h2><span class="accent-bar"></span> <span id="agenda-label">Upcoming this month</span></h2>
       </div>
-
-      <section class="feed-grid" id="events-grid">
-        <div class="empty-state" style="grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--text-mute)">
-          <h3 style="margin-bottom:8px;color:var(--text)">The events calendar is filling up</h3>
-          <p>We only list events we can verify. As the newsroom confirms upcoming FIRST regionals, YoungArts finales, science fairs, and showcases, they'll appear here.</p>
-          <p style="margin-top:10px">Know an event families should plan around? <a href="contact.html">Send us a tip →</a></p>
-        </div>
-      </section>
+      <section class="agenda-list" id="agenda-list"></section>
     </main>
 
     <aside class="right-rail">
@@ -213,6 +225,17 @@
     </div>
   </footer>
 
+  <!-- Event details popup -->
+  <div class="evt-modal-overlay" id="evt-modal" hidden>
+    <div class="evt-modal" role="dialog" aria-modal="true" aria-labelledby="evt-modal-title">
+      <div class="evt-modal-head">
+        <h3 class="evt-modal-title" id="evt-modal-title">Events</h3>
+        <button class="evt-modal-close" id="evt-modal-close" aria-label="Close">✕</button>
+      </div>
+      <div class="evt-modal-body" id="evt-modal-body"></div>
+    </div>
+  </div>
+
   <script src="../assets/js/app.js"></script>
   <script>
     const NAV = {
@@ -225,6 +248,164 @@
     Object.keys(NAV).forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = NAV[id]; });
     initSimplePage('../');
     renderCountdown(); renderTrending(); renderLeaderboard(); renderStats(); renderPoll(); renderTicker(); renderNewsletter();
+  </script>
+
+  <!-- Interactive STEM events calendar -->
+  <script>
+    (function () {
+      const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const state = { data: null, cat: 'all', view: new Date(2026, 6, 1) };
+      let catMap = {};
+
+      const $ = id => document.getElementById(id);
+      const grid = $('cal-grid'), monthEl = $('cal-month'), noteEl = $('cal-note');
+      const filtersEl = $('cal-filters'), agendaEl = $('agenda-list'), agendaLabel = $('agenda-label');
+      const modal = $('evt-modal'), modalTitle = $('evt-modal-title'), modalBody = $('evt-modal-body');
+
+      const iso = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      const parse = s => { const [y, m, d] = String(s).split('-').map(Number); return new Date(y, m - 1, d); };
+      function catOf(id) { return catMap[id] || { label: id, icon: '🔬', color: '#00e5ff' }; }
+
+      function visibleEvents() {
+        return (state.data.events || []).filter(e => state.cat === 'all' || e.category === state.cat);
+      }
+
+      // Map a Y-M-D key -> array of events active that day (spans included)
+      function eventsByDay() {
+        const map = {};
+        visibleEvents().forEach(e => {
+          const s = parse(e.start), en = e.end ? parse(e.end) : parse(e.start);
+          for (let d = new Date(s); d <= en; d.setDate(d.getDate() + 1)) {
+            (map[iso(d)] = map[iso(d)] || []).push(e);
+          }
+        });
+        return map;
+      }
+
+      function fmtRange(e) {
+        const s = parse(e.start), en = e.end ? parse(e.end) : null;
+        const opt = { month: 'short', day: 'numeric' };
+        if (!en || e.start === e.end) return s.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        const sameMonth = s.getMonth() === en.getMonth();
+        return s.toLocaleDateString('en-US', opt) + ' – ' + (sameMonth ? en.getDate() : en.toLocaleDateString('en-US', opt));
+      }
+
+      function renderFilters() {
+        const chips = [{ id: 'all', icon: '🌐', label: 'All events' }].concat(state.data.categories);
+        filtersEl.innerHTML = chips.map(c =>
+          '<button class="chip cal-chip' + (c.id === state.cat ? ' active' : '') + '" data-cat="' + esc(c.id) + '"' +
+          (c.color ? ' style="--cc:' + esc(c.color) + '"' : '') + '>' + esc(c.icon) + ' ' + esc(c.label) + '</button>'
+        ).join('');
+        filtersEl.querySelectorAll('.cal-chip').forEach(btn => btn.addEventListener('click', () => {
+          state.cat = btn.dataset.cat;
+          renderFilters(); renderCalendar();
+        }));
+      }
+
+      function renderCalendar() {
+        const y = state.view.getFullYear(), m = state.view.getMonth();
+        monthEl.textContent = MONTHS[m] + ' ' + y;
+        agendaLabel.textContent = 'What\'s on in ' + MONTHS[m];
+        const map = eventsByDay();
+        const first = new Date(y, m, 1), startDow = first.getDay();
+        const daysInMonth = new Date(y, m + 1, 0).getDate();
+        const todayKey = iso(new Date(2026, 6, 2));
+        let cells = '';
+
+        for (let i = 0; i < startDow; i++) cells += '<div class="cal-cell cal-cell-empty"></div>';
+        for (let day = 1; day <= daysInMonth; day++) {
+          const key = y + '-' + String(m + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+          const evs = map[key] || [];
+          const isToday = key === todayKey;
+          const chips = evs.slice(0, 3).map(e => {
+            const c = catOf(e.category);
+            return '<span class="cal-ev" style="--cc:' + esc(c.color) + '" title="' + esc(e.name) + '">' +
+              '<span class="cal-ev-dot"></span>' + esc(e.name) + '</span>';
+          }).join('');
+          const more = evs.length > 3 ? '<span class="cal-more">+' + (evs.length - 3) + ' more</span>' : '';
+          cells += '<button class="cal-cell' + (evs.length ? ' has-ev' : '') + (isToday ? ' is-today' : '') + '"' +
+            (evs.length ? ' data-day="' + key + '"' : ' disabled') + '>' +
+            '<span class="cal-daynum">' + day + '</span>' +
+            '<span class="cal-evs">' + chips + more + '</span>' +
+            '</button>';
+        }
+        grid.innerHTML = cells;
+        grid.querySelectorAll('.cal-cell.has-ev').forEach(cell =>
+          cell.addEventListener('click', () => openDay(cell.dataset.day)));
+
+        const monthCount = visibleEvents().filter(e => {
+          const s = parse(e.start), en = e.end ? parse(e.end) : s;
+          return !(en < new Date(y, m, 1) || s > new Date(y, m + 1, 0));
+        }).length;
+        noteEl.textContent = monthCount
+          ? monthCount + ' event' + (monthCount === 1 ? '' : 's') + ' this month · tap a highlighted day for details'
+          : 'No events this month for this filter — try another category or month.';
+
+        renderAgenda(y, m);
+      }
+
+      function eventCardHtml(e, showDate) {
+        const c = catOf(e.category);
+        return '<article class="evt-detail" style="--cc:' + esc(c.color) + '">' +
+          '<div class="evt-detail-cat"><span class="cal-ev-dot"></span>' + esc(c.icon) + ' ' + esc(c.label) +
+            ' <span class="evt-region">' + esc(e.region || '') + '</span></div>' +
+          '<h4 class="evt-detail-name">' + esc(e.name) + '</h4>' +
+          (showDate ? '<div class="evt-detail-when">🗓️ ' + esc(fmtRange(e)) + '</div>' : '') +
+          '<div class="evt-detail-facts">' +
+            '<span>📍 ' + esc(e.location) + '</span>' +
+            (e.format ? '<span>🖥️ ' + esc(e.format) + '</span>' : '') +
+            (e.cost ? '<span>💵 ' + esc(e.cost) + '</span>' : '') +
+            (e.audience ? '<span>👥 ' + esc(e.audience) + '</span>' : '') +
+          '</div>' +
+          '<p class="evt-detail-summary">' + esc(e.summary) + '</p>' +
+          (e.org ? '<div class="evt-detail-org">Hosted by ' + esc(e.org) + '</div>' : '') +
+          '<a class="evt-detail-link" href="' + esc(e.url) + '" target="_blank" rel="noopener">Official event site ↗</a>' +
+        '</article>';
+      }
+
+      function renderAgenda(y, m) {
+        const list = visibleEvents().filter(e => {
+          const s = parse(e.start), en = e.end ? parse(e.end) : s;
+          return !(en < new Date(y, m, 1) || s > new Date(y, m + 1, 0));
+        }).sort((a, b) => a.start.localeCompare(b.start));
+        agendaEl.innerHTML = list.length
+          ? list.map(e => eventCardHtml(e, true)).join('')
+          : '<div class="empty-state" style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text-mute)">Nothing scheduled here yet for this filter.</div>';
+      }
+
+      function openDay(key) {
+        const evs = eventsByDay()[key] || [];
+        if (!evs.length) return;
+        const d = parse(key);
+        modalTitle.textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+        modalBody.innerHTML = evs.map(e => eventCardHtml(e, evs.length > 1 || e.start !== e.end)).join('');
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+        $('evt-modal-close').focus();
+      }
+      function closeModal() { modal.hidden = true; document.body.style.overflow = ''; }
+
+      $('cal-prev').addEventListener('click', () => { state.view.setMonth(state.view.getMonth() - 1); renderCalendar(); });
+      $('cal-next').addEventListener('click', () => { state.view.setMonth(state.view.getMonth() + 1); renderCalendar(); });
+      $('cal-today').addEventListener('click', () => { state.view = new Date(2026, 6, 1); renderCalendar(); });
+      $('evt-modal-close').addEventListener('click', closeModal);
+      modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
+
+      (async function init() {
+        try {
+          const res = await fetch('../assets/data/stem-events.json');
+          state.data = await res.json();
+        } catch (e) {
+          grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;padding:40px;text-align:center;color:var(--text-mute)">Could not load the events calendar.</div>';
+          return;
+        }
+        (state.data.categories || []).forEach(c => catMap[c.id] = c);
+        renderFilters();
+        renderCalendar();
+      })();
+    })();
   </script>
 
   <script src="/assets/js/auth.js" defer></script>
