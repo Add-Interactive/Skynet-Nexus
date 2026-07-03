@@ -110,57 +110,69 @@
   <meta name="application-name" content="Skynet Nexus"/>
 </head>
 <body>
-  <!-- Top Bar (identical to other pages) -->
+  <!-- Top Bar -->
   <header class="topbar">
     <div class="topbar-inner">
-      <button class="icon-btn mobile-toggle" id="menu-btn" aria-label="Menu"><span id="ic-menu"></span></button>
-      <a href="../index.html" class="brand">
-        <img src="../assets/img/logo.svg" alt=""/>
+      <a href="../index.html" class="brand" aria-label="Skynet Nexus News">
+        <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00e5ff"/><stop offset="100%" stop-color="#a855f7"/></linearGradient></defs>
+          <path d="M20 3l14 8v18l-14 8L6 29V11z" fill="none" stroke="url(#lg1)" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M20 12l7 4v8l-7 4-7-4v-8z" fill="url(#lg1)" opacity=".95"/>
+          <circle cx="20" cy="20" r="2.5" fill="#0a0e17"/>
+        </svg>
         <div>
-          <div class="brand-name">Skynet Nexus</div>
-          <div class="brand-tag">NEWS NETWORK</div>
+          <div class="brand-name">SKYNET NEXUS</div>
+          <div class="brand-tag">Family Signal</div>
         </div>
       </a>
+
       <div class="search-wrap">
         <span id="ic-search"></span>
-        <input type="text" id="search-input" placeholder="Search articles..."/>
+        <input id="global-search" type="search" placeholder="Search stories, artists, teams, tags..."/>
       </div>
+
       <div class="top-actions">
-        <button class="icon-btn" id="theme-toggle" aria-label="Toggle theme">🌓</button>
-        <button class="icon-btn has-badge"><span id="ic-bell"></span><span class="badge">4</span></button>
-        <button class="icon-btn"><span id="ic-bookmark"></span></button>
-        <button class="avatar-btn" aria-label="Profile">YN</button>
+        <button class="icon-btn only-mobile" id="menu-toggle" aria-label="Menu"><span id="ic-menu"></span></button>
+        <button class="icon-btn" id="theme-toggle" aria-label="Toggle theme"></button>
+        <div class="sky-user-slot"></div>
       </div>
     </div>
   </header>
 
+  <div class="ticker"><div id="ticker-inner" class="ticker-inner"></div></div>
+
   <div class="app">
     <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
+    <aside class="sidebar">
       <div class="side-section">
-        <div class="side-title">Newsroom</div>
+        <div class="side-title">Feed</div>
         <ul class="nav-list">
-          <li><a href="../index.html"><span class="icon">🏠</span>Home</a></li>
-          <li><a href="events.html"><span class="icon">📅</span>Events</a></li>
-          <li><a href="leaderboard.html"><span class="icon">🏆</span>Leaderboard</a></li>
-          <li><a href="archive.html" class="active"><span class="icon">📚</span>Archive</a></li>
+          <li><a href="../index.html" ><span class="icon" id="nav-home"></span><span>Home</span></a></li>
+          <li><a href="../index.html#trending"><span class="icon" id="nav-flame"></span><span>Trending</span></a></li>
+          <li><a href="events.html" ><span class="icon" id="nav-events"></span><span>Events</span></a></li>
+          <li><a href="leaderboard.html"><span class="icon" id="nav-trophy"></span><span>Leaderboard</span></a></li>
+          <li><a href="archive.html" class="active"><span class="icon">📚</span><span>Archive</span></a></li>
         </ul>
       </div>
       <div class="side-section">
         <div class="side-title">Channels</div>
         <ul class="nav-list">
-          <li><a href="stem.html"><span class="cat-dot cat-stem"></span>STEM</a></li>
-          <li><a href="robotics.html"><span class="cat-dot cat-robotics"></span>Robotics</a></li>
-          <li><a href="play.html"><span class="cat-dot cat-play"></span>Play & Design</a></li>
-          <li><a href="music.html"><span class="cat-dot cat-music"></span>Music</a></li>
+          <li><a href="stem.html" ><span class="cat-dot cat-stem"></span><span>STEM</span><span class="count">1</span></a></li>
+          <li><a href="robotics.html" ><span class="cat-dot cat-robotics"></span><span>Robotics</span><span class="count">1</span></a></li>
+          <li><a href="play.html" ><span class="cat-dot cat-play"></span><span>Play & Design</span><span class="count">1</span></a></li>
+          <li><a href="music.html" ><span class="cat-dot cat-music"></span><span>Music</span><span class="count">1</span></a></li>
         </ul>
       </div>
       <div class="side-section">
-        <div class="side-title">Newsroom</div>
+        <div class="side-title">You</div>
         <ul class="nav-list">
-          <li><a href="about.html"><span class="icon">ℹ️</span>About</a></li>
-          <li><a href="contact.html"><span class="icon">✉️</span>Contact</a></li>
+          <li><a href="about.html" ><span class="icon" id="nav-info"></span><span>About</span></a></li>
+          <li><a href="contact.html" ><span class="icon" id="nav-mail"></span><span>Contact</span></a></li>
         </ul>
+      </div>
+      <div class="side-section"><div class="sky-intro-slot"></div></div>
+      <div class="side-section">
+        <div class="sky-user-card-slot"></div>
       </div>
     </aside>
 
@@ -213,11 +225,6 @@
         </form>
       </div>
     </aside>
-  </div>
-
-  <!-- Ticker -->
-  <div class="ticker">
-    <div class="ticker-inner" id="ticker"></div>
   </div>
 
   <div class="toast" id="toast"><span id="toast-icon">🎉</span><span id="toast-msg"></span></div>

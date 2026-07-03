@@ -121,11 +121,11 @@
     overlay.className = 'sky-splash';
     overlay.innerHTML = `
       <div class="sky-splash-frame">
-        <video id="sky-splash-video" playsinline preload="auto" controls poster="/assets/img/SNN%20logo.jpg">
+        <video id="sky-splash-video" playsinline preload="metadata" controls poster="/assets/img/SNN%20logo.jpg">
           <source src="${VIDEO_URL}" type="video/mp4"/>
         </video>
         <div class="sky-splash-actions">
-          <button type="button" class="sky-splash-skip" id="sky-splash-skip">Skip ✕</button>
+          <button type="button" class="sky-splash-skip" id="sky-splash-skip">Skip intro ✕</button>
         </div>
       </div>
     `;
@@ -134,35 +134,47 @@
 
     const video = overlay.querySelector('#sky-splash-video');
     const closeBtn = overlay.querySelector('#sky-splash-skip');
+    let closed = false;
 
     function close() {
+      if (closed) return;
+      closed = true;
+      clearTimeout(stallTimer);
       markIntroSeen();
       overlay.remove();
       document.body.classList.remove('sky-splash-open');
+      document.removeEventListener('keydown', onKey);
     }
+    function onKey(e) { if (e.key === 'Escape') close(); }
 
-    // Try to autoplay with sound; if the browser refuses (autoplay-policy),
-    // start it muted so the first frames play, then unmute after user gesture.
+    // Safety net: NEVER trap the user behind the overlay. If the video can't
+    // start playing shortly (autoplay blocked, slow/broken network on mobile),
+    // auto-dismiss so the site stays navigable.
+    let stallTimer = setTimeout(() => { if (video.readyState < 3) close(); }, 6000);
+    video.addEventListener('playing', () => { clearTimeout(stallTimer); }, { once: true });
+    video.addEventListener('error', close);
+
+    // Try to autoplay with sound; fall back to muted if the browser blocks it.
     video.muted = false;
     video.volume = 1;
     const attempt = video.play();
     if (attempt && typeof attempt.catch === 'function') {
       attempt.catch(() => {
         video.muted = true;
-        video.play().catch(() => { /* fine, user can click play */ });
+        video.play().catch(() => { /* fine, user can press play */ });
       });
     }
-    // Any user click anywhere on overlay unmutes if we had to mute.
-    overlay.addEventListener('click', () => {
-      if (video.muted) { video.muted = false; }
-    }, { once: true });
+
+    // Tap the dark backdrop (outside the video frame) to dismiss. Tapping the
+    // video itself the first time only unmutes it.
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) { close(); return; }
+      if (video.muted) video.muted = false;
+    });
 
     video.addEventListener('ended', close);
     closeBtn.addEventListener('click', close);
-    // Esc to close
-    document.addEventListener('keydown', function esc(e) {
-      if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); }
-    });
+    document.addEventListener('keydown', onKey);
   }
 
   // ---------- Header widget: avatar / sign in ----------
