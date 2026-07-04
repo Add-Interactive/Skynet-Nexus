@@ -797,13 +797,28 @@ app.listen(PORT, () => {
   console.log(`[skynet] data:    ${DATA_DIR}`);
   console.log(`[skynet] session: ${IS_PROD ? 'secure' : 'insecure (dev)'} cookies`);
   
-  // Auto-seed emergency drops on boot
+  // Auto-seed emergency drops on boot (disabled now that they are permanently published to git)
+  /*
   try {
     const { generateEmergencyDrops } = require('./antigravity-service');
     generateEmergencyDrops();
     console.log('[skynet] Auto-seeded emergency drops successfully on startup!');
   } catch (e) {
     console.error('[skynet] Failed to auto-seed emergency drops:', e);
+  }
+  */
+
+  // Clear database submission queues on startup
+  try {
+    const { DatabaseSync } = require('node:sqlite');
+    const { DB_PATH } = require('./storage');
+    const rawDb = new DatabaseSync(DB_PATH);
+    const delSubs = rawDb.prepare('DELETE FROM story_submissions').run();
+    const delQueued = rawDb.prepare("DELETE FROM queued_stories WHERE status != 'published'").run();
+    const delTasks = rawDb.prepare("DELETE FROM agent_tasks WHERE status NOT IN ('delivered')").run();
+    console.log(`[skynet] Database queues cleared: ${delSubs.changes} submissions, ${delQueued.changes} queued, ${delTasks.changes} tasks.`);
+  } catch (e) {
+    console.error('[skynet] Startup queue cleanup failed:', e.message);
   }
 
   scheduler.start();
