@@ -127,6 +127,21 @@ app.use(session({
   }
 }));
 
+// --- CORS Middleware to support file:// and cross-origin localhost testing ---
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin === 'null' || (origin && (origin.includes('localhost') || origin.includes('127.0.0.1')))) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key, X-Requested-With');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS');
+  }
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 // ------------- API routes -------------
 const api = express.Router();
 
@@ -736,6 +751,11 @@ app.get('/rss-:channel.xml', (req, res) => {
 });
 
 // ------------- Static content -------------
+// Serves the director dashboard from the newsroom folder
+app.get('/pages/director.html', (req, res) => {
+  res.sendFile(path.join(ROOT, 'newsroom', 'director.html'));
+});
+
 // /data/... maps to data/... at repo root.
 app.use('/data', express.static(DATA_DIR, {
   fallthrough: false,
@@ -776,5 +796,15 @@ app.listen(PORT, () => {
   console.log(`[skynet] public:  ${PUBLIC_DIR}`);
   console.log(`[skynet] data:    ${DATA_DIR}`);
   console.log(`[skynet] session: ${IS_PROD ? 'secure' : 'insecure (dev)'} cookies`);
+  
+  // Auto-seed emergency drops on boot
+  try {
+    const { generateEmergencyDrops } = require('./antigravity-service');
+    generateEmergencyDrops();
+    console.log('[skynet] Auto-seeded emergency drops successfully on startup!');
+  } catch (e) {
+    console.error('[skynet] Failed to auto-seed emergency drops:', e);
+  }
+
   scheduler.start();
 });

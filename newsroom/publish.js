@@ -92,6 +92,7 @@ async function main() {
     title: article.title,
     subtitle: article.subtitle || '',
     excerpt: article.excerpt,
+    heroImage: article.heroImage || '',
     body: article.body,
     kidTake: article.kidTake || '',
     familyDiscussion: article.familyDiscussion || [],

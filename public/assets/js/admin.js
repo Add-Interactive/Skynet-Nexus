@@ -848,6 +848,204 @@
     }).catch(errView);
   };
 
+  // ===== Antigravity Workspace =====
+  Views.antigravity = function () {
+    main.innerHTML = '';
+    main.appendChild(h(
+      '<div class="admin-view-head">' +
+        '<h1>Antigravity Workspace</h1>' +
+        '<p>Emergency Newsroom Desk · Live status of the 13-channel daily drops</p>' +
+      '</div>'
+    ));
+
+    // Render credit/status alert
+    var alertPanel = h(
+      '<div class="admin-panel status-alert-panel" style="border-left: 4px solid #ff2e63; background: rgba(255, 46, 99, 0.05); margin-bottom: 24px;">' +
+        '<div style="display: flex; gap: 16px; align-items: center;">' +
+          '<div style="font-size: 32px;">⚠️</div>' +
+          '<div>' +
+            '<h3 style="margin: 0 0 4px 0; color: #ff2e63;">OpenClaw Gateway Credits Depleted</h3>' +
+            '<p style="margin: 0; font-size: 14px; opacity: 0.8;">The main OpenClaw cron task is suspended because your Copilot credit limit was reached. Today\'s drops are being managed manually via this Antigravity Emergency Desk to ensure continuity.</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
+    main.appendChild(alertPanel);
+
+    var controlBar = h(
+      '<div class="admin-panel" style="margin-bottom: 24px;">' +
+        '<h2>Emergency Actions</h2>' +
+        '<p style="font-size: 14px; opacity: 0.8; margin-bottom: 16px;">Use these controls to seed or publish all 13 channel drops for today (2026-07-03).</p>' +
+        '<div class="row-actions">' +
+          '<button id="btn-seed-drops" class="admin-btn admin-btn-primary">🚀 Generate Today\'s 13-Channel Drop</button>' +
+          '<button id="btn-publish-all" class="admin-btn" style="background: #2dd4bf; color: #0a0e17; font-weight: 600;">📢 Auto-Publish All Ready Drafts</button>' +
+        '</div>' +
+      '</div>'
+    );
+    main.appendChild(controlBar);
+
+    var grid = h(
+      '<div class="admin-panel">' +
+        '<h2>13-Channel Live Desk</h2>' +
+        '<p style="font-size: 14px; opacity: 0.8; margin-bottom: 16px;">Correspondents bridge officers status monitor.</p>' +
+        '<div class="channel-status-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;" id="channel-status-grid"></div>' +
+      '</div>'
+    );
+    main.appendChild(grid);
+
+    var gridEl = grid.querySelector('#channel-status-grid');
+
+    var channels = [
+      { id: 'ai', name: 'AI & Machine Learning', emoji: '🧠', staff: 'Captain Jean-Luc Picard' },
+      { id: 'space', name: 'Space & Aerospace', emoji: '🚀', staff: 'Commander William Riker' },
+      { id: 'robotics', name: 'Robotics & Automation', emoji: '🤖', staff: 'Lt. Commander Data' },
+      { id: 'biotech', name: 'Biotech & Health', emoji: '🧬', staff: 'Dr. Beverly Crusher' },
+      { id: 'quantum', name: 'Quantum & Computing', emoji: '⚛️', staff: 'Lt. Worf' },
+      { id: 'climate', name: 'Climate & Energy', emoji: '🌍', staff: 'Counselor Deanna Troi' },
+      { id: 'engineering', name: 'Engineering & Making', emoji: '🔧', staff: 'Chief Engineer Geordi La Forge' },
+      { id: 'math', name: 'Math & Data Science', emoji: '📐', staff: 'Dr. Leah Brahms' },
+      { id: 'cyber', name: 'Cybersecurity & Code', emoji: '🔐', staff: 'Commander Ro Laren' },
+      { id: 'gaming', name: 'Gaming Tournaments', emoji: '🎮', staff: 'Wesley Crusher' },
+      { id: 'music', name: 'Music Festivals', emoji: '🎧', staff: 'Lt. Guinan' },
+      { id: 'play', name: 'Play & Design', emoji: '🎨', staff: 'Amara Okafor' },
+      { id: 'stem', name: 'STEM', emoji: '🧬', staff: 'Priya Ramanathan' }
+    ];
+
+    // Load status
+    api('/admin/antigravity/status').then(function (res) {
+      var today = res.today;
+      var articles = res.articles || [];
+      var queued = res.queued || [];
+
+      // Render channel cards
+      channels.forEach(function (ch) {
+        var status = 'missing';
+        var title = '';
+        var queueId = null;
+
+        // Find published article
+        var pub = articles.find(function (a) {
+          return a.cat === ch.id && a.date === today;
+        });
+
+        if (pub) {
+          status = 'published';
+          title = pub.title;
+        } else {
+          // Find queued story
+          var q = queued.find(function (a) {
+            return a.channel === ch.id && a.payload && a.payload.date === today;
+          });
+
+          if (q) {
+            status = q.status; // 'draft', 'approved', 'published'
+            title = q.payload.title;
+            queueId = q.id;
+          }
+        }
+
+        var statusBadge = '';
+        var actionBtn = '';
+        if (status === 'published') {
+          statusBadge = '<span class="pill published">🟢 Published</span>';
+        } else if (status === 'approved') {
+          statusBadge = '<span class="pill assigned">🔵 Ready (Approved)</span>';
+          actionBtn = '<button class="admin-btn admin-btn-sm btn-pub-single" data-id="' + queueId + '" style="background:#2dd4bf;color:#0a0e17;">Publish</button>';
+        } else if (status === 'draft') {
+          statusBadge = '<span class="pill paused">🟡 Draft</span>';
+          actionBtn = '<button class="admin-btn admin-btn-sm btn-pub-single" data-id="' + queueId + '" style="background:#ffb800;color:#0a0e17;">Publish</button>';
+        } else {
+          statusBadge = '<span class="pill paused" style="background:#ff2e63;">🔴 Missing</span>';
+        }
+
+        var card = h(
+          '<div class="admin-card channel-card" style="border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; background: rgba(30, 41, 59, 0.3);">' +
+            '<div>' +
+              '<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">' +
+                '<span style="font-size: 16px; font-weight: 700;">' + ch.emoji + ' ' + esc(ch.name) + '</span>' +
+                statusBadge +
+              '</div>' +
+              '<div style="font-size: 12px; opacity: 0.6; margin-bottom: 12px;">Correspondent: ' + esc(ch.staff) + '</div>' +
+              (title ? '<div style="font-size: 13px; font-weight: 500; border-left: 2px solid #00e5ff; padding-left: 8px; margin-bottom: 16px;">' + esc(title) + '</div>' : '<div style="font-size: 13px; font-style: italic; opacity: 0.4; margin-bottom: 16px;">No story filed for today.</div>') +
+            '</div>' +
+            (actionBtn ? '<div style="display: flex; justify-content: flex-end; gap: 8px;">' + actionBtn + '</div>' : '') +
+          '</div>'
+        );
+
+        if (queueId) {
+          card.querySelector('.btn-pub-single').addEventListener('click', function (e) {
+            var btn = e.target;
+            btn.disabled = true;
+            btn.textContent = 'Publishing...';
+            api('/admin/stories/queue/' + queueId + '/publish', { method: 'POST' }).then(function () {
+              toast('Story published successfully!');
+              Views.antigravity();
+              refreshBadges();
+            }).catch(function (err) {
+              toast(err.message, true);
+              btn.disabled = false;
+              btn.textContent = 'Publish';
+            });
+          });
+        }
+
+        gridEl.appendChild(card);
+      });
+
+      // Bind seed button
+      controlBar.querySelector('#btn-seed-drops').addEventListener('click', function (e) {
+        var btn = e.target;
+        btn.disabled = true;
+        btn.textContent = 'Generating 13 Articles...';
+        api('/admin/antigravity/generate-drops', { method: 'POST' }).then(function (r) {
+          toast('Successfully generated ' + r.count + ' emergency drafts!');
+          Views.antigravity();
+          refreshBadges();
+        }).catch(function (err) {
+          toast(err.message, true);
+          btn.disabled = false;
+          btn.textContent = 'Generate Today\'s 13-Channel Drop';
+        });
+      });
+
+      // Bind publish all button
+      controlBar.querySelector('#btn-publish-all').addEventListener('click', function (e) {
+        var btn = e.target;
+        var publishable = queued.filter(function (q) {
+          return q.payload && q.payload.date === today && q.status !== 'published' && q.status !== 'rejected';
+        });
+
+        if (!publishable.length) {
+          toast('No draft or approved stories found to publish for today.', true);
+          return;
+        }
+
+        if (!confirm('Are you sure you want to publish all ' + publishable.length + ' ready drafts now? This will make them live on the feed.')) return;
+
+        btn.disabled = true;
+        btn.textContent = 'Publishing all...';
+
+        var chain = Promise.resolve();
+        publishable.forEach(function (story) {
+          chain = chain.then(function () {
+            return api('/admin/stories/queue/' + story.id + '/publish', { method: 'POST' });
+          });
+        });
+
+        chain.then(function () {
+          toast('All ' + publishable.length + ' stories published successfully!');
+          Views.antigravity();
+          refreshBadges();
+        }).catch(function (err) {
+          toast('Error during batch publish: ' + err.message, true);
+          Views.antigravity();
+          refreshBadges();
+        });
+      });
+
+    }).catch(errView);
+  };
+
   // ---------- Shared helpers ----------
   function ensureStaff() {
     if (State.staff && State.staff.length) return Promise.resolve(State.staff);

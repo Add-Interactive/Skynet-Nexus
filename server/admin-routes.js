@@ -672,4 +672,32 @@ router.post('/bootstrap-admin', async (req, res) => {
   res.status(201).json({ ok: true, user: db.findUserById(user.id) });
 });
 
+// -------------------- ANTIGRAVITY WORKSPACE --------------------
+router.get('/antigravity/status', (req, res) => {
+  try {
+    const manifest = readManifest();
+    const articles = manifest.articles || [];
+    const queued = db.listQueuedStories({ limit: 1000 }) || [];
+    const today = '2026-07-03';
+    res.json({
+      today,
+      articles,
+      queued
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/antigravity/generate-drops', (req, res) => {
+  try {
+    const { generateEmergencyDrops } = require('./antigravity-service');
+    const result = generateEmergencyDrops();
+    logAction(req.adminUser.id, 'antigravity.generate-drops', 'story', null, { count: result.count });
+    res.json({ ok: true, count: result.count });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

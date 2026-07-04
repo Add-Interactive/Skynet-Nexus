@@ -6,76 +6,84 @@
   <title>🛰️ SKYNET NEXUS — Director's Office</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --lcars-gold: #ff9900;
+      --lcars-orange: #ff6633;
+      --lcars-lilac: #cc99cc;
+      --lcars-blue: #99ccff;
+      --lcars-slate: #5599cc;
+      --lcars-red: #cc3333;
+      --lcars-dark: #111a24;
+      --lcars-bg: #000000;
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     body {
-      background: #000;
-      color: #00ff41;
-      font-family: 'Orbitron', monospace;
-      line-height: 1.5;
+      background: var(--lcars-bg);
+      color: #ffffff;
+      font-family: 'Antonio', sans-serif;
+      font-size: 15px;
+      line-height: 1.4;
       letter-spacing: 0.05em;
       overflow-x: hidden;
-    }
-    
-    /* Scanlines */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.15) 0, rgba(0, 0, 0, 0.15) 1px, transparent 1px, transparent 2px);
-      pointer-events: none;
-      z-index: 999;
+      text-transform: uppercase;
     }
     
     .office {
       display: grid;
-      grid-template-rows: 80px 1fr;
+      grid-template-rows: 55px 65px 1fr 140px;
       min-height: 100vh;
-      gap: 8px;
-      padding: 8px;
-      background: #000;
+      gap: 12px;
+      padding: 12px;
     }
     
-    /* TOP BAR */
+    /* TOP BAR - HEADER LCARS */
     .topbar {
       display: flex;
       align-items: center;
-      gap: 24px;
-      padding: 16px 24px;
-      background: linear-gradient(90deg, #001a4d 0%, #0d0d26 100%);
-      border: 2px solid #00ff41;
-      border-radius: 0 12px 0 0;
-      box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+      gap: 16px;
+      background: var(--lcars-bg);
     }
     
+    .topbar-elbow {
+      width: 150px;
+      height: 45px;
+      background: var(--lcars-lilac);
+      border-radius: 20px 0 0 20px;
+      display: flex;
+      align-items: center;
+      padding-left: 20px;
+      font-weight: 700;
+      color: #000;
+      font-size: 16px;
+    }
+
     .topbar-title {
-      font-size: 18px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      text-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--lcars-blue);
+      letter-spacing: 1px;
     }
     
     .topbar-status {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 8px 16px;
-      background: rgba(0, 255, 65, 0.05);
-      border: 1px solid #00ccff;
+      gap: 8px;
+      padding: 4px 12px;
+      background: rgba(255, 255, 255, 0.05);
       border-radius: 4px;
-      font-size: 11px;
+      font-size: 12px;
+      color: var(--lcars-gold);
     }
     
     .status-dot {
-      width: 12px;
-      height: 12px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
-      background: #00ff00;
-      box-shadow: 0 0 10px #00ff00;
+      background: var(--lcars-gold);
       animation: pulse 2s infinite;
     }
     
@@ -86,46 +94,34 @@
     
     .topbar-time {
       margin-left: auto;
-      font-size: 13px;
-      font-weight: 700;
       text-align: right;
+      font-size: 13px;
     }
     
     .topbar-time-value {
-      display: block;
-      font-size: 14px;
-      color: #00ccff;
-    }
-    
-    /* MAIN CONTENT */
-    .content {
-      display: grid;
-      grid-template-rows: 120px 1fr 140px;
-      gap: 8px;
-      height: 100%;
-      overflow: hidden;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--lcars-orange);
     }
     
     /* STATUS BANNER */
     .status-banner {
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding: 16px 24px;
-      background: linear-gradient(90deg, #001a4d 0%, #000d26 100%);
-      border: 2px solid #00ccff;
+      gap: 12px;
+      padding: 8px 16px;
+      background: var(--lcars-dark);
       border-radius: 8px;
-      box-shadow: 0 0 20px rgba(0, 204, 255, 0.3);
       overflow-x: auto;
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
     
     .banner-item {
       display: flex;
       flex-direction: column;
-      gap: 4px;
       padding: 0 16px;
-      border-right: 1px dashed #00ccff;
-      font-size: 11px;
+      border-right: 2px solid var(--lcars-slate);
+      font-size: 13px;
       white-space: nowrap;
       min-width: fit-content;
     }
@@ -135,124 +131,113 @@
     }
     
     .banner-label {
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #00ccff;
+      font-size: 11px;
+      color: var(--lcars-blue);
     }
     
     .banner-value {
-      font-size: 12px;
+      font-size: 16px;
       font-weight: 700;
-      text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+      color: #ffffff;
     }
     
     /* DASHBOARD GRID */
     .dashboard {
       display: grid;
-      grid-template-columns: 260px 1fr 300px;
-      gap: 8px;
+      grid-template-columns: 280px 1fr 300px;
+      gap: 16px;
       overflow: hidden;
+      height: 100%;
     }
     
     .panel {
       display: flex;
       flex-direction: column;
-      background: linear-gradient(135deg, #001a4d 0%, #000d26 100%);
-      border: 2px solid #00ff41;
+      background: var(--lcars-dark);
       border-radius: 8px;
       padding: 16px;
-      box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
-      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      overflow-y: auto;
     }
     
     .panel-header {
-      font-size: 11px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 12px;
-      border-bottom: 1px dashed #00ff41;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--lcars-gold);
+      border-bottom: 2px solid var(--lcars-gold);
       padding-bottom: 8px;
-      color: #00ff41;
-      text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+      margin-bottom: 12px;
     }
     
     .kpi-card {
-      padding: 12px;
-      background: rgba(0, 255, 65, 0.05);
-      border: 1px solid #00ccff;
-      border-radius: 4px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 6px solid var(--lcars-blue);
+      border-radius: 0 4px 4px 0;
       margin-bottom: 8px;
-      font-size: 11px;
     }
     
     .kpi-label {
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #00ccff;
-      margin-bottom: 4px;
+      font-size: 11px;
+      color: var(--lcars-blue);
     }
     
     .kpi-value {
-      font-size: 16px;
-      font-weight: 900;
-      text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
     }
     
     .kpi-sub {
-      font-size: 10px;
-      opacity: 0.7;
-      margin-top: 4px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 2px;
     }
     
     /* CHARTS AREA */
     .charts-area {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      padding: 8px;
-      overflow-y: auto;
+      gap: 12px;
+      margin-bottom: 12px;
     }
     
     .chart-panel {
-      background: linear-gradient(135deg, #001a4d 0%, #000d26 100%);
-      border: 2px solid #00ff41;
+      background: var(--lcars-dark);
       border-radius: 8px;
       padding: 12px;
-      box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
     
     .chart-title {
-      font-size: 10px;
+      font-size: 13px;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #00ccff;
-      margin-bottom: 8px;
-      border-bottom: 1px dashed #00ccff;
+      color: var(--lcars-blue);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
       padding-bottom: 6px;
+      margin-bottom: 8px;
     }
     
     .bar-chart {
       display: flex;
       align-items: flex-end;
-      gap: 4px;
+      gap: 8px;
       height: 80px;
+      padding-bottom: 16px;
+      position: relative;
     }
     
     .bar {
       flex: 1;
-      background: linear-gradient(180deg, #00ff41 0%, #00ccff 100%);
+      background: var(--lcars-slate);
       border-radius: 2px 2px 0 0;
       min-height: 4px;
       position: relative;
+      cursor: pointer;
     }
     
     .bar:hover {
-      opacity: 0.8;
-      box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+      background: var(--lcars-gold);
     }
     
     .bar-label {
@@ -260,19 +245,18 @@
       bottom: -16px;
       left: 0;
       right: 0;
-      font-size: 8px;
+      font-size: 10px;
       text-align: center;
-      opacity: 0.6;
+      color: rgba(255, 255, 255, 0.6);
     }
     
     /* AGENT SCOREBOARD */
     .agent-item {
-      padding: 8px;
-      background: rgba(0, 255, 65, 0.05);
-      border: 1px solid #00ccff;
-      border-radius: 4px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 6px solid var(--lcars-slate);
+      border-radius: 0 4px 4px 0;
       margin-bottom: 6px;
-      font-size: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -280,14 +264,14 @@
     
     .agent-name {
       font-weight: 700;
-      flex: 1;
+      font-size: 13px;
     }
     
     .agent-stats {
       display: flex;
-      gap: 8px;
-      font-size: 9px;
-      opacity: 0.7;
+      gap: 12px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.6);
     }
     
     /* QUEUE STATUS */
@@ -296,144 +280,105 @@
       flex-direction: column;
       gap: 8px;
       padding: 12px;
-      background: rgba(0, 255, 65, 0.05);
-      border: 1px solid #00ccff;
+      background: rgba(255, 255, 255, 0.03);
       border-radius: 4px;
-      font-size: 10px;
     }
     
     .queue-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-size: 13px;
     }
     
     .queue-label {
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #00ccff;
+      color: var(--lcars-blue);
     }
     
     .queue-value {
       font-weight: 700;
-      color: #00ff41;
+      color: #ffffff;
     }
     
     .progress-bar {
       width: 100%;
-      height: 6px;
-      background: rgba(0, 255, 65, 0.1);
-      border: 1px solid #00ccff;
-      border-radius: 2px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
       margin-top: 4px;
       overflow: hidden;
     }
     
     .progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, #00ff41 0%, #00ccff 100%);
-      border-radius: 1px;
-    }
-    
-    /* DROPDOWN SECTIONS */
-    .section-container {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      flex: 1;
-      overflow-y: auto;
-    }
-    
-    .section-collapsed {
-      height: auto;
+      background: var(--lcars-gold);
     }
     
     /* BUTTONS */
     .btn-action {
-      padding: 8px 12px;
-      background: transparent;
-      border: 1px solid #00ff41;
-      color: #00ff41;
-      font-family: 'Orbitron', monospace;
-      font-size: 9px;
+      padding: 8px 16px;
+      background: var(--lcars-slate);
+      border: none;
+      color: #000;
+      font-family: 'Antonio', sans-serif;
+      font-size: 13px;
       font-weight: 700;
-      text-transform: uppercase;
       cursor: pointer;
-      transition: all 0.2s;
-      border-radius: 2px;
+      transition: all 0.15s;
+      border-radius: 12px;
+      text-align: center;
     }
     
     .btn-action:hover {
-      background: #00ff41;
-      color: #000;
-      box-shadow: 0 0 10px #00ff41;
-    }
-    
-    /* SCROLLBAR */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.3);
-    }
-    
-    ::-webkit-scrollbar-thumb {
-      background: #00ff41;
-      border-radius: 4px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-      background: #00ccff;
-      box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+      filter: brightness(1.15);
     }
     
     /* BOTTOM PANEL */
     .bottom-panel {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
-      padding: 8px;
+      gap: 16px;
     }
     
     .drop-card {
-      background: linear-gradient(135deg, #001a4d 0%, #000d26 100%);
-      border: 2px solid #00ff41;
+      background: var(--lcars-dark);
       border-radius: 8px;
-      padding: 12px;
-      box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
-      font-size: 10px;
+      padding: 12px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
     
     .drop-time {
-      font-size: 12px;
+      font-size: 16px;
       font-weight: 700;
-      color: #00ff41;
-      text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
-      margin-bottom: 6px;
+      color: var(--lcars-orange);
+      margin-bottom: 4px;
     }
     
     .drop-status {
-      font-size: 9px;
-      color: #00ccff;
+      font-size: 12px;
+      color: var(--lcars-blue);
       margin-bottom: 4px;
     }
     
     .drop-bar {
       width: 100%;
-      height: 4px;
-      background: rgba(0, 255, 65, 0.1);
-      border-radius: 1px;
-      margin-top: 4px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      margin-top: 6px;
       overflow: hidden;
     }
     
     .drop-fill {
       height: 100%;
-      background: linear-gradient(90deg, #00ff41 0%, #00ccff 100%);
-      border-radius: 1px;
+      background: var(--lcars-blue);
     }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
   </style>
 </head>
 <body>
@@ -442,271 +387,752 @@
   
   <!-- TOP BAR -->
   <div class="topbar">
-    <div class="topbar-title">🛰️ DIRECTOR'S OFFICE</div>
+    <div class="topbar-elbow">SYS: nominal</div>
+    <div class="topbar-title">🛰️ SKYNET NEXUS — DIRECTOR'S OFFICE</div>
     <div class="topbar-status">
       <div class="status-dot"></div>
-      <span>SYSTEM</span>
-      <span>●NOMINAL</span>
+      <span>NOMINAL STATUS</span>
     </div>
     <div class="topbar-status">
       <span>API: ✓ DB: ✓ SCHEDULER: ✓</span>
     </div>
-    <div class="topbar-status">
-      <span>UPTIME: 99.8%</span>
-    </div>
     <div class="topbar-time">
-      <div>Next Drop</div>
+      <div>NEXT DROP COUNTDOWN</div>
       <div class="topbar-time-value" id="time-display">10:15 AM ET (1:28 left)</div>
     </div>
   </div>
+
+  <!-- CORS PROTOCOL WARNING BAR -->
+  <div id="cors-warning-bar" style="display: none; background: var(--lcars-red); color: #fff; padding: 10px 16px; font-weight: 700; text-align: center; border-radius: 4px; font-size: 14px; margin: 0 12px 12px 12px; border: 1px solid #fff;">
+    ⚠️ SECURITY RESTRICTION: BROWSER PREVENTS SENDING SESSION COOKIES FROM LOCAL FILES. PLEASE OPEN <a href="http://localhost:4180/pages/director.html" style="color: #fff; text-decoration: underline; font-weight: 900;">HTTP://LOCALHOST:4180/PAGES/DIRECTOR.HTML</a> IN YOUR BROWSER ADDRESS BAR TO TEST REVIEW & PUBLISH PIPELINES.
+  </div>
   
-  <!-- MAIN CONTENT -->
-  <div class="content">
+  <!-- STATUS BANNER -->
+  <div class="status-banner">
+    <!-- Loaded dynamically -->
+  </div>
+  
+  <!-- MAIN DASHBOARD CONTENT -->
+  <div class="dashboard">
     
-    <!-- STATUS BANNER -->
-    <div class="status-banner">
-      <div class="banner-item">
-        <div class="banner-label">Today Filed</div>
-        <div class="banner-value">47 / 55</div>
-      </div>
-      <div class="banner-item">
-        <div class="banner-label">Published</div>
-        <div class="banner-value">12 / 15</div>
-      </div>
-      <div class="banner-item">
-        <div class="banner-label">In Review</div>
-        <div class="banner-value">3 Stories</div>
-      </div>
-      <div class="banner-item">
-        <div class="banner-label">Revisions</div>
-        <div class="banner-value">2 Pending</div>
-      </div>
-      <div class="banner-item">
-        <div class="banner-label">Quality Avg</div>
-        <div class="banner-value">8.4 / 10</div>
-      </div>
-      <div class="banner-item">
-        <div class="banner-label">Guardrail</div>
-        <div class="banner-value">97.1% Pass</div>
-      </div>
-      <div class="banner-item">
-        <div class="banner-label">Time-to-Pub</div>
-        <div class="banner-value">22 min avg</div>
-      </div>
+    <!-- LEFT PANEL: KEY METRICS -->
+    <div class="panel section-container">
+      <div class="panel-header">📊 KEY METRICS</div>
+      <!-- Loaded dynamically -->
     </div>
     
-    <!-- DASHBOARD GRID -->
-    <div class="dashboard">
+    <!-- CENTER PANEL: CHARTS & AGENTS -->
+    <div class="section-container" style="display: flex; flex-direction: column; gap: 16px; overflow-y: auto;">
       
-      <!-- LEFT: KPI CARDS -->
-      <div class="panel section-container">
-        <div class="panel-header">📊 Key Metrics</div>
+      <div class="charts-area">
         
-        <div class="kpi-card">
-          <div class="kpi-label">Stories Filed</div>
-          <div class="kpi-value">47</div>
-          <div class="kpi-sub">Target: 55 | 85% capacity</div>
+        <!-- CHANNEL PERFORMANCE -->
+        <div class="chart-panel">
+          <div class="chart-title">📈 CHANNEL BREAKDOWN</div>
+          <div class="bar-chart">
+            <div class="bar" style="height: 85%;" title="AI: 28 stories"><div class="bar-label">AI</div></div>
+            <div class="bar" style="height: 78%;" title="Space: 24 stories"><div class="bar-label">SPACE</div></div>
+            <div class="bar" style="height: 92%;" title="Robotics: 26 stories"><div class="bar-label">ROBO</div></div>
+            <div class="bar" style="height: 68%;" title="Biotech: 18 stories"><div class="bar-label">BIOT</div></div>
+            <div class="bar" style="height: 71%;" title="Quantum: 20 stories"><div class="bar-label">QUANT</div></div>
+          </div>
         </div>
         
-        <div class="kpi-card">
-          <div class="kpi-label">Quality Score</div>
-          <div class="kpi-value">8.4/10</div>
-          <div class="kpi-sub">↑ +0.3 from yesterday</div>
-        </div>
-        
-        <div class="kpi-card">
-          <div class="kpi-label">Publish Rate</div>
-          <div class="kpi-value">94.1%</div>
-          <div class="kpi-sub">Target: 90% ✓</div>
-        </div>
-        
-        <div class="kpi-card">
-          <div class="kpi-label">Revision Requests</div>
-          <div class="kpi-value">4.2%</div>
-          <div class="kpi-sub">Target: 5% ✓</div>
-        </div>
-        
-        <div class="kpi-card">
-          <div class="kpi-label">Guardrail Pass</div>
-          <div class="kpi-value">97.1%</div>
-          <div class="kpi-sub">Failures: 3</div>
-        </div>
-        
-        <div class="kpi-card">
-          <div class="kpi-label">Avg Time-to-Pub</div>
-          <div class="kpi-value">22 min</div>
-          <div class="kpi-sub">Target: <30 min ✓</div>
-        </div>
-        
-        <button class="btn-action" style="width: 100%; margin-top: auto;">📊 VIEW FULL ANALYTICS</button>
-      </div>
-      
-      <!-- CENTER: CHARTS & AGENT BOARD -->
-      <div class="section-container">
-        
-        <div class="charts-area">
-          
-          <!-- CHANNEL PERFORMANCE -->
-          <div class="chart-panel">
-            <div class="chart-title">📈 Channel Breakdown</div>
-            <div class="bar-chart">
-              <div class="bar" style="height: 85%;" title="AI: 28 stories">
-                <div class="bar-label">AI</div>
-              </div>
-              <div class="bar" style="height: 78%;" title="Space: 24 stories">
-                <div class="bar-label">Space</div>
-              </div>
-              <div class="bar" style="height: 92%;" title="Robotics: 26 stories">
-                <div class="bar-label">Robotics</div>
-              </div>
-              <div class="bar" style="height: 68%;" title="Biotech: 18 stories">
-                <div class="bar-label">Biotech</div>
-              </div>
-              <div class="bar" style="height: 71%;" title="Quantum: 20 stories">
-                <div class="bar-label">Quantum</div>
-              </div>
-            </div>
+        <!-- PERFORMANCE TREND -->
+        <div class="chart-panel">
+          <div class="chart-title">📊 QUALITY TREND (7 DAYS)</div>
+          <div style="padding: 16px 0; text-align: center; font-size: 16px; color: var(--lcars-gold); font-weight: 700;">
+            ▁▂▃▄▅▆▇█ 8.4 AVG
           </div>
-          
-          <!-- PERFORMANCE TREND -->
-          <div class="chart-panel">
-            <div class="chart-title">📊 Quality Trend (7 days)</div>
-            <div style="padding: 20px 0; text-align: center; font-size: 12px; color: #00ff41;">
-              ▁▂▃▄▅▆▇█ 8.4
-            </div>
-            <div style="font-size: 9px; text-align: center; opacity: 0.7;">
-              Steady upward trend ↑ +2.1 avg
-            </div>
-          </div>
-          
-        </div>
-        
-        <!-- AGENT SCOREBOARD -->
-        <div class="panel">
-          <div class="panel-header">👥 Agent Performance</div>
-          <div class="agent-item">
-            <div class="agent-name">🧠 Picard</div>
-            <div class="agent-stats"><span>5 filed</span><span>0 rev</span></div>
-          </div>
-          <div class="agent-item">
-            <div class="agent-name">🚀 Riker</div>
-            <div class="agent-stats"><span>4 filed</span><span>1 rev</span></div>
-          </div>
-          <div class="agent-item">
-            <div class="agent-name">🤖 Data</div>
-            <div class="agent-stats"><span>5 filed</span><span>0 rev</span></div>
-          </div>
-          <div class="agent-item">
-            <div class="agent-name">🧬 Crusher</div>
-            <div class="agent-stats"><span>3 filed</span><span>2 rev</span></div>
-          </div>
-          <div class="agent-item">
-            <div class="agent-name">⚛️ Worf</div>
-            <div class="agent-stats"><span>4 filed</span><span>0 rev</span></div>
-          </div>
-          <div class="agent-item">
-            <div class="agent-name">... 6 more agents</div>
-            <div class="agent-stats"><span>22 filed</span><span>3 rev</span></div>
-          </div>
-          <div style="font-size: 9px; margin-top: 8px; padding: 6px; background: rgba(0, 255, 65, 0.05); border-radius: 2px;">
-            Top: Picard (8.7/10) | Trend: ↑ All agents improving
+          <div style="font-size: 11px; text-align: center; opacity: 0.7;">
+            STEADY UPWARD TREND ↑ +2.1 AVG
           </div>
         </div>
         
       </div>
       
-      <!-- RIGHT: QUEUE & INCIDENTS -->
-      <div class="panel section-container">
-        <div class="panel-header">📋 Queue Status</div>
-        
-        <div class="queue-status">
-          <div class="queue-row">
-            <span class="queue-label">In Progress</span>
-            <span class="queue-value">47</span>
-          </div>
-          <div class="queue-row">
-            <span class="queue-label">Awaiting Review</span>
-            <span class="queue-value">3</span>
-          </div>
-          <div class="queue-row">
-            <span class="queue-label">Revision Requested</span>
-            <span class="queue-value">2</span>
-          </div>
-          <div class="queue-row">
-            <span class="queue-label">Rejected</span>
-            <span class="queue-value">1</span>
-          </div>
-          <div style="border-top: 1px dashed #00ccff; margin-top: 6px; padding-top: 6px;">
-            <div class="queue-label">Overall Load</div>
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: 85%;"></div>
-            </div>
-            <div style="font-size: 9px; margin-top: 4px; color: #00ccff;">
-              85% capacity | Speed: NORMAL
-            </div>
+      <!-- CENTER PANEL WITH TABS: OFFICERS STATUS vs SUBMISSIONS QUEUE -->
+      <div class="panel" style="flex: 1; display: flex; flex-direction: column;">
+        <div style="display: flex; gap: 8px; border-bottom: 2px solid var(--lcars-gold); padding-bottom: 8px; margin-bottom: 12px;">
+          <button id="tab-officers" class="tab-btn active" style="padding: 4px 12px; font-size: 13px; border-radius: 4px;">👥 OFFICERS STATUS</button>
+          <button id="tab-submissions" class="tab-btn" style="padding: 4px 12px; font-size: 13px; border-radius: 4px;">📋 EDITORIAL QUEUE <span id="queue-badge" style="background: var(--lcars-red); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 4px; display: none;">0</span></button>
+        </div>
+        <div id="pane-officers" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;">
+          <div class="agent-item">
+            <!-- Loaded dynamically -->
           </div>
         </div>
-        
-        <div class="panel-header" style="margin-top: 16px;">⚠️ Alerts</div>
-        <div style="font-size: 9px; padding: 8px; background: rgba(0, 255, 65, 0.05); border-radius: 4px; border-left: 3px solid #00ccff;">
-          <div style="margin-bottom: 6px;">🟡 <strong>Crusher Revisions</strong></div>
-          <div style="opacity: 0.7;">Revision rate at 40% (normal: 10%)</div>
-          <div style="opacity: 0.5; margin-top: 4px;">Action: Review next brief</div>
+        <div id="pane-submissions" style="flex: 1; overflow-y: auto; display: none; flex-direction: column; gap: 8px;">
+          <!-- Submissions list loaded dynamically -->
         </div>
-        
-        <button class="btn-action" style="width: 100%; margin-top: auto;">🚨 INCIDENT LOG</button>
-        <button class="btn-action" style="width: 100%; margin-top: 4px;">⚙️ SETTINGS</button>
       </div>
       
     </div>
     
-    <!-- BOTTOM: UPCOMING DROPS -->
-    <div class="bottom-panel">
+    <!-- RIGHT PANEL: QUEUE & ALERTS -->
+    <div class="panel section-container">
+      <div class="panel-header">📋 QUEUE STATUS</div>
       
-      <div class="drop-card">
-        <div class="drop-time">10:15 AM ET</div>
-        <div class="drop-status">📰 Morning Edition</div>
-        <div class="drop-status">Ready: 12 / 15</div>
-        <div class="drop-bar">
-          <div class="drop-fill" style="width: 80%;"></div>
-        </div>
-        <div style="font-size: 9px; margin-top: 6px; opacity: 0.7;">
-          In review: 2 | Rejected: 1
-        </div>
+      <div class="queue-status">
+        <!-- Loaded dynamically -->
       </div>
       
-      <div class="drop-card">
-        <div class="drop-time">2:15 PM ET</div>
-        <div class="drop-status">📰 Midday Edition</div>
-        <div class="drop-status">Ready: 10 / 15</div>
-        <div class="drop-bar">
-          <div class="drop-fill" style="width: 67%;"></div>
-        </div>
-        <div style="font-size: 9px; margin-top: 6px; opacity: 0.7;">
-          More to file before 1:15 PM
-        </div>
+      <div class="panel-header" style="margin-top: 24px;">⚠️ ALERTS</div>
+      <div style="font-size: 12px; padding: 12px; background: rgba(255, 255, 255, 0.03); border-radius: 4px; border-left: 6px solid var(--lcars-orange); margin-bottom: auto;">
+        <div style="margin-bottom: 4px; color: var(--lcars-orange); font-weight: 700;">🟡 CRUSHER REVISIONS</div>
+        <div style="opacity: 0.8; text-transform: none;">Revision rate at 40% (normal: 10%).</div>
+        <div style="opacity: 0.6; margin-top: 4px; font-size: 11px;">ACTION REQUIRED: REVIEW NEXT BRIEF</div>
       </div>
       
-      <div class="drop-card">
-        <div class="drop-time">6:15 PM ET</div>
-        <div class="drop-status">📰 Evening Edition</div>
-        <div class="drop-status">Ready: 8 / 15</div>
-        <div class="drop-bar">
-          <div class="drop-fill" style="width: 53%;"></div>
-        </div>
-        <div style="font-size: 9px; margin-top: 6px; opacity: 0.7;">
-          Still collecting stories
-        </div>
+      <button class="btn-action" style="width: 100%; margin-top: 12px; background: var(--lcars-red); color: #fff;">🚨 INCIDENT LOG</button>
+      <button class="btn-action" style="width: 100%; margin-top: 8px;">⚙️ CONSOLE SETTINGS</button>
+    </div>
+    
+  </div>
+  
+  <!-- BOTTOM: UPCOMING DROPS -->
+  <div class="bottom-panel">
+    
+    <div class="drop-card">
+      <div class="drop-time">10:15 AM ET</div>
+      <div class="drop-status">📰 MORNING EDITION</div>
+      <div class="drop-status">READY: 12 / 15</div>
+      <div class="drop-bar">
+        <div class="drop-fill" style="width: 80%;"></div>
       </div>
-      
+      <div style="font-size: 11px; margin-top: 6px; opacity: 0.7;">
+        IN REVIEW: 2 | REJECTED: 1
+      </div>
+    </div>
+    
+    <div class="drop-card">
+      <div class="drop-time">2:15 PM ET</div>
+      <div class="drop-status">📰 MIDDAY EDITION</div>
+      <div class="drop-status">READY: 10 / 15</div>
+      <div class="drop-bar">
+        <div class="drop-fill" style="width: 67%;"></div>
+      </div>
+      <div style="font-size: 11px; margin-top: 6px; opacity: 0.7;">
+        MORE TO FILE BEFORE 1:15 PM
+      </div>
+    </div>
+    
+    <div class="drop-card">
+      <div class="drop-time">6:15 PM ET</div>
+      <div class="drop-status">📰 EVENING EDITION</div>
+      <div class="drop-status">READY: 8 / 15</div>
+      <div class="drop-bar">
+        <div class="drop-fill" style="width: 53%;"></div>
+      </div>
+      <div style="font-size: 11px; margin-top: 6px; opacity: 0.7;">
+        STILL COLLECTING STORIES
+      </div>
     </div>
     
   </div>
   
 </div>
 
+</div>
+
+<!-- ANTIGRAVITY MODAL -->
+<div id="antigravity-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px); border: 2px solid #ff2e63;">
+  <div class="modal-card" style="width: 100%; max-width: 600px; background: #000; border: 2px solid #ff2e63; border-radius: 8px; box-shadow: 0 0 30px rgba(255, 46, 99, 0.4); display: flex; flex-direction: column; max-height: 90vh;">
+    <div style="padding: 16px; border-bottom: 1px dashed #ff2e63; display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-weight: 900; color: #ff2e63; font-size: 14px;">👾 ANTIGRAVITY SUBMISSION PROTOCOL</span>
+      <button id="btn-close-console" style="background: transparent; border: none; color: #ff2e63; font-size: 18px; cursor: pointer;">✕</button>
+    </div>
+    <form id="console-form" style="padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #00ff41;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <label style="display: flex; flex-direction: column; gap: 4px;">
+          <span>Channel / Category</span>
+          <select id="sub-channel" required style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit;">
+            <option value="ai">ai (Jean-Luc Picard)</option>
+            <option value="space">space (William Riker)</option>
+            <option value="robotics">robotics (Data)</option>
+            <option value="biotech">biotech (Beverly Crusher)</option>
+            <option value="quantum">quantum (Worf)</option>
+            <option value="climate">climate (Deanna Troi)</option>
+            <option value="engineering">engineering (Geordi La Forge)</option>
+            <option value="math">math (Leah Brahms)</option>
+            <option value="cyber">cyber (Ro Laren)</option>
+            <option value="gaming">gaming (Wesley Crusher)</option>
+            <option value="music">music (Guinan)</option>
+            <option value="play">play (Amara Okafor)</option>
+            <option value="stem">stem (Priya Ramanathan)</option>
+            <option value="skynet">skynet (Antigravity)</option>
+          </select>
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 4px;">
+          <span>Age Band</span>
+          <select id="sub-age" style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit;">
+            <option value="5+">5+</option>
+            <option value="8+">8+</option>
+            <option value="12+">12+</option>
+          </select>
+        </label>
+      </div>
+      <label style="display: flex; flex-direction: column; gap: 4px;">
+        <span>Article Title</span>
+        <input type="text" id="sub-title" required placeholder="e.g. 16-Year-Old Launches Satellite..." style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit;">
+      </label>
+      <label style="display: flex; flex-direction: column; gap: 4px;">
+        <span>Subtitle</span>
+        <input type="text" id="sub-subtitle" placeholder="Catchy supporting hook line..." style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit;">
+      </label>
+      <label style="display: flex; flex-direction: column; gap: 4px;">
+        <span>Summary / Excerpt</span>
+        <input type="text" id="sub-excerpt" required placeholder="1-2 sentences summarizing..." style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit;">
+      </label>
+      <label style="display: flex; flex-direction: column; gap: 4px;">
+        <span>Body Content (HTML paragraphs)</span>
+        <textarea id="sub-body" rows="6" required placeholder="&lt;p&gt;Start writing here...&lt;/p&gt;" style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit; resize: vertical;"></textarea>
+      </label>
+      <label style="display: flex; flex-direction: column; gap: 4px;">
+        <span>Kid's Take (Friendly summary)</span>
+        <textarea id="sub-kidtake" rows="2" required placeholder="Simple explanation for kids..." style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit; resize: vertical;"></textarea>
+      </label>
+      <label style="display: flex; flex-direction: column; gap: 4px;">
+        <span>Family Discussion Questions (one per line)</span>
+        <textarea id="sub-discussion" rows="2" placeholder="Question 1&#10;Question 2" style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit; resize: vertical;"></textarea>
+      </label>
+      <label style="display: flex; flex-direction: column; gap: 4px;">
+        <span>Glossary Terms (format: 'Term: Definition', one per line)</span>
+        <textarea id="sub-glossary" rows="2" placeholder="Superposition: Being in multiple states at once" style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit; resize: vertical;"></textarea>
+      </label>
+      <label style="display: flex; flex-direction: column; gap: 4px;">
+        <span>Tags (comma-separated)</span>
+        <input type="text" id="sub-tags" placeholder="space, satellite, education" style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit;">
+      </label>
+      <button type="submit" class="btn-action" style="margin-top: 10px; border-color: #ff2e63; color: #ff2e63; padding: 12px; font-size: 11px;">👾 TRANSMIT STORY TO SKYNET QUEUE</button>
+    </form>
+  </div>
+</div>
+
+<!-- STORY READER MODAL -->
+<div id="story-reader-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1001; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px); border: 2px solid var(--lcars-gold);">
+  <div class="modal-card" style="width: 100%; max-width: 650px; background: #000; border: 2px solid var(--lcars-gold); border-radius: 8px; box-shadow: 0 0 30px rgba(255, 153, 0, 0.4); display: flex; flex-direction: column; max-height: 90vh;">
+    <div style="padding: 16px; border-bottom: 1px dashed var(--lcars-gold); display: flex; justify-content: space-between; align-items: center;">
+      <span id="reader-modal-header" style="font-weight: 900; color: var(--lcars-gold); font-size: 14px;">📋 EDITORIAL TRANSMISSION REVIEW</span>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button id="reader-btn-edit-toggle" class="btn-action" style="padding: 4px 12px; font-size: 12px; background: var(--lcars-slate); border-radius: 4px;">✍️ EDIT STORY</button>
+        <button id="btn-close-reader" style="background: transparent; border: none; color: var(--lcars-gold); font-size: 18px; cursor: pointer;">✕</button>
+      </div>
+    </div>
+    <div id="reader-modal-body" style="padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #ffffff; text-transform: none;">
+      <!-- Populated dynamically -->
+    </div>
+    <div style="padding: 16px; border-top: 1px dashed var(--lcars-gold); display: flex; gap: 8px; justify-content: flex-end; background: rgba(255, 255, 255, 0.02);">
+      <button id="reader-btn-publish" class="btn-action" style="background: var(--lcars-gold); color: #000; padding: 8px 16px;">🟢 PUBLISH LIVE</button>
+      <button id="reader-btn-reject" class="btn-action danger" style="padding: 8px 16px;">🔴 REJECT</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  // Update time countdown
+  var API = window.location.protocol === 'file:' ? 'http://localhost:4180/api' : '/api';
+  var selectedStory = null;
+
+  function fetchAPI(path, opts) {
+    opts = opts || {};
+    return fetch(API + path, {
+      credentials: window.location.protocol === 'file:' ? 'include' : 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      method: opts.method || 'GET',
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    }).then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    });
+  }
+
+  // Bind dynamic tab switching
+  document.getElementById('tab-officers').addEventListener('click', function () {
+    document.getElementById('tab-officers').classList.add('active');
+    document.getElementById('tab-submissions').classList.remove('active');
+    document.getElementById('pane-officers').style.display = 'flex';
+    document.getElementById('pane-submissions').style.display = 'none';
+  });
+
+  document.getElementById('tab-submissions').addEventListener('click', function () {
+    document.getElementById('tab-submissions').classList.add('active');
+    document.getElementById('tab-officers').classList.remove('active');
+    document.getElementById('pane-submissions').style.display = 'flex';
+    document.getElementById('pane-officers').style.display = 'none';
+  });
+
+  function loadDashboard() {
+    Promise.all([
+      fetchAPI('/admin/staff'),
+      fetchAPI('/admin/overview'),
+      fetchAPI('/admin/stories/queue?limit=100')
+    ]).then(function (results) {
+      var staffData = results[0].staff || [];
+      var overview = results[1] || {};
+      var queueData = results[2].stories || [];
+
+      // 1. Update Agent Scoreboard
+      var agentScoreboard = document.getElementById('pane-officers');
+      agentScoreboard.innerHTML = '';
+
+      staffData.forEach(function (st) {
+        var card = document.createElement('div');
+        card.className = 'agent-item';
+        card.style.borderLeftColor = st.accentColor;
+        card.innerHTML = 
+          '<div class="agent-name">' + (st.avatarEmoji || '🛰️') + ' ' + st.displayName + '</div>' +
+          '<div class="agent-stats"><span>' + st.role + '</span> <span style="color:' + st.accentColor + '; font-weight:700;">● ' + st.status + '</span></div>';
+        agentScoreboard.appendChild(card);
+      });
+
+      // 2. Update KPI Stats
+      var queued = overview.queue || {};
+      var articles = overview.articles || {};
+      var submissions = overview.submissions || {};
+
+      document.querySelector('.status-banner').innerHTML = 
+        '<div class="banner-item"><div class="banner-label">Today Filed</div><div class="banner-value">' + ((queued.draft || 0) + (queued.approved || 0) + (articles.today || 0)) + ' / 13</div></div>' +
+        '<div class="banner-item"><div class="banner-label">Published</div><div class="banner-value">' + (articles.today || 0) + '</div></div>' +
+        '<div class="banner-item"><div class="banner-label">In Queue</div><div class="banner-value">' + ((queued.draft || 0) + (queued.approved || 0)) + '</div></div>' +
+        '<div class="banner-item"><div class="banner-label">Approved</div><div class="banner-value">' + (queued.approved || 0) + '</div></div>' +
+        '<div class="banner-item"><div class="banner-label">Drafts</div><div class="banner-value">' + (queued.draft || 0) + '</div></div>' +
+        '<div class="banner-item"><div class="banner-label">Tips Awaiting</div><div class="banner-value">' + (submissions.pending || 0) + '</div></div>';
+
+      // Update Key Metrics panel
+      var metricsPanel = document.querySelector('.panel.section-container');
+      metricsPanel.innerHTML = 
+        '<div class="panel-header">📊 KEY METRICS</div>' +
+        '<div class="kpi-card"><div class="kpi-label">Stories Filed</div><div class="kpi-value">' + ((queued.draft || 0) + (queued.approved || 0) + (articles.today || 0)) + '</div><div class="kpi-sub">Target: 13 | ' + Math.round((((queued.draft || 0) + (queued.approved || 0) + (articles.today || 0)) / 13) * 100) + '% capacity</div></div>' +
+        '<div class="kpi-card"><div class="kpi-label">Drafts</div><div class="kpi-value">' + (queued.draft || 0) + '</div><div class="kpi-sub">Pending editorial review</div></div>' +
+        '<div class="kpi-card"><div class="kpi-label">Approved</div><div class="kpi-value">' + (queued.approved || 0) + '</div><div class="kpi-sub">Ready to publish</div></div>' +
+        '<div class="kpi-card"><div class="kpi-label">Published Today</div><div class="kpi-value">' + (articles.today || 0) + '</div><div class="kpi-sub">Live on feed</div></div>' +
+        '<button class="btn-action" id="btn-open-console" style="width: 100%; margin-top: auto; background: var(--lcars-gold); color: #000;">👾 OPEN ANTIGRAVITY CONSOLE</button>';
+
+      document.getElementById('btn-open-console').addEventListener('click', function () {
+        document.getElementById('antigravity-modal').style.display = 'flex';
+      });
+
+      // Update Queue Status panel
+      var queuePanel = document.querySelector('.queue-status');
+      queuePanel.innerHTML = 
+        '<div class="queue-row"><span class="queue-label">In Queue</span><span class="queue-value">' + ((queued.draft || 0) + (queued.approved || 0)) + '</span></div>' +
+        '<div class="queue-row"><span class="queue-label">Awaiting Review</span><span class="queue-value">' + (queued.draft || 0) + '</span></div>' +
+        '<div class="queue-row"><span class="queue-label">Approved</span><span class="queue-value">' + (queued.approved || 0) + '</span></div>' +
+        '<div style="border-top: 1px dashed rgba(255,255,255,0.15); margin-top: 6px; padding-top: 6px;">' +
+          '<div class="queue-label">Queue Load</div>' +
+          '<div class="progress-bar"><div class="progress-fill" style="width: ' + Math.min(100, Math.round((((queued.draft || 0) + (queued.approved || 0)) / 20) * 100)) + '%;"></div></div>' +
+          '<div style="font-size: 11px; margin-top: 4px; color: var(--lcars-blue);">' + ((queued.draft || 0) + (queued.approved || 0)) + ' active items</div>' +
+        '</div>';
+
+      // 3. Render Editorial submissions list
+      var paneSubmissions = document.getElementById('pane-submissions');
+      paneSubmissions.innerHTML = '';
+
+      var pendingStories = queueData.filter(function (q) {
+        return q.status !== 'published' && q.status !== 'rejected';
+      });
+
+      // Update Tab badge
+      var badge = document.getElementById('queue-badge');
+      if (pendingStories.length > 0) {
+        badge.textContent = pendingStories.length;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+
+      if (pendingStories.length === 0) {
+        paneSubmissions.innerHTML = '<div style="font-size:13px; opacity:0.5; padding:20px; text-align:center;">No stories in queue for review.</div>';
+      } else {
+        pendingStories.forEach(function (story) {
+          var title = story.payload?.title || 'Untitled';
+          var author = story.payload?.author || 'Unknown';
+          var channel = story.channel || 'general';
+
+          var card = document.createElement('div');
+          card.className = 'agent-item';
+          card.style.display = 'flex';
+          card.style.flexDirection = 'column';
+          card.style.alignItems = 'stretch';
+          card.style.gap = '8px';
+          card.style.borderLeftColor = story.status === 'approved' ? 'var(--lcars-gold)' : 'var(--lcars-orange)';
+          card.innerHTML = 
+            '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">' +
+              '<span style="font-weight:700; font-size:14px; text-transform:none; color:#ffffff;">' + title + '</span>' +
+              '<span class="status-badge" style="background:' + (story.status === 'approved' ? 'var(--lcars-gold)' : 'var(--lcars-orange)') + '; color:#000; font-size:10px; padding:1px 6px; border-radius:4px; font-weight:700;">' + story.status + '</span>' +
+            '</div>' +
+            '<div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; opacity:0.7;">' +
+              '<span>By ' + author + ' · #' + channel + '</span>' +
+              '<div style="display:flex; gap:6px;">' +
+                '<button class="btn-action btn-rev" data-id="' + story.id + '" style="padding:2px 8px; font-size:11px; background:var(--lcars-blue);">Review</button>' +
+                '<button class="btn-action btn-pub" data-id="' + story.id + '" style="padding:2px 8px; font-size:11px; background:var(--lcars-gold);">Publish</button>' +
+              '</div>' +
+            '</div>';
+
+          // Bind review button
+          card.querySelector('.btn-rev').addEventListener('click', function () {
+            openReaderModal(story);
+          });
+
+          // Bind quick publish button
+          card.querySelector('.btn-pub').addEventListener('click', function (e) {
+            var btn = e.target;
+            btn.disabled = true;
+            btn.textContent = '...';
+            fetchAPI('/admin/stories/queue/' + story.id + '/publish', { method: 'POST' }).then(function () {
+              alert('Story published successfully!');
+              loadDashboard();
+            }).catch(function (err) {
+              alert('Error: ' + err.message);
+              btn.disabled = false;
+              btn.textContent = 'Publish';
+            });
+          });
+
+          paneSubmissions.appendChild(card);
+        });
+      }
+
+    }).catch(function (err) {
+      console.error('Error loading dashboard:', err);
+      var paneSubmissions = document.getElementById('pane-submissions');
+      var paneOfficers = document.getElementById('pane-officers');
+      if (err.message && err.message.includes('401')) {
+        const loginMsg = '<div style="font-size:14px; color:var(--lcars-red); padding:20px; text-align:center; font-weight:700;">⚠️ ACCESS DENIED: SESSION UNAUTHORIZED.<br><a href="/pages/login.html" style="color:var(--lcars-gold); text-decoration:underline;">CLICK HERE TO SIGN IN</a></div>';
+        paneSubmissions.innerHTML = loginMsg;
+        paneOfficers.innerHTML = loginMsg;
+      } else {
+        const errorMsg = '<div style="font-size:14px; color:var(--lcars-red); padding:20px; text-align:center;">⚠️ SYSTEM ERROR: ' + err.message + '</div>';
+        paneSubmissions.innerHTML = errorMsg;
+        paneOfficers.innerHTML = errorMsg;
+      }
+    });
+  }
+
+  // Reader Modal operations
+  var isEditMode = false;
+
+  function renderStoryContent() {
+    if (!selectedStory) return;
+    var payload = selectedStory.payload || {};
+
+    if (isEditMode) {
+      document.getElementById('reader-btn-edit-toggle').textContent = '📖 VIEW STORY';
+      document.getElementById('reader-btn-edit-toggle').style.background = 'var(--lcars-gold)';
+      
+      var discussionRaw = (payload.familyDiscussion || []).join('\n');
+      var glossaryRaw = (payload.glossary || []).map(function (g) {
+        return g.term + ': ' + g.meaning;
+      }).join('\n');
+      var tagsRaw = (payload.tags || []).join(', ');
+
+      var formContent = 
+        '<div style="display:flex; flex-direction:column; gap:12px; font-family:\'JetBrains Mono\', monospace; font-size:12px; color:var(--lcars-blue); text-transform:none;">' +
+          '<label style="display:flex; flex-direction:column; gap:4px;">' +
+            '<span style="color:var(--lcars-gold);">Article Title</span>' +
+            '<input type="text" id="edit-title" style="background:#111; border:1px solid var(--lcars-blue); color:#fff; padding:6px; font-family:inherit;" value="' + (payload.title || '').replace(/"/g, '&quot;') + '">' +
+          '</label>' +
+          '<label style="display:flex; flex-direction:column; gap:4px;">' +
+            '<span style="color:var(--lcars-gold);">Subtitle</span>' +
+            '<input type="text" id="edit-subtitle" style="background:#111; border:1px solid var(--lcars-blue); color:#fff; padding:6px; font-family:inherit;" value="' + (payload.subtitle || '').replace(/"/g, '&quot;') + '">' +
+          '</label>' +
+          '<label style="display:flex; flex-direction:column; gap:4px;">' +
+            '<span style="color:var(--lcars-gold);">Hero Image URL</span>' +
+            '<input type="text" id="edit-image" style="background:#111; border:1px solid var(--lcars-blue); color:#fff; padding:6px; font-family:inherit;" value="' + (payload.heroImage || '').replace(/"/g, '&quot;') + '">' +
+          '</label>' +
+          '<label style="display:flex; flex-direction:column; gap:4px;">' +
+            '<span style="color:var(--lcars-gold);">Summary / Excerpt</span>' +
+            '<input type="text" id="edit-excerpt" style="background:#111; border:1px solid var(--lcars-blue); color:#fff; padding:6px; font-family:inherit;" value="' + (payload.excerpt || '').replace(/"/g, '&quot;') + '">' +
+          '</label>' +
+          '<label style="display:flex; flex-direction:column; gap:4px;">' +
+            '<span style="color:var(--lcars-gold);">Body Content (HTML Paragraphs)</span>' +
+            '<textarea id="edit-body" rows="8" style="background:#111; border:1px solid var(--lcars-blue); color:#fff; padding:6px; font-family:inherit; resize:vertical;">' + (payload.body || '') + '</textarea>' +
+          '</label>' +
+          '<label style="display:flex; flex-direction:column; gap:4px;">' +
+            '<span style="color:var(--lcars-gold);">Kid\'s Take Summary</span>' +
+            '<textarea id="edit-kidtake" rows="3" style="background:#111; border:1px solid var(--lcars-blue); color:#fff; padding:6px; font-family:inherit; resize:vertical;">' + (payload.kidTake || '') + '</textarea>' +
+          '</label>' +
+          '<label style="display:flex; flex-direction:column; gap:4px;">' +
+            '<span style="color:var(--lcars-gold);">Family Discussion Questions (one per line)</span>' +
+            '<textarea id="edit-discussion" rows="3" style="background:#111; border:1px solid var(--lcars-blue); color:#fff; padding:6px; font-family:inherit; resize:vertical;">' + discussionRaw + '</textarea>' +
+          '</label>' +
+          '<label style="display:flex; flex-direction:column; gap:4px;">' +
+            '<span style="color:var(--lcars-gold);">Glossary (format: "Term: Definition", one per line)</span>' +
+            '<textarea id="edit-glossary" rows="3" style="background:#111; border:1px solid var(--lcars-blue); color:#fff; padding:6px; font-family:inherit; resize:vertical;">' + glossaryRaw + '</textarea>' +
+          '</label>' +
+          '<label style="display:flex; flex-direction:column; gap:4px;">' +
+            '<span style="color:var(--lcars-gold);">Tags (comma-separated)</span>' +
+            '<input type="text" id="edit-tags" style="background:#111; border:1px solid var(--lcars-blue); color:#fff; padding:6px; font-family:inherit;" value="' + tagsRaw + '">' +
+          '</label>' +
+          '<button id="btn-save-edits" class="btn-action" style="background:var(--lcars-gold); color:#000; padding:10px; font-size:12px; margin-top:8px; width:100%;">💾 SAVE STORY CHANGES</button>' +
+        '</div>';
+
+      document.getElementById('reader-modal-body').innerHTML = formContent;
+
+      document.getElementById('btn-save-edits').addEventListener('click', function () {
+        saveStoryEdits();
+      });
+
+    } else {
+      document.getElementById('reader-btn-edit-toggle').textContent = '✍️ EDIT STORY';
+      document.getElementById('reader-btn-edit-toggle').style.background = 'var(--lcars-slate)';
+
+      var discussionHtml = (payload.familyDiscussion || []).map(function (q) {
+        return '<li>' + q + '</li>';
+      }).join('');
+
+      var glossaryHtml = (payload.glossary || []).map(function (g) {
+        return '<li><strong>' + g.term + '</strong>: ' + g.meaning + '</li>';
+      }).join('');
+
+      var tagsHtml = (payload.tags || []).map(function (t) {
+        return '<span style="background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; font-size:10px; margin-right:4px;">#' + t + '</span>';
+      }).join('');
+
+      var bodyContent = 
+        (payload.heroImage ? '<div style="margin-bottom:12px;"><img src="' + payload.heroImage + '" style="max-width:100%; border-radius:6px; border:1px solid var(--lcars-gold);" alt="Hero Image"></div>' : '') +
+        '<div style="border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:12px; margin-bottom:12px;">' +
+          '<h2 style="font-size:20px; font-weight:700; color:var(--lcars-gold); text-transform:none; margin-bottom:4px;">' + (payload.title || 'Untitled') + '</h2>' +
+          (payload.subtitle ? '<h3 style="font-size:14px; opacity:0.8; text-transform:none; margin-bottom:8px;">' + payload.subtitle + '</h3>' : '') +
+          '<div style="font-size:12px; color:var(--lcars-blue);">Author: ' + (payload.author || 'Unknown') + ' · Channel: #' + selectedStory.channel + ' · Age Band: ' + (payload.ageBand || '5+') + '</div>' +
+        '</div>' +
+        '<div style="font-style:italic; opacity:0.9; margin-bottom:16px; border-left:3px solid var(--lcars-orange); padding-left:8px; font-size:13px; text-transform:none;">' + (payload.excerpt || '') + '</div>' +
+        '<div style="line-height:1.6; font-size:13px; text-transform:none; margin-bottom:20px;">' + (payload.body || '') + '</div>' +
+        '<div style="background:rgba(255,153,0,0.05); border:1px solid var(--lcars-gold); padding:12px; border-radius:6px; margin-bottom:16px;">' +
+          '<h4 style="color:var(--lcars-gold); font-size:12px; margin-bottom:4px;">👶 KID\'S TAKE SUMMARY</h4>' +
+          '<p style="font-size:12px; text-transform:none; line-height:1.4;">' + (payload.kidTake || '') + '</p>' +
+        '</div>' +
+        (discussionHtml ? '<div style="margin-bottom:16px;">' +
+          '<h4 style="color:var(--lcars-blue); font-size:12px; margin-bottom:4px;">👪 FAMILY DISCUSSION QUESTIONS</h4>' +
+          '<ul style="padding-left:16px; font-size:12px; line-height:1.4; list-style-type:square;">' + discussionHtml + '</ul>' +
+        '</div>' : '') +
+        (glossaryHtml ? '<div style="margin-bottom:16px;">' +
+          '<h4 style="color:var(--lcars-lilac); font-size:12px; margin-bottom:4px;">📖 GLOSSARY</h4>' +
+          '<ul style="padding-left:16px; font-size:12px; line-height:1.4; list-style-type:none;">' + glossaryHtml + '</ul>' +
+        '</div>' : '') +
+        '<div>' + tagsHtml + '</div>';
+
+      document.getElementById('reader-modal-body').innerHTML = bodyContent;
+    }
+  }
+
+  function openReaderModal(story) {
+    selectedStory = story;
+    isEditMode = false;
+    renderStoryContent();
+    document.getElementById('story-reader-modal').style.display = 'flex';
+  }
+
+  document.getElementById('reader-btn-edit-toggle').addEventListener('click', function () {
+    isEditMode = !isEditMode;
+    renderStoryContent();
+  });
+
+  function saveStoryEdits() {
+    if (!selectedStory) return;
+    
+    var title = document.getElementById('edit-title').value.trim();
+    var subtitle = document.getElementById('edit-subtitle').value.trim();
+    var heroImage = document.getElementById('edit-image').value.trim();
+    var excerpt = document.getElementById('edit-excerpt').value.trim();
+    var body = document.getElementById('edit-body').value.trim();
+    var kidTake = document.getElementById('edit-kidtake').value.trim();
+    
+    var discussion = document.getElementById('edit-discussion').value.split('\n')
+      .map(function(s) { return s.trim(); }).filter(Boolean);
+      
+    var glossary = document.getElementById('edit-glossary').value.split('\n')
+      .map(function(s) {
+        var p = s.indexOf(':');
+        if (p < 0) return null;
+        return { term: s.slice(0, p).trim(), meaning: s.slice(p + 1).trim() };
+      }).filter(Boolean);
+
+    var tags = document.getElementById('edit-tags').value.split(',')
+      .map(function(s) { return s.trim(); }).filter(Boolean);
+
+    var updatedPayload = {
+      ...selectedStory.payload,
+      title: title,
+      subtitle: subtitle,
+      heroImage: heroImage || undefined,
+      excerpt: excerpt,
+      body: body,
+      kidTake: kidTake,
+      familyDiscussion: discussion,
+      glossary: glossary,
+      tags: tags
+    };
+
+    var btn = document.getElementById('btn-save-edits');
+    btn.disabled = true;
+    btn.textContent = 'SAVING CHANGES...';
+
+    fetchAPI('/admin/stories/queue/' + selectedStory.id, {
+      method: 'PATCH',
+      body: { payload: updatedPayload }
+    }).then(function (result) {
+      alert('Story updated successfully!');
+      selectedStory = result.story;
+      isEditMode = false;
+      renderStoryContent();
+      loadDashboard();
+    }).catch(function (err) {
+      alert('Error updating story: ' + err.message);
+    }).finally(function () {
+      btn.disabled = false;
+      btn.textContent = '💾 SAVE STORY CHANGES';
+    });
+  }
+
+  // Close reader modal
+  document.getElementById('btn-close-reader').addEventListener('click', function () {
+    document.getElementById('story-reader-modal').style.display = 'none';
+    selectedStory = null;
+  });
+
+  // Modal publish button
+  document.getElementById('reader-btn-publish').addEventListener('click', function () {
+    if (!selectedStory) return;
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'PUBLISHING LIVE...';
+    
+    fetchAPI('/admin/stories/queue/' + selectedStory.id + '/publish', { method: 'POST' }).then(function () {
+      alert('Story published successfully!');
+      document.getElementById('story-reader-modal').style.display = 'none';
+      selectedStory = null;
+      loadDashboard();
+    }).catch(function (err) {
+      alert('Error publishing story: ' + err.message);
+    }).finally(function () {
+      btn.disabled = false;
+      btn.textContent = '🟢 PUBLISH LIVE';
+    });
+  });
+
+  // Modal reject button
+  document.getElementById('reader-btn-reject').addEventListener('click', function () {
+    if (!selectedStory) return;
+    if (!confirm('Are you sure you want to reject this story? It will be archived in the queue.')) return;
+    
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'REJECTING...';
+
+    fetchAPI('/admin/stories/queue/' + selectedStory.id, {
+      method: 'PATCH',
+      body: { status: 'rejected' }
+    }).then(function () {
+      alert('Story rejected successfully.');
+      document.getElementById('story-reader-modal').style.display = 'none';
+      selectedStory = null;
+      loadDashboard();
+    }).catch(function (err) {
+      alert('Error: ' + err.message);
+    }).finally(function () {
+      btn.disabled = false;
+      btn.textContent = '🔴 REJECT';
+    });
+  });
+
+  document.getElementById('btn-close-console').addEventListener('click', function () {
+    document.getElementById('antigravity-modal').style.display = 'none';
+  });
+
+  document.getElementById('console-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'TRANSMITTING SIGNAL...';
+
+    var channel = document.getElementById('sub-channel').value;
+    var age = document.getElementById('sub-age').value;
+    var title = document.getElementById('sub-title').value.trim();
+    var subtitle = document.getElementById('sub-subtitle').value.trim();
+    var excerpt = document.getElementById('sub-excerpt').value.trim();
+    var body = document.getElementById('sub-body').value.trim();
+    var kidtake = document.getElementById('sub-kidtake').value.trim();
+    
+    var discussion = document.getElementById('sub-discussion').value.split('\n')
+      .map(function(s) { return s.trim(); }).filter(Boolean);
+    
+    var glossary = document.getElementById('sub-glossary').value.split('\n')
+      .map(function(s) {
+        var parts = s.split(':');
+        if (parts.length < 2) return null;
+        return { term: parts[0].trim(), meaning: parts.slice(1).join(':').trim() };
+      }).filter(Boolean);
+
+    var tags = document.getElementById('sub-tags').value.split(',')
+      .map(function(s) { return s.trim(); }).filter(Boolean);
+
+    var staffSlugs = {
+      ai: 'agent-ai', space: 'agent-space', robotics: 'agent-robotics',
+      biotech: 'agent-biotech', quantum: 'agent-quantum', climate: 'agent-climate',
+      engineering: 'agent-engineering', math: 'agent-math', cyber: 'agent-cyber',
+      gaming: 'agent-gaming', music: 'agent-music', play: 'play', stem: 'stem', skynet: 'agent-antigravity'
+    };
+
+    fetchAPI('/admin/staff').then(function (r) {
+      var staffList = r.staff || [];
+      var slug = staffSlugs[channel] || 'agent-antigravity';
+      var st = staffList.find(function(x) { return x.slug === slug; }) || { id: 17, displayName: 'Antigravity', role: 'Emergency Co-Director' };
+
+      var payload = {
+        id: new Date().toISOString().slice(0,10) + '-' + channel + '-manual',
+        slug: channel + '-manual',
+        cat: channel,
+        categoryLabel: st.role.replace('Correspondent - ', '').replace('Correspondent — ', ''),
+        title: title,
+        subtitle: subtitle,
+        excerpt: excerpt,
+        body: body,
+        kidTake: kidtake,
+        familyDiscussion: discussion,
+        glossary: glossary,
+        ageBand: age,
+        author: st.displayName,
+        authorInit: st.displayName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
+        authorRole: st.role,
+        date: new Date().toISOString().slice(0,10),
+        publishedAt: new Date().toISOString(),
+        read: Math.max(2, Math.ceil(body.replace(/<[^>]+>/g, ' ').split(/\s+/).length / 220)),
+        views: 0,
+        likes: 0,
+        comments: 0,
+        shares: 0,
+        tags: tags,
+        color: st.accentColor || '#ff2e63',
+        emoji: st.avatarEmoji || '👾',
+        featured: false,
+        pinned: false,
+        live: false,
+        sources: [{ label: 'Skynet Manual Submission', url: 'https://www.example.com/' }]
+      };
+
+      return fetchAPI('/admin/stories/queue', {
+        method: 'POST',
+        body: {
+          staffId: st.id,
+          channel: channel,
+          payload: payload,
+          status: 'approved'
+        }
+      });
+    }).then(function () {
+      alert('Story successfully queued!');
+      document.getElementById('antigravity-modal').style.display = 'none';
+      document.getElementById('console-form').reset();
+      loadDashboard();
+    }).catch(function (err) {
+      alert('Error: ' + err.message);
+    }).finally(function () {
+      submitBtn.disabled = false;
+      submitBtn.textContent = '👾 TRANSMIT STORY TO SKYNET QUEUE';
+    });
+  });
+
   function updateTime() {
     const now = new Date();
     const et = new Intl.DateTimeFormat('en-US', {
@@ -717,7 +1143,6 @@
       hour12: true
     }).format(now);
     
-    // Calculate next drop
     const etHour = parseInt(et.split(':')[0]);
     const etMin = parseInt(et.split(':')[1]);
     
@@ -737,7 +1162,6 @@
       nextDropMin = 15;
     }
     
-    // Calculate countdown
     const currentMins = etHour * 60 + etMin;
     const targetMins = nextDropHour * 60 + nextDropMin;
     let diff = targetMins - currentMins;
@@ -750,8 +1174,13 @@
       `${String(nextDropHour).padStart(2, '0')}:${String(nextDropMin).padStart(2, '0')} ET (${hours}:${String(mins).padStart(2, '0')} left)`;
   }
   
+  if (window.location.protocol === 'file:') {
+    document.getElementById('cors-warning-bar').style.display = 'block';
+  }
   updateTime();
   setInterval(updateTime, 1000);
+  loadDashboard();
+  setInterval(loadDashboard, 15000);
 </script>
 
 </body>

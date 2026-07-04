@@ -16,6 +16,16 @@ class NewsroomState {
     this.selectedAgent = null;
   }
   
+  get apiPrefix() {
+    return window.location.protocol === 'file:' ? 'http://localhost:4180' : '';
+  }
+
+  get fetchOptions() {
+    return {
+      credentials: window.location.protocol === 'file:' ? 'include' : 'same-origin'
+    };
+  }
+  
   initializeAgents() {
     return [
       { id: 'picard', name: 'Captain Picard', channel: 'AI', emoji: '🧠', color: '#00ccff', gridX: 4, gridY: 0, status: 'idle', storiesCount: 0 },
@@ -35,14 +45,14 @@ class NewsroomState {
   // Fetch queue from API
   async fetchQueue() {
     try {
-      const response = await fetch('/api/admin/stories/queue');
+      const response = await fetch(this.apiPrefix + '/api/admin/stories/queue', this.fetchOptions);
       if (!response.ok) throw new Error('Failed to fetch queue');
       
       const data = await response.json();
-      this.queue = data;
+      this.queue = data.stories || data || [];
       this.updateMetrics();
       this.updateAgentStatus();
-      return data;
+      return this.queue;
     } catch (e) {
       console.error('[NewsroomState] fetch queue failed:', e);
       return [];
@@ -52,7 +62,7 @@ class NewsroomState {
   // Fetch metrics from API
   async fetchMetrics() {
     try {
-      const response = await fetch('/api/admin/overview');
+      const response = await fetch(this.apiPrefix + '/api/admin/overview', this.fetchOptions);
       if (!response.ok) throw new Error('Failed to fetch metrics');
       
       const data = await response.json();
@@ -71,11 +81,9 @@ class NewsroomState {
   }
   
   updateAgentStatus() {
-    // Count stories per agent
     for (const agent of this.agents) {
       agent.storiesCount = this.queue.filter(s => s.channel === agent.channel).length;
       
-      // Determine agent status based on their stories
       const agentStories = this.queue.filter(s => s.channel === agent.channel);
       if (agentStories.some(s => s.status === 'draft')) agent.status = 'writing';
       else if (agentStories.some(s => s.status === 'approved')) agent.status = 'filing';
@@ -110,7 +118,8 @@ class NewsroomState {
   // Request revision from agent
   async requestRevision(storyId, notes) {
     try {
-      const response = await fetch(`/api/admin/stories/queue/${storyId}/request-revision`, {
+      const response = await fetch(this.apiPrefix + `/api/admin/stories/queue/${storyId}/request-revision`, {
+        ...this.fetchOptions,
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ notes })
@@ -119,7 +128,6 @@ class NewsroomState {
       if (!response.ok) throw new Error('Failed to request revision');
       
       const result = await response.json();
-      // Update local state
       const story = this.queue.find(s => s.id === storyId);
       if (story) story.status = 'revision_requested';
       
@@ -133,7 +141,8 @@ class NewsroomState {
   // Approve story
   async approveStory(storyId) {
     try {
-      const response = await fetch(`/api/admin/stories/queue/${storyId}`, {
+      const response = await fetch(this.apiPrefix + `/api/admin/stories/queue/${storyId}`, {
+        ...this.fetchOptions,
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'approved' })
@@ -155,7 +164,8 @@ class NewsroomState {
   // Reject story
   async rejectStory(storyId) {
     try {
-      const response = await fetch(`/api/admin/stories/queue/${storyId}`, {
+      const response = await fetch(this.apiPrefix + `/api/admin/stories/queue/${storyId}`, {
+        ...this.fetchOptions,
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'rejected' })
@@ -177,7 +187,8 @@ class NewsroomState {
   // Add image to story
   async addImage(storyId, imageUrl, altText, credit) {
     try {
-      const response = await fetch(`/api/admin/stories/queue/${storyId}/add-image`, {
+      const response = await fetch(this.apiPrefix + `/api/admin/stories/queue/${storyId}/add-image`, {
+        ...this.fetchOptions,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageUrl, altText, credit })

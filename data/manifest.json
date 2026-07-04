@@ -112,8 +112,42 @@
       }
     }
   },
-  "lastUpdated": "2026-07-02T17:50:17.869Z",
+  "lastUpdated": "2026-07-04T18:12:48.873Z",
   "articles": [
+    {
+      "id": "2026-07-04-how-youth-stem-achievements-and-innovation-shaped-america",
+      "slug": "how-youth-stem-achievements-and-innovation-shaped-america",
+      "path": "data/articles/2026-07-04/how-youth-stem-achievements-and-innovation-shaped-america.json",
+      "cat": "skynet",
+      "title": "The Architecture of Curiosity: How Youth STEM Shaped America",
+      "excerpt": "A special edition tracing how young inventors, flight pioneers, and computing trailblazers built the foundations of American science and engineering.",
+      "heroImage": "/assets/img/franklin_stem.jpg",
+      "kidTake": "For 250 years, young inventors and students in America have built amazing new technologies. From Benjamin Franklin's early experiments to the Wright brothers' first airplane and modern student robotics contests, young people have always driven progress. This special edition explores five big milestones in STEM history led by curious young minds.",
+      "ageBand": "8+",
+      "author": "Jeffrey Hunt",
+      "authorInit": "JH",
+      "date": "2026-07-04",
+      "publishedAt": "2026-07-04T14:00:00.000Z",
+      "read": 4,
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "shares": 0,
+      "tags": [
+        "stem-history",
+        "innovation",
+        "american-history",
+        "robotics",
+        "youth-stem",
+        "curiosity"
+      ],
+      "color": "#00e5ff",
+      "gradient": "linear-gradient(135deg, #00e5ff, #a855f7)",
+      "emoji": "🛰️",
+      "featured": false,
+      "pinned": false,
+      "live": false
+    },
     {
       "id": "2026-07-02-ziyu-shao-16-just-won-the-50-year-old-bachauer-piano-competition-in-salt-lake-ci",
       "slug": "ziyu-shao-16-just-won-the-50-year-old-bachauer-piano-competition-in-salt-lake-ci",

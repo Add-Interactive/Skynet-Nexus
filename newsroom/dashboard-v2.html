@@ -6,74 +6,91 @@
   <title>🛰️ SKYNET NEXUS — Newsroom Command Center v2.0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --lcars-gold: #ff9900;
+      --lcars-orange: #ff6633;
+      --lcars-lilac: #cc99cc;
+      --lcars-blue: #99ccff;
+      --lcars-slate: #5599cc;
+      --lcars-red: #cc3333;
+      --lcars-dark: #111a24;
+      --lcars-bg: #000000;
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     body {
-      background: #000;
-      color: #00ff41;
-      font-family: 'Orbitron', monospace;
-      line-height: 1.5;
+      background: var(--lcars-bg);
+      color: #ffffff;
+      font-family: 'Antonio', sans-serif;
+      font-size: 15px;
+      line-height: 1.4;
       letter-spacing: 0.05em;
       overflow: hidden;
       min-height: 100vh;
+      text-transform: uppercase;
     }
-    
-    /* Scanlines */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.15) 0, rgba(0, 0, 0, 0.15) 1px, transparent 1px, transparent 2px);
-      pointer-events: none;
-      z-index: 999;
-    }
-    
+
+    /* LCARS Grid Layout */
     .app-container {
       display: grid;
-      grid-template-rows: 60px 1fr;
+      grid-template-rows: 55px 1fr;
       height: 100vh;
-      gap: 8px;
-      padding: 8px;
-      background: #000;
+      gap: 12px;
+      padding: 12px;
     }
-    
-    /* TOP BAR */
+
+    /* TOP BAR - HEADER CHANNEL */
     .topbar {
       display: flex;
       align-items: center;
-      gap: 20px;
-      padding: 12px 20px;
-      background: linear-gradient(90deg, #001a4d 0%, #0d0d26 100%);
-      border: 2px solid #00ff41;
-      border-radius: 0 12px 0 0;
-      box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+      gap: 16px;
+      background: var(--lcars-bg);
     }
-    
-    .topbar-title {
+
+    .topbar-elbow {
+      width: 150px;
+      height: 45px;
+      background: var(--lcars-lilac);
+      border-radius: 20px 0 0 20px;
+      display: flex;
+      align-items: center;
+      padding-left: 20px;
+      font-weight: 700;
+      color: #000;
       font-size: 16px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
     }
-    
+
+    .topbar-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--lcars-blue);
+      letter-spacing: 1px;
+    }
+
+    .topbar-banner {
+      flex: 1;
+      height: 12px;
+      background: var(--lcars-blue);
+      border-radius: 6px;
+    }
+
     .topbar-status {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-left: auto;
-      font-size: 12px;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--lcars-gold);
     }
     
     .status-dot {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
-      background: #00ff00;
-      box-shadow: 0 0 10px #00ff00;
+      background: var(--lcars-gold);
       animation: pulse 2s infinite;
     }
     
@@ -81,303 +98,268 @@
       0%, 100% { opacity: 1; }
       50% { opacity: 0.3; }
     }
-    
-    .topbar-buttons {
-      display: flex;
-      gap: 8px;
-    }
-    
-    .btn-nav {
-      padding: 6px 12px;
-      background: transparent;
-      border: 1px solid #00ff41;
-      color: #00ff41;
-      font-family: 'Orbitron', monospace;
-      font-size: 11px;
+
+    .topbar-time {
+      background: var(--lcars-orange);
+      color: #000;
+      padding: 4px 16px;
+      border-radius: 12px;
       font-weight: 700;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.2s;
+      font-size: 14px;
     }
-    
-    .btn-nav:hover {
-      background: #00ff41;
-      color: #000;
-      box-shadow: 0 0 10px #00ff41;
-    }
-    
-    .btn-nav.active {
-      background: #00ff41;
-      color: #000;
-    }
-    
+
     /* MAIN CONTENT */
     .content {
       display: grid;
-      grid-template-columns: 320px 1fr 360px;
-      gap: 8px;
+      grid-template-columns: 240px 1fr 340px;
+      gap: 16px;
       height: 100%;
       overflow: hidden;
     }
-    
+
+    /* PANEL DEFINITION */
     .panel {
       display: flex;
       flex-direction: column;
-      background: linear-gradient(135deg, #001a4d 0%, #000d26 100%);
-      border: 2px solid #00ff41;
-      border-radius: 12px;
+      background: var(--lcars-dark);
+      border-radius: 8px;
       padding: 16px;
-      box-shadow: 0 0 20px rgba(0, 255, 65, 0.3), inset 0 0 10px rgba(0, 255, 65, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       overflow-y: auto;
       overflow-x: hidden;
     }
-    
+
     .panel-header {
-      font-size: 11px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 16px;
-      border-bottom: 1px dashed #00ff41;
-      padding-bottom: 12px;
-      text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
-    }
-    
-    /* LEFT PANEL: CREW */
-    #crew-panel {
-      gap: 8px;
-    }
-    
-    .crew-member {
-      padding: 12px;
-      background: rgba(0, 255, 65, 0.05);
-      border: 1px solid #00ccff;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 12px;
-    }
-    
-    .crew-member:hover {
-      background: rgba(0, 255, 65, 0.15);
-      box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
-      border-color: #00ff41;
-    }
-    
-    .crew-member.active {
-      background: rgba(0, 255, 65, 0.2);
-      border-color: #00ff41;
-      box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
-    }
-    
-    .crew-name {
+      font-size: 18px;
       font-weight: 700;
-      margin-bottom: 4px;
-    }
-    
-    .crew-stats {
+      color: var(--lcars-gold);
+      border-bottom: 2px solid var(--lcars-gold);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
       display: flex;
       justify-content: space-between;
-      font-size: 11px;
-      opacity: 0.8;
+      align-items: center;
     }
-    
-    .status-badge {
-      display: inline-block;
-      padding: 2px 6px;
-      background: rgba(0, 255, 65, 0.1);
-      border: 1px solid #00ccff;
-      border-radius: 2px;
-      font-size: 10px;
-      text-transform: uppercase;
-    }
-    
-    .status-badge.idle { border-color: #00ff41; }
-    .status-badge.writing { border-color: #ffff00; background: rgba(255, 255, 0, 0.1); }
-    .status-badge.filing { border-color: #ff6600; background: rgba(255, 102, 0, 0.1); }
-    .status-badge.approved { border-color: #00ff00; background: rgba(0, 255, 0, 0.1); }
-    
-    /* CENTER: CANVAS + QUEUE */
-    .center-content {
+
+    /* LEFT SIDEBAR: CREW (ELBOW WRAPPED) */
+    .crew-container {
       display: flex;
       flex-direction: column;
       gap: 8px;
+    }
+
+    .crew-member {
+      display: flex;
+      flex-direction: column;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 6px solid var(--lcars-slate);
+      border-radius: 0 8px 8px 0;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .crew-member:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-left-color: var(--lcars-blue);
+    }
+
+    .crew-member.active {
+      background: rgba(255, 153, 0, 0.1);
+      border-left-color: var(--lcars-gold);
+    }
+
+    .crew-name {
+      font-weight: 700;
+      color: #ffffff;
+      font-size: 14px;
+    }
+
+    .crew-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .status-badge {
+      padding: 1px 6px;
+      font-size: 10px;
+      border-radius: 4px;
+      font-weight: 700;
+      color: #000;
+    }
+
+    .status-badge.idle { background: var(--lcars-blue); }
+    .status-badge.writing { background: var(--lcars-gold); }
+    .status-badge.filing { background: var(--lcars-orange); }
+    .status-badge.approved { background: var(--lcars-lilac); }
+
+    /* CENTER AREA: CANVAS & QUEUE MONITOR */
+    .center-content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
       height: 100%;
     }
-    
-    #bridge-canvas {
+
+    .canvas-wrapper {
       flex: 1;
-      background: #000;
-      border: 2px solid #00ccff;
+      position: relative;
+      background: #050b11;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
-      box-shadow: 0 0 20px rgba(0, 204, 255, 0.3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    #bridge-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
       cursor: crosshair;
     }
-    
+
     .queue-panel {
-      height: 180px;
-      padding: 12px;
-      background: linear-gradient(135deg, #001a4d 0%, #000d26 100%);
-      border: 2px solid #00ff41;
+      height: 220px;
+      padding: 16px;
+      background: var(--lcars-dark);
       border-radius: 8px;
-      box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       overflow-y: auto;
+      display: flex;
+      flex-direction: column;
     }
-    
+
+    .queue-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 8px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
     .queue-item {
-      padding: 8px;
-      background: rgba(0, 255, 65, 0.05);
-      border-left: 3px solid #00ccff;
-      margin-bottom: 8px;
-      font-size: 11px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 6px solid var(--lcars-slate);
+      border-radius: 0 4px 4px 0;
       cursor: pointer;
-      transition: all 0.2s;
-      border-radius: 2px;
+      transition: all 0.15s;
     }
-    
+
     .queue-item:hover {
-      background: rgba(0, 255, 65, 0.15);
-      border-left-color: #00ff41;
+      background: rgba(255, 255, 255, 0.08);
+      border-left-color: var(--lcars-blue);
     }
-    
+
     .queue-item.selected {
-      background: rgba(0, 255, 65, 0.2);
-      border-left-color: #00ff41;
-      box-shadow: inset 0 0 10px rgba(0, 255, 65, 0.2);
+      background: rgba(255, 102, 51, 0.1);
+      border-left-color: var(--lcars-orange);
     }
-    
+
     .queue-title {
       font-weight: 700;
-      margin-bottom: 4px;
+      font-size: 13px;
+      color: #ffffff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    
+
     .queue-meta {
       display: flex;
       justify-content: space-between;
-      font-size: 10px;
-      opacity: 0.7;
-    }
-    
-    /* RIGHT PANEL: EDITOR */
-    #editor-panel {
-      max-height: 100%;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .editor-header {
-      padding: 16px;
-      border-bottom: 2px solid #00ff41;
+      align-items: center;
+      margin-top: 4px;
       font-size: 11px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+      color: rgba(255, 255, 255, 0.6);
     }
-    
-    .editor-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    
+
+    /* RIGHT SIDEBAR: EDITOR CONSOLE */
     .editor-section {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 4px;
+      margin-bottom: 12px;
     }
-    
+
     .editor-label {
-      font-size: 10px;
+      font-size: 12px;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #00ccff;
+      color: var(--lcars-blue);
     }
-    
+
     .editor-input {
-      background: rgba(0, 0, 0, 0.5);
-      border: 1px solid #00ff41;
-      color: #00ff41;
-      padding: 8px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      padding: 8px 12px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      border-radius: 2px;
+      font-size: 12px;
+      border-radius: 4px;
+      text-transform: none;
     }
-    
+
     .editor-input:focus {
       outline: none;
-      box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+      border-color: var(--lcars-gold);
     }
-    
-    .editor-textarea {
-      resize: vertical;
-      min-height: 80px;
-      max-height: 150px;
-    }
-    
+
     .editor-actions {
       display: flex;
       gap: 8px;
-      padding: 16px;
-      border-top: 2px solid #00ff41;
-      background: rgba(0, 0, 0, 0.3);
+      margin-top: auto;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 12px;
     }
-    
+
     .btn-action {
       flex: 1;
-      padding: 8px 12px;
-      background: transparent;
-      border: 1px solid #00ff41;
-      color: #00ff41;
-      font-family: 'Orbitron', monospace;
-      font-size: 10px;
+      padding: 8px;
+      border: none;
+      background: var(--lcars-blue);
+      color: #000000;
+      font-family: 'Antonio', sans-serif;
+      font-size: 14px;
       font-weight: 700;
-      text-transform: uppercase;
       cursor: pointer;
-      transition: all 0.2s;
-      border-radius: 2px;
+      transition: all 0.15s;
+      border-radius: 12px;
     }
-    
+
     .btn-action:hover {
-      background: #00ff41;
-      color: #000;
-      box-shadow: 0 0 10px #00ff41;
+      filter: brightness(1.15);
     }
-    
+
+    .btn-action#btn-approve {
+      background: var(--lcars-gold);
+    }
+
     .btn-action.danger {
-      border-color: #ff0066;
-      color: #ff0066;
+      background: var(--lcars-red);
+      color: #ffffff;
     }
-    
-    .btn-action.danger:hover {
-      background: #ff0066;
-      color: #fff;
-      box-shadow: 0 0 10px #ff0066;
-    }
-    
+
     .btn-action:disabled {
-      opacity: 0.3;
+      opacity: 0.25;
       cursor: not-allowed;
     }
-    
+
     /* MODAL */
     .modal {
       display: none;
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.9);
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
       z-index: 10000;
       align-items: center;
       justify-content: center;
+      backdrop-filter: blur(4px);
     }
     
     .modal.open {
@@ -385,45 +367,29 @@
     }
     
     .modal-content {
-      background: linear-gradient(135deg, #001a4d 0%, #000d26 100%);
-      border: 2px solid #00ff41;
-      border-radius: 8px;
+      background: var(--lcars-dark);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
       padding: 24px;
-      max-width: 500px;
-      max-height: 80vh;
+      width: 100%;
+      max-width: 550px;
+      max-height: 85vh;
       overflow-y: auto;
-      box-shadow: 0 0 30px rgba(0, 255, 65, 0.4);
+      box-shadow: 0 0 40px rgba(0,0,0,0.8);
     }
     
     .modal-close {
       float: right;
       cursor: pointer;
-      font-size: 20px;
-      color: #00ff41;
+      font-size: 24px;
+      color: var(--lcars-red);
     }
-    
-    .modal-close:hover {
-      text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
-    }
-    
+
     /* Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.3);
-    }
-    
-    ::-webkit-scrollbar-thumb {
-      background: #00ff41;
-      border-radius: 4px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-      background: #00ccff;
-      box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
-    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
   </style>
 </head>
 <body>
@@ -432,16 +398,14 @@
   
   <!-- TOP BAR -->
   <div class="topbar">
-    <div class="topbar-title">🛰️ SKYNET NEXUS NEWSROOM v2.0</div>
-    <div style="flex: 1;"></div>
+    <div class="topbar-elbow">SYS: ACTIVE</div>
+    <div class="topbar-title">SKYNET NEXUS NEWSROOM COMMAND v2.0</div>
+    <div class="topbar-banner"></div>
     <div class="topbar-status">
-      <span>SYSTEM STATUS:</span>
       <div class="status-dot"></div>
-      <span>NOMINAL</span>
+      <span>NOMINAL STATUS</span>
     </div>
-    <div class="topbar-status">
-      <span id="time-display">00:00 ET</span>
-    </div>
+    <div class="topbar-time" id="time-display">00:00 ET</div>
   </div>
   
   <!-- MAIN CONTENT -->
@@ -449,16 +413,24 @@
     
     <!-- LEFT: CREW MANIFEST -->
     <div id="crew-panel" class="panel">
-      <div class="panel-header">🎭 Bridge Crew</div>
-      <!-- Crew members will be populated here -->
+      <div class="panel-header">
+        <span>🎭 BRIDGE OFFICERS</span>
+      </div>
+      <div class="crew-container" id="crew-list-container">
+        <!-- Crew members will be populated here -->
+      </div>
     </div>
     
     <!-- CENTER: BRIDGE CANVAS + QUEUE -->
     <div class="center-content">
-      <canvas id="bridge-canvas"></canvas>
+      <div class="canvas-wrapper">
+        <canvas id="bridge-canvas"></canvas>
+      </div>
       <div class="queue-panel">
-        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; border-bottom: 1px dashed #00ff41; padding-bottom: 8px; text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);">📋 Queue Monitor</div>
-        <div id="queue-list">
+        <div class="panel-header">
+          <span>📋 QUEUE MONITOR</span>
+        </div>
+        <div class="queue-list" id="queue-list">
           <!-- Queue items populated here -->
         </div>
       </div>
@@ -466,22 +438,24 @@
     
     <!-- RIGHT: STORY EDITOR -->
     <div id="editor-panel" class="panel">
-      <div class="editor-header">📝 Story Editor</div>
+      <div class="panel-header">
+        <span>📝 STORY EDITOR</span>
+      </div>
       <div class="editor-content">
         <div class="editor-section">
-          <label class="editor-label">Agent</label>
-          <div id="editor-agent" class="editor-input">Select a story</div>
+          <span class="editor-label">Correspondent Agent</span>
+          <div id="editor-agent" class="editor-input" style="font-weight: 700;">Select a story</div>
         </div>
         <div class="editor-section">
-          <label class="editor-label">Channel</label>
+          <span class="editor-label">Transmission Channel</span>
           <input id="editor-channel" class="editor-input" readonly>
         </div>
         <div class="editor-section">
-          <label class="editor-label">Headline</label>
+          <span class="editor-label">Headline / Title</span>
           <input id="editor-title" class="editor-input" placeholder="Story headline">
         </div>
         <div class="editor-section">
-          <label class="editor-label">Status</label>
+          <span class="editor-label">Current Status</span>
           <div id="editor-status" class="editor-input">—</div>
         </div>
       </div>
@@ -500,16 +474,15 @@
 <div id="modal-edit" class="modal">
   <div class="modal-content">
     <span class="modal-close" onclick="document.getElementById('modal-edit').classList.remove('open');">&times;</span>
-    <h2 style="margin-bottom: 20px;">Full Story Editor</h2>
-    <!-- Full editor will go here -->
+    <h2 style="margin-bottom: 20px; color: var(--lcars-gold);">Full Story Editor</h2>
+    <p style="font-size: 14px; opacity: 0.7; text-transform: none; margin-bottom: 16px;">This editor allows quick manual reviews of database records before publication.</p>
   </div>
 </div>
 
 <div id="modal-revision" class="modal">
   <div class="modal-content">
     <span class="modal-close" onclick="document.getElementById('modal-revision').classList.remove('open');">&times;</span>
-    <h2 style="margin-bottom: 20px;">Request Revision</h2>
-    <!-- Revision request form will go here -->
+    <h2 style="margin-bottom: 20px; color: var(--lcars-gold);">Request Revision</h2>
   </div>
 </div>
 
@@ -537,16 +510,15 @@
   
   // Populate crew panel
   function renderCrewPanel() {
-    const panel = document.getElementById('crew-panel');
-    const header = panel.querySelector('.panel-header');
+    const container = document.getElementById('crew-list-container');
+    container.innerHTML = '';
     
     for (const agent of state.agents) {
-      let elem = document.getElementById(`crew-${agent.id}`);
-      if (!elem) {
-        elem = document.createElement('div');
-        elem.id = `crew-${agent.id}`;
-        elem.className = 'crew-member';
-        panel.appendChild(elem);
+      let elem = document.createElement('div');
+      elem.id = `crew-${agent.id}`;
+      elem.className = 'crew-member';
+      if (state.selectedAgent && state.selectedAgent.id === agent.id) {
+        elem.classList.add('active');
       }
       
       elem.innerHTML = `
@@ -555,10 +527,11 @@
           <span>${agent.channel}</span>
           <span class="status-badge ${agent.status}">${agent.status}</span>
         </div>
-        <div style="font-size: 10px; margin-top: 6px; opacity: 0.7;">Stories: ${agent.storiesCount}</div>
+        <div style="font-size: 11px; margin-top: 4px; opacity: 0.7;">Stories: ${agent.storiesCount}</div>
       `;
       
       elem.onclick = () => selectAgent(agent.id);
+      container.appendChild(elem);
     }
   }
   
@@ -604,10 +577,8 @@
   function selectAgent(agentId) {
     state.selectAgent(agentId);
     document.querySelectorAll('.crew-member').forEach(el => el.classList.remove('active'));
-    document.getElementById(`crew-${agentId}`).classList.add('active');
-    
-    // Show agent's stories in queue
-    // (Could highlight them or filter the queue)
+    const activeEl = document.getElementById(`crew-${agentId}`);
+    if (activeEl) activeEl.classList.add('active');
   }
   
   // Button handlers
