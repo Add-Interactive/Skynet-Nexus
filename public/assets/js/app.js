@@ -271,6 +271,242 @@ const LS = {
   set(k, v) { try { localStorage.setItem('skeynet_' + k, JSON.stringify(v)); } catch {} }
 };
 
+// ---------- Notification System for Unseen Articles ----------
+function ensureNotificationBell() {
+  const actions = document.querySelector('.top-actions');
+  if (!actions) return;
+  if (document.getElementById('notif-toggle')) return; // already exists
+  
+  const btn = document.createElement('button');
+  btn.className = 'icon-btn';
+  btn.id = 'notif-toggle';
+  btn.setAttribute('aria-label', 'Notifications');
+  btn.style.position = 'relative';
+  btn.style.marginRight = '8px';
+  btn.innerHTML = `<span id="ic-bell">${ICONS.bell}</span>
+  <span class="notif-badge" id="notif-badge" style="display:none; position:absolute; top:-2px; right:-2px; background:#ff2e63; color:#fff; font-size:9px; font-weight:800; border-radius:50%; min-width:14px; height:14px; display:grid; place-items:center; box-shadow:0 0 6px #ff2e63; line-height:1;"></span>`;
+  
+  // Insert before the theme-toggle or user slot
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) actions.insertBefore(btn, themeToggle);
+  else actions.appendChild(btn);
+
+  // Inject CSS styles for dropdown and notifications
+  if (!document.getElementById('notif-styles')) {
+    const style = document.createElement('style');
+    style.id = 'notif-styles';
+    style.textContent = `
+      .notif-dropdown {
+        position: absolute;
+        top: 60px;
+        right: 20px;
+        width: 320px;
+        background: var(--bg-card, #121824);
+        border: 1px solid var(--border, #222e45);
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5), var(--glow-cyan);
+        z-index: 1000;
+        display: none;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      .notif-dropdown.show {
+        display: block;
+      }
+      .notif-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border, #222e45);
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--text, #fff);
+      }
+      .notif-clear {
+        font-size: 0.75rem;
+        color: var(--accent, #00e5ff);
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+      .notif-clear:hover {
+        text-decoration: underline;
+      }
+      .notif-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .notif-item {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border, #222e45);
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .notif-item:hover {
+        background: rgba(0, 229, 255, 0.05);
+      }
+      .notif-item-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text, #fff);
+        line-height: 1.3;
+      }
+      .notif-item-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.75rem;
+        color: var(--text-mute, #7c8898);
+      }
+      .notif-item-tag {
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #0a0e17;
+      }
+      .notif-empty {
+        padding: 24px 16px;
+        text-align: center;
+        color: var(--text-mute, #7c8898);
+        font-size: 0.85rem;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // Create the dropdown menu container
+  let dropdown = document.getElementById('notif-dropdown');
+  if (!dropdown) {
+    dropdown = document.createElement('div');
+    dropdown.id = 'notif-dropdown';
+    dropdown.className = 'notif-dropdown';
+    document.body.appendChild(dropdown);
+  }
+
+  // Bind toggle click
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle('show');
+    renderNotificationsList();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!dropdown.contains(e.target) && e.target !== btn) {
+      dropdown.classList.remove('show');
+    }
+  });
+}
+
+function updateNotifications() {
+  const seen = LS.get('seen_articles', []);
+  const unseen = ARTICLES.filter(a => a.id && !seen.includes(a.id));
+  
+  // 1. Update the bell icon badge
+  const badge = document.getElementById('notif-badge');
+  if (badge) {
+    if (unseen.length > 0) {
+      badge.style.display = 'grid';
+      badge.textContent = unseen.length;
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+  
+  // 2. Update the sidebar channels list indicator
+  document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+    let url;
+    try {
+      url = new URL(link.href, location.href);
+    } catch (err) {
+      return;
+    }
+    const cId = url.searchParams.get('c');
+    if (cId) {
+      const hasUnseen = ARTICLES.some(art => art.cat === cId && !seen.includes(art.id));
+      let dot = link.querySelector('.notif-dot-small');
+      if (hasUnseen) {
+        if (!dot) {
+          dot = document.createElement('span');
+          dot.className = 'notif-dot-small';
+          dot.style.cssText = 'background:#ff2e63;width:6px;height:6px;border-radius:50%;display:inline-block;margin-left:auto;box-shadow:0 0 4px #ff2e63;';
+          link.appendChild(dot);
+        }
+      } else {
+        if (dot) dot.remove();
+      }
+    }
+  });
+}
+
+function renderNotificationsList() {
+  const dropdown = document.getElementById('notif-dropdown');
+  if (!dropdown) return;
+  const seen = LS.get('seen_articles', []);
+  const unseen = ARTICLES.filter(a => a.id && !seen.includes(a.id));
+  
+  let html = `<div class="notif-header">
+    <span>Unread Stories</span>
+    ${unseen.length > 0 ? '<button class="notif-clear" id="btn-clear-notifs">Mark all read</button>' : ''}
+  </div>`;
+  
+  if (unseen.length === 0) {
+    html += `<div class="notif-empty">🎉 All caught up! No unread stories.</div>`;
+  } else {
+    html += '<ul class="notif-list">';
+    unseen.forEach(a => {
+      const ch = getChannel(a.cat) || { label: a.cat, color: '#00e5ff' };
+      html += `
+        <li class="notif-item" data-id="${a.id}">
+          <div class="notif-item-title">${a.title}</div>
+          <div class="notif-item-meta">
+            <span class="notif-item-tag" style="background:${ch.color}">${ch.short || ch.label}</span>
+            <span>${friendlyDate(a.date)}</span>
+          </div>
+        </li>
+      `;
+    });
+    html += '</ul>';
+  }
+  
+  dropdown.innerHTML = html;
+
+  // Bind clear button
+  const clearBtn = dropdown.querySelector('#btn-clear-notifs');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const allIds = ARTICLES.map(a => a.id).filter(Boolean);
+      LS.set('seen_articles', allIds);
+      updateNotifications();
+      renderNotificationsList();
+    });
+  }
+
+  // Bind item clicks to navigation
+  dropdown.querySelectorAll('.notif-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const id = item.dataset.id;
+      const seen = LS.get('seen_articles', []);
+      if (!seen.includes(id)) {
+        seen.push(id);
+        LS.set('seen_articles', seen);
+      }
+      dropdown.classList.remove('show');
+      updateNotifications();
+      
+      const base = location.pathname.includes('/pages/') ? '../' : './';
+      location.href = base + 'pages/article.html?id=' + id;
+    });
+  });
+}
+
 // ---------- Theme ----------
 function initTheme() {
   const saved = LS.get('theme', 'dark');
@@ -286,6 +522,8 @@ function initTheme() {
       btn.innerHTML = nxt === 'light' ? ICONS.moon : ICONS.sun;
     });
   }
+  ensureNotificationBell();
+  updateNotifications();
 }
 
 // ---------- Toast ----------
@@ -377,10 +615,22 @@ function getFilteredArticles() {
       (a.tags || []).some(t => t.toLowerCase().includes(q))
     );
   }
-  if (currentSort === 'trending')       list.sort((a, b) => (b.likes + b.shares) - (a.likes + a.shares));
-  else if (currentSort === 'popular')   list.sort((a, b) => b.likes - a.likes);
-  else if (currentSort === 'commented') list.sort((a, b) => b.comments - a.comments);
-  else                                  list.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const sortFn = (a, b) => {
+    if (currentSort === 'trending')       return (b.likes + b.shares) - (a.likes + a.shares);
+    if (currentSort === 'popular')        return b.likes - a.likes;
+    if (currentSort === 'commented')      return b.comments - a.comments;
+    return new Date(b.date || b.publishedAt) - new Date(a.date || a.publishedAt);
+  };
+
+  if (currentFilter === 'all' && !searchQuery) {
+    const skynetDrops = list.filter(a => a.cat === 'skynet').sort(sortFn);
+    const others = list.filter(a => a.cat !== 'skynet').sort(sortFn);
+    list = [...skynetDrops, ...others];
+  } else {
+    list.sort(sortFn);
+  }
+
   return list;
 }
 
@@ -393,7 +643,12 @@ function renderFeed() {
   // 1) Editorial stories first (if any match the current filter/search).
   if (list.length) {
     grid.className = 'feed-grid';
-    grid.innerHTML = list.map((a, i) => renderPost(a, i === 0 && currentFilter === 'all' && !searchQuery, feedBase)).join('');
+    grid.innerHTML = list.map((a, i) => {
+      const isSkynetDrop = (a.cat === 'skynet');
+      const isFirstAll = (i === 0 && currentFilter === 'all' && !searchQuery);
+      const isFeatured = isSkynetDrop || isFirstAll;
+      return renderPost(a, isFeatured, feedBase);
+    }).join('');
     bindPostEvents();
   } else {
     grid.className = 'feed-grid';
@@ -731,6 +986,10 @@ function renderTicker() {
     .slice(0, 6)
     .map(a => ({ label: categoryLabel(a.cat).toUpperCase(), text: a.title }));
   if (!items.length) items = TICKER_FALLBACK;
+  
+  // Prepend the 4th of July message!
+  items.unshift({ label: 'CELEBRATION', text: 'Happy 4th of July 250th Birthday!' });
+
   // duplicate for seamless scroll
   const html = items.concat(items).map(t =>
     '<span><strong>' + t.label + '</strong> ' + t.text + '</span><span class="sep">•</span>'
@@ -760,6 +1019,14 @@ function initArticlePage() {
   const id = idParam || (ARTICLES[0] && ARTICLES[0].id);
   const a = ARTICLES.find(x => String(x.id) === String(id) || String(x.slug) === String(id) || String(x.legacyId) === String(id)) || ARTICLES[0];
   if (!a) { container.innerHTML = '<div class="empty-state"><h3>Article not found</h3><p>It may have been unpublished or moved.</p></div>'; return; }
+  
+  // Mark as seen
+  const seen = LS.get('seen_articles', []);
+  if (a.id && !seen.includes(a.id)) {
+    seen.push(a.id);
+    LS.set('seen_articles', seen);
+  }
+
   document.title = a.title + ' â€” Skynet Nexus News';
   const liked = LS.get('likes_' + a.id, false);
   const saved = LS.get('save_' + a.id, false);
