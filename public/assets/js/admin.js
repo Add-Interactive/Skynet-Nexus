@@ -875,10 +875,11 @@
     var controlBar = h(
       '<div class="admin-panel" style="margin-bottom: 24px;">' +
         '<h2>Emergency Actions</h2>' +
-        '<p style="font-size: 14px; opacity: 0.8; margin-bottom: 16px;">Use these controls to seed or publish all 13 channel drops for today (2026-07-03).</p>' +
-        '<div class="row-actions">' +
-          '<button id="btn-seed-drops" class="admin-btn admin-btn-primary">🚀 Generate Today\'s 13-Channel Drop</button>' +
-          '<button id="btn-publish-all" class="admin-btn" style="background: #2dd4bf; color: #0a0e17; font-weight: 600;">📢 Auto-Publish All Ready Drafts</button>' +
+        '<p style="font-size: 14px; opacity: 0.8; margin-bottom: 16px;">Use these controls to generate, publish, or run the entire process for today\'s 13 channel drops.</p>' +
+        '<div class="row-actions" style="display: flex; gap: 12px; flex-wrap: wrap;">' +
+          '<button id="btn-seed-drops" class="admin-btn">🚀 Generate Drafts</button>' +
+          '<button id="btn-publish-all" class="admin-btn" style="background: #2dd4bf; color: #0a0e17;">📢 Auto-Publish Ready Drafts</button>' +
+          '<button id="btn-run-it" class="admin-btn admin-btn-primary" style="background: var(--lcars-gold); color: #000; font-weight: 900; box-shadow: 0 0 10px rgba(255, 184, 0, 0.4);">⚡ RUN IT (Generate & Publish)</button>' +
         '</div>' +
       '</div>'
     );
@@ -1038,6 +1039,51 @@
           refreshBadges();
         }).catch(function (err) {
           toast('Error during batch publish: ' + err.message, true);
+          Views.antigravity();
+          refreshBadges();
+        });
+      });
+
+      // Bind Run It button
+      controlBar.querySelector('#btn-run-it').addEventListener('click', function (e) {
+        var btn = e.target;
+        if (!confirm('Are you sure you want to Generate and Auto-Publish all 13 drops for today immediately? This will make them live.')) return;
+        
+        btn.disabled = true;
+        btn.textContent = 'Running (Generating)...';
+        
+        api('/admin/antigravity/generate-drops', { method: 'POST' }).then(function (r) {
+          btn.textContent = 'Running (Publishing ' + r.count + ' stories)...';
+          
+          // Fetch status to get the newly generated queued stories
+          return api('/admin/antigravity/status');
+        }).then(function (res) {
+          var today = res.today;
+          var queued = res.queued || [];
+          var publishable = queued.filter(function (q) {
+            return q.payload && q.payload.date === today && q.status !== 'published' && q.status !== 'rejected';
+          });
+          
+          if (!publishable.length) {
+            throw new Error('No draft stories found to publish for today.');
+          }
+          
+          var chain = Promise.resolve();
+          publishable.forEach(function (story) {
+            chain = chain.then(function () {
+              return api('/admin/stories/queue/' + story.id + '/publish', { method: 'POST' });
+            });
+          });
+          
+          return chain.then(function () {
+            return publishable.length;
+          });
+        }).then(function (count) {
+          toast('Successfully generated and published all ' + count + ' emergency stories!');
+          Views.antigravity();
+          refreshBadges();
+        }).catch(function (err) {
+          toast(err.message, true);
           Views.antigravity();
           refreshBadges();
         });
