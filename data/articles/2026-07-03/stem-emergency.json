@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-03-stem-emergency",
+  "slug": "stem-emergency",
+  "cat": "stem",
+  "categoryLabel": "STEM",
+  "title": "17-Year-Old Researcher Iris Shen Discovers Plastic-Eating Bacteria in Local Soil",
+  "subtitle": "High school student isolates microbial strain that degrades polyethylene plastics",
+  "excerpt": "17-year-old high school student Iris Shen isolated a strain of bacteria from a local landfill that can break down polyethylene plastic, offering a green solution to waste.",
+  "heroImage": "",
+  "body": "<p>Polyethylene is the most common type of plastic in the world, used to make grocery bags, shampoo bottles, and toys. Unfortunately, it takes hundreds of years to break down in landfills. However, 17-year-old student researcher Iris Shen from Chicago, Illinois, has discovered a microscopic ally in the fight against plastic pollution. She has isolated a strain of bacteria from local landfill soil that can consume and break down polyethylene plastics.</p><p>Iris's research began after she volunteered at a community cleanup day and noticed how much plastic trash was buried in the dirt. She wondered if nature was already adapting to this waste. She realized that over decades, some bacteria in landfills might have evolved the ability to use plastic as a food source.</p><p>To test her theory, Iris gathered soil samples from a landfill that had been closed for thirty years. In her school biology lab, she placed the soil in containers containing strips of polyethylene film as the only source of carbon (food). Over several weeks, she monitored the containers to see if any bacteria would grow and multiply on the plastic surface.</p><p>Her patience paid off. She isolated a specific strain of bacteria, belonging to the genus *Pseudomonas*, that was actively eating the plastic. The bacteria produce enzymes—special proteins that speed up chemical reactions—that break the long, tough molecular chains of the plastic into simpler, harmless organic compounds that the bacteria can digest.</p><p>In her tests, the bacteria reduced the weight of the plastic film by 18 percent in just forty days. This process is called bioremediation—using living organisms to clean up environmental pollution.</p><blockquote>Finding a biological way to break down plastic is so exciting because it doesn't require chemicals or heat. We are just helping nature do what it does best, but much faster.<footer>— Iris Shen, 17</footer></blockquote><p>Iris's project won third place at the Regeneron Science Talent Search. She hopes to study biochemistry in college and refine the bacterial enzymes so they can break down plastic even faster, paving the way for industrial-scale biological recycling systems.</p>",
+  "kidTake": "A 17-year-old student named Iris discovered a special type of bacteria in landfill soil that can eat plastic! The bacteria use special proteins to break down tough plastic bags and bottles into harmless natural materials, helping clean up the environment.",
+  "familyDiscussion": [
+    "How do you think nature adapts to the waste that humans leave behind?",
+    "Iris's bacteria can eat plastic bags. What is something you use every day that you could replace with a reusable item to avoid making plastic waste?",
+    "Why is using bacteria to clean up pollution (bioremediation) safer than using chemicals or burning trash?"
+  ],
+  "glossary": [
+    {
+      "term": "Bioremediation",
+      "meaning": "The use of living organisms, like bacteria or plants, to clean up and remove pollution from the environment."
+    },
+    {
+      "term": "Polyethylene",
+      "meaning": "The most common type of plastic, used to make items like grocery bags, plastic bottles, and food packaging."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Priya Ramanathan",
+  "authorInit": "PR",
+  "authorRole": "Correspondent — STEM",
+  "date": "2026-07-03",
+  "publishedAt": "2026-07-03T10:00:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "bioremediation",
+    "plastic-cleanup",
+    "bacteria",
+    "student-research"
+  ],
+  "color": "#00e5ff",
+  "gradient": "linear-gradient(135deg, #00e5ff, #a855f7)",
+  "emoji": "🧬",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "17-Year-Old Researcher Iris Shen Discovers Plastic-Eating Bacteria in Local Soil Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/stem"
+    }
+  ]
+}

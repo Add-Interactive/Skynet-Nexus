@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-03-engineering-emergency",
+  "slug": "engineering-emergency",
+  "cat": "engineering",
+  "categoryLabel": "Engineering & Making",
+  "title": "15-Year-Old Lily Ortiz Designs Low-Cost Solar Distiller for Clean Water",
+  "subtitle": "High school maker uses recycled materials to build portable water purification unit",
+  "excerpt": "Using recycled acrylic sheets and black paint, 15-year-old Lily Ortiz engineered a low-cost solar water distiller that purifies dirty water using simple evaporation.",
+  "heroImage": "",
+  "body": "<p>Around the world, millions of people lack access to clean drinking water. While large filtration plants are expensive to build, 15-year-old maker Lily Ortiz from Portland, Oregon, has designed a simple, low-cost solution. Using recycled acrylic sheets, black paint, and basic pipes, she constructed a portable solar water distiller that can purify dirty water using nothing but heat from the sun.</p><p>Lily's inspiration came during a family camping trip when their water filter broke, forcing them to boil water to make it safe. She realized that boiling requires fuel, which is hard to find in many places. She wanted to build a device that could clean water using solar energy, which is free and abundant.</p><p>The distiller works through a process called evaporation and condensation. Dirty water is poured into a shallow, black-painted tray inside a sealed acrylic box. The black paint absorbs sunlight, heating the water. As the water gets hot, it turns into water vapor (steam), leaving dirt, salt, and bacteria behind in the tray.</p><p>The vapor rises and hits the sloped acrylic lid of the box, which is cooler than the air inside. When the vapor cools, it condenses back into liquid water droplets. These clean droplets slide down the sloped lid and drip into a clean collection tube, ready to drink. Lily's prototype can produce about one gallon of clean water a day, enough for a small family's drinking needs.</p><blockquote>The science behind it is really basic, but engineering it to be durable and cheap was the hard part. We wanted to make sure someone could build it themselves using whatever scrap materials they find.<footer>— Lily Ortiz, 15</footer></blockquote><p>Lily won first place in her school's engineering fair and is currently working on an instruction manual with diagrams so that community centers in developing regions can build their own versions of her distiller.</p>",
+  "kidTake": "A 15-year-old girl named Lily built a special box that cleans dirty water using heat from the sun. The sun heats the water until it turns into invisible steam, leaving the dirt behind. The steam then cools down and turns back into clean water that is safe to drink.",
+  "familyDiscussion": [
+    "How does nature clean water? (Hint: Think about how rain is made!)",
+    "Lily's distiller is cheap and uses scrap materials. Why is it important to design inventions that are inexpensive?",
+    "If you had to live without clean tap water for a week, how would you change how you wash and drink?"
+  ],
+  "glossary": [
+    {
+      "term": "Evaporation",
+      "meaning": "The process of a liquid turning into a gas, like when wet puddles dry up on a hot day."
+    },
+    {
+      "term": "Condensation",
+      "meaning": "The process of a gas cooling down and turning back into a liquid, like water droplets forming on the outside of a cold cup."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Chief Engineer Geordi La Forge",
+  "authorInit": "CE",
+  "authorRole": "Correspondent - Engineering & Making",
+  "date": "2026-07-03",
+  "publishedAt": "2026-07-03T10:00:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "clean-water",
+    "maker",
+    "solar-energy",
+    "engineering"
+  ],
+  "color": "#ff8c00",
+  "gradient": "linear-gradient(135deg, #ffb800, #ff2e63)",
+  "emoji": "🔧",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "15-Year-Old Lily Ortiz Designs Low-Cost Solar Distiller for Clean Water Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/engineering"
+    }
+  ]
+}

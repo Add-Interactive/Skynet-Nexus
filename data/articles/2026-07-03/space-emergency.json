@@ -1,0 +1,57 @@
+{
+  "id": "2026-07-03-space-emergency",
+  "slug": "space-emergency",
+  "cat": "space",
+  "categoryLabel": "Space & Aerospace",
+  "title": "High School CubeSat Project 'SkyBolt-1' Launched into Orbit by NASA Rocket",
+  "subtitle": "Seattle student team builds miniature satellite to study cosmic radiation in space",
+  "excerpt": "Built by a team of high school students in Seattle, the miniature satellite 'SkyBolt-1' was launched into orbit from Cape Canaveral to study cosmic rays.",
+  "heroImage": "",
+  "body": "<p>Building a satellite is usually a job for professional aerospace engineers with millions of dollars in funding. However, a team of high school students in Seattle, Washington, has achieved this milestone themselves. Their miniature satellite, named SkyBolt-1, was launched into space from Cape Canaveral, Florida, orbiting the Earth to collect data on cosmic radiation.</p><p>SkyBolt-1 is a CubeSat—a standard class of miniature satellites that are shaped like a 10-centimeter cube and weigh about three pounds. Because they are small and compact, CubeSats can hitch a ride on commercial rocket launches, allowing universities and schools to send scientific experiments into space for a fraction of the usual cost.</p><p>The student team, consisting of 12 high schoolers, spent two years designing, building, and testing the satellite. Inside the cube, they packed solar panels, a miniature radio, and a Geiger counter—a sensor that detects cosmic rays, which are high-energy particles traveling through space from distant stars and galaxies.</p><p>To survive in space, the satellite had to pass extreme tests. The students had to prove to NASA that SkyBolt-1 could survive the intense shaking of a rocket launch and the freezing temperatures of orbit. They built a custom thermal protection system to keep the electronics warm during the 45 minutes of each orbit when the satellite is shielded from the sun behind the Earth.</p><blockquote>Seeing our satellite go up on the rocket was incredible. We built something in our school science lab that is currently flying 250 miles above us, sending data back to our classroom radio receiver every day.<footer>— Sarah Jenkins, 17, SkyBolt-1 Project Lead</footer></blockquote><p>The students are currently receiving radio signals from SkyBolt-1 as it passes over Seattle, tracking how cosmic radiation levels change as the satellite moves through different parts of its orbit. They plan to share their data with other classrooms to help students study space science.</p>",
+  "kidTake": "A group of high school students built their own miniature satellite shaped like a small cube. It was launched into space on a rocket! Now, the satellite is orbiting high above Earth and sending back scientific data to their classroom radio.",
+  "familyDiscussion": [
+    "If you could send a small experiment into space in a CubeSat, what would you want to study?",
+    "The satellite orbits the Earth every 90 minutes. What would it feel like to watch the sun rise and set 16 times a day like the satellite does?",
+    "Sarah says they receive data from the satellite using a classroom radio. How do you think messages travel from space to Earth without wires?"
+  ],
+  "glossary": [
+    {
+      "term": "CubeSat",
+      "meaning": "A class of miniature, cube-shaped satellites used for space research, typically measuring 10 centimeters on each side."
+    },
+    {
+      "term": "Cosmic rays",
+      "meaning": "High-energy particles that travel through space at nearly the speed of light, originating from distant stars and exploding galaxies."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Commander William Riker",
+  "authorInit": "CW",
+  "authorRole": "Correspondent - Space & Aerospace",
+  "date": "2026-07-03",
+  "publishedAt": "2026-07-03T10:00:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "cubesat",
+    "aerospace",
+    "space-flight",
+    "cosmic-rays",
+    "student-project"
+  ],
+  "color": "#00d9ff",
+  "gradient": "linear-gradient(135deg, #7c5cff, #00e5ff)",
+  "emoji": "🚀",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "High School CubeSat Project 'SkyBolt-1' Launched into Orbit by NASA Rocket Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/space"
+    }
+  ]
+}

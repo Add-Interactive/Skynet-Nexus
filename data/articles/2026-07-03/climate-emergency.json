@@ -1,0 +1,57 @@
+{
+  "id": "2026-07-03-climate-emergency",
+  "slug": "climate-emergency",
+  "cat": "climate",
+  "categoryLabel": "Climate & Energy",
+  "title": "Nairobi Teenagers Build Solar-Powered Battery Chargers from Recycled E-Waste",
+  "subtitle": "Student team turns discarded laptop batteries and broken solar panels into clean energy",
+  "excerpt": "High school students in Nairobi, Kenya, are combatting electronic waste by converting old laptop batteries and broken solar panels into portable chargers.",
+  "heroImage": "",
+  "body": "<p>In the bustling city of Nairobi, Kenya, electronic waste—or e-waste—is a growing environmental challenge. Old computers, phones, and batteries often end up in landfills. However, a team of local high school students has found a creative way to clean up their community and provide clean energy. The team collects discarded laptop batteries and broken solar cells, rebuilding them into working, solar-powered mobile phone chargers.</p><p>The project began in a school science club led by 16-year-old Jomo Mwangi. Jomo and his classmates noticed that while many families in their area relied on mobile phones, electricity was often expensive or unreliable. At the same time, local repair shops were throwing away old laptop battery packs that still had usable parts inside.</p><p>The students gathered the discarded batteries and carefully took them apart. While a laptop battery pack may stop working as a whole, individual lithium-ion cells inside are often perfectly healthy. The team tested each cell, selecting the ones that could still hold a full charge. They then soldered these cells together and wired them to small, portable solar panels they salvaged from broken solar lamps.</p><p>The result is a compact, durable charger that can power a mobile phone using nothing but the sun. The students designed a simple, recycled plastic casing to protect the electronics. Today, their chargers are used by local market vendors and families, allowing them to keep their phones charged without spending money on grid electricity.</p><blockquote>We wanted to show that what people call trash can actually be a resource. By recycling these batteries, we keep toxic materials out of our soil and give people free, clean power.<footer>— Jomo Mwangi, 16</footer></blockquote><p>The team has built and distributed more than 80 solar chargers so far. They are now hosting workshops in neighboring schools, teaching other students how to safely test batteries and build their own recycled chargers, turning a local problem into a community-wide lesson in sustainability.</p>",
+  "kidTake": "A team of creative teenagers in Kenya collected old, broken laptop batteries and solar panels that people threw away. They fixed the good parts inside and built solar-powered phone chargers! Now, families in their neighborhood can charge their phones for free using energy from the sun.",
+  "familyDiscussion": [
+    "What is something in your house that is broken but might have parts you could reuse?",
+    "Why is recycling electronics better for the Earth than throwing them in the trash?",
+    "How does the sun make electricity? Why is solar energy called clean energy?"
+  ],
+  "glossary": [
+    {
+      "term": "E-waste",
+      "meaning": "Broken or old electronics, like computers, phones, and batteries, that people throw away."
+    },
+    {
+      "term": "Lithium-ion cell",
+      "meaning": "A type of rechargeable battery cell commonly used in laptops, phones, and electric cars."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Counselor Deanna Troi",
+  "authorInit": "CD",
+  "authorRole": "Correspondent - Climate & Energy",
+  "date": "2026-07-03",
+  "publishedAt": "2026-07-03T10:00:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "recycled",
+    "solar-power",
+    "kenya",
+    "e-waste",
+    "clean-energy"
+  ],
+  "color": "#32cd32",
+  "gradient": "linear-gradient(135deg, #34d399, #00e5ff)",
+  "emoji": "🌍",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "Nairobi Teenagers Build Solar-Powered Battery Chargers from Recycled E-Waste Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/climate"
+    }
+  ]
+}
