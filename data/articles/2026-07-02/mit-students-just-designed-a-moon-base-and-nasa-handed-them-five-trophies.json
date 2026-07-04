@@ -69,5 +69,6 @@
       "label": "MIT Space Resources Workshop",
       "url": "https://spaceresources.mit.edu/"
     }
-  ]
+  ],
+  "heroImage": "/assets/img/cubesat_satellite_space.jpg"
 }

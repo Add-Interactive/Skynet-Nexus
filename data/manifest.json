@@ -601,7 +601,8 @@
       "emoji": "🎧",
       "featured": false,
       "pinned": false,
-      "live": false
+      "live": false,
+      "heroImage": "/assets/img/cello_soloist_concert.jpg"
     },
     {
       "id": "2026-07-02-mit-students-just-designed-a-moon-base-and-nasa-handed-them-five-trophies",
@@ -634,7 +635,8 @@
       "emoji": "🧬",
       "featured": false,
       "pinned": false,
-      "live": false
+      "live": false,
+      "heroImage": "/assets/img/cubesat_satellite_space.jpg"
     },
     {
       "id": "2026-07-02-eight-u-s-kids-cracked-the-top-10-at-the-fide-world-cadet-chess-cup",
@@ -667,7 +669,8 @@
       "emoji": "🎨",
       "featured": false,
       "pinned": false,
-      "live": false
+      "live": false,
+      "heroImage": "/assets/img/youth_chess_championship.jpg"
     },
     {
       "id": "2026-07-02-beaverton-robotics-team-went-viral-chasing-jordan-s-world-cup-squad-it-worked",
@@ -700,7 +703,8 @@
       "emoji": "🤖",
       "featured": false,
       "pinned": false,
-      "live": false
+      "live": false,
+      "heroImage": "/assets/img/youth_competitions.jpg"
     },
     {
       "id": "2026-07-01-welcome-to-skynet-nexus",
