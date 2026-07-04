@@ -60,21 +60,32 @@ function ensureStorage() {
           console.log('[storage] Synchronized articles from bundle to persistent volume');
         }
         
-        // Merge manifest entries
+        // Merge and update manifest entries
         if (fs.existsSync(seedManifestPath) && fs.existsSync(manifestPath)) {
           const currentManifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
           const seedManifest = JSON.parse(fs.readFileSync(seedManifestPath, 'utf8'));
           
           let mergedCount = 0;
+          let updatedCount = 0;
           (seedManifest.articles || []).forEach(seedArt => {
-            const exists = currentManifest.articles.some(a => a.id === seedArt.id);
-            if (!exists) {
+            const existingIndex = currentManifest.articles.findIndex(a => a.id === seedArt.id);
+            if (existingIndex === -1) {
               currentManifest.articles.unshift(seedArt);
               mergedCount++;
+            } else {
+              const ext = currentManifest.articles[existingIndex];
+              let changed = false;
+              for (const k in seedArt) {
+                if (JSON.stringify(seedArt[k]) !== JSON.stringify(ext[k])) {
+                  ext[k] = seedArt[k];
+                  changed = true;
+                }
+              }
+              if (changed) updatedCount++;
             }
           });
           
-          if (mergedCount > 0) {
+          if (mergedCount > 0 || updatedCount > 0) {
             // Sort: newest first (publishedAt desc, then id)
             currentManifest.articles.sort((a, b) => {
               const da = new Date(b.publishedAt || b.date) - new Date(a.publishedAt || a.date);
@@ -83,7 +94,7 @@ function ensureStorage() {
             });
             currentManifest.lastUpdated = new Date().toISOString();
             fs.writeFileSync(manifestPath, JSON.stringify(currentManifest, null, 2));
-            console.log(`[storage] Merged ${mergedCount} new article entries from bundle manifest`);
+            console.log(`[storage] Manifest updated: ${mergedCount} new, ${updatedCount} updated entries from bundle`);
           }
         }
       } catch (e) {
