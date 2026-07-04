@@ -283,11 +283,35 @@ function generateEmergencyDrops() {
   console.log('[antigravity-service] Starting emergency article drops generation...');
   let count = 0;
   
-  // Clear any existing stories for date 2026-07-03 to prevent duplicates
-  const today = '2026-07-03';
+  // Clear any existing stories for date 2026-07-04 to prevent duplicates
+  const today = '2026-07-04';
+  
+  const channelImages = {
+    ai: '/assets/img/wildfire_smoke_ai.jpg',
+    biotech: '/assets/img/organ_transplant_ml.jpg',
+    climate: '/assets/img/solar_chargers_waste.jpg',
+    cyber: '/assets/img/privacy_extension_dog.jpg',
+    engineering: '/assets/img/solar_distiller_water.jpg',
+    gaming: '/assets/img/youth_chess_championship.jpg',
+    math: '/assets/img/math_team_contest.jpg',
+    music: '/assets/img/cello_soloist_concert.jpg',
+    play: '/assets/img/roblox_game_ocean.jpg',
+    quantum: '/assets/img/quantum_computing_game.jpg',
+    robotics: '/assets/img/river_cleaning_robot.jpg',
+    space: '/assets/img/cubesat_satellite_space.jpg',
+    stem: '/assets/img/plastic_eating_bacteria.jpg'
+  };
+
   const allQueued = db.listQueuedStories({ limit: 1000 }) || [];
   for (const q of allQueued) {
-    if (q.payload && q.payload.date === today) {
+    let qDate = null;
+    try {
+      const p = JSON.parse(q.payload);
+      qDate = p.date;
+    } catch(e) {
+      if (q.payload && q.payload.date) qDate = q.payload.date;
+    }
+    if (qDate === today) {
       db.db.prepare('DELETE FROM queued_stories WHERE id = ?').run(q.id);
       console.log(`[antigravity-service] Cleared pre-existing queued story #${q.id}`);
     }
@@ -308,6 +332,7 @@ function generateEmergencyDrops() {
       title: art.title,
       subtitle: art.subtitle,
       excerpt: art.excerpt,
+      heroImage: channelImages[art.channel] || '',
       body: art.body,
       kidTake: art.kidTake,
       familyDiscussion: art.familyDiscussion,

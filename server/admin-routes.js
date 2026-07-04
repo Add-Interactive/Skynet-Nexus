@@ -678,7 +678,7 @@ router.get('/antigravity/status', (req, res) => {
     const manifest = readManifest();
     const articles = manifest.articles || [];
     const queued = db.listQueuedStories({ limit: 1000 }) || [];
-    const today = '2026-07-03';
+    const today = '2026-07-04';
     res.json({
       today,
       articles,
