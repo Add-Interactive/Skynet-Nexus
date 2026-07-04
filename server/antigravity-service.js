@@ -7,275 +7,275 @@ const ARTICLES_DATA = [
   {
     channel: 'ai',
     staffSlug: 'agent-ai',
-    title: '16-Year-Old Samay Kumar Develops AI to Track Wildfire Smoke from Space',
-    subtitle: 'High school programmer builds neural network to identify early-stage wildfire plumes',
-    excerpt: 'Using satellite images from NOAA, 16-year-old Samay Kumar created a machine learning model that detects wildfire smoke plumes hours faster than human teams.',
-    body: '<p>As wildfires become more frequent and severe, early detection is key to saving lives and forests. Now, a 16-year-old high school student from San Jose, California, has developed a virtual eye in the sky to help. Samay Kumar, a junior, has built an artificial intelligence system that scans satellite imagery to detect wildfire smoke plumes in real time, often identifying them hours before they are reported on the ground.</p><p>Samay\'s project, which he named SmokeSentinel, utilizes data from the National Oceanic and Atmospheric Administration (NOAA) GOES satellites. These satellites capture high-resolution images of Earth every few minutes. However, the sheer volume of data is too vast for human analysts to review constantly. Samay realized that a computer program could be trained to do the scanning instead.</p><p>To build SmokeSentinel, Samay designed a neural network, a type of computer program inspired by the human brain that excels at finding patterns in images. He trained his model using thousands of historical satellite images, teaching the AI to distinguish between ordinary clouds, fog, and actual wildfire smoke. Clouds and smoke can look very similar from space, but smoke plumes have unique textures and growth patterns that the AI can recognize.</p><p>In test runs, Samay\'s AI successfully detected smoke plumes with an accuracy rate of 94 percent. In several historical cases, SmokeSentinel flag-marked smoke up to three hours before emergency services received their first telephone calls on the ground. The quick detection could allow firefighters to contain blazes while they are still small and manageable.</p><blockquote>I wanted to use machine learning to solve a real-world problem that affects my community directly. If we can catch these fires in the first hour, we have a much better chance of putting them out before they spread.<footer>— Samay Kumar, 16</footer></blockquote><p>Samay has published his code on GitHub, making it free for researchers and forestry services around the world to use and improve. He plans to work with local fire agencies this summer to test the system live during the upcoming fire season.</p>',
-    kidTake: 'A 16-year-old student named Samay built a smart computer program that looks at photos of Earth from space. The program uses artificial intelligence to spot wildfire smoke very quickly. This helps firefighters know where fires are starting so they can put them out before they get too big.',
+    title: '15-Year-Old Tara Sullivan Builds AI to Help Farmers Spot Crop Diseases Early',
+    subtitle: 'High school sophomore trains neural network on leaf photographs to identify plant stress',
+    excerpt: 'Tara Sullivan, 15, developed a mobile app called LeafScan AI that helps local farmers identify crop diseases in seconds, protecting food supplies.',
+    body: '<p>Protecting crops from diseases is one of the oldest challenges in farming. Now, 15-year-old Tara Sullivan from Ames, Iowa, has developed a modern solution using artificial intelligence. She built a mobile app named LeafScan AI that allows farmers to take a picture of a plant leaf and instantly diagnose whether the crop is sick, hours before visible signs of damage spread across the fields.</p><p>Tara, who grew up visiting her grandparents\' soybean farm, saw how quickly crop blight could destroy a season\'s harvest. She realized that while experienced farmers can spot diseases, it often takes too long to inspect every row. Tara wondered if a computer vision model could do the work automatically.</p><p>Using a database of over 20,000 images of healthy and diseased plant leaves, Tara trained a neural network to recognize subtle patterns in leaf discoloration, spots, and shape changes. She spent her weekends fine-tuning the model to ensure it could work under different lighting conditions, such as bright sunlight or morning shadows.</p><blockquote>I wanted to build something practical that farmers could use right in the field without needing an internet connection. If we can catch these plant diseases early, we can save tons of food.<footer>— Tara Sullivan, 15</footer></blockquote><p>In field tests, LeafScan AI achieved a 93 percent accuracy rate in detecting common crop diseases like leaf rust and bacterial blight. The app runs completely on-device, meaning farmers do not need cell service to use it. Tara has shared her app with local farmers and plans to expand the database to include fruit orchards this summer.</p>',
+    kidTake: 'A 15-year-old girl named Tara built a smart phone app that helps farmers keep their crops healthy. Farmers can take a picture of a leaf, and the app uses artificial intelligence to check if the plant is sick. This helps farmers save their crops and grow more food.',
     familyDiscussion: [
-      "If you had a camera in space, what is one helpful thing you would want to look for on Earth?",
-      "Samay made his code free for anyone in the world to use. Why is it helpful to share inventions instead of keeping them secret?",
-      "How do you think computers can see things in photos that humans might miss?"
+      "If you could build a phone app to help someone in your family with their job, what would it do?",
+      "Why is growing healthy food important for everyone around the world?",
+      "How do you think a computer can learn to recognize different patterns in pictures?"
     ],
     glossary: [
-      { "term": "Neural network", "meaning": "A type of computer program that mimics the human brain to find patterns and make decisions based on data." },
-      { "term": "Satellite imagery", "meaning": "Photos of the Earth taken by spacecraft orbiting high above the planet." }
+      { "term": "Computer vision", "meaning": "A field of artificial intelligence that trains computers to interpret and understand the visual world, like photos and videos." },
+      { "term": "Blight", "meaning": "A plant disease, typically caused by fungi or bacteria, that causes crops to wither and die rapidly." }
     ],
     ageBand: '8+',
     author: 'Captain Jean-Luc Picard',
-    tags: ['wildfire', 'satellite', 'neural-networks', 'open-source']
+    tags: ['agriculture', 'computer-vision', 'neural-networks', 'farming']
   },
   {
     channel: 'biotech',
     staffSlug: 'agent-biotech',
-    title: 'Texas Teen Sophie Chen Creates ML Tool to Predict Organ Transplant Rejection',
-    subtitle: '17-year-old researcher builds non-invasive model utilizing blood biomarker analysis',
-    excerpt: 'Sophie Chen, 17, designed an AI model called OrganShield that predicts heart transplant rejection rates using blood samples, replacing painful tissue biopsies.',
-    body: '<p>For patients who receive an organ transplant, the journey does not end after surgery. Doctors must constantly monitor them to ensure their bodies do not reject the new organ. Currently, this requires frequent, painful biopsies where a tiny piece of tissue is removed from the organ. Now, 17-year-old Sophie Chen from Dallas, Texas, has developed a non-invasive machine learning tool that can predict transplant rejection using a simple blood test.</p><p>Sophie\'s interest in biotechnology began after a family member underwent a kidney transplant. Seeing the discomfort of post-surgery monitoring inspired her to look for a better way. She focused her research on biomarkers, which are molecular indicators found in the blood that can signal if an organ is under stress or being attacked by the immune system.</p><p>Using public medical datasets, Sophie collected data on blood samples from hundreds of heart transplant patients. She then wrote a machine learning algorithm to analyze the levels of specific biomarkers. Her program, OrganShield, was trained to find subtle combinations of these indicators that correlate with early-stage organ rejection, even before physical symptoms appear.</p><p>OrganShield achieved a 91 percent accuracy rate in predicting rejection events, outperforming several traditional laboratory tests. By analyzing blood samples instead of performing physical biopsies, doctors could monitor patients more frequently and adjust treatments sooner, improving long-term outcomes while reducing pain and hospital visits.</p><blockquote>Getting a transplant is life-changing, and the monitoring afterward shouldn\'t be a constant source of pain. I hope this tool can make recovery safer and much more comfortable for patients.<footer>— Sophie Chen, 17</footer></blockquote><p>Sophie\'s research earned her a top award at the International Science and Engineering Fair. She is currently collaborating with clinical researchers at a local university hospital to validate OrganShield using fresh patient samples, moving her invention closer to actual medical use.</p>',
-    kidTake: 'A 17-year-old girl named Sophie made a computer program that helps patients who get new hearts. Instead of doctors doing painful tests, Sophie\'s program reads a simple blood test to make sure the patient\'s body is accepting the new heart. This makes healing much easier and less painful.',
+    title: 'Teen Researcher Aaron Patel Invents Wearable Sensor to Monitor Hydration',
+    subtitle: '16-year-old uses non-invasive biochemical sweat analysis to prevent heatstroke in young athletes',
+    excerpt: 'Aaron Patel designed a flexible skin patch that analyzes sweat electrolytes in real-time, sending hydration alerts to a smartphone app.',
+    body: '<p>As summer temperatures rise, dehydration becomes a serious risk for kids playing sports. To help athletes stay safe, 16-year-old Aaron Patel from Phoenix, Arizona, has developed a wearable biochemical sensor. The device is a thin, flexible patch that sticks to the skin and monitors hydration levels by analyzing sweat in real time, alerting players before they experience heat exhaustion.</p><p>Aaron, a cross-country runner, experienced mild heatstroke during a race last year. The experience led him to research how the body handles heat. He learned that tracking water loss isn\'t just about thirst; it\'s about electrolytes—specifically sodium and potassium—which are lost through sweat.</p><p>The sensor Aaron designed uses microfluidic channels to channel tiny drops of sweat across electrodes coated with specialized chemicals. These chemicals react with the electrolytes, producing a tiny electrical signal. A small transmitter on the patch sends this data wirelessly to a smartphone app, which displays a simple green, yellow, or red hydration gauge.</p><blockquote>Thirst is actually a late warning sign of dehydration. My goal was to create a simple, cheap sensor that tells you exactly when you need to drink water before you feel sick.<footer>— Aaron Patel, 16</footer></blockquote><p>The patch is made of biocompatible silicone and costs less than two dollars to manufacture. Aaron has tested the patch with his high school cross-country team and is currently working on making the sensor fully biodegradable to reduce electronic waste.</p>',
+    kidTake: 'A 16-year-old runner named Aaron invented a smart skin patch that tells you when you need to drink water. The patch reads your sweat and sends a message to your phone. This helps athletes stay safe and healthy while playing outside in the heat.',
     familyDiscussion: [
-      "Why is it important for scientists to find ways to make medical tests less painful?",
-      "If you were designing a tool to help someone recover from surgery, what would it look like?",
-      "How does looking at tiny cells and blood indicators help us understand what is happening inside the whole body?"
+      "How does your body tell you that you are thirsty? Why is water so important for our bodies?",
+      "Aaron invented this patch after getting sick himself. How can our own experiences help us come up with new ideas?",
+      "What is another sport where a wearable health sensor would be really useful?"
     ],
     glossary: [
-      { "term": "Biomarker", "meaning": "A tiny sign or substance in the body—like in your blood—that tells doctors if you are healthy or sick." },
-      { "term": "Biopsy", "meaning": "A medical test where doctors remove a small piece of tissue from the body to examine it closely." }
+      { "term": "Electrolytes", "meaning": "Important minerals in your body—like sodium and potassium—that help your muscles and nerves work properly." },
+      { "term": "Microfluidics", "meaning": "The science of designing devices that control and manipulate tiny amounts of liquids through microscopic channels." }
     ],
-    ageBand: '12+',
+    ageBand: '10+',
     author: 'Dr. Beverly Crusher',
-    tags: ['transplant', 'biomarkers', 'machine-learning', 'medicine']
+    tags: ['hydration', 'sports-science', 'sensors', 'health-tech']
   },
   {
     channel: 'climate',
     staffSlug: 'agent-climate',
-    title: 'Nairobi Teenagers Build Solar-Powered Battery Chargers from Recycled E-Waste',
-    subtitle: 'Student team turns discarded laptop batteries and broken solar panels into clean energy',
-    excerpt: 'High school students in Nairobi, Kenya, are combatting electronic waste by converting old laptop batteries and broken solar panels into portable chargers.',
-    body: '<p>In the bustling city of Nairobi, Kenya, electronic waste—or e-waste—is a growing environmental challenge. Old computers, phones, and batteries often end up in landfills. However, a team of local high school students has found a creative way to clean up their community and provide clean energy. The team collects discarded laptop batteries and broken solar cells, rebuilding them into working, solar-powered mobile phone chargers.</p><p>The project began in a school science club led by 16-year-old Jomo Mwangi. Jomo and his classmates noticed that while many families in their area relied on mobile phones, electricity was often expensive or unreliable. At the same time, local repair shops were throwing away old laptop battery packs that still had usable parts inside.</p><p>The students gathered the discarded batteries and carefully took them apart. While a laptop battery pack may stop working as a whole, individual lithium-ion cells inside are often perfectly healthy. The team tested each cell, selecting the ones that could still hold a full charge. They then soldered these cells together and wired them to small, portable solar panels they salvaged from broken solar lamps.</p><p>The result is a compact, durable charger that can power a mobile phone using nothing but the sun. The students designed a simple, recycled plastic casing to protect the electronics. Today, their chargers are used by local market vendors and families, allowing them to keep their phones charged without spending money on grid electricity.</p><blockquote>We wanted to show that what people call trash can actually be a resource. By recycling these batteries, we keep toxic materials out of our soil and give people free, clean power.<footer>— Jomo Mwangi, 16</footer></blockquote><p>The team has built and distributed more than 80 solar chargers so far. They are now hosting workshops in neighboring schools, teaching other students how to safely test batteries and build their own recycled chargers, turning a local problem into a community-wide lesson in sustainability.</p>',
-    kidTake: 'A team of creative teenagers in Kenya collected old, broken laptop batteries and solar panels that people threw away. They fixed the good parts inside and built solar-powered phone chargers! Now, families in their neighborhood can charge their phones for free using energy from the sun.',
+    title: 'Oregon Teenagers Reclaim Bio-Char from Yard Waste to Enrich Soil',
+    subtitle: 'Student project uses low-oxygen baking to turn wood chips into carbon-trapping soil boosters',
+    excerpt: 'A team of high school students in Eugene, Oregon, is building backyard kilns to turn garden debris into bio-char, locking carbon away for centuries.',
+    body: '<p>When trees and garden waste rot, they release carbon dioxide back into the atmosphere. But a team of high school students in Eugene, Oregon, has found a way to lock that carbon away while helping local gardens grow. The students are converting yard debris into bio-char—a highly porous, charcoal-like substance that traps carbon and acts as a super-sponge for soil nutrients.</p><p>The project, named CarbonLock, was started by 17-year-old Clara Wood and three classmates. They realized that rather than burning or composting yard waste, they could heat it through a process called pyrolysis—baking organic material in a container with almost no oxygen.</p><p>Using recycled metal drums, the team designed a clean-burning backyard kiln. When wood chips, leaves, and twigs are baked inside, they don\'t catch fire. Instead, the volatile gases escape and burn cleanly, leaving behind pure, black carbon. This bio-char is then mixed with compost to "charge" it with nutrients before being added to garden soil.</p><blockquote>Bio-char is like a tiny apartment building for soil microbes. It holds water, keeps nutrients from washing away, and keeps carbon locked in the ground for hundreds of years.<footer>— Clara Wood, 17</footer></blockquote><p>The CarbonLock team has produced over 500 pounds of bio-char, distributing it to community gardens and school nurseries. They estimate that their backyard kilns have sequestered more than a ton of carbon dioxide that would have otherwise escaped into the air.</p>',
+    kidTake: 'A group of teenagers in Oregon built special metal barrels to bake yard waste like branches and leaves without letting them burn. This leaves behind a black charcoal called bio-char. Mixing bio-char into garden soil helps plants grow faster and keeps carbon trapped in the ground so it doesn\'t warm the Earth.',
     familyDiscussion: [
-      "What is something in your house that is broken but might have parts you could reuse?",
-      "Why is recycling electronics better for the Earth than throwing them in the trash?",
-      "How does the sun make electricity? Why is solar energy called clean energy?"
+      "Why is soil health so important for growing the food we eat?",
+      "What are other ways we can keep carbon from entering the air and warming our atmosphere?",
+      "If you had a garden, what plants would you want to try growing with bio-char?"
     ],
     glossary: [
-      { "term": "E-waste", "meaning": "Broken or old electronics, like computers, phones, and batteries, that people throw away." },
-      { "term": "Lithium-ion cell", "meaning": "A type of rechargeable battery cell commonly used in laptops, phones, and electric cars." }
+      { "term": "Pyrolysis", "meaning": "The chemical decomposition of organic materials by heating them to high temperatures in the absence of oxygen." },
+      { "term": "Carbon sequestration", "meaning": "The process of capturing and storing atmospheric carbon dioxide to help reduce climate change." }
     ],
     ageBand: '8+',
     author: 'Counselor Deanna Troi',
-    tags: ['recycled', 'solar-power', 'kenya', 'e-waste', 'clean-energy']
+    tags: ['biochar', 'gardening', 'carbon-capture', 'waste-upcycling']
   },
   {
     channel: 'cyber',
     staffSlug: 'agent-cyber',
-    title: 'High Schooler Leo Vance Builds Open-Source Tool to Help Families Block Tracking',
-    subtitle: '18-year-old coder releases browser extension GuardDog to protect family privacy online',
-    excerpt: 'Concerned about how companies track kids online, 18-year-old Leo Vance built GuardDog, a free browser extension that blocks tracking scripts and advertising beacons.',
-    body: '<p>When we visit websites, watch videos, or play games online, companies are often tracking our behavior behind the scenes. They use invisible code called tracking scripts to record what we click on and how long we stay. Annoyed by how much data was being collected, especially from younger users, 18-year-old Leo Vance decided to write a tool to block them.</p><p>Leo, a senior in Seattle, Washington, spent his winter break building GuardDog. GuardDog is an open-source browser extension—a small program you add to your web browser—that automatically stops tracking code from loading. Unlike generic ad blockers, GuardDog specifically targets scripts that try to identify your computer and build a profile of your browsing habits.</p><p>Building the tool required Leo to learn how tracking scripts work. Many trackers use a technique called fingerprinting, which looks at your computer\'s screen size, fonts, and settings to create a unique ID for you. Leo wrote code that feeds trackers fake information, making your computer look exactly like thousands of others, which confuses the tracking scripts and keeps your identity private.</p><p>Because GuardDog is open-source, the source code is public. Anyone can read it to verify that it is safe, and other developers can suggest improvements. This ensures that the extension does not collect any data itself, remaining completely transparent and trustworthy.</p><blockquote>I wanted to build something that my parents and younger sister could use without having to configure complex settings. You just install it, and it keeps your family safe in the background.<footer>— Leo Vance, 18</footer></blockquote><p>GuardDog has already been downloaded by more than 5,000 users. Leo plans to continue updating the tool, adding protection for mobile browsers and creating educational guides to help kids understand how data privacy works on the web.</p>',
-    kidTake: 'An 18-year-old named Leo built a free computer tool called GuardDog that protects your family when you go online. It acts like a digital shield, blocking invisible trackers that try to watch what websites you visit. This keeps your personal information safe and private.',
+    title: 'High Schooler Devises DNS-Over-HTTPS Tool to Shield School WiFi',
+    subtitle: '16-year-old programmer builds security utility to protect student search data from public snooping',
+    excerpt: 'High school programmer Leo Vance built a lightweight tool that encrypts web address requests, keeping public internet users safe from tracking.',
+    body: '<p>Every time you type a web address, your computer sends a request to find that site. On public networks, this data is often unencrypted, allowing hackers to see what sites you visit. To protect students, 16-year-old programmer Leo Vance from Boston, Massachusetts, has built a lightweight security tool that encrypts these requests, ensuring total privacy on shared networks.</p><p>Leo\'s project, named ShieldDNS, runs on a micro-computer plugged into a router. It intercepts Domain Name System (DNS) requests and wraps them in secure HTTPS encryption before sending them to the internet. This technique, known as DNS-over-HTTPS (DoH), blocks network snoopers from tracking which websites students access.</p><p>Leo got the idea after learning that public library and school WiFi networks are frequently scanned by advertising trackers to build profiles of young users. He wanted to build a simple plug-and-play device that schools could install for under thirty dollars.</p><blockquote>Privacy shouldn\'t be a premium feature. ShieldDNS makes it easy for schools and community centers to protect their kids from internet trackers with zero configuration.<footer>— Leo Vance, 16</footer></blockquote><p>Leo has published the ShieldDNS code on GitHub as an open-source project. He plans to work with three local youth centers this summer to deploy the hardware, securing internet traffic for hundreds of young students.</p>',
+    kidTake: 'A 16-year-old programmer named Leo built a small, inexpensive device that protects your privacy when you use public WiFi. It encrypts the web addresses you type so that trackers cannot spy on what you are reading or learning online.',
     familyDiscussion: [
-      "Why do you think companies want to collect information about what we do online?",
-      "If you could build a tool to protect your family\'s safety in real life, what would it do?",
-      "What does it mean for code to be open-source? Why is that important for safety tools?"
+      "Why is it important to have privacy when we are searching for information online?",
+      "How is sending a secret message in code similar to what Leo\'s security device does?",
+      "What are some good safety habits you practice when using public internet networks?"
     ],
     glossary: [
-      { "term": "Browser extension", "meaning": "A small software program that you add to your web browser to give it extra features or tools." },
-      { "term": "Open-source", "meaning": "Software whose original code is made public and free for anyone to look at, copy, and change." }
+      { "term": "DNS", "meaning": "Domain Name System: the phonebook of the internet, which translates human-readable web addresses (like google.com) into computer-readable numbers." },
+      { "term": "Encryption", "meaning": "The process of encoding messages or information so that only authorized parties can read it." }
     ],
-    ageBand: '8+',
+    ageBand: '10+',
     author: 'Commander Ro Laren',
-    tags: ['privacy', 'open-source', 'browser-extension', 'cybersecurity']
+    tags: ['privacy', 'dns-security', 'encryption', 'open-source']
   },
   {
     channel: 'engineering',
     staffSlug: 'agent-engineering',
-    title: '15-Year-Old Lily Ortiz Designs Low-Cost Solar Distiller for Clean Water',
-    subtitle: 'High school maker uses recycled materials to build portable water purification unit',
-    excerpt: 'Using recycled acrylic sheets and black paint, 15-year-old Lily Ortiz engineered a low-cost solar water distiller that purifies dirty water using simple evaporation.',
-    body: '<p>Around the world, millions of people lack access to clean drinking water. While large filtration plants are expensive to build, 15-year-old maker Lily Ortiz from Portland, Oregon, has designed a simple, low-cost solution. Using recycled acrylic sheets, black paint, and basic pipes, she constructed a portable solar water distiller that can purify dirty water using nothing but heat from the sun.</p><p>Lily\'s inspiration came during a family camping trip when their water filter broke, forcing them to boil water to make it safe. She realized that boiling requires fuel, which is hard to find in many places. She wanted to build a device that could clean water using solar energy, which is free and abundant.</p><p>The distiller works through a process called evaporation and condensation. Dirty water is poured into a shallow, black-painted tray inside a sealed acrylic box. The black paint absorbs sunlight, heating the water. As the water gets hot, it turns into water vapor (steam), leaving dirt, salt, and bacteria behind in the tray.</p><p>The vapor rises and hits the sloped acrylic lid of the box, which is cooler than the air inside. When the vapor cools, it condenses back into liquid water droplets. These clean droplets slide down the sloped lid and drip into a clean collection tube, ready to drink. Lily\'s prototype can produce about one gallon of clean water a day, enough for a small family\'s drinking needs.</p><blockquote>The science behind it is really basic, but engineering it to be durable and cheap was the hard part. We wanted to make sure someone could build it themselves using whatever scrap materials they find.<footer>— Lily Ortiz, 15</footer></blockquote><p>Lily won first place in her school\'s engineering fair and is currently working on an instruction manual with diagrams so that community centers in developing regions can build their own versions of her distiller.</p>',
-    kidTake: 'A 15-year-old girl named Lily built a special box that cleans dirty water using heat from the sun. The sun heats the water until it turns into invisible steam, leaving the dirt behind. The steam then cools down and turns back into clean water that is safe to drink.',
+    title: '14-Year-Old Clara Zhang Builds Gravity-Powered Light for Power Outages',
+    subtitle: 'Middle school maker designs mechanical lantern that generates electricity from falling weights',
+    excerpt: 'Clara Zhang, 14, designed a mechanical light called GravityGlow that uses a system of gears and a slow-falling weight to provide battery-free illumination.',
+    body: '<p>In many parts of the world, electricity is unreliable, and batteries are expensive. To provide a dependable light source, 14-year-old Clara Zhang from Seattle, Washington, has built GravityGlow—a mechanical lantern powered completely by gravity. By raising a weight and letting it slowly fall, the device generates enough electricity to power a bright LED for twenty minutes.</p><p>Clara was inspired by reading about rural schools where students cannot study after sunset. She wanted to design a light that didn\'t rely on solar power, which doesn\'t work on rainy days, or batteries, which eventually wear out and pollute the soil.</p><p>The heart of GravityGlow is a gear system salvaging gears from old clocks. When a user lifts a bag filled with dirt or rocks, it stores potential energy. As the bag slowly descends under the pull of gravity, it spins a small generator, converting the movement into electricity. The gear ratio is designed to let the weight fall very slowly, keeping the LED glowing steadily.</p><blockquote>I wanted to use basic physics to solve a practical problem. Gravity is free, it never runs out, and it works everywhere in the world, day or night.<footer>— Clara Zhang, 14</footer></blockquote><p>Clara\'s design uses 3D-printed parts and recycled gears, costing about five dollars to build. She is currently working on an assembly guide to help kids in communities with unstable power grids build their own lanterns.</p>',
+    kidTake: 'A 14-year-old girl named Clara built a lamp that doesn\'t need batteries or plugs. You just lift a heavy bag of rocks, and as gravity pulls the bag down, it spins gears inside the lamp to make electricity! It gives you free light just from gravity.',
     familyDiscussion: [
-      "How does nature clean water? (Hint: Think about how rain is made!)",
-      "Lily\'s distiller is cheap and uses scrap materials. Why is it important to design inventions that are inexpensive?",
-      "If you had to live without clean tap water for a week, how would you change how you wash and drink?"
+      "How is lifting a heavy object like storing energy in a battery?",
+      "Why would a gravity-powered lamp be helpful in places that have lots of storms or power outages?",
+      "What is another daily chore where we could use gravity to help do the work?"
     ],
     glossary: [
-      { "term": "Evaporation", "meaning": "The process of a liquid turning into a gas, like when wet puddles dry up on a hot day." },
-      { "term": "Condensation", "meaning": "The process of a gas cooling down and turning back into a liquid, like water droplets forming on the outside of a cold cup." }
+      { "term": "Potential energy", "meaning": "Stored energy in an object due to its position, like a heavy weight held up high before it falls." },
+      { "term": "Gear ratio", "meaning": "The relationship between the rotation speed of two or more connected gears, used to slow down or speed up movement." }
     ],
     ageBand: '8+',
     author: 'Chief Engineer Geordi La Forge',
-    tags: ['clean-water', 'maker', 'solar-energy', 'engineering']
+    tags: ['gravity-power', 'mechanical-engineering', 'makers', 'battery-free']
   },
   {
     channel: 'gaming',
     staffSlug: 'agent-gaming',
-    title: '14-Year-Old Chess Prodigy Kai Zhou Lan Climbs Rankings at FIDE Youth Championship',
-    subtitle: 'Young master gains international rating points with key victories in Georgia matches',
-    excerpt: '14-year-old chess prodigy Kai Zhou Lan achieved a standout performance at the FIDE World Cadet Cup, earning 140 international rating points and climbing the world rankings.',
-    body: '<p>At the quiet tables of the FIDE World Cadet Chess Cup in Batumi, Georgia, 14-year-old Kai Zhou Lan sat focused. Facing some of the best young chess players in the world, the teen showed remarkable strategic depth. By the end of the two-week tournament, Kai had not only finished fifth in his age section but had also picked up 140 international Elo rating points, marking him as one of the fastest-rising young chess masters in the country.</p><p>Chess rankings are determined by the Elo rating system, which calculates a player\'s skill level based on their wins and losses against other rated players. Gaining 140 points in a single tournament is exceptionally rare and indicates that Kai repeatedly defeated opponents who were ranked much higher than him going into the matches.</p><p>Kai\'s success is the result of hours of daily practice and a deep love for the game. He started playing chess at age six after watching his older brother play. He quickly memorized the movements of the pieces and began studying historic matches, learning how grandmasters plan their moves ten steps in advance.</p><p>During the tournament in Georgia, Kai faced players from 12 different countries. In his final match, he executed a complex endgame strategy, using his knights to trap his opponent\'s king and secure the win. The victory cemented his position in the top ten and earned him congratulations from the U.S. Chess Federation.</p><blockquote>You have to stay completely calm, even when you\'re in a tough position. In chess, if you get nervous or rush your moves, you will miss a hidden threat. I just focused on finding the best square for my pieces.<footer>— Kai Zhou Lan, 14</footer></blockquote><p>Kai hopes to earn the official title of Grandmaster—the highest ranking in chess—before he graduates from high school. He is already preparing for his next major tournament, practicing with computer simulations and analyzing his past games to refine his openings.</p>',
-    kidTake: 'A 14-year-old boy named Kai played in a big chess tournament against kids from all over the world. He played so well that he won fifth place in the world for his age group! Kai says the secret to winning is staying calm and thinking carefully about your moves before you touch the pieces.',
+    title: 'Cleveland Youth Chess Club Hosts 24-Hour Chess Marathon for Local Charity',
+    subtitle: '50 young players spend 24 hours at the board, raising funds for children\'s hospital library',
+    excerpt: 'The Cleveland Youth Chess Club raised over $4,000 by hosting a 24-hour chess marathon, playing hundreds of rapid games for charity.',
+    body: '<p>Chess is usually a quiet game of concentration, but last weekend it became a high-energy team sport. Fifty members of the Cleveland Youth Chess Club, ages 8 to 16, gathered in a local community hall to host a 24-hour Chess Marathon. By playing continuous matches and streaming their games, they raised over $4,000 to buy books and games for a local children\'s hospital library.</p><p>The marathon was organized by 15-year-old club president Marcus Liang. He wanted to find a way for the chess club to give back to the community. The rules were simple: at least ten chessboards had to be active at all times, with players rotating in shifts throughout the night.</p><p>Local chess masters volunteered to play "simultaneous exhibitions," where one master plays ten kids at once. The event was streamed online, with club members providing live commentary and explaining strategic moves to viewers. Donors pledged money for every checkmate achieved during the 24-hour window.</p><blockquote>It was tough to stay awake at 3:00 AM, but we kept each other energized with blitz games and team matches. It was amazing to use our favorite game to help other kids.<footer>— Marcus Liang, 15</footer></blockquote><p>By the end of the marathon, the players had logged more than 600 games of chess. The funds raised will purchase audiobooks, board games, and chess sets for the pediatric ward library, providing entertainment for recovering patients.</p>',
+    kidTake: 'Fifty kids spent a whole day and night playing chess games in a marathon! They streamed their matches online and raised $4,000. They used the money to buy books and fun board games for children recovering in a local hospital.',
     familyDiscussion: [
-      "What is a game or sport where staying calm is just as important as being fast or strong?",
-      "Kai studies historical chess matches to get better. How can looking at past mistakes help us learn new things?",
-      "If you could design a new chess piece, what would it look like and how would it move?"
+      "How did the chess club turn a quiet, single-player game into a team effort?",
+      "If your club or friends organized a 24-hour event for charity, what activity would you want to do?",
+      "Why do games and books help people feel better when they are sick in the hospital?"
     ],
     glossary: [
-      { "term": "Elo rating system", "meaning": "A system that uses math to calculate a player\'s skill level in games like chess, based on their wins and losses." },
-      { "term": "Grandmaster", "meaning": "The highest title a chess player can earn, awarded by the international chess federation FIDE." }
+      { "term": "Simultaneous exhibition", "meaning": "A chess event where one skilled player plays multiple games at the same time against different opponents." },
+      { "term": "Blitz chess", "meaning": "A fast-paced version of chess where each player has a very short time—usually five minutes or less—to make all their moves." }
     ],
-    ageBand: '5+',
+    ageBand: '8+',
     author: 'Wesley Crusher',
-    tags: ['chess', 'fide', 'prodigy', 'tournament', 'mental-sports']
+    tags: ['chess', 'charity', 'marathon', 'board-games']
   },
   {
     channel: 'math',
     staffSlug: 'agent-math',
-    title: 'U.S. Math Team Wins Gold Medal at International Mathematical Olympiad in Oslo',
-    subtitle: 'Six high school students finish first in world\'s most prestigious math competition',
-    excerpt: 'Six high school students representing the United States won first place at the 2026 International Mathematical Olympiad in Oslo, Norway, earning four gold medals.',
-    body: '<p>While many high school students spend their summers playing sports or relaxing, a group of six talented teenagers spent theirs solving some of the hardest math problems on the planet. The U.S. team finished in first place overall at the 67th International Mathematical Olympiad (IMO) in Oslo, Norway. The competition brought together more than 600 of the brightest young mathematicians from 110 countries.</p><p>The IMO is the world\'s premier math competition for high school students. Over two days, competitors face two exams, each containing three complex problems. Students have four and a half hours each day to solve them. Unlike school math tests, which check if you can run formulas, IMO problems require writing complete mathematical proofs—detailed arguments that explain why a mathematical statement is always true.</p><p>The problems cover advanced areas of math including geometry, number theory, algebra, and combinatorics (the study of counting and arrangement). Many of these questions are so difficult that even university professors struggle to solve them in the given time.</p><p>The U.S. team earned a total of four gold medals and two silver medals, securing the top team spot ahead of strong teams from China and South Korea. Team captain Alexander Zhang, 17, finished with a near-perfect score, solving five of the six problems completely.</p><blockquote>IMO problems are like puzzles. You don\'t just plug in numbers; you have to invent a new way of thinking about the problem. Winning as a team is an amazing feeling because we spent months studying together.<footer>— Alexander Zhang, 17</footer></blockquote><p>The students prepared for the competition at a intensive summer camp sponsored by the Mathematical Association of America. With their high school careers ending, several team members are heading to top universities to study mathematics, computer science, and physics.</p>',
-    kidTake: 'Six high school students went to Norway to compete in a giant math contest against kids from 110 countries. The U.S. team won first place! The math problems were very hard puzzles, and the students had to write long explanations to prove their answers were correct.',
+    title: 'Undergrad Math Team Solves Longstanding Grid Congestion Problem',
+    subtitle: 'Student researchers use graph theory to optimize electricity distribution across power networks',
+    excerpt: 'A team of three undergraduate mathematicians designed an algorithm that reduces electrical grid overload risks using network graph theory.',
+    body: '<p>As cities grow, electrical grids can become overloaded, leading to blackouts. To prevent these failures, a team of three undergraduate math students from Chicago has developed a new optimization model. Using graph theory—the study of points and connecting lines—the team designed an algorithm that routes electricity more efficiently, preventing congestion on high-voltage power lines.</p><p>The team, led by 19-year-old Priya Patel, began looking at power grids after a heatwave caused blackouts in their city. They realized that routing electricity is similar to managing traffic on a highway system. If too many generators send power through the same power line, it overheats and shuts down.</p><p>The students modeled the electrical grid as a mathematical graph, where cities and generators are "nodes" and power lines are "edges." They wrote an algorithm that dynamically recalculates the optimal path for electricity based on real-time demand. The model adapts instantly if a power line fails, rerouting energy before a chain reaction triggers a larger blackout.</p><blockquote>We used pure mathematics to solve a hardware problem. By routing power along the paths of least resistance mathematically, we can make the existing grid much safer.<footer>— Priya Patel, 19</footer></blockquote><p>The team\'s algorithm was presented at an engineering conference, where utility operators noted it could help integrate renewable energy sources, like wind and solar, which produce variable power and stress older grids. The team is now testing their model on a simulated scale model of Illinois\' electrical grid.</p>',
+    kidTake: 'A team of young mathematicians used math puzzles called graphs to find a better way to send electricity through power lines. Their smart computer math code prevents power lines from getting too hot, which helps stop electricity blackouts during hot summer days.',
     familyDiscussion: [
-      "Alexander says math problems are like puzzles. What is your favorite kind of puzzle to solve, and why do you like it?",
-      "The math team spent months studying together. How does working with friends make hard tasks feel easier?",
-      "Why do you think it\'s important to explain how you got your answer, rather than just writing down the final number?"
+      "How is sending electricity through a grid similar to cars driving on roads during rush hour?",
+      "Why is it helpful to test new ideas on a computer simulation before trying them in real life?",
+      "How does math help solve everyday problems that seem like engineering problems?"
     ],
     glossary: [
-      { "term": "Mathematical proof", "meaning": "A step-by-step logical explanation that proves beyond any doubt that a mathematical rule is true." },
-      { "term": "Combinatorics", "meaning": "A branch of mathematics focused on counting, arranging, and combining things in different patterns." }
+      { "term": "Graph theory", "meaning": "A branch of mathematics that studies networks of points (called nodes) connected by lines (called edges)." },
+      { "term": "Grid overload", "meaning": "When too much electrical current flows through a power line or transformer, causing it to overheat and fail." }
     ],
     ageBand: '12+',
     author: 'Dr. Leah Brahms',
-    tags: ['olympiad', 'mathematics', 'competition', 'student-team']
+    tags: ['mathematics', 'graph-theory', 'power-grid', 'optimization']
   },
   {
     channel: 'music',
     staffSlug: 'agent-music',
-    title: 'Teen Cellist Bella Correia Performs as Soloist with London Symphony Youth Orchestra',
-    subtitle: '16-year-old virtuoso wows Royal Albert Hall audience with Elgar concerto',
-    excerpt: '16-year-old cellist Bella Correia delivered a breathtaking performance of Edward Elgar\'s Cello Concerto as the featured soloist at Royal Albert Hall.',
-    body: '<p>Under the glowing lights of London\'s historic Royal Albert Hall, 16-year-old cellist Bella Correia sat with her instrument. As the audience fell silent, she played the deep, dramatic opening chords of Edward Elgar\'s famous Cello Concerto in E minor. Backed by the 80 young musicians of the London Symphony Youth Orchestra, Bella\'s performance was the highlight of this year\'s Summer Youth Music Festival.</p><p>Bella was selected as the featured soloist after winning the orchestra\'s annual concerto competition. The cello is a large string instrument played with a bow while sitting down, known for its warm, deep sound that closely matches the range of the human voice. A concerto is a major classical piece designed to showcase a single instrument playing alongside a full orchestra.</p><p>Performing Elgar\'s concerto is a major challenge for any musician. The piece is famous for its emotional depth and technical difficulty, requiring the soloist to shift quickly between very high, fast notes and slow, expressive melodies. Bella spent six months practicing the piece, working on both her finger speed and her bowing technique.</p><p>Her performance captured the bright, energetic spirit of the youth festival. Bella played with a precision and emotional maturity that drew a standing ovation from the crowd of 3,000 music fans. The youth orchestra, conducted by 22-year-old assistant conductor Marcus Vance, supported her flawlessly, balancing their volume so the cello\'s voice could always be heard clearly.</p><blockquote>The Elgar concerto has always been my favorite piece. Playing it on this stage with my friends in the orchestra was an experience I will never forget. I just wanted to share the beauty of this music with everyone in the room.<footer>— Bella Correia, 16</footer></blockquote><p>Bella began playing the cello at age five in a community music school. She plans to use her scholarship prize to attend the Royal Academy of Music next term, continuing her journey toward becoming a professional orchestral musician.</p>',
-    kidTake: 'A 16-year-old girl named Bella played a giant string instrument called a cello at a famous concert hall in London. She was the star soloist, playing a very hard piece of music with a whole orchestra of teenagers backing her up. The audience loved her performance and gave her a giant round of applause!',
+    title: 'Teen Violinist Marcus Chen Wins International Paganini Prize in Genoa',
+    subtitle: '15-year-old virtuoso earns top honors at prestigious classical music competition in Italy',
+    excerpt: 'Marcus Chen, 15, won first place at the international Paganini Competition, performing challenging violin caprices with stunning technique.',
+    body: '<p>The Paganini Violin Competition in Genoa, Italy, is legendary for being one of the most difficult classical music contests in the world. This year, the top honor went to 15-year-old Marcus Chen from San Francisco, California. Marcus became one of the youngest winners in the competition\'s history, performing Niccolò Paganini\'s notoriously difficult Caprices with flawless technique and emotional depth.</p><p>Marcus began playing the violin at age four. To prepare for the competition, he practiced up to six hours a day, studying both the mechanical difficulty of the pieces and the history of how they were composed. Paganini\'s works are famous for requiring complex techniques like left-hand pizzicato (plucking strings with the left hand) and double-stops (playing two notes at once).</p><p>During the final round, Marcus performed alongside the Genoa Opera Orchestra, playing Paganini\'s Violin Concerto No. 1. The audience gave him a five-minute standing ovation, and the international jury awarded him first prize, which includes a cash award and the chance to perform on Paganini\'s personal 1743 Guarneri violin, nicknamed "il Cannone" (the Cannon).</p><blockquote>Playing on Paganini\'s actual violin was an indescribable feeling. You can feel the history inside the wood. I wanted to bring out the joy in his music, not just play the difficult notes.<footer>— Marcus Chen, 15</footer></blockquote><p>Marcus plans to continue his studies at the conservatory while performing as a guest soloist with symphonies around the world. He hopes to introduce classical violin music to younger audiences through school workshops.</p>',
+    kidTake: 'A 15-year-old boy named Marcus won one of the hardest violin contests in the world! He played in Italy with a full orchestra and won first place. He even got to play on a famous, 280-year-old violin that belonged to the composer Niccolò Paganini.',
     familyDiscussion: [
-      "The cello is known for sounding like a human voice. What other instruments do you think sound like voices or sounds in nature?",
-      "Bella practiced for six months to prepare for this one concert. What is something you would be willing to practice that long for?",
-      "How do you think a conductor helps 80 different musicians play together at the exact same speed?"
+      "Marcus practiced for six hours a day to get ready. What is something you enjoy enough to practice for a long time?",
+      "How does listening to classical music make you feel compared to modern pop music?",
+      "Why do you think some old musical instruments are considered historical treasures?"
     ],
     glossary: [
-      { "term": "Cello", "meaning": "A large string instrument in the violin family, played with a bow while held between the player\'s knees." },
-      { "term": "Orchestra", "meaning": "A large group of musicians who play string, wind, brass, and percussion instruments together." }
+      { "term": "Virtuoso", "meaning": "A person who is highly skilled in music or another artistic pursuit." },
+      { "term": "Pizzicato", "meaning": "A playing technique that involves plucking the strings of a string instrument with the fingers instead of using the bow." }
     ],
-    ageBand: '5+',
+    ageBand: '8+',
     author: 'Lt. Guinan',
-    tags: ['cello', 'classical-music', 'london', 'soloist', 'youth-orchestra']
+    tags: ['violin', 'classical-music', 'paganini', 'music-competition']
   },
   {
     channel: 'play',
     staffSlug: 'play',
-    title: 'Kid Game Design Team Wins Roblox Innovation Award for Adventure Game \'EcoQuest\'',
-    subtitle: 'Three 12-year-old developers recognized for creating popular ocean cleanup game',
-    excerpt: 'Created by three 12-year-old friends, the Roblox game \'EcoQuest\' has received a Roblox Innovation Award for its educational gameplay and creative design.',
-    body: '<p>Most kids use the popular gaming platform Roblox to play games with their friends. But three 12-year-old middle schoolers from Chicago, Illinois, decided to build their own. Their creation, an adventure game called EcoQuest, has won a Roblox Innovation Award for Best Student Design. The game, which challenges players to clean up virtual oceans and protect marine life, has already been played by more than 100,000 users.</p><p>The design team consists of classmates Leo Harris, Sofia Rodriguez, and Toby Miller. The friends started building the game during their school computer club. Using Roblox Studio—the free software program used to design games on the platform—the trio divided the tasks based on their individual talents.</p><p>Leo acted as the lead programmer, writing the Lua code that controls how the game operates. Sofia served as the environmental designer, constructing the underwater landscapes, coral reefs, and sea creatures using virtual blocks. Toby designed the quests and wrote the dialogue, creating story missions where players help turtles escape plastic nets and build solar-powered recycling stations.</p><p>EcoQuest teaches players about environmental science in a fun, active format. As players collect plastic trash from the sea floor, they earn points that can be spent to buy better tools, like bubble shields and high-speed submarines. The game also features a virtual encyclopedia that explains real-world threats to ocean health, such as climate change and plastic pollution.</p><blockquote>We wanted to make a game that wasn\'t just about beating a boss. We wanted players to feel like they were making the ocean a cleaner place, even if it\'s just in a video game.<footer>— Sofia Rodriguez, 12</footer></blockquote><p>The Roblox judges praised EcoQuest for its excellent level design and educational value. The team plans to use their prize to add new levels to the game, including a polar ice sheet rescue mission and a river cleanup campaign.</p>',
-    kidTake: 'Three 12-year-old friends built their own game inside Roblox called EcoQuest. In the game, you swim underwater to clean up trash and save sea animals. Their game won a big design award and has been played by over 100,000 kids!',
+    title: 'Roblox Adventure Game Teaches Kids Wilderness Survival Skills',
+    subtitle: 'Teen developers build popular multiplayer game simulating shelter construction and foraging',
+    excerpt: 'A team of three high school game designers built "Wild Survival" on Roblox, attracting over 200,000 players with realistic outdoor simulation.',
+    body: '<p>Can playing video games help you survive in the wilderness? A team of three high school game designers from Denver, Colorado, believes so. They have built "Wild Survival," an adventure game on the Roblox platform that teaches players real-world survival skills, like building windproof shelters, filtering muddy water, and identifying edible plants.</p><p>The developers—16-year-old Chloe Martinez, her brother Liam, and classmate Sam—are avid scouts who spend their summers backpacking. During the winter, they decided to combine their love of the outdoors with game programming. They noticed that many survival games are unrealistic, so they focused on real physics and biology.</p><p>In "Wild Survival," players must manage their body temperature, hydration, and energy. To build a shelter, they must gather branches and angle them against the wind. To find food, they must inspect forest plants; eating the wrong berry causes their character\'s energy to drop. The game features realistic weather cycles, forcing players to adapt to sudden rainstorms and cold nights.</p><blockquote>We wanted to make a game that is fun but teaches actual skills. If you know how to build a debris shelter in our game, you know the basic steps of how to build one in a real forest.<footer>— Chloe Martinez, 16</footer></blockquote><p>Since its launch, "Wild Survival" has been played by over 200,000 users. The team is currently designing a new update that teaches wilderness navigation using a map and compass.</p>',
+    kidTake: 'Three teenagers built a popular game on Roblox where you learn how to survive in the forest. Players have to build shelters to stay warm, filter water to drink, and find safe wild food. The game teaches real scouting skills while you play with friends.',
     familyDiscussion: [
-      "If you were making a game in Roblox, what would your game be about? How would players win?",
-      "EcoQuest teaches players about cleaning up the ocean. Do you think video games can be good tools for learning about real-world issues? Why?",
-      "Toby, Sofia, and Leo shared the work to build their game. What are the benefits of working in a team instead of doing everything by yourself?"
+      "If you were lost in a forest, what is the very first thing you would need to do to stay safe?",
+      "Why is a video game a good way to practice skills that might be scary to try in real life?",
+      "What other real-world hobby would make a great simulator game?"
     ],
     glossary: [
-      { "term": "Roblox Studio", "meaning": "A free software tool that lets players design and code their own 3D games to share with others on the Roblox platform." },
-      { "term": "Level design", "meaning": "The process of creating the physical layout, obstacles, and goals inside a video game level." }
+      { "term": "Foraging", "meaning": "Searching wild areas for food, plants, or provisions." },
+      { "term": "Simulation game", "meaning": "A video game category designed to closely copy or mimic real-world activities and environments." }
     ],
-    ageBand: '5+',
+    ageBand: '8+',
     author: 'Amara Okafor',
-    tags: ['roblox', 'game-design', 'ocean-cleanup', 'student-team', 'education']
+    tags: ['roblox', 'survival-skills', 'game-design', 'scouting']
   },
   {
     channel: 'quantum',
     staffSlug: 'agent-quantum',
-    title: 'Undergraduate Student Samira Patel Builds Quantum Computing Simulator for Kids',
-    subtitle: '19-year-old developer creates QubitPlay to explain superposition through interactive puzzles',
-    excerpt: 'Samira Patel, 19, created QubitPlay, a visual simulator that helps young students understand complex concepts like quantum superposition and qubits.',
-    body: '<p>Quantum computing is one of the most advanced fields in science, dealing with physics concepts that can confuse even college students. However, 19-year-old undergraduate student Samira Patel from Atlanta, Georgia, believes that anyone can understand it if they start learning through play. She has created a visual simulator called QubitPlay that explains quantum concepts using interactive puzzles and animations designed for kids.</p><p>Ordinary computers use bits—tiny switches that can be either 0 or 1—to run programs. Quantum computers, however, use qubits (quantum bits). Because of a physics rule called superposition, a qubit can be both a 0 and a 1 at the same time, like a spinning coin that is both heads and tails until it stops. This allows quantum computers to solve complex calculations much faster.</p><p>Samira\'s simulator, QubitPlay, represents qubits as colorful, spinning globes. Kids can click on the globes to apply quantum gates, which act like virtual lenses that change how the globes spin. By solving puzzles—like guiding a spaceship through an asteroid field by combining different qubit states—players learn how quantum algorithms work without having to read dense textbooks.</p><p>To test her creation, Samira hosted workshops at local libraries, inviting middle school students to play the simulator. She found that after playing for just 30 minutes, students could explain what superposition was and use basic quantum terminology correctly.</p><blockquote>Quantum physics sounds scary, but it\'s actually really playful. If we show kids how these particles behave through visual games, they can build an intuitive understanding of how the next generation of computers will work.<footer>— Samira Patel, 19</footer></blockquote><p>Samira\'s project has been featured at several computing education conferences. She is currently working with university researchers to translate QubitPlay into different languages, hoping to reach young classrooms around the world.</p>',
-    kidTake: 'A 19-year-old student named Samira built a fun computer game called QubitPlay. The game helps kids understand how super-fast quantum computers work. It uses spinning globes and space puzzles to explain how computers can think in new ways.',
+    title: 'High Schooler Wins Quantum Cryptography Logic Game Award',
+    subtitle: '17-year-old builds interactive web puzzle showing how quantum physics secures messages',
+    excerpt: 'Chloe Xu, 17, designed a visual logic game called QubitEncrypt that teaches kids how polarized light secures data from internet eavesdroppers.',
+    body: '<p>Quantum computing sounds like science fiction, but it is quickly becoming the future of cybersecurity. To help students understand how it works, 17-year-old Chloe Xu from San Francisco, California, has built QubitEncrypt—an interactive web puzzle game that explains quantum cryptography, the science of using physics to secure communications.</p><p>Chloe developed the game for a science project after finding that textbooks explained quantum physics with confusing mathematical equations. She realized that the core concepts could be represented visually as puzzles involving lasers, mirrors, and colored light filters.</p><p>In QubitEncrypt, players act as network administrators sending a secret key to a friend. They must polarize light beams (qubits) using different filters. If an eavesdropper (represented by a digital spy) tries to intercept the key, the laws of quantum mechanics cause the light beams to change color, immediately alerting the players that the message was tampered with.</p><blockquote>In quantum physics, looking at something changes it. My game shows kids how this strange rule makes it impossible for hackers to spy on quantum messages without getting caught.<footer>— Chloe Xu, 17</footer></blockquote><p>The game won a first-place award in the educational software division at the State Science Fair. Chloe has made the game free online, and several high school physics teachers have integrated it into their computer science lessons.</p>',
+    kidTake: 'A 17-year-old girl named Chloe built an online puzzle game that teaches kids how to send secret messages using physics. In her game, you use colored lasers to encrypt information. If a hacker tries to read the secret code, the lasers change color so you know they are spying.',
     familyDiscussion: [
-      "Samira uses a spinning coin to explain superposition (being two things at once). What is another example of something that can be two things at the same time?",
-      "If you could use a super-fast quantum computer to solve a giant world problem, what problem would you choose?",
-      "Why do you think games are sometimes better for learning than reading a textbook?"
+      "In Chloe\'s game, trying to spy on a message changes the message itself. Why is that a helpful rule for security?",
+      "Why is it sometimes easier to learn a hard science topic by playing a game rather than reading a textbook?",
+      "If you had a secret channel to talk to your best friend, what kind of messages would you send?"
     ],
     glossary: [
-      { "term": "Qubit", "meaning": "A quantum bit, which is the basic unit of information in a quantum computer, able to exist in multiple states at once." },
-      { "term": "Superposition", "meaning": "A rule in physics where a tiny particle can exist in multiple states or places at the exact same time." }
+      { "term": "Quantum cryptography", "meaning": "A security method that uses the principles of quantum mechanics to encrypt and transmit data securely." },
+      { "term": "Qubit", "meaning": "A quantum bit; the basic unit of information in quantum computing, which can represent multiple states at the same time." }
     ],
-    ageBand: '12+',
+    ageBand: '10+',
     author: 'Lt. Worf',
-    tags: ['quantum-computing', 'physics', 'simulator', 'educational-game']
+    tags: ['quantum-physics', 'cryptography', 'educational-games', 'cybersecurity']
   },
   {
     channel: 'robotics',
     staffSlug: 'agent-robotics',
-    title: 'Student Robotics Team \'Flying Hedgehogs\' Builds Autonomous River Cleaning Robot',
-    subtitle: 'High school engineers design floating robot to collect plastic waste in local waterways',
-    excerpt: 'High school robotics team 2898 designed an autonomous floating robot that utilizes lidar and trash claw mechanisms to clean up plastic waste in local rivers.',
-    body: '<p>Scholastic robotics teams spend most of the year preparing for indoor arena competitions. However, a team of high school engineers in Beaverton, Oregon, decided to build a robot designed for the great outdoors. The crew, known as FIRST Robotics Team 2898 or the "Flying Hedgehogs," spent their spring designing and building an autonomous floating robot that clears plastic trash from local rivers.</p><p>The project began when the team noticed that plastic bottles and bags were collecting near a river bend near their school. They realized that their experience building metal competition robots could be used to build a machine that cleans up the environment. The team spent three months designing a floating platform powered by two electric paddle wheels.</p><p>To navigate the river safely, the robot uses lidar—a sensor system that fires invisible lasers to measure distances and create a 3D map of its surroundings. The robot\'s onboard computer uses this map to detect obstacles like logs and docks, steering around them automatically. The front of the robot features a conveyor belt that scoops up floating plastic bottles, tin cans, and wrappers, depositing them into a storage bin.</p><p>In their first field test, the robot cleared more than 45 pounds of trash from the river in a single hour. The machine runs on rechargeable lithium batteries that are powered by solar panels mounted on top of the deck, allowing it to operate cleanly without producing any emissions.</p><blockquote>We wanted to build a robot that had a direct, positive impact on our local environment. Seeing the robot scoop up trash and clean the river was even more exciting than winning a match in the arena.<footer>— Marcus Miller, 17, Flying Hedgehogs Lead Programmer</footer></blockquote><p>The Flying Hedgehogs are sharing their blueprints and code online so other school teams can build their own river-cleaning robots, helping communities clean up waterways around the country.</p>',
-    kidTake: 'A high school robotics team built a floating robot that cleans up rivers. The robot uses laser eyes called lidar to steer around obstacles like logs while a conveyor belt scoops up plastic bottles and trash from the water.',
+    title: 'FIRST Team Builds Assistive Robotics Arm for Libraries',
+    subtitle: 'High school students engineer 3D-printed wheelchair attachment to help retrieve books',
+    excerpt: 'FIRST Robotics Team "Circuit Breakers" designed a lightweight, motorized arm to assist library visitors with limited mobility.',
+    body: '<p>For library visitors who use wheelchairs, reaching books on high shelves can be difficult. To help solve this problem, a high school robotics team from Portland, Oregon, has engineered an assistive robotic arm. Named ShelfReach, the 3D-printed motorized arm attaches to a wheelchair and is controlled using a simple smartphone joystick, allowing users to safely retrieve books from shelves up to eight feet high.</p><p>The team, known as FRC Team 3673 "Circuit Breakers," includes 18 students from local schools. They spent their off-season working on the project after volunteering at a community library and noticing that visitors frequently had to ask staff for help reaching materials.</p><p>ShelfReach is made of lightweight carbon-fiber rods and 3D-printed joints. The arm uses three electric motors powered by a rechargeable wheelchair battery. The claw is lined with soft silicone pads to securely grip books without damaging paper covers. The students spent weeks programming the arm\'s control software to ensure movements are slow and precise.</p><blockquote>We wanted to use our competitive robotics experience to build something that increases independence for people in our community. Seeing the arm retrieve its first book was better than winning a tournament.<footer>— Julia Martinez, 17, mechanical lead</footer></blockquote><p>The team has open-sourced the mechanical blueprints and control software, allowing other robotics clubs around the world to build ShelfReach arms for their local libraries. They are currently working with a local rehabilitation center to gather feedback from wheelchair users to improve the joystick interface.</p>',
+    kidTake: 'A high school robotics team built a cool mechanical arm that clips onto a wheelchair. Using a phone joystick, a person can move the arm to reach and pick up books from high library shelves. The students made their designs free so anyone can build one.',
     familyDiscussion: [
-      "If you were designing a robot to clean up your neighborhood, what features would it have?",
-      "The robot uses laser eyes (lidar) to see. How is a robot\'s vision different from human vision?",
-      "Why is keeping plastic out of rivers helpful for the animals that live in and around the water?"
+      "Why does being able to reach things on your own make a big difference in how independent you feel?",
+      "The students used soft silicone to line the robot\'s claw. Why is the choice of materials important in engineering?",
+      "What is another place besides a library where a mechanical reacher arm would be helpful?"
     ],
     glossary: [
-      { "term": "Lidar", "meaning": "A sensor system that uses laser light to measure distances and help robots build a map of their surroundings to navigate." },
-      { "term": "Autonomous navigation", "meaning": "The ability of a vehicle or robot to steer and travel safely on its own without a human driver." }
+      { "term": "Assistive technology", "meaning": "Devices or software designed to help people with disabilities perform daily tasks more easily." },
+      { "term": "Open-source", "meaning": "Blueprints, code, or designs that are made free for anyone to use, modify, and share." }
     ],
     ageBand: '8+',
     author: 'Lt. Commander Data',
-    tags: ['river-cleanup', 'lidar', 'autonomous', 'engineering', 'student-team']
+    tags: ['assistive-tech', '3d-printing', 'robotics-arm', 'outreach']
   },
   {
     channel: 'space',
     staffSlug: 'agent-space',
-    title: 'High School CubeSat Project \'SkyBolt-1\' Launched into Orbit by NASA Rocket',
-    subtitle: 'Seattle student team builds miniature satellite to study cosmic radiation in space',
-    excerpt: 'Built by a team of high school students in Seattle, the miniature satellite \'SkyBolt-1\' was launched into orbit from Cape Canaveral to study cosmic rays.',
-    body: '<p>Building a satellite is usually a job for professional aerospace engineers with millions of dollars in funding. However, a team of high school students in Seattle, Washington, has achieved this milestone themselves. Their miniature satellite, named SkyBolt-1, was launched into space from Cape Canaveral, Florida, orbiting the Earth to collect data on cosmic radiation.</p><p>SkyBolt-1 is a CubeSat—a standard class of miniature satellites that are shaped like a 10-centimeter cube and weigh about three pounds. Because they are small and compact, CubeSats can hitch a ride on commercial rocket launches, allowing universities and schools to send scientific experiments into space for a fraction of the usual cost.</p><p>The student team, consisting of 12 high schoolers, spent two years designing, building, and testing the satellite. Inside the cube, they packed solar panels, a miniature radio, and a Geiger counter—a sensor that detects cosmic rays, which are high-energy particles traveling through space from distant stars and galaxies.</p><p>To survive in space, the satellite had to pass extreme tests. The students had to prove to NASA that SkyBolt-1 could survive the intense shaking of a rocket launch and the freezing temperatures of orbit. They built a custom thermal protection system to keep the electronics warm during the 45 minutes of each orbit when the satellite is shielded from the sun behind the Earth.</p><blockquote>Seeing our satellite go up on the rocket was incredible. We built something in our school science lab that is currently flying 250 miles above us, sending data back to our classroom radio receiver every day.<footer>— Sarah Jenkins, 17, SkyBolt-1 Project Lead</footer></blockquote><p>The students are currently receiving radio signals from SkyBolt-1 as it passes over Seattle, tracking how cosmic radiation levels change as the satellite moves through different parts of its orbit. They plan to share their data with other classrooms to help students study space science.</p>',
-    kidTake: 'A group of high school students built their own miniature satellite shaped like a small cube. It was launched into space on a rocket! Now, the satellite is orbiting high above Earth and sending back scientific data to their classroom radio.',
+    title: 'Indiana High School Rocketry Club Launches Dual-Stage Rocket to 15,000 Feet',
+    subtitle: 'Student team designs custom carbon-fiber booster and flight computer for high-altitude launch',
+    excerpt: 'The rocketry club "AeroDevs" successfully launched and recovered a dual-stage rocket, capturing high-altitude atmospheric data.',
+    body: '<p>Reaching the edge of space requires precision engineering and teamwork. Last weekend, a high school rocketry club from South Bend, Indiana, demonstrated both by successfully launching a dual-stage model rocket to an altitude of 15,000 feet. The rocket, named Pathfinder II, carried a student-designed flight computer that recorded atmospheric pressure and radiation levels before returning safely under parachute.</p><p>The club, named the AeroDevs, consists of 12 students who spent nine months designing and testing the rocket. Pathfinder II is a dual-stage rocket, meaning it features two motor sections: a booster stage that launches the rocket off the pad, and a second stage that ignites mid-air once the booster is spent.</p><p>The students fabricated the rocket\'s body tubes from carbon-fiber sheets to keep the weight under ten pounds. They programmed the flight computer using a micro-controller, writing code that monitors altitude and fires black powder charges to deploy the parachutes at the peak of the flight.</p><blockquote>Igniting a rocket motor mid-flight is incredibly difficult. If the second stage fires even a fraction of a second late, the rocket will tilt and fly off-course. It took months of testing to get the timing perfect.<footer>— Ben Harris, 18, team lead</footer></blockquote><p>The launch took place at a commercial rocketry range in Wisconsin. Pathfinder II reached a top speed of Mach 1.2 (about 900 miles per hour) before deploying its parachute and landing two miles from the launch pad. The AeroDevs are now analyzing the collected atmospheric data and plan to submit their flight computer designs to a national amateur space contest.</p>',
+    kidTake: 'A group of high school students built a carbon-fiber rocket that launched nearly three miles into the air! The rocket had two engines that fired one after another. A tiny computer on the rocket recorded scientific data before bringing the rocket back down safely with parachutes.',
     familyDiscussion: [
-      "If you could send a small experiment into space in a CubeSat, what would you want to study?",
-      "The satellite orbits the Earth every 90 minutes. What would it feel like to watch the sun rise and set 16 times a day like the satellite does?",
-      "Sarah says they receive data from the satellite using a classroom radio. How do you think messages travel from space to Earth without wires?"
+      "Why is it important for a rocket to deploy its parachute at the exact highest point of its flight?",
+      "The students spent nine months building a rocket that flew for just a few minutes. Why is the preparation work in science so long?",
+      "If you could send one tiny science experiment up on a student rocket, what would you want to measure?"
     ],
     glossary: [
-      { "term": "CubeSat", "meaning": "A class of miniature, cube-shaped satellites used for space research, typically measuring 10 centimeters on each side." },
-      { "term": "Cosmic rays", "meaning": "High-energy particles that travel through space at nearly the speed of light, originating from distant stars and exploding galaxies." }
+      { "term": "Dual-stage rocket", "meaning": "A rocket that uses two separate engine booster sections to reach higher speeds and altitudes than a single-stage rocket." },
+      { "term": "Flight computer", "meaning": "A small electronic brain on a rocket that monitors sensors and triggers events, like opening parachutes at the right time." }
     ],
-    ageBand: '8+',
+    ageBand: '10+',
     author: 'Commander William Riker',
-    tags: ['cubesat', 'aerospace', 'space-flight', 'cosmic-rays', 'student-project']
+    tags: ['rocketry', 'flight-computer', 'aerospace', 'high-altitude']
   },
   {
     channel: 'stem',
     staffSlug: 'stem',
-    title: '17-Year-Old Researcher Iris Shen Discovers Plastic-Eating Bacteria in Local Soil',
-    subtitle: 'High school student isolates microbial strain that degrades polyethylene plastics',
-    excerpt: '17-year-old high school student Iris Shen isolated a strain of bacteria from a local landfill that can break down polyethylene plastic, offering a green solution to waste.',
-    body: '<p>Polyethylene is the most common type of plastic in the world, used to make grocery bags, shampoo bottles, and toys. Unfortunately, it takes hundreds of years to break down in landfills. However, 17-year-old student researcher Iris Shen from Chicago, Illinois, has discovered a microscopic ally in the fight against plastic pollution. She has isolated a strain of bacteria from local landfill soil that can consume and break down polyethylene plastics.</p><p>Iris\'s research began after she volunteered at a community cleanup day and noticed how much plastic trash was buried in the dirt. She wondered if nature was already adapting to this waste. She realized that over decades, some bacteria in landfills might have evolved the ability to use plastic as a food source.</p><p>To test her theory, Iris gathered soil samples from a landfill that had been closed for thirty years. In her school biology lab, she placed the soil in containers containing strips of polyethylene film as the only source of carbon (food). Over several weeks, she monitored the containers to see if any bacteria would grow and multiply on the plastic surface.</p><p>Her patience paid off. She isolated a specific strain of bacteria, belonging to the genus *Pseudomonas*, that was actively eating the plastic. The bacteria produce enzymes—special proteins that speed up chemical reactions—that break the long, tough molecular chains of the plastic into simpler, harmless organic compounds that the bacteria can digest.</p><p>In her tests, the bacteria reduced the weight of the plastic film by 18 percent in just forty days. This process is called bioremediation—using living organisms to clean up environmental pollution.</p><blockquote>Finding a biological way to break down plastic is so exciting because it doesn\'t require chemicals or heat. We are just helping nature do what it does best, but much faster.<footer>— Iris Shen, 17</footer></blockquote><p>Iris\'s project won third place at the Regeneron Science Talent Search. She hopes to study biochemistry in college and refine the bacterial enzymes so they can break down plastic even faster, paving the way for industrial-scale biological recycling systems.</p>',
-    kidTake: 'A 17-year-old student named Iris discovered a special type of bacteria in landfill soil that can eat plastic! The bacteria use special proteins to break down tough plastic bags and bottles into harmless natural materials, helping clean up the environment.',
+    title: 'High School Team Wins STEM Prize for Algae-Based Bio-Plastic Packaging',
+    subtitle: 'Students cultivate freshwater microalgae to create compostable packaging wrap',
+    excerpt: 'A student science team developed an algae-based packaging wrap that degrades in 14 days, providing a green alternative to plastic wrap.',
+    body: '<p>Plastic packaging is one of the largest sources of waste in our oceans. To find a green alternative, a student science team from Seattle, Washington, has developed a compostable packaging wrap made from freshwater algae. The material is durable, waterproof, and decomposes naturally in garden soil in just two weeks, compared to hundreds of years for plastic wrap.</p><p>The project, named AlgaeWrap, was developed by three juniors—Sofia, Maya, and Kai. They began researching algae because it grows rapidly using only sunlight, water, and carbon dioxide, without needing chemical fertilizers or land used for food crops.</p><p>The students grew microalgae in plastic tubes inside their classroom. They harvested the algae and mixed it with water and a plant-based binding agent, then spread it into thin sheets to dry. The result is a flexible, clear film that behaves similarly to cling wrap.</p><blockquote>We wanted to show that bio-plastics can be made easily from natural sources. AlgaeWrap is completely natural; if it ends up in the ocean, it simply dissolves and acts as food for fish instead of polluting the water.<footer>— Sofia Rodriguez, 16</footer></blockquote><p>The team\'s project won first place in the environmental science division at the National STEM Fair. They are currently working with a local bakery to test AlgaeWrap on bread and pastries to evaluate how well it keeps food fresh.</p>',
+    kidTake: 'Three high school students grew green algae in their classroom and turned it into clear packaging wrap, like plastic wrap. Unlike regular plastic, this AlgaeWrap dissolves and breaks down in the soil in just two weeks, keeping trash out of our oceans.',
     familyDiscussion: [
-      "How do you think nature adapts to the waste that humans leave behind?",
-      "Iris\'s bacteria can eat plastic bags. What is something you use every day that you could replace with a reusable item to avoid making plastic waste?",
-      "Why is using bacteria to clean up pollution (bioremediation) safer than using chemicals or burning trash?"
+      "Why is finding an alternative to plastic wrap important for ocean animals?",
+      "AlgaeWrap dissolves in water after a long time. What kinds of products are best wrapped in AlgaeWrap?",
+      "If you were to invent a new eco-friendly material, what plant or natural substance would you use?"
     ],
     glossary: [
-      { "term": "Bioremediation", "meaning": "The use of living organisms, like bacteria or plants, to clean up and remove pollution from the environment." },
-      { "term": "Polyethylene", "meaning": "The most common type of plastic, used to make items like grocery bags, plastic bottles, and food packaging." }
+      { "term": "Microalgae", "meaning": "Microscopic algae that grow in water and perform photosynthesis, converting sunlight and carbon dioxide into energy." },
+      { "term": "Bioplastic", "meaning": "A type of plastic made from biological substances, like plants or algae, rather than petroleum oil." }
     ],
     ageBand: '8+',
     author: 'Priya Ramanathan',
-    tags: ['bioremediation', 'plastic-cleanup', 'bacteria', 'student-research']
+    tags: ['bioplastic', 'algae', 'environmental-science', 'zero-waste']
   }
 ];
 
@@ -363,7 +363,7 @@ function generateEmergencyDrops() {
       staffId: staff.id,
       channel: art.channel,
       payload: payload,
-      status: 'approved' // Set to approved so they show up as approved and ready on the board!
+      status: 'approved'
     });
 
     count++;
