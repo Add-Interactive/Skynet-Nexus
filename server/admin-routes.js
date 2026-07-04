@@ -675,10 +675,19 @@ router.post('/bootstrap-admin', async (req, res) => {
 // -------------------- ANTIGRAVITY WORKSPACE --------------------
 router.get('/antigravity/status', (req, res) => {
   try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     const manifest = readManifest();
     const articles = manifest.articles || [];
     const queued = db.listQueuedStories({ limit: 1000 }) || [];
-    const today = '2026-07-04';
+    
+    // Resolve today's date dynamically in Eastern Time YYYY-MM-DD
+    const options = { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' };
+    const parts = new Intl.DateTimeFormat('en-US', options).formatToParts(new Date());
+    const month = parts.find(p => p.type === 'month').value;
+    const day = parts.find(p => p.type === 'day').value;
+    const year = parts.find(p => p.type === 'year').value;
+    const today = `${year}-${month}-${day}`;
+
     res.json({
       today,
       articles,

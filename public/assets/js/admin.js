@@ -912,8 +912,8 @@
       { id: 'stem', name: 'STEM', emoji: '🧬', staff: 'Priya Ramanathan' }
     ];
 
-    // Load status
-    api('/admin/antigravity/status').then(function (res) {
+    // Load status with cache-buster
+    api('/admin/antigravity/status?t=' + Date.now()).then(function (res) {
       var today = res.today;
       var articles = res.articles || [];
       var queued = res.queued || [];
@@ -1055,8 +1055,8 @@
         api('/admin/antigravity/generate-drops', { method: 'POST' }).then(function (r) {
           btn.textContent = 'Running (Publishing ' + r.count + ' stories)...';
           
-          // Fetch status to get the newly generated queued stories
-          return api('/admin/antigravity/status');
+          // Fetch status with cache-buster to get the newly generated queued stories
+          return api('/admin/antigravity/status?t=' + Date.now());
         }).then(function (res) {
           var today = res.today;
           var queued = res.queued || [];

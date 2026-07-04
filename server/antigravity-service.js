@@ -283,8 +283,13 @@ function generateEmergencyDrops() {
   console.log('[antigravity-service] Starting emergency article drops generation...');
   let count = 0;
   
-  // Clear any existing stories for date 2026-07-04 to prevent duplicates
-  const today = '2026-07-04';
+  // Clear any existing stories for today's date in Eastern Time to prevent duplicates
+  const options = { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' };
+  const parts = new Intl.DateTimeFormat('en-US', options).formatToParts(new Date());
+  const month = parts.find(p => p.type === 'month').value;
+  const day = parts.find(p => p.type === 'day').value;
+  const year = parts.find(p => p.type === 'year').value;
+  const today = `${year}-${month}-${day}`;
   
   const channelImages = {
     ai: '/assets/img/wildfire_smoke_ai.jpg',
