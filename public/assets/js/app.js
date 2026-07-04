@@ -220,6 +220,8 @@ const ICONS = {
   search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>',
   bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 004 0"/></svg>',
   bookmark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>',
+  thumbsUp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>',
+  thumbsDown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm10-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"/></svg>',
   heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8z"/></svg>',
   comment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>',
   share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5L8.6 10.5"/></svg>',
@@ -543,9 +545,11 @@ function toast(msg) {
 // ---------- Post Card ----------
 function renderPost(a, featured, base) {
   base = base || '';
-  const liked = LS.get('likes_' + a.id, false);
+  const thumbsUp = LS.get('thumbs_up_' + a.id, false);
+  const thumbsDown = LS.get('thumbs_down_' + a.id, false);
   const saved = LS.get('save_' + a.id, false);
-  const likesDisplay = formatCount(a.likes + (liked ? 1 : 0));
+  const thumbsUpDisplay = formatCount(a.likes + (thumbsUp ? 1 : 0));
+  const thumbsDownDisplay = formatCount((a.dislikes || 0) + (thumbsDown ? 1 : 0));
   return (
     '<article class="post-card ' + (featured ? 'featured' : '') + '" data-id="' + a.id + '" data-cat="' + a.cat + '" data-href="' + base + 'pages/article.html?id=' + a.id + '">' +
       '<div class="post-media-wrap">' +
@@ -562,7 +566,8 @@ function renderPost(a, featured, base) {
           '<span class="dot">•</span><span>' + friendlyDate(a.date) + '</span>' +
           '<span class="dot">•</span><span>' + a.readTime + ' min</span>' +
           '<div class="post-actions">' +
-            '<button class="like-btn ' + (liked ? 'liked' : '') + '" data-id="' + a.id + '" title="Like">' + ICONS.heart + '<span>' + likesDisplay + '</span></button>' +
+            '<button class="like-btn ' + (thumbsUp ? 'liked' : '') + '" data-id="' + a.id + '" title="Thumbs Up">' + ICONS.thumbsUp + '<span>' + thumbsUpDisplay + '</span></button>' +
+            '<button class="dislike-btn ' + (thumbsDown ? 'disliked' : '') + '" data-id="' + a.id + '" title="Thumbs Down">' + ICONS.thumbsDown + '<span>' + thumbsDownDisplay + '</span></button>' +
             '<button class="save-btn ' + (saved ? 'liked' : '') + '" data-id="' + a.id + '" title="Save">' + ICONS.bookmark + '</button>' +
           '</div>' +
         '</div>' +
@@ -709,13 +714,57 @@ function bindPostEvents() {
     btn.addEventListener('click', e => {
       e.stopPropagation();
       const id = btn.dataset.id;
-      const cur = LS.get('likes_' + id, false);
-      LS.set('likes_' + id, !cur);
+      const curUp = LS.get('thumbs_up_' + id, false);
+      const curDown = LS.get('thumbs_down_' + id, false);
+      
+      if (curDown) {
+        LS.set('thumbs_down_' + id, false);
+        const card = btn.closest('.post-card');
+        const dBtn = card ? card.querySelector('.dislike-btn') : null;
+        if (dBtn) {
+          dBtn.classList.remove('disliked');
+          const article = ARTICLES.find(a => String(a.id) === id);
+          if (article) dBtn.querySelector('span').textContent = formatCount(article.dislikes || 0);
+        }
+      }
+      
+      LS.set('thumbs_up_' + id, !curUp);
       btn.classList.toggle('liked');
-      toast(cur ? 'Removed from likes' : 'Liked!');
       const article = ARTICLES.find(a => String(a.id) === id);
       const cnt = btn.querySelector('span');
-      if (cnt && article) cnt.textContent = formatCount(article.likes + (cur ? 0 : 1));
+      if (cnt && article) cnt.textContent = formatCount(article.likes + (curUp ? 0 : 1));
+      toast(curUp ? 'Removed thumbs up' : 'Thumbs up!');
+      
+      renderTrending();
+    });
+  });
+
+  document.querySelectorAll('.dislike-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      const curUp = LS.get('thumbs_up_' + id, false);
+      const curDown = LS.get('thumbs_down_' + id, false);
+      
+      if (curUp) {
+        LS.set('thumbs_up_' + id, false);
+        const card = btn.closest('.post-card');
+        const lBtn = card ? card.querySelector('.like-btn') : null;
+        if (lBtn) {
+          lBtn.classList.remove('liked');
+          const article = ARTICLES.find(a => String(a.id) === id);
+          if (article) lBtn.querySelector('span').textContent = formatCount(article.likes);
+        }
+      }
+      
+      LS.set('thumbs_down_' + id, !curDown);
+      btn.classList.toggle('disliked');
+      const article = ARTICLES.find(a => String(a.id) === id);
+      const cnt = btn.querySelector('span');
+      if (cnt && article) cnt.textContent = formatCount((article.dislikes || 0) + (curDown ? 0 : 1));
+      toast(curDown ? 'Removed thumbs down' : 'Thumbs down!');
+      
+      renderTrending();
     });
   });
   document.querySelectorAll('.save-btn').forEach(btn => {
@@ -762,35 +811,37 @@ function initSearch() {
 function renderTrending() {
   const el = document.getElementById('trending-list');
   if (!el) return;
-  // Derive trending tags from the real published articles.
-  const counts = {};
-  ARTICLES.forEach(a => (a.tags || []).forEach(t => {
-    const key = String(t).trim();
-    if (!key) return;
-    if (!counts[key]) counts[key] = { tag: key, n: 0, tone: a.cat };
-    counts[key].n++;
-  }));
-  TRENDING = Object.values(counts).sort((a, b) => b.n - a.n).slice(0, 7);
-  if (!TRENDING.length) {
-    el.innerHTML = '<li class="trend-empty" style="color:var(--text-mute);padding:12px 4px;font-size:.85rem">Trending topics appear as stories publish.</li>';
+  
+  // Sort articles by thumbs up count (a.likes + user thumbs up)
+  const sorted = [...ARTICLES].sort((a, b) => {
+    const aUp = a.likes + (LS.get('thumbs_up_' + a.id, false) ? 1 : 0);
+    const bUp = b.likes + (LS.get('thumbs_up_' + b.id, false) ? 1 : 0);
+    return bUp - aUp;
+  }).slice(0, 5);
+
+  if (!sorted.length) {
+    el.innerHTML = '<li class="trend-empty" style="color:var(--text-mute);padding:12px 4px;font-size:.85rem">No trending articles yet.</li>';
     return;
   }
-  el.innerHTML = TRENDING.map((t, i) =>
-    '<li data-tag="' + t.tag + '">' +
-      '<span class="trend-num">' + String(i + 1).padStart(2, '0') + '</span>' +
-      '<div class="trend-body">' +
-        '<span class="trend-hashtag">#' + t.tag.replace(/^#/, '') + '</span>' +
-        '<span class="trend-meta">' + t.n + ' stor' + (t.n === 1 ? 'y' : 'ies') + ' • ' + categoryLabel(t.tone) + '</span>' +
-      '</div>' +
-    '</li>'
-  ).join('');
-  el.querySelectorAll('li[data-tag]').forEach(li => {
+  
+  el.innerHTML = sorted.map((a, i) => {
+    const upCount = a.likes + (LS.get('thumbs_up_' + a.id, false) ? 1 : 0);
+    return `
+      <li data-art-id="${a.id}">
+        <span class="trend-num">${String(i + 1).padStart(2, '0')}</span>
+        <div class="trend-body">
+          <span class="trend-hashtag">${a.title}</span>
+          <span class="trend-meta">By ${a.author} • ${categoryLabel(a.cat)} • 👍 ${upCount}</span>
+        </div>
+      </li>
+    `;
+  }).join('');
+
+  el.querySelectorAll('li[data-art-id]').forEach(li => {
     li.addEventListener('click', () => {
-      searchQuery = li.dataset.tag.replace('#', '');
-      const input = document.getElementById('global-search');
-      if (input) input.value = searchQuery;
-      renderFeed();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const id = li.dataset.artId;
+      const base = location.pathname.includes('/pages/') ? '../' : './';
+      location.href = base + 'pages/article.html?id=' + id;
     });
   });
 }
@@ -1028,7 +1079,8 @@ function initArticlePage() {
   }
 
   document.title = a.title + ' â€” Skynet Nexus News';
-  const liked = LS.get('likes_' + a.id, false);
+  const thumbsUp = LS.get('thumbs_up_' + a.id, false);
+  const thumbsDown = LS.get('thumbs_down_' + a.id, false);
   const saved = LS.get('save_' + a.id, false);
 
   const bodyHtml = _normalizeArticleBody(a.body || '');
@@ -1092,7 +1144,8 @@ function initArticlePage() {
       '<div class="article-tags">' + (a.tags || []).map(t => '<span class="tag">#' + t + '</span>').join('') + '</div>' +
       '<div class="article-toolbar">' +
         '<div class="reactions">' +
-          '<button class="react-btn ' + (liked ? 'active' : '') + '" id="btn-like">' + ICONS.heart + '<span class="cnt">' + formatCount(a.likes + (liked ? 1 : 0)) + '</span></button>' +
+          '<button class="react-btn ' + (thumbsUp ? 'active' : '') + '" id="btn-thumbs-up">' + ICONS.thumbsUp + '<span class="cnt">' + formatCount(a.likes + (thumbsUp ? 1 : 0)) + '</span></button>' +
+          '<button class="react-btn ' + (thumbsDown ? 'active-dislike' : '') + '" id="btn-thumbs-down">' + ICONS.thumbsDown + '<span class="cnt">' + formatCount((a.dislikes || 0) + (thumbsDown ? 1 : 0)) + '</span></button>' +
           '<button class="react-btn" id="btn-comment">' + ICONS.comment + '<span class="cnt">' + formatCount(a.comments) + '</span></button>' +
           '<button class="react-btn ' + (saved ? 'active' : '') + '" id="btn-save">' + ICONS.bookmark + '</button>' +
         '</div>' +
@@ -1141,13 +1194,48 @@ function initArticlePage() {
     toast('Comment posted!');
   });
 
-  document.getElementById('btn-like').addEventListener('click', () => {
-    const cur = LS.get('likes_' + a.id, false);
-    LS.set('likes_' + a.id, !cur);
-    const btn = document.getElementById('btn-like');
-    btn.classList.toggle('active');
-    btn.querySelector('.cnt').textContent = formatCount(a.likes + (cur ? 0 : 1));
-    toast(cur ? 'Unliked' : 'Liked!');
+  document.getElementById('btn-thumbs-up').addEventListener('click', () => {
+    const curUp = LS.get('thumbs_up_' + a.id, false);
+    const curDown = LS.get('thumbs_down_' + a.id, false);
+    
+    if (curDown) {
+      LS.set('thumbs_down_' + a.id, false);
+      const btnDown = document.getElementById('btn-thumbs-down');
+      if (btnDown) {
+        btnDown.classList.remove('active-dislike');
+        btnDown.querySelector('.cnt').textContent = formatCount(a.dislikes || 0);
+      }
+    }
+    
+    LS.set('thumbs_up_' + a.id, !curUp);
+    const btnUp = document.getElementById('btn-thumbs-up');
+    btnUp.classList.toggle('active');
+    btnUp.querySelector('.cnt').textContent = formatCount(a.likes + (curUp ? 0 : 1));
+    toast(curUp ? 'Removed thumbs up' : 'Thumbs up!');
+    
+    renderTrending();
+  });
+
+  document.getElementById('btn-thumbs-down').addEventListener('click', () => {
+    const curUp = LS.get('thumbs_up_' + a.id, false);
+    const curDown = LS.get('thumbs_down_' + a.id, false);
+    
+    if (curUp) {
+      LS.set('thumbs_up_' + a.id, false);
+      const btnUp = document.getElementById('btn-thumbs-up');
+      if (btnUp) {
+        btnUp.classList.remove('active');
+        btnUp.querySelector('.cnt').textContent = formatCount(a.likes);
+      }
+    }
+    
+    LS.set('thumbs_down_' + a.id, !curDown);
+    const btnDown = document.getElementById('btn-thumbs-down');
+    btnDown.classList.toggle('active-dislike');
+    btnDown.querySelector('.cnt').textContent = formatCount((a.dislikes || 0) + (curDown ? 0 : 1));
+    toast(curDown ? 'Removed thumbs down' : 'Thumbs down!');
+    
+    renderTrending();
   });
   document.getElementById('btn-save').addEventListener('click', () => {
     const cur = LS.get('save_' + a.id, false);
