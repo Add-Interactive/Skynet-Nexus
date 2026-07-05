@@ -140,7 +140,7 @@
 
 /* ---------- Agents ---------- */
 .agents-layout { display: flex; flex-direction: column; gap: 20px; align-items: stretch; width: 100%; }
-.agent-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; width: 100%; }
+.agent-list { display: flex; flex-direction: column; gap: 16px; width: 100%; }
 .agent-card {
   display: flex; align-items: center; gap: 12px; text-align: left;
   background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
