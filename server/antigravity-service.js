@@ -22,7 +22,7 @@ const ARTICLES_DATA = [
       { "term": "Blight", "meaning": "A plant disease, typically caused by fungi or bacteria, that causes crops to wither and die rapidly." }
     ],
     ageBand: '8+',
-    author: 'Captain Jean-Luc Picard',
+    author: 'Dr. Nova Sterling',
     tags: ['agriculture', 'computer-vision', 'neural-networks', 'farming']
   },
   {
@@ -43,7 +43,7 @@ const ARTICLES_DATA = [
       { "term": "Microfluidics", "meaning": "The science of designing devices that control and manipulate tiny amounts of liquids through microscopic channels." }
     ],
     ageBand: '10+',
-    author: 'Dr. Beverly Crusher',
+    author: 'Dr. Sage Rivers',
     tags: ['hydration', 'sports-science', 'sensors', 'health-tech']
   },
   {
@@ -64,7 +64,7 @@ const ARTICLES_DATA = [
       { "term": "Carbon sequestration", "meaning": "The process of capturing and storing atmospheric carbon dioxide to help reduce climate change." }
     ],
     ageBand: '8+',
-    author: 'Counselor Deanna Troi',
+    author: 'Terra Green',
     tags: ['biochar', 'gardening', 'carbon-capture', 'waste-upcycling']
   },
   {
@@ -85,7 +85,7 @@ const ARTICLES_DATA = [
       { "term": "Encryption", "meaning": "The process of encoding messages or information so that only authorized parties can read it." }
     ],
     ageBand: '10+',
-    author: 'Commander Ro Laren',
+    author: 'Cipher Crypt',
     tags: ['privacy', 'dns-security', 'encryption', 'open-source']
   },
   {
@@ -106,7 +106,7 @@ const ARTICLES_DATA = [
       { "term": "Gear ratio", "meaning": "The relationship between the rotation speed of two or more connected gears, used to slow down or speed up movement." }
     ],
     ageBand: '8+',
-    author: 'Chief Engineer Geordi La Forge',
+    author: 'Mason Rivet',
     tags: ['gravity-power', 'mechanical-engineering', 'makers', 'battery-free']
   },
   {
@@ -127,7 +127,7 @@ const ARTICLES_DATA = [
       { "term": "Blitz chess", "meaning": "A fast-paced version of chess where each player has a very short time—usually five minutes or less—to make all their moves." }
     ],
     ageBand: '8+',
-    author: 'Wesley Crusher',
+    author: 'Leo Pixel',
     tags: ['chess', 'charity', 'marathon', 'board-games']
   },
   {
@@ -148,7 +148,7 @@ const ARTICLES_DATA = [
       { "term": "Grid overload", "meaning": "When too much electrical current flows through a power line or transformer, causing it to overheat and fail." }
     ],
     ageBand: '12+',
-    author: 'Dr. Leah Brahms',
+    author: 'Adara Matrix',
     tags: ['mathematics', 'graph-theory', 'power-grid', 'optimization']
   },
   {
@@ -169,7 +169,7 @@ const ARTICLES_DATA = [
       { "term": "Pizzicato", "meaning": "A playing technique that involves plucking the strings of a string instrument with the fingers instead of using the bow." }
     ],
     ageBand: '8+',
-    author: 'Lt. Guinan',
+    author: 'Aria Harmony',
     tags: ['violin', 'classical-music', 'paganini', 'music-competition']
   },
   {
@@ -211,7 +211,7 @@ const ARTICLES_DATA = [
       { "term": "Qubit", "meaning": "A quantum bit; the basic unit of information in quantum computing, which can represent multiple states at the same time." }
     ],
     ageBand: '10+',
-    author: 'Lt. Worf',
+    author: 'Zephyr Thorne',
     tags: ['quantum-physics', 'cryptography', 'educational-games', 'cybersecurity']
   },
   {
@@ -232,7 +232,7 @@ const ARTICLES_DATA = [
       { "term": "Open-source", "meaning": "Blueprints, code, or designs that are made free for anyone to use, modify, and share." }
     ],
     ageBand: '8+',
-    author: 'Lt. Commander Data',
+    author: 'Jax Henderson',
     tags: ['assistive-tech', '3d-printing', 'robotics-arm', 'outreach']
   },
   {
@@ -253,7 +253,7 @@ const ARTICLES_DATA = [
       { "term": "Flight computer", "meaning": "A small electronic brain on a rocket that monitors sensors and triggers events, like opening parachutes at the right time." }
     ],
     ageBand: '10+',
-    author: 'Commander William Riker',
+    author: 'Commander Leo Vance',
     tags: ['rocketry', 'flight-computer', 'aerospace', 'high-altitude']
   },
   {

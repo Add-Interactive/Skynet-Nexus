@@ -897,17 +897,17 @@
     var gridEl = grid.querySelector('#channel-status-grid');
 
     var channels = [
-      { id: 'ai', name: 'AI & Machine Learning', emoji: '🧠', staff: 'Captain Jean-Luc Picard' },
-      { id: 'space', name: 'Space & Aerospace', emoji: '🚀', staff: 'Commander William Riker' },
-      { id: 'robotics', name: 'Robotics & Automation', emoji: '🤖', staff: 'Lt. Commander Data' },
-      { id: 'biotech', name: 'Biotech & Health', emoji: '🧬', staff: 'Dr. Beverly Crusher' },
-      { id: 'quantum', name: 'Quantum & Computing', emoji: '⚛️', staff: 'Lt. Worf' },
-      { id: 'climate', name: 'Climate & Energy', emoji: '🌍', staff: 'Counselor Deanna Troi' },
-      { id: 'engineering', name: 'Engineering & Making', emoji: '🔧', staff: 'Chief Engineer Geordi La Forge' },
-      { id: 'math', name: 'Math & Data Science', emoji: '📐', staff: 'Dr. Leah Brahms' },
-      { id: 'cyber', name: 'Cybersecurity & Code', emoji: '🔐', staff: 'Commander Ro Laren' },
-      { id: 'gaming', name: 'Gaming Tournaments', emoji: '🎮', staff: 'Wesley Crusher' },
-      { id: 'music', name: 'Music Festivals', emoji: '🎧', staff: 'Lt. Guinan' },
+      { id: 'ai', name: 'AI & Machine Learning', emoji: '🧠', staff: 'Dr. Nova Sterling' },
+      { id: 'space', name: 'Space & Aerospace', emoji: '🚀', staff: 'Commander Leo Vance' },
+      { id: 'robotics', name: 'Robotics & Automation', emoji: '🤖', staff: 'Jax Henderson' },
+      { id: 'biotech', name: 'Biotech & Health', emoji: '🧬', staff: 'Dr. Sage Rivers' },
+      { id: 'quantum', name: 'Quantum & Computing', emoji: '⚛️', staff: 'Zephyr Thorne' },
+      { id: 'climate', name: 'Climate & Energy', emoji: '🌍', staff: 'Terra Green' },
+      { id: 'engineering', name: 'Engineering & Making', emoji: '🔧', staff: 'Mason Rivet' },
+      { id: 'math', name: 'Math & Data Science', emoji: '📐', staff: 'Adara Matrix' },
+      { id: 'cyber', name: 'Cybersecurity & Code', emoji: '🔐', staff: 'Cipher Crypt' },
+      { id: 'gaming', name: 'Gaming Tournaments', emoji: '🎮', staff: 'Leo Pixel' },
+      { id: 'music', name: 'Music Festivals', emoji: '🎧', staff: 'Aria Harmony' },
       { id: 'play', name: 'Play & Design', emoji: '🎨', staff: 'Amara Okafor' },
       { id: 'stem', name: 'STEM', emoji: '🧬', staff: 'Priya Ramanathan' }
     ];

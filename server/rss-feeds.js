@@ -134,17 +134,17 @@ function generateAgentFeed(agentSlug, siteOrigin) {
 
   // Agent display name map
   const agentMap = {
-    'agent-ai': 'Captain Jean-Luc Picard',
-    'agent-space': 'Commander William Riker',
-    'agent-robotics': 'Lt. Commander Data',
-    'agent-biotech': 'Dr. Beverly Crusher',
-    'agent-quantum': 'Lt. Worf',
-    'agent-climate': 'Counselor Deanna Troi',
-    'agent-engineering': 'Chief Engineer Geordi La Forge',
-    'agent-math': 'Dr. Leah Brahms',
-    'agent-cyber': 'Commander Ro Laren',
-    'agent-gaming': 'Wesley Crusher',
-    'agent-music': 'Lt. Guinan'
+    'agent-ai': 'Dr. Nova Sterling',
+    'agent-space': 'Commander Leo Vance',
+    'agent-robotics': 'Jax Henderson',
+    'agent-biotech': 'Dr. Sage Rivers',
+    'agent-quantum': 'Zephyr Thorne',
+    'agent-climate': 'Terra Green',
+    'agent-engineering': 'Mason Rivet',
+    'agent-math': 'Adara Matrix',
+    'agent-cyber': 'Cipher Crypt',
+    'agent-gaming': 'Leo Pixel',
+    'agent-music': 'Aria Harmony'
   };
   
   const agentName = agentMap[agentSlug] || agentSlug;

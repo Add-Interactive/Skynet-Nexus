@@ -28,17 +28,17 @@ class NewsroomState {
   
   initializeAgents() {
     return [
-      { id: 'picard', name: 'Captain Picard', channel: 'AI', emoji: '🧠', color: '#00ccff', gridX: 4, gridY: 0, status: 'idle', storiesCount: 0 },
-      { id: 'riker', name: 'Cdr. Riker', channel: 'Space', emoji: '🚀', color: '#00ccff', gridX: 2, gridY: 2, status: 'idle', storiesCount: 0 },
-      { id: 'data', name: 'Lt. Data', channel: 'Robotics', emoji: '🤖', color: '#ffff00', gridX: 6, gridY: 2, status: 'idle', storiesCount: 0 },
-      { id: 'crusher', name: 'Dr. Crusher', channel: 'Biotech', emoji: '🧬', color: '#ff6600', gridX: 1, gridY: 4, status: 'idle', storiesCount: 0 },
-      { id: 'worf', name: 'Lt. Worf', channel: 'Quantum', emoji: '⚛️', color: '#ff0066', gridX: 7, gridY: 4, status: 'idle', storiesCount: 0 },
-      { id: 'troi', name: 'Counselor Troi', channel: 'Climate', emoji: '🌍', color: '#00ff00', gridX: 0, gridY: 2, status: 'idle', storiesCount: 0 },
-      { id: 'laforge', name: 'Chief La Forge', channel: 'Engineering', emoji: '🔧', color: '#ff9900', gridX: 8, gridY: 2, status: 'idle', storiesCount: 0 },
-      { id: 'brahms', name: 'Dr. Brahms', channel: 'Math', emoji: '📐', color: '#00ccff', gridX: 3, gridY: 4, status: 'idle', storiesCount: 0 },
-      { id: 'rolaren', name: 'Cdr. Ro Laren', channel: 'Cyber', emoji: '🔐', color: '#9900ff', gridX: 5, gridY: 4, status: 'idle', storiesCount: 0 },
-      { id: 'wesley', name: 'Wesley Crusher', channel: 'Gaming', emoji: '🎮', color: '#0066ff', gridX: 4, gridY: 5, status: 'idle', storiesCount: 0 },
-      { id: 'guinan', name: 'Lt. Guinan', channel: 'Music', emoji: '🎧', color: '#ff00ff', gridX: 2, gridY: 6, status: 'idle', storiesCount: 0 }
+      { id: 'picard', name: 'Dr. Sterling', channel: 'AI', emoji: '🧠', color: '#00ccff', gridX: 4, gridY: 0, status: 'idle', storiesCount: 0 },
+      { id: 'riker', name: 'Cdr. Vance', channel: 'Space', emoji: '🚀', color: '#00ccff', gridX: 2, gridY: 2, status: 'idle', storiesCount: 0 },
+      { id: 'data', name: 'Jax Henderson', channel: 'Robotics', emoji: '🤖', color: '#ffff00', gridX: 6, gridY: 2, status: 'idle', storiesCount: 0 },
+      { id: 'crusher', name: 'Dr. Rivers', channel: 'Biotech', emoji: '🧬', color: '#ff6600', gridX: 1, gridY: 4, status: 'idle', storiesCount: 0 },
+      { id: 'worf', name: 'Zephyr Thorne', channel: 'Quantum', emoji: '⚛️', color: '#ff0066', gridX: 7, gridY: 4, status: 'idle', storiesCount: 0 },
+      { id: 'troi', name: 'Terra Green', channel: 'Climate', emoji: '🌍', color: '#00ff00', gridX: 0, gridY: 2, status: 'idle', storiesCount: 0 },
+      { id: 'laforge', name: 'Mason Rivet', channel: 'Engineering', emoji: '🔧', color: '#ff9900', gridX: 8, gridY: 2, status: 'idle', storiesCount: 0 },
+      { id: 'brahms', name: 'Adara Matrix', channel: 'Math', emoji: '📐', color: '#00ccff', gridX: 3, gridY: 4, status: 'idle', storiesCount: 0 },
+      { id: 'rolaren', name: 'Cipher Crypt', channel: 'Cyber', emoji: '🔐', color: '#9900ff', gridX: 5, gridY: 4, status: 'idle', storiesCount: 0 },
+      { id: 'wesley', name: 'Leo Pixel', channel: 'Gaming', emoji: '🎮', color: '#0066ff', gridX: 4, gridY: 5, status: 'idle', storiesCount: 0 },
+      { id: 'guinan', name: 'Aria Harmony', channel: 'Music', emoji: '🎧', color: '#ff00ff', gridX: 2, gridY: 6, status: 'idle', storiesCount: 0 }
     ];
   }
   

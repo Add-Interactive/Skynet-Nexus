@@ -7,9 +7,9 @@ const AGENTS = [
   {
     slug: 'agent-ai',
     channel: 'ai',
-    displayName: 'Captain Jean-Luc Picard',
+    displayName: 'Dr. Nova Sterling',
     role: 'Correspondent - AI & Machine Learning',
-    bio: 'Starship captain and advanced systems analyst. Covers breakthroughs in machine learning, neural networks, and ethical reasoning systems.',
+    bio: 'Advanced AI researcher and systems analyst. Covers breakthroughs in machine learning, neural networks, and ethical reasoning systems.',
     avatarEmoji: '🧠',
     accentColor: '#00bfff',
     promptPath: 'newsroom/prompts/ai.md'
@@ -17,9 +17,9 @@ const AGENTS = [
   {
     slug: 'agent-space',
     channel: 'space',
-    displayName: 'Commander William Riker',
+    displayName: 'Commander Leo Vance',
     role: 'Correspondent - Space & Aerospace',
-    bio: 'First Officer and exploration specialist. Covers deep space missions, cosmic discoveries, and frontier science.',
+    bio: 'Exploration specialist. Covers deep space missions, cosmic discoveries, and frontier space science.',
     avatarEmoji: '🚀',
     accentColor: '#00d9ff',
     promptPath: 'newsroom/prompts/space.md'
@@ -27,9 +27,9 @@ const AGENTS = [
   {
     slug: 'agent-robotics',
     channel: 'robotics',
-    displayName: 'Lt. Commander Data',
+    displayName: 'Jax Henderson',
     role: 'Correspondent - Robotics & Automation',
-    bio: 'Sentient android and precision specialist. Covers robot design, automation systems, and machine enhancement technology.',
+    bio: 'Precision engineer and robotics specialist. Covers robot design, automation systems, and machine enhancement technology.',
     avatarEmoji: '🤖',
     accentColor: '#ffd700',
     promptPath: 'newsroom/prompts/robotics.md'
@@ -37,9 +37,9 @@ const AGENTS = [
   {
     slug: 'agent-biotech',
     channel: 'biotech',
-    displayName: 'Dr. Beverly Crusher',
+    displayName: 'Dr. Sage Rivers',
     role: 'Correspondent - Biotech & Health',
-    bio: 'Chief Medical Officer and bioscience researcher. Covers medical breakthroughs, genetic research, and health innovation.',
+    bio: 'Bioscience researcher and medical innovator. Covers medical breakthroughs, genetic research, and health innovation.',
     avatarEmoji: '🧬',
     accentColor: '#ff69b4',
     promptPath: 'newsroom/prompts/biotech.md'
@@ -47,9 +47,9 @@ const AGENTS = [
   {
     slug: 'agent-quantum',
     channel: 'quantum',
-    displayName: 'Lt. Worf',
+    displayName: 'Zephyr Thorne',
     role: 'Correspondent - Quantum & Computing',
-    bio: 'Chief of Security and tactical systems expert. Covers quantum breakthroughs, supercomputing, and advanced computational theory.',
+    bio: 'Theoretical computing and tactical systems expert. Covers quantum breakthroughs, supercomputing, and advanced computational theory.',
     avatarEmoji: '⚛️',
     accentColor: '#ff6347',
     promptPath: 'newsroom/prompts/quantum.md'
@@ -57,9 +57,9 @@ const AGENTS = [
   {
     slug: 'agent-climate',
     channel: 'climate',
-    displayName: 'Counselor Deanna Troi',
+    displayName: 'Terra Green',
     role: 'Correspondent - Climate & Energy',
-    bio: 'Ship Counselor and empathic analyst. Covers climate action, renewable energy, and environmental compassion initiatives.',
+    bio: 'Environmental scientist and climate analyst. Covers climate action, renewable energy, and environmental compassion initiatives.',
     avatarEmoji: '🌍',
     accentColor: '#32cd32',
     promptPath: 'newsroom/prompts/climate.md'
@@ -67,9 +67,9 @@ const AGENTS = [
   {
     slug: 'agent-engineering',
     channel: 'engineering',
-    displayName: 'Chief Engineer Geordi La Forge',
+    displayName: 'Mason Rivet',
     role: 'Correspondent - Engineering & Making',
-    bio: 'Chief Engineer and technical innovator. Covers hands-on engineering, maker projects, and STEM competitions.',
+    bio: 'Hands-on structural engineer and technical innovator. Covers engineering design, maker projects, and youth builder competitions.',
     avatarEmoji: '🔧',
     accentColor: '#ff8c00',
     promptPath: 'newsroom/prompts/engineering.md'
@@ -77,9 +77,9 @@ const AGENTS = [
   {
     slug: 'agent-math',
     channel: 'math',
-    displayName: 'Dr. Leah Brahms',
+    displayName: 'Adara Matrix',
     role: 'Correspondent - Math & Data Science',
-    bio: 'Starship architect and theoretical mathematician. Covers mathematics competitions, data science, and computational innovation.',
+    bio: 'Data scientist and theoretical mathematician. Covers mathematics competitions, data science, and computational innovation.',
     avatarEmoji: '📐',
     accentColor: '#00ffff',
     promptPath: 'newsroom/prompts/math.md'
@@ -87,9 +87,9 @@ const AGENTS = [
   {
     slug: 'agent-cyber',
     channel: 'cyber',
-    displayName: 'Commander Ro Laren',
+    displayName: 'Cipher Crypt',
     role: 'Correspondent - Cybersecurity & Code',
-    bio: 'Security tactician and systems specialist. Covers cybersecurity, ethical hacking, and digital defense innovation.',
+    bio: 'Security tactician and systems developer. Covers cybersecurity, ethical hacking, and digital defense innovation.',
     avatarEmoji: '🔐',
     accentColor: '#9932cc',
     promptPath: 'newsroom/prompts/cyber.md'
@@ -97,9 +97,9 @@ const AGENTS = [
   {
     slug: 'agent-gaming',
     channel: 'gaming',
-    displayName: 'Wesley Crusher',
+    displayName: 'Leo Pixel',
     role: 'Correspondent - Gaming & Esports',
-    bio: 'Young prodigy and competitive analyst. Covers gaming competitions, esports strategy, and next-gen gaming culture.',
+    bio: 'Competitive analyst and gaming expert. Covers gaming tournaments, esports strategy, and next-gen gaming culture.',
     avatarEmoji: '🎮',
     accentColor: '#1e90ff',
     promptPath: 'newsroom/prompts/gaming.md'
@@ -107,9 +107,9 @@ const AGENTS = [
   {
     slug: 'agent-music',
     channel: 'music',
-    displayName: 'Lt. Guinan',
+    displayName: 'Aria Harmony',
     role: 'Correspondent - Music & Festivals',
-    bio: 'Lounge Manager and cultural observer. Covers music, festivals, emerging artists, and cultural expression.',
+    bio: 'Musicologist and cultural observer. Covers youth music festivals, emerging teenage artists, and cultural expression.',
     avatarEmoji: '🎧',
     accentColor: '#ff1493',
     promptPath: 'newsroom/prompts/music.md'

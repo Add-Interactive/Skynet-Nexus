@@ -115,17 +115,17 @@ class PlaceholderSpriteGenerator {
   
   static generateAllAgents() {
     const agents = [
-      { id: 'picard', name: 'Picard', color: '#00ccff' },
-      { id: 'riker', name: 'Riker', color: '#00ccff' },
-      { id: 'data', name: 'Data', color: '#ffff00' },
-      { id: 'crusher', name: 'Crusher', color: '#ff6600' },
-      { id: 'worf', name: 'Worf', color: '#ff0066' },
-      { id: 'troi', name: 'Troi', color: '#00ff00' },
-      { id: 'laforge', name: 'La Forge', color: '#ff9900' },
-      { id: 'brahms', name: 'Brahms', color: '#00ccff' },
-      { id: 'rolaren', name: 'Ro Laren', color: '#9900ff' },
-      { id: 'wesley', name: 'Wesley', color: '#0066ff' },
-      { id: 'guinan', name: 'Guinan', color: '#ff00ff' }
+      { id: 'picard', name: 'Sterling', color: '#00ccff' },
+      { id: 'riker', name: 'Vance', color: '#00ccff' },
+      { id: 'data', name: 'Henderson', color: '#ffff00' },
+      { id: 'crusher', name: 'Rivers', color: '#ff6600' },
+      { id: 'worf', name: 'Thorne', color: '#ff0066' },
+      { id: 'troi', name: 'Green', color: '#00ff00' },
+      { id: 'laforge', name: 'Rivet', color: '#ff9900' },
+      { id: 'brahms', name: 'Matrix', color: '#00ccff' },
+      { id: 'rolaren', name: 'Crypt', color: '#9900ff' },
+      { id: 'wesley', name: 'Pixel', color: '#0066ff' },
+      { id: 'guinan', name: 'Harmony', color: '#ff00ff' }
     ];
     
     const animationStates = ['idle', 'researching', 'writing', 'filing'];
