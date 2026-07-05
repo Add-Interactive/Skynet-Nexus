@@ -821,5 +821,22 @@ app.listen(PORT, () => {
     console.error('[skynet] Startup queue cleanup failed:', e.message);
   }
 
+  // Seed Jeffrey Hunt into staff database table on boot if not already present
+  try {
+    const { DatabaseSync } = require('node:sqlite');
+    const { DB_PATH } = require('./storage');
+    const rawDb = new DatabaseSync(DB_PATH);
+    const existing = rawDb.prepare("SELECT id FROM staff WHERE slug = 'jeffrey-hunt'").get();
+    if (!existing) {
+      rawDb.prepare(`
+        INSERT INTO staff (slug, kind, display_name, role, channel, byline, avatar_emoji, accent_color, status)
+        VALUES ('jeffrey-hunt', 'human', 'Jeffrey Hunt', 'Admin & Editor-in-Chief', 'skynet', 'Jeffrey Hunt', '🛰️', '#ff2e63', 'active')
+      `).run();
+      console.log('[skynet] Startup: Successfully seeded Jeffrey Hunt as Admin/Editor-in-Chief in staff table.');
+    }
+  } catch (e) {
+    console.error('[skynet] Startup: Failed to seed Jeffrey Hunt:', e.message);
+  }
+
   scheduler.start();
 });

@@ -560,7 +560,7 @@
             <option value="music">music (Guinan)</option>
             <option value="play">play (Amara Okafor)</option>
             <option value="stem">stem (Priya Ramanathan)</option>
-            <option value="skynet">skynet (Antigravity)</option>
+            <option value="skynet">skynet (Jeffrey Hunt)</option>
           </select>
         </label>
         <label style="display: flex; flex-direction: column; gap: 4px;">
@@ -1071,13 +1071,13 @@
       ai: 'agent-ai', space: 'agent-space', robotics: 'agent-robotics',
       biotech: 'agent-biotech', quantum: 'agent-quantum', climate: 'agent-climate',
       engineering: 'agent-engineering', math: 'agent-math', cyber: 'agent-cyber',
-      gaming: 'agent-gaming', music: 'agent-music', play: 'play', stem: 'stem', skynet: 'agent-antigravity'
+      gaming: 'agent-gaming', music: 'agent-music', play: 'play', stem: 'stem', skynet: 'jeffrey-hunt'
     };
 
     fetchAPI('/admin/staff').then(function (r) {
       var staffList = r.staff || [];
-      var slug = staffSlugs[channel] || 'agent-antigravity';
-      var st = staffList.find(function(x) { return x.slug === slug; }) || { id: 17, displayName: 'Antigravity', role: 'Emergency Co-Director' };
+      var slug = staffSlugs[channel] || 'jeffrey-hunt';
+      var st = staffList.find(function(x) { return x.slug === slug; }) || { id: 18, displayName: 'Jeffrey Hunt', role: 'Admin & Editor-in-Chief' };
 
       var payload = {
         id: new Date().toISOString().slice(0,10) + '-' + channel + '-manual',
