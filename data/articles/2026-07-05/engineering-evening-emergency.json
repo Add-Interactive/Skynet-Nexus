@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-05-engineering-evening-emergency",
+  "slug": "engineering-evening-emergency",
+  "cat": "engineering",
+  "categoryLabel": "Engineering & Making",
+  "title": "Students Build Prototype Solar-Powered Water Distiller for Coastal Communities",
+  "subtitle": "High school team uses recycled mirrors and copper pipes to purify seawater using sunlight",
+  "excerpt": "A three-student team engineered a solar distiller that yields two gallons of clean drinking water daily from sea water.",
+  "heroImage": "/assets/img/solar_distiller_water.jpg",
+  "body": "<p>For coastal communities facing water scarcity, seawater is abundant but undrinkable. To help solve this problem, a team of three high school students from Miami, Florida, has built a prototype solar-powered water distiller. Named SolarDistill, the device uses recycled parabolic mirrors and copper pipes to heat seawater, condensing the vapor into pure, clean drinking water using only energy from the sun.</p><p>The students—Priya Ramanathan, 16, Maya Ortiz, 16, and Liam Vance, 17—spent their engineering class designing the solar concentrator. They realized that curved mirrors could focus sunlight onto a central pipe, raising water temperatures rapidly.</p><p>Seawater is pumped into a copper pipe placed at the focal line of a curved mirror. The intense heat boils the water, turning it into steam. The steam is channeled into a condensation tube cooled by incoming sea water, turning the vapor back into liquid. The salt and impurities are left behind in the boiling chamber, leaving pure water.</p><blockquote>We wanted to build a simple, clean water system that runs without electricity. SolarDistill can be made using local scrap metal and plastic pipes, making it cheap to build in remote areas.<footer>— Priya Ramanathan, 16</footer></blockquote><p>The prototype distiller successfully produces two gallons of clean drinking water a day. The team won a first-place award in the environmental engineering division at the State Science Fair.</p>",
+  "kidTake": "Three students built a sun-powered machine that turns salty ocean water into clean drinking water. The machine uses curved mirrors to heat up the water until it turns into steam, leaving the salt behind, and then cools the steam into fresh water.",
+  "familyDiscussion": [
+    "Why is fresh water so important for coastal communities even though they live right next to the ocean?",
+    "Priya's team built their distiller out of recycled metal and plastic. Why is it helpful to build things out of materials you can find nearby?",
+    "What is another way we can use the sun's heat to help people in their daily lives?"
+  ],
+  "glossary": [
+    {
+      "term": "Distillation",
+      "meaning": "A process of purifying a liquid by heating it to create vapor, and then cooling the vapor to collect the purified liquid."
+    },
+    {
+      "term": "Parabolic mirror",
+      "meaning": "A curved mirror shaped like a bowl that reflects light rays to a single focal point, generating intense heat."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Mason Rivet",
+  "authorInit": "MR",
+  "authorRole": "Correspondent - Engineering & Making",
+  "date": "2026-07-05",
+  "publishedAt": "2026-07-05T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "engineering",
+    "solar-energy",
+    "water-purification",
+    "green-tech"
+  ],
+  "color": "#f97316",
+  "gradient": "linear-gradient(135deg, #ffb800, #ff2e63)",
+  "emoji": "🔧",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "Students Build Prototype Solar-Powered Water Distiller for Coastal Communities Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/engineering"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-05-quantum-evening-emergency",
+  "slug": "quantum-evening-emergency",
+  "cat": "quantum",
+  "categoryLabel": "Quantum & Computing",
+  "title": "16-Year-Old Programmer Builds Visual Game Explaining Quantum Entanglement",
+  "subtitle": "Student codes interactive maze game \"SpookyAction\" to teach kids quantum mechanics basics",
+  "excerpt": "Aris Thorne built a browser game where players must entangle particles to solve logic puzzles.",
+  "heroImage": "/assets/img/quantum_computing_game.jpg",
+  "body": "<p>Quantum entanglement sounds like science fiction—it is the phenomenon where two particles become linked so that what happens to one instantly affects the other, no matter how far apart they are. To explain this strange rule, 16-year-old Aris Thorne from Boston, Massachusetts, has coded SpookyAction—an interactive web-based puzzle game that introduces middle schoolers to quantum mechanics.</p><p>Aris, who enjoys coding and physics, noticed that textbooks described entanglement using complicated physics math that confused his friends. He wanted to see if the concept could be represented visually as a game.</p><p>In SpookyAction, players control a pair of entangled particles navigating through a maze. When one particle moves or rotates, the other particle mimics its movements instantly, even if they are in different chambers. Players must use this connection to press switches, bypass security lasers, and unlock doors together.</p><blockquote>Albert Einstein called quantum entanglement 'spooky action at a distance.' My game shows kids that this spooky rule is actually a cool tool for solving puzzles.<footer>— Aris Thorne, 16</footer></blockquote><p>The game won a first-place award in the educational software division at the State Science Fair. Aris has made the game free online, and several high school physics teachers have integrated it into their lesson plans.</p>",
+  "kidTake": "A 16-year-old programmer built an online maze game called SpookyAction. In the game, you move two magic particles that are linked together. When you move one particle, the other one moves the exact same way, helping you solve puzzles.",
+  "familyDiscussion": [
+    "In Aris's game, moving one particle instantly changes another. Why is that a helpful rule for solving puzzles?",
+    "Why is it sometimes easier to learn a hard science topic by playing a game rather than reading a textbook?",
+    "If you had a magic link with your best friend where they felt whatever you felt, how would you use it?"
+  ],
+  "glossary": [
+    {
+      "term": "Quantum entanglement",
+      "meaning": "A physical phenomenon where two or more particles become interconnected, so that the state of one instantly dictates the state of the other."
+    },
+    {
+      "term": "Superposition",
+      "meaning": "The ability of a quantum particle to exist in multiple states at the same time until it is measured."
+    }
+  ],
+  "ageBand": "10+",
+  "author": "Zephyr Thorne",
+  "authorInit": "ZT",
+  "authorRole": "Correspondent - Quantum & Computing",
+  "date": "2026-07-05",
+  "publishedAt": "2026-07-05T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "quantum-physics",
+    "educational-games",
+    "javascript",
+    "physics"
+  ],
+  "color": "#06b6d4",
+  "gradient": "linear-gradient(135deg, #22d3ee, #7c5cff)",
+  "emoji": "⚛️",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "16-Year-Old Programmer Builds Visual Game Explaining Quantum Entanglement Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/quantum"
+    }
+  ]
+}

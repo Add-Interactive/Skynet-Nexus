@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-05-biotech-evening-emergency",
+  "slug": "biotech-evening-emergency",
+  "cat": "biotech",
+  "categoryLabel": "Biotech & Health",
+  "title": "16-Year-Old Student Isolates Soil Bacteria That Accelerates Composting",
+  "subtitle": "Research shows local bacterial strain speeds up breakdown of organic food waste by 50 percent",
+  "excerpt": "Chloe Kim discovered a local soil bacterium that breaks down organic starch and cellulose in half the usual time.",
+  "heroImage": "/assets/img/organ_transplant_ml.jpg",
+  "body": "<p>Composting organic waste is a great way to recycle nutrients back into the earth, but the process can take months. To help speed things up, 16-year-old Chloe Kim from Seattle, Washington, has isolated a unique strain of soil bacteria that accelerates the breakdown of kitchen compost. Her research shows that introducing this bacterium to a standard compost pile reduces composting time by half.</p><p>Chloe, a biology student, became interested in soil chemistry while helping in her school's greenhouse. She wondered why some compost bins broke down materials much faster than others.</p><p>She collected soil samples from forest floors and compost piles, isolating different bacterial colonies in petri dishes. By feeding the bacteria different organic substrates—like cellulose and starch—she identified a high-performing strain of Bacillus bacteria that produces large amounts of organic enzymes.</p><blockquote>Composting is usually a slow process. By boosting the naturally occurring bacteria, we can turn food scraps into rich soil booster in weeks instead of months.<footer>— Chloe Kim, 16</footer></blockquote><p>Chloe's bacterial culture was tested on school compost bins, reducing the breakdown cycle from 12 weeks to just six. She won a first-place award at the regional science fair and is currently working on packaging the dried bacteria so home gardeners can use it.</p>",
+  "kidTake": "A 16-year-old girl named Chloe found a special helper bacteria in forest soil. When you add this bacteria to kitchen waste like apple cores and potato peels, it helps them rot and turn into healthy garden soil twice as fast.",
+  "familyDiscussion": [
+    "What is composting? Why is it better to compost food scraps than throw them in the trash?",
+    "Chloe found her helper bacteria by exploring the forest floor. What is something interesting you have observed in nature?",
+    "How do bacteria help keep our gardens and forests healthy?"
+  ],
+  "glossary": [
+    {
+      "term": "Cellulose",
+      "meaning": "An organic compound that makes up the cell walls of plants; it gives plants structure but is hard to break down."
+    },
+    {
+      "term": "Enzyme",
+      "meaning": "A chemical substance produced by living organisms that helps speed up chemical reactions, like digestion or decomposition."
+    }
+  ],
+  "ageBand": "10+",
+  "author": "Dr. Sage Rivers",
+  "authorInit": "DS",
+  "authorRole": "Correspondent - Biotech & Health",
+  "date": "2026-07-05",
+  "publishedAt": "2026-07-05T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "biotech",
+    "composting",
+    "soil-biology",
+    "science-fair"
+  ],
+  "color": "#10b981",
+  "gradient": "linear-gradient(135deg, #2dd4bf, #00e5ff)",
+  "emoji": "🧬",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "16-Year-Old Student Isolates Soil Bacteria That Accelerates Composting Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/biotech"
+    }
+  ]
+}

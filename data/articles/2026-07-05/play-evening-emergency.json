@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-05-play-evening-emergency",
+  "slug": "play-evening-emergency",
+  "cat": "play",
+  "categoryLabel": "Play & Design",
+  "title": "Teenager Designs Modular Treehouse Playground for Children with Physical Disabilities",
+  "subtitle": "17-year-old uses 3D design to construct wheelchair-accessible ramp and sensory swings",
+  "excerpt": "Amara Okafor built a modular model for an inclusive playground with ramps, sensory panels, and swings.",
+  "heroImage": "/assets/img/roblox_game_ocean.jpg",
+  "body": "<p>Playgrounds are places where all children should feel welcome, but traditional treehouses and slides often leave kids with physical disabilities on the sidelines. To help solve this, 17-year-old Amara Okafor from Seattle, Washington, has designed a modular treehouse playground named CanopyPlay. The 3D design features wheelchair-accessible ramps, sensory play boards, and inclusive swings, allowing children of all abilities to play together in nature.</p><p>Amara, whose younger brother uses a wheelchair, noticed how frustrating it was that he could not join his friends in neighborhood treehouses. She decided to use her 3D design skills to engineer a playground that is both accessible and fun.</p><p>CanopyPlay features modular wooden platforms connected by low-grade ramps that wind around mature trees. It includes tactical path markers, Braille sensory panels, and swings with high-back support. The design can be adjusted to fit different park layouts and tree configurations.</p><blockquote>Treehouses are magical, and every kid deserves to experience being up in the leaves. CanopyPlay makes this possible by making accessibility a core design feature.<footer>— Amara Okafor, 17</footer></blockquote><p>Amara's designs won first place in a national student design competition. She is currently working with a local park board to build a prototype CanopyPlay playground in a city park next summer.</p>",
+  "kidTake": "A 17-year-old girl named Amara designed a cool treehouse playground that kids in wheelchairs can play in. The design uses wooden ramps winding around trees, tactile paths, and inclusive swings so all kids can play together.",
+  "familyDiscussion": [
+    "Amara built this treehouse to play with her brother. What is something you've built or done to show love for a family member?",
+    "Why is making public spaces like playgrounds accessible for everyone a kind and helpful thing to do?",
+    "What is another popular playground toy that could be redesigned to be more accessible?"
+  ],
+  "glossary": [
+    {
+      "term": "Modular design",
+      "meaning": "A design approach that subdivides a system into smaller parts called modules, which can be created, used, and replaced independently."
+    },
+    {
+      "term": "Tactile path",
+      "meaning": "A path designed to be felt, usually with raised bumps or textures, helping guide people with visual impairments."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Amara Okafor",
+  "authorInit": "AO",
+  "authorRole": "Correspondent — Play & Design",
+  "date": "2026-07-05",
+  "publishedAt": "2026-07-05T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "playgrounds",
+    "accessibility",
+    "3d-design",
+    "empathy"
+  ],
+  "color": "#39ff14",
+  "gradient": "linear-gradient(135deg, #39ff14, #00e5ff)",
+  "emoji": "🎨",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "Teenager Designs Modular Treehouse Playground for Children with Physical Disabilities Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/play"
+    }
+  ]
+}

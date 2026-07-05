@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-05-cyber-evening-emergency",
+  "slug": "cyber-evening-emergency",
+  "cat": "cyber",
+  "categoryLabel": "Cybersecurity & Code",
+  "title": "Student Programmer Builds Chrome Extension to Shield Kids from Online Ad Trackers",
+  "subtitle": "14-year-old creates open-source privacy extension that blocks corporate telemetry on educational sites",
+  "excerpt": "Leo Pixel built \"PrivacyPup\", a privacy extension that intercepts tracking scripts on popular school websites.",
+  "heroImage": "/assets/img/privacy_extension_dog.jpg",
+  "body": "<p>Many educational websites are helpful, but they often carry hidden tracking scripts that collect data on student browsing habits. To help keep kids safe online, 14-year-old Leo Pixel from Denver, Colorado, has coded PrivacyPup—a free, open-source Google Chrome extension that blocks tracking scripts on popular school websites.</p><p>Leo, a student coder, became interested in internet privacy after learning how advertising networks build profiles on web users. He realized that while adults use ad blockers, kids often use school-managed chromebooks without privacy protection.</p><p>Using JavaScript, Leo wrote a lightweight extension that monitors web requests. The extension runs in the background, matching incoming scripts against a database of known telemetry networks and blocking them before they can run in the browser. It displays a cute cartoon dog that \"barks\" when a tracker is blocked, showing a counter of blocked scripts.</p><blockquote>Kids should be able to learn online without being tracked by advertising companies. I built PrivacyPup to keep our school chromebooks private and safe.<footer>— Leo Pixel, 14</footer></blockquote><p>PrivacyPup has been downloaded over 5,000 times by parents, students, and teachers. Leo has open-sourced the code on GitHub so other student programmers can contribute to the tracking database.</p>",
+  "kidTake": "A 14-year-old kid named Leo built a privacy extension for school computers. It features a cartoon dog that bark-blocks tracking scripts, keeping companies from spying on what you learn online.",
+  "familyDiscussion": [
+    "What is internet privacy? Why is it important to keep our personal information private online?",
+    "Leo's extension uses a cartoon dog to make security fun. How can design make technology easier to understand?",
+    "What is a website you use for school? Why do you think it needs to be safe and private?"
+  ],
+  "glossary": [
+    {
+      "term": "Chrome extension",
+      "meaning": "A small software program that extends the features and functionality of the Google Chrome web browser."
+    },
+    {
+      "term": "Telemetry",
+      "meaning": "The automatic collection and transmission of user data from remote sources for monitoring or analysis."
+    }
+  ],
+  "ageBand": "10+",
+  "author": "Cipher Crypt",
+  "authorInit": "CC",
+  "authorRole": "Correspondent - Cybersecurity & Code",
+  "date": "2026-07-05",
+  "publishedAt": "2026-07-05T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "cybersecurity",
+    "browser-extension",
+    "privacy",
+    "javascript"
+  ],
+  "color": "#6366f1",
+  "gradient": "linear-gradient(135deg, #38bdf8, #a855f7)",
+  "emoji": "🔐",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "Student Programmer Builds Chrome Extension to Shield Kids from Online Ad Trackers Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/cyber"
+    }
+  ]
+}

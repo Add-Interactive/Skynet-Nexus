@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-05-math-evening-emergency",
+  "slug": "math-evening-emergency",
+  "cat": "math",
+  "categoryLabel": "Math & Data Science",
+  "title": "17-Year-Old Data Scientist Wins National Modeling Prize for Traffic Optimization Algorithm",
+  "subtitle": "High school senior codes mathematical model that minimizes bottleneck delays at school crossings",
+  "excerpt": "Sophia Patel designed a coordinate-free queue model that reduces morning traffic delays by 25 percent.",
+  "heroImage": "/assets/img/math_team_contest.jpg",
+  "body": "<p>Morning drop-offs at schools can create traffic bottlenecks that delay buses, frustrate parents, and increase carbon emissions from idling cars. To address this, 17-year-old Sophia Patel, a high school senior from Boston, Massachusetts, has written a mathematical model that optimizes car flow through school crossings, reducing morning traffic delays by 25 percent.</p><p>Sophia, a member of her school's math team, noticed that the daily traffic jam followed a predictable pattern. She realized that traffic flow could be represented mathematically as a queue network—a system where cars are treated as moving particles passing through bottlenecks.</p><p>Using coordinate-free geometry and queue theory, Sophia wrote a computer simulation that models traffic patterns. She proved that adjusting traffic light timing by just six seconds and rearranging drop-off lane markers could significantly increase flow rate.</p><blockquote>Traffic isn't just random cars; it's a math puzzle. By adjusting lane geometry and light timing, we can keep traffic moving smoothly and reduce carbon emissions.<footer>— Sophia Patel, 17</footer></blockquote><p>Sophia's research won a young investigator award from the National Council of Teachers of Mathematics. Her school district has implemented her lane design, reducing morning drop-off queue times significantly.</p>",
+  "kidTake": "An 17-year-old girl named Sophia wrote a math paper that explains how to stop school traffic jams. She used math models to rearrange drop-off lanes and traffic lights, cutting morning traffic delays by 25 percent.",
+  "familyDiscussion": [
+    "Have you ever been stuck in a traffic jam? How did it make you feel?",
+    "Sophia used math to solve a real-world problem in her neighborhood. What is a neighborhood problem you'd like to solve?",
+    "How do you think keeping cars moving instead of idling helps the environment?"
+  ],
+  "glossary": [
+    {
+      "term": "Queue theory",
+      "meaning": "The mathematical study of waiting lines, or queues, used to predict queue lengths and waiting times in systems."
+    },
+    {
+      "term": "Bottleneck",
+      "meaning": "A point of congestion in a system, such as a narrow road, that slows down progress or movement."
+    }
+  ],
+  "ageBand": "10+",
+  "author": "Adara Matrix",
+  "authorInit": "AM",
+  "authorRole": "Correspondent - Math & Data Science",
+  "date": "2026-07-05",
+  "publishedAt": "2026-07-05T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "mathematics",
+    "traffic-modeling",
+    "data-science",
+    "optimization"
+  ],
+  "color": "#ef4444",
+  "gradient": "linear-gradient(135deg, #f472b6, #a855f7)",
+  "emoji": "📐",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "17-Year-Old Data Scientist Wins National Modeling Prize for Traffic Optimization Algorithm Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/math"
+    }
+  ]
+}

@@ -105,6 +105,7 @@ function loadArticleFull(idOrSlug, baseUrl) {
 // pre-existing article category still resolves to a label/color/icon.
 const CHANNELS = [
   { id: 'skynet',      label: 'Skynet',                short: 'Skynet',      icon: '\ud83d\udef0\ufe0f', color: '#00e5ff', color2: '#a855f7' },
+  { id: 'network',     label: 'Network',               short: 'Network',     icon: '\ud83d\udef0\ufe0f', color: '#00e5ff', color2: '#a855f7' },
   { id: 'ai',          label: 'AI & Machine Learning', short: 'AI',          icon: '\ud83e\udde0', color: '#00e5ff', color2: '#7c3aed' },
   { id: 'space',       label: 'Space & Aerospace',     short: 'Space',       icon: '\ud83d\ude80', color: '#7c5cff', color2: '#00e5ff' },
   { id: 'robotics',    label: 'Robotics & Automation', short: 'Robotics',    icon: '\ud83e\udd16', color: '#a855f7', color2: '#ff2e63' },
@@ -119,8 +120,7 @@ const CHANNELS = [
 ];
 const LEGACY_CHANNELS = {
   stem:    { id: 'stem',    label: 'STEM',          short: 'STEM',    icon: '\ud83e\uddec', color: '#00e5ff', color2: '#7c3aed' },
-  play:    { id: 'play',    label: 'Play & Design', short: 'Play',    icon: '\ud83c\udfa8', color: '#39ff14', color2: '#00e5ff' },
-  network: { id: 'network', label: 'Network',       short: 'Network', icon: '\ud83d\udef0\ufe0f', color: '#00e5ff', color2: '#a855f7' }
+  play:    { id: 'play',    label: 'Play & Design', short: 'Play',    icon: '\ud83c\udfa8', color: '#39ff14', color2: '#00e5ff' }
 };
 const CHANNEL_MAP = {};
 CHANNELS.forEach(c => { CHANNEL_MAP[c.id] = c; });

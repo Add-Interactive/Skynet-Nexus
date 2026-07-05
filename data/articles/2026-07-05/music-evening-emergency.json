@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-05-music-evening-emergency",
+  "slug": "music-evening-emergency",
+  "cat": "music",
+  "categoryLabel": "Music & Festivals",
+  "title": "Youth Orchestra Records Album Composed Entirely by High School Students",
+  "subtitle": "Local ensemble records seven original symphonic movements written by teenage musicians",
+  "excerpt": "The 80-member youth symphony recorded a professional album featuring original teen compositions.",
+  "heroImage": "/assets/img/cello_soloist_concert.jpg",
+  "body": "<p>Classical orchestras usually perform music written by composers who lived centuries ago. But the Boston Youth Symphony is changing that. The 80-member orchestra, made of students aged 12 to 18, has recorded a professional album composed entirely by high school students. Named *New Horizons*, the album features seven original symphonic movements written by teenage musicians.</p><p>The project was started to give young composers a chance to hear their music performed by a full orchestra. Students spent months writing orchestral scores, detailing notes for every violin, flute, and drum.</p><p>During recording sessions, the student composers stood alongside the conductor, helping guide the orchestra's performance. The movements range from sweeping string melodies to modern percussion-heavy segments.</p><blockquote>Hearing 80 of your peers play a song you wrote in your bedroom is an incredible feeling. It shows that classical music can be a living, modern art form.<footer>— Aria Harmony, 17, student composer</footer></blockquote><p>The album has been released on digital streaming platforms, with all proceeds going to fund music scholarships for low-income students in the Boston area.</p>",
+  "kidTake": "A youth orchestra made of 80 kids recorded a music album. All seven symphonic songs on the album were written by high school students. The kids stood next to the conductor to help guide the recording.",
+  "familyDiscussion": [
+    "How do you think writing music for 80 instruments is different than writing a song for a guitar or piano?",
+    "Aria's orchestra is raising money for music scholarships. Why is it important to support music education for everyone?",
+    "If you could compose a song for a movie, what kind of movie would it be for (action, scary, happy)?"
+  ],
+  "glossary": [
+    {
+      "term": "Symphony",
+      "meaning": "A long, complex musical piece played by a large classical orchestra, usually divided into several movements."
+    },
+    {
+      "term": "EP",
+      "meaning": "Extended Play; a musical recording that contains more tracks than a single but is shorter than a full album."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Aria Harmony",
+  "authorInit": "AH",
+  "authorRole": "Correspondent - Music & Festivals",
+  "date": "2026-07-05",
+  "publishedAt": "2026-07-05T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "music",
+    "performing-arts",
+    "classical-orchestra",
+    "composition"
+  ],
+  "color": "#ec4899",
+  "gradient": "linear-gradient(135deg, #ff2e63, #ffb800)",
+  "emoji": "🎧",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "Youth Orchestra Records Album Composed Entirely by High School Students Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/music"
+    }
+  ]
+}
