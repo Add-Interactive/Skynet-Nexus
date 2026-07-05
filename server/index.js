@@ -857,6 +857,23 @@ app.listen(PORT, () => {
     console.error('[skynet] Startup: Failed to seed OpenClaw Orchestrator:', e.message);
   }
 
+  // Seed Antigravity into staff database table on boot if not already present
+  try {
+    const { DatabaseSync } = require('node:sqlite');
+    const { DB_PATH } = require('./storage');
+    const rawDb = new DatabaseSync(DB_PATH);
+    const existing = rawDb.prepare("SELECT id FROM staff WHERE slug = 'agent-antigravity'").get();
+    if (!existing) {
+      rawDb.prepare(`
+        INSERT INTO staff (slug, kind, display_name, role, channel, byline, avatar_emoji, accent_color, status, bio)
+        VALUES ('agent-antigravity', 'agent', 'Antigravity', 'Emergency Co-Director & AI Assistant', null, 'Antigravity', '🛰️', '#00e5ff', 'active', 'Emergency Co-Director and AI Assistant. Manages operations during system outages.')
+      `).run();
+      console.log('[skynet] Startup: Successfully seeded Antigravity agent in staff table.');
+    }
+  } catch (e) {
+    console.error('[skynet] Startup: Failed to seed Antigravity:', e.message);
+  }
+
   // Auto-schedule the 13 new drops for tomorrow (July 5) at 10:15 AM ET if not already scheduled
   try {
     const { DatabaseSync } = require('node:sqlite');
