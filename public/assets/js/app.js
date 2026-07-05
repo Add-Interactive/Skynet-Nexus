@@ -1114,7 +1114,10 @@ function initArticlePage() {
     '<div class="sources">' +
       '<div class="sources-title">Read the sources</div>' +
       '<ul>' + a.sources.map(s =>
-        '<li><a href="' + s.url + '" target="_blank" rel="noopener">' + s.label +  ) : '';
+        '<li><a href="' + s.url + '" target="_blank" rel="noopener">' + s.label + '</a></li>'
+      ).join('') + '</ul>' +
+    '</div>'
+  ) : '';
 
   // Thread updates timeline
   let threadHtml = '';
