@@ -139,8 +139,8 @@
 .pill.priority-low { background: rgba(120,130,150,.10); color: var(--text-mute); }
 
 /* ---------- Agents ---------- */
-.agents-layout { display: grid; grid-template-columns: 280px 1fr; gap: 18px; align-items: start; }
-.agent-list { display: flex; flex-direction: column; gap: 8px; }
+.agents-layout { display: flex; flex-direction: column; gap: 20px; align-items: stretch; width: 100%; }
+.agent-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; width: 100%; }
 .agent-card {
   display: flex; align-items: center; gap: 12px; text-align: left;
   background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
@@ -273,7 +273,6 @@
   }
   .admin-nav.open { transform: translateX(0); }
   .admin-menu-btn { display: inline-flex; }
-  .agents-layout { grid-template-columns: 1fr; }
   .admin-topbar-right .admin-whoami { display: none; }
   .admin-form-row { grid-template-columns: 1fr; }
 }
