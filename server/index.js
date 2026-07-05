@@ -914,5 +914,89 @@ app.listen(PORT, () => {
     console.error('[skynet] Startup scheduling failed:', e.message);
   }
 
+  // Self-healing: Update legacy Star Trek author names in SQLite database, manifest.json, and published articles
+  try {
+    const { DatabaseSync } = require('node:sqlite');
+    const { DB_PATH } = require('./storage');
+    const rawDb = new DatabaseSync(DB_PATH);
+    const fs = require('fs');
+    const path = require('path');
+
+    const nameMap = {
+      'Captain Jean-Luc Picard': { name: 'Dr. Nova Sterling', role: 'Correspondent - AI & Machine Learning', init: 'NS' },
+      'Commander William Riker': { name: 'Commander Leo Vance', role: 'Correspondent - Space & Aerospace', init: 'LV' },
+      'Lt. Commander Data': { name: 'Jax Henderson', role: 'Correspondent - Robotics & Automation', init: 'JH' },
+      'Dr. Beverly Crusher': { name: 'Dr. Sage Rivers', role: 'Correspondent - Biotech & Health', init: 'SR' },
+      'Lt. Worf': { name: 'Zephyr Thorne', role: 'Correspondent - Quantum & Computing', init: 'ZT' },
+      'Counselor Deanna Troi': { name: 'Terra Green', role: 'Correspondent - Climate & Energy', init: 'TG' },
+      'Chief Engineer Geordi La Forge': { name: 'Mason Rivet', role: 'Correspondent - Engineering & Making', init: 'MR' },
+      'Dr. Leah Brahms': { name: 'Adara Matrix', role: 'Correspondent - Math & Data Science', init: 'AM' },
+      'Commander Ro Laren': { name: 'Cipher Crypt', role: 'Correspondent - Cybersecurity & Code', init: 'CC' },
+      'Wesley Crusher': { name: 'Leo Pixel', role: 'Correspondent - Gaming & Esports', init: 'LP' },
+      'Lt. Guinan': { name: 'Aria Harmony', role: 'Correspondent - Music & Festivals', init: 'AH' }
+    };
+
+    // 1. Update queued_stories payload authors in DB
+    const queued = rawDb.prepare("SELECT id, payload FROM queued_stories").all();
+    queued.forEach(row => {
+      try {
+        const payload = JSON.parse(row.payload);
+        let changed = false;
+        if (payload.author && nameMap[payload.author]) {
+          const mapped = nameMap[payload.author];
+          payload.author = mapped.name;
+          payload.authorInit = mapped.init;
+          payload.authorRole = mapped.role;
+          changed = true;
+        }
+        if (changed) {
+          rawDb.prepare("UPDATE queued_stories SET payload = ? WHERE id = ?").run(JSON.stringify(payload), row.id);
+        }
+      } catch (e) {}
+    });
+
+    // 2. Update manifest.json and articles directory on disk
+    const dataDir = path.resolve(__dirname, '..', 'data');
+    const manifestPath = path.join(dataDir, 'manifest.json');
+    if (fs.existsSync(manifestPath)) {
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      let manifestChanged = false;
+      if (Array.isArray(manifest.articles)) {
+        manifest.articles.forEach(art => {
+          if (art.author && nameMap[art.author]) {
+            const mapped = nameMap[art.author];
+            art.author = mapped.name;
+            art.authorInit = mapped.init;
+            manifestChanged = true;
+          }
+          // Update individual article files
+          const artFilePath = path.resolve(path.join(dataDir, 'articles', art.date, art.slug + '.json'));
+          if (fs.existsSync(artFilePath)) {
+            try {
+              const article = JSON.parse(fs.readFileSync(artFilePath, 'utf8'));
+              let articleChanged = false;
+              if (article.author && nameMap[article.author]) {
+                const mapped = nameMap[article.author];
+                article.author = mapped.name;
+                article.authorInit = mapped.init;
+                article.authorRole = mapped.role;
+                articleChanged = true;
+              }
+              if (articleChanged) {
+                fs.writeFileSync(artFilePath, JSON.stringify(article, null, 2));
+              }
+            } catch (e) {}
+          }
+        });
+      }
+      if (manifestChanged) {
+        fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+        console.log('[skynet] Self-healing: Successfully resolved and updated legacy author names in production manifest.');
+      }
+    }
+  } catch (e) {
+    console.error('[skynet] Self-healing legacy names failed:', e.message);
+  }
+
   scheduler.start();
 });
