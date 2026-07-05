@@ -947,6 +947,14 @@ function renderChannelRss(channelId) {
   const rssGrid = document.getElementById('rss-grid');
   const section = document.getElementById('rss-section');
   if (!channelId) return;
+
+  // Editorial/internal channels have no external RSS feeds
+  if (channelId === 'network' || channelId === 'skynet') {
+    if (section) section.hidden = true;
+    if (rssGrid) rssGrid.hidden = true;
+    return;
+  }
+
   const ch = getChannel(channelId);
   const cardHtml = it => rssCardHtml(it, ch);
   const more = document.getElementById('rss-more');
