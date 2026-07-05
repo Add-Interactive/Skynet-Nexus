@@ -625,17 +625,14 @@ function getFilteredArticles() {
     if (currentSort === 'trending')       return (b.likes + b.shares) - (a.likes + a.shares);
     if (currentSort === 'popular')        return b.likes - a.likes;
     if (currentSort === 'commented')      return b.comments - a.comments;
-    return new Date(b.date || b.publishedAt) - new Date(a.date || a.publishedAt);
+    const dateB = new Date(b.publishedAt || b.date);
+    const dateA = new Date(a.publishedAt || a.date);
+    const diff = dateB - dateA;
+    if (diff !== 0) return diff;
+    return (b.id || '').localeCompare(a.id || '');
   };
 
-  if (currentFilter === 'all' && !searchQuery) {
-    const skynetDrops = list.filter(a => a.cat === 'skynet').sort(sortFn);
-    const others = list.filter(a => a.cat !== 'skynet').sort(sortFn);
-    list = [...skynetDrops, ...others];
-  } else {
-    list.sort(sortFn);
-  }
-
+  list.sort(sortFn);
   return list;
 }
 
