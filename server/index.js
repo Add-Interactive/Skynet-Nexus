@@ -914,6 +914,92 @@ app.listen(PORT, () => {
     console.error('[skynet] Startup scheduling failed:', e.message);
   }
 
+  // Seed the 13 Midday Drop articles for July 5 if not already scheduled/published
+  try {
+    const { DatabaseSync } = require('node:sqlite');
+    const { DB_PATH } = require('./storage');
+    const rawDb = new DatabaseSync(DB_PATH);
+    const existing = rawDb.prepare("SELECT count(*) as count FROM queued_stories WHERE edition = 'midday' AND publish_at LIKE '2026-07-05%'").get();
+    if (!existing || existing.count === 0) {
+      console.log('[skynet] Startup: Seeding and scheduling 13 midday stories for July 5...');
+      const { MIDDAY_ARTICLES } = require('./midday-articles-data');
+      
+      const publishAtET = '2026-07-05T14:15:00-04:00';
+      const publishAtUTC = '2026-07-05T18:15:00.000Z';
+      const targetDate = '2026-07-05';
+      
+      const channelImages = {
+        ai: '/assets/img/wildfire_smoke_ai.jpg',
+        biotech: '/assets/img/organ_transplant_ml.jpg',
+        climate: '/assets/img/solar_chargers_waste.jpg',
+        cyber: '/assets/img/privacy_extension_dog.jpg',
+        engineering: '/assets/img/solar_distiller_water.jpg',
+        gaming: '/assets/img/youth_chess_championship.jpg',
+        math: '/assets/img/math_team_contest.jpg',
+        music: '/assets/img/cello_soloist_concert.jpg',
+        play: '/assets/img/roblox_game_ocean.jpg',
+        quantum: '/assets/img/quantum_computing_game.jpg',
+        robotics: '/assets/img/river_cleaning_robot.jpg',
+        space: '/assets/img/cubesat_satellite_space.jpg',
+        stem: '/assets/img/plastic_eating_bacteria.jpg'
+      };
+
+      MIDDAY_ARTICLES.forEach(art => {
+        const staff = rawDb.prepare("SELECT id, display_name, role, accent_color, avatar_emoji FROM staff WHERE slug = ?").get(art.staffSlug);
+        if (!staff) {
+          console.warn(`[skynet] Startup seeder: Staff not found for slug: ${art.staffSlug}. Skipping.`);
+          return;
+        }
+
+        const payload = {
+          id: `${targetDate}-${art.channel}-midday-emergency`,
+          slug: `${art.channel}-midday-emergency`,
+          cat: art.channel,
+          categoryLabel: staff.role.replace('Correspondent - ', '').replace('Correspondent — ', ''),
+          title: art.title,
+          subtitle: art.subtitle,
+          excerpt: art.excerpt,
+          heroImage: channelImages[art.channel] || '',
+          body: art.body,
+          kidTake: art.kidTake,
+          familyDiscussion: art.familyDiscussion,
+          glossary: art.glossary,
+          ageBand: art.ageBand,
+          author: staff.display_name,
+          authorInit: staff.display_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
+          authorRole: staff.role,
+          date: targetDate,
+          publishedAt: publishAtET,
+          read: Math.max(2, Math.ceil(art.body.replace(/<[^>]+>/g, ' ').split(/\s+/).length / 220)),
+          views: 0,
+          likes: 0,
+          comments: 0,
+          shares: 0,
+          tags: art.tags,
+          color: staff.accent_color,
+          emoji: staff.avatar_emoji,
+          featured: false,
+          pinned: false,
+          live: false,
+          sources: [
+            { label: `${art.title} Primary Source`, url: `https://www.example.com/skynet-newsroom/${art.channel}` }
+          ]
+        };
+
+        // Insert directly as scheduled
+        rawDb.prepare(`
+          INSERT INTO queued_stories (staff_id, channel, payload, status, publish_at, edition, created_at, updated_at)
+          VALUES (?, ?, ?, 'scheduled', ?, 'midday', datetime('now'), datetime('now'))
+        `).run(staff.id, art.channel, JSON.stringify(payload), publishAtUTC);
+      });
+      console.log('[skynet] Startup: Successfully seeded and scheduled 13 midday stories!');
+    } else {
+      console.log('[skynet] Startup: Midday stories for July 5 are already scheduled/published. Skipping.');
+    }
+  } catch (e) {
+    console.error('[skynet] Startup midday seeding failed:', e.message);
+  }
+
   // Self-healing: Update legacy Star Trek author names in SQLite database, manifest.json, and published articles
   try {
     const { DatabaseSync } = require('node:sqlite');
