@@ -11,7 +11,7 @@ const AGENTS = [
     role: 'Correspondent - AI & Machine Learning',
     bio: 'Advanced AI researcher and systems analyst. Covers breakthroughs in machine learning, neural networks, and ethical reasoning systems.',
     avatarEmoji: '🧠',
-    accentColor: '#00bfff',
+    accentColor: '#a855f7', // Purple (Tech / CS standard)
     promptPath: 'newsroom/prompts/ai.md'
   },
   {
@@ -21,7 +21,7 @@ const AGENTS = [
     role: 'Correspondent - Space & Aerospace',
     bio: 'Exploration specialist. Covers deep space missions, cosmic discoveries, and frontier space science.',
     avatarEmoji: '🚀',
-    accentColor: '#00d9ff',
+    accentColor: '#3b82f6', // Blue (Social Studies / Astronomy standard)
     promptPath: 'newsroom/prompts/space.md'
   },
   {
@@ -31,7 +31,7 @@ const AGENTS = [
     role: 'Correspondent - Robotics & Automation',
     bio: 'Precision engineer and robotics specialist. Covers robot design, automation systems, and machine enhancement technology.',
     avatarEmoji: '🤖',
-    accentColor: '#ffd700',
+    accentColor: '#eab308', // Gold / Yellow (Robotics standard)
     promptPath: 'newsroom/prompts/robotics.md'
   },
   {
@@ -41,7 +41,7 @@ const AGENTS = [
     role: 'Correspondent - Biotech & Health',
     bio: 'Bioscience researcher and medical innovator. Covers medical breakthroughs, genetic research, and health innovation.',
     avatarEmoji: '🧬',
-    accentColor: '#ff69b4',
+    accentColor: '#10b981', // Green (Biology / Bioscience standard)
     promptPath: 'newsroom/prompts/biotech.md'
   },
   {
@@ -51,7 +51,7 @@ const AGENTS = [
     role: 'Correspondent - Quantum & Computing',
     bio: 'Theoretical computing and tactical systems expert. Covers quantum breakthroughs, supercomputing, and advanced computational theory.',
     avatarEmoji: '⚛️',
-    accentColor: '#ff6347',
+    accentColor: '#06b6d4', // Teal (Advanced Physics standard)
     promptPath: 'newsroom/prompts/quantum.md'
   },
   {
@@ -61,7 +61,7 @@ const AGENTS = [
     role: 'Correspondent - Climate & Energy',
     bio: 'Environmental scientist and climate analyst. Covers climate action, renewable energy, and environmental compassion initiatives.',
     avatarEmoji: '🌍',
-    accentColor: '#32cd32',
+    accentColor: '#22c55e', // Lime Green (Earth Science / Environment standard)
     promptPath: 'newsroom/prompts/climate.md'
   },
   {
@@ -71,7 +71,7 @@ const AGENTS = [
     role: 'Correspondent - Engineering & Making',
     bio: 'Hands-on structural engineer and technical innovator. Covers engineering design, maker projects, and youth builder competitions.',
     avatarEmoji: '🔧',
-    accentColor: '#ff8c00',
+    accentColor: '#f97316', // Orange (Engineering / Shop standard)
     promptPath: 'newsroom/prompts/engineering.md'
   },
   {
@@ -81,7 +81,7 @@ const AGENTS = [
     role: 'Correspondent - Math & Data Science',
     bio: 'Data scientist and theoretical mathematician. Covers mathematics competitions, data science, and computational innovation.',
     avatarEmoji: '📐',
-    accentColor: '#00ffff',
+    accentColor: '#ef4444', // Red (Mathematics standard)
     promptPath: 'newsroom/prompts/math.md'
   },
   {
@@ -91,7 +91,7 @@ const AGENTS = [
     role: 'Correspondent - Cybersecurity & Code',
     bio: 'Security tactician and systems developer. Covers cybersecurity, ethical hacking, and digital defense innovation.',
     avatarEmoji: '🔐',
-    accentColor: '#9932cc',
+    accentColor: '#6366f1', // Indigo (Cybersecurity standard)
     promptPath: 'newsroom/prompts/cyber.md'
   },
   {
@@ -101,7 +101,7 @@ const AGENTS = [
     role: 'Correspondent - Gaming & Esports',
     bio: 'Competitive analyst and gaming expert. Covers gaming tournaments, esports strategy, and next-gen gaming culture.',
     avatarEmoji: '🎮',
-    accentColor: '#1e90ff',
+    accentColor: '#84cc16', // Lime (Gaming standard)
     promptPath: 'newsroom/prompts/gaming.md'
   },
   {
@@ -111,7 +111,7 @@ const AGENTS = [
     role: 'Correspondent - Music & Festivals',
     bio: 'Musicologist and cultural observer. Covers youth music festivals, emerging teenage artists, and cultural expression.',
     avatarEmoji: '🎧',
-    accentColor: '#ff1493',
+    accentColor: '#ec4899', // Pink (Art / Music standard)
     promptPath: 'newsroom/prompts/music.md'
   }
 ];

@@ -261,7 +261,7 @@
       var list = layout.querySelector('#agent-list');
       State.staff.forEach(function (st) {
         var card = h(
-          '<button class="agent-card" data-id="' + st.id + '">' +
+          '<button class="agent-card" data-id="' + st.id + '" style="border-left: 4px solid ' + esc(st.accentColor || '#1a2233') + ';">' +
             '<span class="agent-av" style="background:' + esc(st.accentColor || '#1a2233') + '22">' + esc(st.avatarEmoji || '🛰️') + '</span>' +
             '<span><span class="an">' + esc(st.displayName) + '</span><br><span class="ar">' + esc(st.role) + '</span></span>' +
           '</button>'
@@ -277,7 +277,18 @@
   function selectAgent(id) {
     State.agentId = id;
     Array.prototype.forEach.call(document.querySelectorAll('.agent-card'), function (c) {
-      c.classList.toggle('active', Number(c.getAttribute('data-id')) === Number(id));
+      var isActive = Number(c.getAttribute('data-id')) === Number(id);
+      c.classList.toggle('active', isActive);
+      var borderLeftColor = c.style.borderLeftColor;
+      if (isActive && borderLeftColor) {
+        c.style.boxShadow = '0 0 12px ' + borderLeftColor;
+        c.style.borderColor = borderLeftColor;
+        c.style.background = 'rgba(30, 41, 59, 0.6)';
+      } else {
+        c.style.boxShadow = 'none';
+        c.style.borderColor = '';
+        c.style.background = '';
+      }
     });
     api('/admin/staff/' + id).then(function (r) {
       renderAgentDetail(r.staff, r.tasks || [], r.messages || []);
