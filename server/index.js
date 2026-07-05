@@ -808,7 +808,8 @@ app.listen(PORT, () => {
   }
   */
 
-  // Clear database submission queues on startup
+  // Clear database submission queues on startup (commented out now that initial cleanup is complete)
+  /*
   try {
     const { DatabaseSync } = require('node:sqlite');
     const { DB_PATH } = require('./storage');
@@ -820,6 +821,7 @@ app.listen(PORT, () => {
   } catch (e) {
     console.error('[skynet] Startup queue cleanup failed:', e.message);
   }
+  */
 
   // Seed Jeffrey Hunt into staff database table on boot if not already present
   try {
@@ -836,6 +838,46 @@ app.listen(PORT, () => {
     }
   } catch (e) {
     console.error('[skynet] Startup: Failed to seed Jeffrey Hunt:', e.message);
+  }
+
+  // Auto-schedule the 13 new drops for tomorrow (July 5) at 10:15 AM ET if not already scheduled
+  try {
+    const { DatabaseSync } = require('node:sqlite');
+    const { DB_PATH } = require('./storage');
+    const rawDb = new DatabaseSync(DB_PATH);
+    const existing = rawDb.prepare("SELECT count(*) as count FROM queued_stories WHERE status = 'scheduled' AND publish_at LIKE '2026-07-05%'").get();
+    if (!existing || existing.count === 0) {
+      console.log('[skynet] Startup: Seeding and scheduling 13 new stories for July 5...');
+      const { generateEmergencyDrops } = require('./antigravity-service');
+      const result = generateEmergencyDrops();
+      
+      const publishAtET = '2026-07-05T10:15:00-04:00';
+      const publishAtUTC = '2026-07-05T14:15:00.000Z';
+      const targetDate = '2026-07-05';
+      
+      const rows = rawDb.prepare("SELECT id, payload FROM queued_stories WHERE status = 'approved'").all();
+      rows.forEach(row => {
+        const payload = JSON.parse(row.payload);
+        payload.date = targetDate;
+        payload.publishedAt = publishAtET;
+        payload.id = `${targetDate}-${payload.cat}-emergency`;
+        
+        rawDb.prepare(`
+          UPDATE queued_stories 
+             SET status = 'scheduled',
+                 publish_at = ?,
+                 edition = 'morning',
+                 payload = ?,
+                 updated_at = datetime('now')
+           WHERE id = ?
+        `).run(publishAtUTC, JSON.stringify(payload), row.id);
+      });
+      console.log(`[skynet] Startup: Successfully scheduled ${rows.length} stories for July 5 at 10:15 AM ET!`);
+    } else {
+      console.log('[skynet] Startup: Stories for July 5 are already scheduled. Skipping.');
+    }
+  } catch (e) {
+    console.error('[skynet] Startup scheduling failed:', e.message);
   }
 
   scheduler.start();
