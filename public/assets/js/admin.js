@@ -250,6 +250,18 @@
     return '<div class="admin-stat ' + cls + '"><div class="n">' + esc(n) + '</div><div class="l">' + esc(label) + '</div></div>';
   }
 
+  function hexToRgba(hex, alpha) {
+    if (!hex) return 'transparent';
+    hex = hex.replace('#', '');
+    if (hex.length === 3) {
+      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    var r = parseInt(hex.substring(0, 2), 16);
+    var g = parseInt(hex.substring(2, 4), 16);
+    var b = parseInt(hex.substring(4, 6), 16);
+    return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
+  }
+
   // ===== Agents & Staff =====
   Views.agents = function () {
     api('/admin/staff').then(function (r) {
@@ -260,13 +272,29 @@
       main.appendChild(layout);
       var list = layout.querySelector('#agent-list');
       State.staff.forEach(function (st) {
+        var col = st.accentColor || '#00e5ff';
+        var bg = hexToRgba(col, 0.08);
+        var border = hexToRgba(col, 0.25);
+        var style = 'background:' + bg + '; border:1px solid ' + border + '; border-left:5px solid ' + col + ';';
         var card = h(
-          '<button class="agent-card" data-id="' + st.id + '" style="border-left: 4px solid ' + esc(st.accentColor || '#1a2233') + ';">' +
-            '<span class="agent-av" style="background:' + esc(st.accentColor || '#1a2233') + '22">' + esc(st.avatarEmoji || '🛰️') + '</span>' +
+          '<button class="agent-card" data-id="' + st.id + '" data-color="' + col + '" style="' + style + '">' +
+            '<span class="agent-av" style="background:' + col + '22">' + esc(st.avatarEmoji || '🛰️') + '</span>' +
             '<span><span class="an">' + esc(st.displayName) + '</span><br><span class="ar">' + esc(st.role) + '</span></span>' +
           '</button>'
         );
         card.addEventListener('click', function () { selectAgent(st.id); });
+        card.addEventListener('mouseenter', function () {
+          if (!card.classList.contains('active')) {
+            card.style.background = hexToRgba(col, 0.15);
+            card.style.borderColor = hexToRgba(col, 0.5);
+          }
+        });
+        card.addEventListener('mouseleave', function () {
+          if (!card.classList.contains('active')) {
+            card.style.background = hexToRgba(col, 0.08);
+            card.style.borderColor = hexToRgba(col, 0.25);
+          }
+        });
         list.appendChild(card);
       });
       if (State.staff.length) selectAgent(State.agentId || State.staff[0].id);
@@ -279,15 +307,15 @@
     Array.prototype.forEach.call(document.querySelectorAll('.agent-card'), function (c) {
       var isActive = Number(c.getAttribute('data-id')) === Number(id);
       c.classList.toggle('active', isActive);
-      var borderLeftColor = c.style.borderLeftColor;
-      if (isActive && borderLeftColor) {
-        c.style.boxShadow = '0 0 12px ' + borderLeftColor;
-        c.style.borderColor = borderLeftColor;
-        c.style.background = 'rgba(30, 41, 59, 0.6)';
+      var col = c.getAttribute('data-color') || '#00e5ff';
+      if (isActive) {
+        c.style.boxShadow = '0 0 14px ' + hexToRgba(col, 0.35);
+        c.style.borderColor = col;
+        c.style.background = hexToRgba(col, 0.22);
       } else {
         c.style.boxShadow = 'none';
-        c.style.borderColor = '';
-        c.style.background = '';
+        c.style.borderColor = hexToRgba(col, 0.25);
+        c.style.background = hexToRgba(col, 0.08);
       }
     });
     api('/admin/staff/' + id).then(function (r) {
