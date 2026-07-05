@@ -760,7 +760,12 @@ app.get('/pages/director.html', (req, res) => {
 app.use('/data', express.static(DATA_DIR, {
   fallthrough: false,
   maxAge: IS_PROD ? '5m' : 0,
-  etag: true
+  etag: true,
+  setHeaders(res, filePath) {
+    if (filePath.endsWith('manifest.json')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
 }));
 
 // Everything else -> /public.
