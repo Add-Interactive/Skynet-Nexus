@@ -840,6 +840,23 @@ app.listen(PORT, () => {
     console.error('[skynet] Startup: Failed to seed Jeffrey Hunt:', e.message);
   }
 
+  // Seed OpenClaw Orchestrator into staff database table on boot if not already present
+  try {
+    const { DatabaseSync } = require('node:sqlite');
+    const { DB_PATH } = require('./storage');
+    const rawDb = new DatabaseSync(DB_PATH);
+    const existing = rawDb.prepare("SELECT id FROM staff WHERE slug = 'openclaw'").get();
+    if (!existing) {
+      rawDb.prepare(`
+        INSERT INTO staff (slug, kind, display_name, role, channel, byline, avatar_emoji, accent_color, status, bio)
+        VALUES ('openclaw', 'agent', 'OpenClaw Orchestrator', 'Main System Orchestrator', null, 'OpenClaw', '🦾', '#39ff14', 'active', 'Main orchestrator and task routing copilot agent. Manages system-wide daily news drops when credit limits are active.')
+      `).run();
+      console.log('[skynet] Startup: Successfully seeded OpenClaw Orchestrator in staff table.');
+    }
+  } catch (e) {
+    console.error('[skynet] Startup: Failed to seed OpenClaw Orchestrator:', e.message);
+  }
+
   // Auto-schedule the 13 new drops for tomorrow (July 5) at 10:15 AM ET if not already scheduled
   try {
     const { DatabaseSync } = require('node:sqlite');

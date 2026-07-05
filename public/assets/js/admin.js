@@ -268,9 +268,75 @@
       State.staff = r.staff || [];
       main.innerHTML = '';
       main.appendChild(h('<div class="admin-view-head"><h1>Agents &amp; Staff</h1><p>Message correspondents and assign them stories to write. Tasks & messages are picked up by each agent during its next newsroom run.</p></div>'));
+      
+      // Inject CSS styles for the collapsible accordion layout
+      var styles = h(
+        '<style>' +
+          '.agent-group { margin-bottom: 16px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }' +
+          '.group-header { width: 100%; padding: 12px 16px; background: rgba(30, 41, 59, 0.4); border: none; color: var(--text); font-family: inherit; font-size: 0.95rem; font-weight: 700; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; border-bottom: 1px solid transparent; }' +
+          '.group-header:hover { background: rgba(255,255,255,0.05); }' +
+          '.group-content { padding: 12px; display: none; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; transition: all 0.3s ease; }' +
+          '.group-content.open { display: grid; }' +
+          '.group-header .arrow { transition: transform 0.2s; font-size: 0.8rem; opacity: 0.7; }' +
+          '.group-header.open .arrow { transform: rotate(180deg); }' +
+          '.humans-hdr.open { background: rgba(239, 68, 68, 0.15) !important; border-bottom: 1px solid rgba(239, 68, 68, 0.3); }' +
+          '.humans-content.open { background: rgba(239, 68, 68, 0.04); }' +
+          '.core-hdr.open { background: rgba(57, 255, 20, 0.15) !important; border-bottom: 1px solid rgba(57, 255, 20, 0.3); }' +
+          '.core-content.open { background: rgba(57, 255, 20, 0.04); }' +
+          '.subs-hdr.open { background: rgba(168, 85, 247, 0.15) !important; border-bottom: 1px solid rgba(168, 85, 247, 0.3); }' +
+          '.subs-content.open { background: rgba(168, 85, 247, 0.04); }' +
+        '</style>'
+      );
+      main.appendChild(styles);
+
       var layout = h('<div class="agents-layout"><div class="agent-list" id="agent-list"></div><div id="agent-detail"></div></div>');
       main.appendChild(layout);
       var list = layout.querySelector('#agent-list');
+
+      // Separate staff list into three distinct groups
+      var humans = [];
+      var core = [];
+      var subs = [];
+      
+      State.staff.forEach(function (st) {
+        if (st.kind === 'human' || st.slug === 'director' || st.slug === 'stem' || st.slug === 'robotics' || st.slug === 'play' || st.slug === 'music') {
+          humans.push(st);
+        } else if (st.slug === 'agent-antigravity' || st.slug === 'openclaw') {
+          core.push(st);
+        } else {
+          subs.push(st);
+        }
+      });
+
+      // Create Group Containers
+      var humansGroup = h(
+        '<div class="agent-group" id="g-humans">' +
+          '<button class="group-header humans-hdr">👤 Humans (' + humans.length + ') <span class="arrow">▼</span></button>' +
+          '<div class="group-content humans-content" id="list-humans"></div>' +
+        '</div>'
+      );
+      var coreGroup = h(
+        '<div class="agent-group" id="g-core">' +
+          '<button class="group-header core-hdr">🦾 Core Agents (' + core.length + ') <span class="arrow">▼</span></button>' +
+          '<div class="group-content core-content" id="list-core"></div>' +
+        '</div>'
+      );
+      var subsGroup = h(
+        '<div class="agent-group" id="g-subs">' +
+          '<button class="group-header subs-hdr">🛰️ Sub Agents (' + subs.length + ') <span class="arrow">▼</span></button>' +
+          '<div class="group-content subs-content" id="list-subs"></div>' +
+        '</div>'
+      );
+      
+      list.appendChild(humansGroup);
+      list.appendChild(coreGroup);
+      list.appendChild(subsGroup);
+      
+      var listHumans = humansGroup.querySelector('#list-humans');
+      var listCore = coreGroup.querySelector('#list-core');
+      var listSubs = subsGroup.querySelector('#list-subs');
+
+      // Render all cards
       State.staff.forEach(function (st) {
         var col = st.accentColor || '#00e5ff';
         var bg = hexToRgba(col, 0.08);
@@ -295,8 +361,32 @@
             card.style.borderColor = hexToRgba(col, 0.25);
           }
         });
-        list.appendChild(card);
+
+        // Distribute to correct group container
+        if (st.kind === 'human' || st.slug === 'director' || st.slug === 'stem' || st.slug === 'robotics' || st.slug === 'play' || st.slug === 'music') {
+          listHumans.appendChild(card);
+        } else if (st.slug === 'agent-antigravity' || st.slug === 'openclaw') {
+          listCore.appendChild(card);
+        } else {
+          listSubs.appendChild(card);
+        }
       });
+
+      // Add collapsible trigger listeners
+      [humansGroup, coreGroup, subsGroup].forEach(function (g) {
+        var hdr = g.querySelector('.group-header');
+        var content = g.querySelector('.group-content');
+        
+        // Default to active open
+        hdr.classList.add('open');
+        content.classList.add('open');
+        
+        hdr.addEventListener('click', function () {
+          hdr.classList.toggle('open');
+          content.classList.toggle('open');
+        });
+      });
+
       if (State.staff.length) selectAgent(State.agentId || State.staff[0].id);
       else layout.querySelector('#agent-detail').innerHTML = '<div class="admin-empty">No staff configured.</div>';
     }).catch(errView);
