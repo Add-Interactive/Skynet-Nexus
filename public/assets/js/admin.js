@@ -299,7 +299,7 @@
       var subs = [];
       
       State.staff.forEach(function (st) {
-        if (st.kind === 'human' || st.slug === 'director' || st.slug === 'stem' || st.slug === 'robotics' || st.slug === 'play' || st.slug === 'music') {
+        if (st.slug === 'jeffrey-hunt') {
           humans.push(st);
         } else if (st.slug === 'agent-antigravity' || st.slug === 'openclaw') {
           core.push(st);
@@ -363,7 +363,7 @@
         });
 
         // Distribute to correct group container
-        if (st.kind === 'human' || st.slug === 'director' || st.slug === 'stem' || st.slug === 'robotics' || st.slug === 'play' || st.slug === 'music') {
+        if (st.slug === 'jeffrey-hunt') {
           listHumans.appendChild(card);
         } else if (st.slug === 'agent-antigravity' || st.slug === 'openclaw') {
           listCore.appendChild(card);
