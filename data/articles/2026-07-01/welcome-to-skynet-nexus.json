@@ -36,5 +36,6 @@
   "featured": true,
   "pinned": true,
   "live": false,
-  "sources": []
+  "sources": [],
+  "thread": "welcome-thread"
 }

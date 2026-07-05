@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-05-robotics-evening-emergency",
+  "slug": "robotics-evening-emergency",
+  "cat": "robotics",
+  "categoryLabel": "Robotics & Automation",
+  "title": "High School Club Designs Autonomous Beach-Cleaning Rover for Coastal Cleanup",
+  "subtitle": "Students build 3D-printed robot equipped with rotating sieve to filter microplastics from sand",
+  "excerpt": "The \"EcoBots\" club engineered a motorized rover that clears small plastic debris from community beaches.",
+  "heroImage": "/assets/img/river_cleaning_robot.jpg",
+  "body": "<p>While large plastic bottles are easy to pick up, tiny microplastics—small fragments of degraded trash—often remain mixed in beach sand, posing a threat to marine life. To tackle this, a high school robotics club from Galveston, Texas, has designed and built an autonomous beach-cleaning rover named EcoSweep. The robot drives along the coastline, scooping up sand and filtering out microplastics using a rotating motorized sieve.</p><p>The student team of eight spent their winter break designing the rover's tread system to navigate loose, wet sand and coding its GPS navigation software.</p><p>Powered by a solar-charged battery, EcoSweep uses an onboard camera and AI to detect and follow the tide line, where microplastics are most concentrated. The rover scoops sand into a rotating cylinder sieve. Sand falls back onto the beach through tiny holes, while plastic pieces larger than two millimeters are collected in a hopper.</p><blockquote>Large cleanups miss the tiny plastics that birds and fish eat. We built EcoSweep to filter the sand automatically so we can keep these chemicals out of the food chain.<footer>— Sarah Jenkins, 17, lead mechanical designer</footer></blockquote><p>The club has run several tests at Galveston Beach, clearing over ten pounds of microplastics in a single weekend. They are now working on open-sourcing the rover's mechanical blueprints so coastal communities worldwide can build their own beach-cleaning rovers.</p>",
+  "kidTake": "A high school robotics team built a motorized sand-sifting robot that cleans beaches. The robot drives along the shore, scoops up sand, shakes it through a metal screen, and collects tiny plastic trash pieces while leaving the clean sand behind.",
+  "familyDiscussion": [
+    "Why are tiny plastic pieces in the sand dangerous for birds and fish?",
+    "Sarah's team focused on a problem that large cleanups miss. Why is it important to pay attention to small details?",
+    "If you were designing a cleaning robot, what environment (park, ocean, street) would you want it to clean?"
+  ],
+  "glossary": [
+    {
+      "term": "Microplastics",
+      "meaning": "Tiny plastic particles less than five millimeters in size, which result from the breakdown of larger plastic products."
+    },
+    {
+      "term": "Sieve",
+      "meaning": "A tool with mesh or perforated holes used to separate smaller particles from larger ones."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Jax Henderson",
+  "authorInit": "JH",
+  "authorRole": "Correspondent - Robotics & Automation",
+  "date": "2026-07-05",
+  "publishedAt": "2026-07-05T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "robotics",
+    "beach-cleanup",
+    "microplastics",
+    "marine-conservation"
+  ],
+  "color": "#eab308",
+  "gradient": "linear-gradient(135deg, #a855f7, #ff2e63)",
+  "emoji": "🤖",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "High School Club Designs Autonomous Beach-Cleaning Rover for Coastal Cleanup Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/robotics"
+    }
+  ]
+}

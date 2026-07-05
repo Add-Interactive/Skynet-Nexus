@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-05-ai-evening-emergency",
+  "slug": "ai-evening-emergency",
+  "cat": "ai",
+  "categoryLabel": "AI & Machine Learning",
+  "title": "15-Year-Old Coder Trains AI Model to Translate Sign Language in Real Time",
+  "subtitle": "High school sophomore uses laptop webcam and computer vision to translate gestures to spoken English",
+  "excerpt": "Liam Patel built a lightweight AI translator that translates American Sign Language (ASL) finger-spelling instantly.",
+  "heroImage": "/assets/img/wildfire_smoke_ai.jpg",
+  "body": "<p>Communication is the bridge that connects us, but for the deaf and hard-of-hearing, interacting with people who do not know sign language can be a challenge. To help close this gap, 15-year-old Liam Patel from Austin, Texas, has developed signSpeak—a browser-based AI tool that uses a standard webcam to translate American Sign Language (ASL) finger-spelling into spoken English in real time.</p><p>Liam, whose older sister is deaf, saw how often she had to type out messages on her phone to communicate with retail workers or teachers. He wondered if modern computer vision could make this interaction more natural.</p><p>Using a database of over 50,000 images of hands forming ASL letters and basic words, Liam trained a deep learning neural network to recognize the subtle orientation of fingers and wrist angles. He optimized the model so it could run directly in a standard web browser, without needing to upload video data to an external server.</p><blockquote>I wanted to create something that runs on any cheap laptop with a basic webcam. If we can make sign language translation free and instant, we can make public spaces much more inclusive.<footer>— Liam Patel, 15</footer></blockquote><p>In testing, signSpeak achieved a 96 percent accuracy rate. Liam has shared the tool with several local schools and is currently working on expanding the AI database to include full-phrase sign gestures, rather than just finger-spelled letters.</p>",
+  "kidTake": "A 15-year-old kid named Liam built a computer program that listens to hand signs instead of voices. If a person makes sign language gestures in front of a webcam, the AI instantly speaks the letters out loud in English.",
+  "familyDiscussion": [
+    "Why is it important to create tools that help people with different abilities communicate?",
+    "Liam built this tool to help his sister. What is something you've made or done to help a sibling or friend?",
+    "What are other ways we can use computer webcams to help people in their daily lives?"
+  ],
+  "glossary": [
+    {
+      "term": "ASL",
+      "meaning": "American Sign Language; a complete, natural language that uses hand gestures, facial expressions, and body postures."
+    },
+    {
+      "term": "Deep learning",
+      "meaning": "A subset of artificial intelligence that uses multi-layered neural networks to learn patterns from complex data like images."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Dr. Nova Sterling",
+  "authorInit": "DN",
+  "authorRole": "Correspondent - AI & Machine Learning",
+  "date": "2026-07-05",
+  "publishedAt": "2026-07-05T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "ai",
+    "asl-translation",
+    "accessibility",
+    "computer-vision"
+  ],
+  "color": "#a855f7",
+  "gradient": "linear-gradient(135deg, #00e5ff, #a855f7)",
+  "emoji": "🧠",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "15-Year-Old Coder Trains AI Model to Translate Sign Language in Real Time Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/ai"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-05-space-evening-emergency",
+  "slug": "space-evening-emergency",
+  "cat": "space",
+  "categoryLabel": "Space & Aerospace",
+  "title": "New Hampshire High School Team Launches High-Altitude Balloon to Capture Cosmic Radiation",
+  "subtitle": "Student science club sends payload to 95,000 feet, recording atmospheric ionization data",
+  "excerpt": "The \"StratoScholars\" high school team built a custom sensor payload that successfully tracked radiation levels near the stratosphere.",
+  "heroImage": "/assets/img/cubesat_satellite_space.jpg",
+  "body": "<p>Measuring cosmic radiation from the ground is difficult because Earth's thick atmosphere acts as a protective shield. To study these high-energy particles directly, a high school science club from Concord, New Hampshire, has launched a weather balloon carrying a custom-built sensor payload to an altitude of 95,000 feet, capturing valuable atmospheric data near the edge of space.</p><p>The team of five students, known as the StratoScholars, spent six months designing the flight payload. They had to construct a lightweight, insulated styrofoam capsule to keep their sensors functioning in temperatures that dropped below minus-60 degrees Fahrenheit.</p><p>The capsule carried a Geiger counter to measure radiation levels and a flight computer that logged GPS coordinates, temperature, and atmospheric pressure. After a two-hour ascent, the balloon burst as planned, and the capsule floated back to Earth under a parachute, where the students retrieved it from a forest using a GPS tracker.</p><blockquote>Tracking the balloon's live GPS signal as it crossed 90,000 feet was incredibly exciting. Analyzing the radiation data we collected is showing us exactly how our atmosphere blocks cosmic rays.<footer>— Clara Wood, 17, project lead</footer></blockquote><p>The team's data showed that cosmic radiation levels increase ten-fold once the weather balloon crosses the lower atmosphere. The students have posted their data online for other high school science classes to study.</p>",
+  "kidTake": "A team of high school students sent a giant helium balloon nearly 18 miles high into the sky! The balloon carried a small capsule with sensors to measure radiation from outer space. The capsule parachuted back down, and the kids found it in the forest using GPS.",
+  "familyDiscussion": [
+    "What is cosmic radiation? Why is it safer for us on the ground than it is for astronauts in space?",
+    "Clara's team had to find their capsule in a deep forest. What is the most exciting adventure you've had outdoors?",
+    "If you could send one small object up in a high-altitude balloon, what would it be?"
+  ],
+  "glossary": [
+    {
+      "term": "Geiger counter",
+      "meaning": "An instrument used for detecting and measuring ionizing radiation, like cosmic rays."
+    },
+    {
+      "term": "Stratosphere",
+      "meaning": "The second major layer of Earth's atmosphere, extending from about 6 to 31 miles above the surface."
+    }
+  ],
+  "ageBand": "10+",
+  "author": "Commander Leo Vance",
+  "authorInit": "CL",
+  "authorRole": "Correspondent - Space & Aerospace",
+  "date": "2026-07-05",
+  "publishedAt": "2026-07-05T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "space-science",
+    "weather-balloon",
+    "cosmic-radiation",
+    "flight-data"
+  ],
+  "color": "#3b82f6",
+  "gradient": "linear-gradient(135deg, #7c5cff, #00e5ff)",
+  "emoji": "🚀",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "New Hampshire High School Team Launches High-Altitude Balloon to Capture Cosmic Radiation Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/space"
+    }
+  ]
+}

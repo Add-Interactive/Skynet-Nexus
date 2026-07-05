@@ -1114,10 +1114,49 @@ function initArticlePage() {
     '<div class="sources">' +
       '<div class="sources-title">Read the sources</div>' +
       '<ul>' + a.sources.map(s =>
-        '<li><a href="' + s.url + '" target="_blank" rel="noopener">' + s.label + '</a></li>'
-      ).join('') + '</ul>' +
-    '</div>'
-  ) : '';
+        '<li><a href="' + s.url + '" target="_blank" rel="noopener">' + s.label +  ) : '';
+
+  // Thread updates timeline
+  let threadHtml = '';
+  if (a.thread) {
+    const threadArticles = ARTICLES.filter(x => x.thread === a.thread).sort((x, y) => new Date(x.date) - new Date(y.date));
+    if (threadArticles.length > 1) {
+      threadHtml = 
+        '<div class="article-thread">' +
+          '<style>' +
+            '.article-thread { margin: 30px 0; padding: 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; }' +
+            '.article-thread .thread-title { font-family: "JetBrains Mono", monospace; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }' +
+            '.thread-timeline { display: flex; flex-direction: column; gap: 16px; position: relative; padding-left: 20px; }' +
+            '.thread-timeline::before { content: ""; position: absolute; left: 6px; top: 8px; bottom: 8px; width: 2px; background: var(--border); }' +
+            '.thread-step { display: flex; align-items: flex-start; gap: 12px; text-decoration: none; color: var(--text-mute); transition: all 0.2s; position: relative; }' +
+            '.thread-step:hover { color: var(--text); }' +
+            '.thread-step.active { color: var(--accent); pointer-events: none; }' +
+            '.thread-step .step-dot { position: absolute; left: -18px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--border); border: 2px solid var(--bg-card); transition: all 0.2s; }' +
+            '.thread-step:hover .step-dot { background: var(--text); box-shadow: 0 0 8px var(--text); }' +
+            '.thread-step.active .step-dot { background: var(--accent); box-shadow: 0 0 10px var(--accent); }' +
+            '.step-details { display: flex; flex-direction: column; gap: 2px; }' +
+            '.step-date { font-size: 0.72rem; text-transform: uppercase; font-weight: 700; opacity: 0.8; }' +
+            '.step-title { font-size: 0.92rem; font-weight: 600; line-height: 1.3; }' +
+          '</style>' +
+          '<div class="thread-title">📁 Timeline: Weekly Updates & News</div>' +
+          '<div class="thread-timeline">';
+      threadArticles.forEach(ta => {
+        const isActive = String(ta.id) === String(a.id);
+        const activeClass = isActive ? 'active' : '';
+        threadHtml += 
+          '<a href="article.html?id=' + ta.id + '" class="thread-step ' + activeClass + '">' +
+            '<span class="step-dot"></span>' +
+            '<span class="step-details">' +
+              '<span class="step-date">' + friendlyDate(ta.date) + '</span>' +
+              '<span class="step-title">' + ta.title + '</span>' +
+            '</span>' +
+          '</a>';
+      });
+      threadHtml += 
+          '</div>' +
+        '</div>';
+    }
+  }
 
   container.innerHTML =
     '<article class="article">' +
@@ -1141,6 +1180,7 @@ function initArticlePage() {
       glossaryHtml +
       discussionHtml +
       sourcesHtml +
+      threadHtml +
       '<div class="article-tags">' + (a.tags || []).map(t => '<span class="tag">#' + t + '</span>').join('') + '</div>' +
       '<div class="article-toolbar">' +
         '<div class="reactions">' +
