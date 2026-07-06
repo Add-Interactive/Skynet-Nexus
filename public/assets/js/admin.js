@@ -1380,6 +1380,83 @@
         uploadNext();
       });
       
+      // Bind Drag & Drop uploads
+      box.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        box.style.border = '2px dashed var(--accent)';
+        box.style.background = 'rgba(0, 229, 255, 0.05)';
+      });
+      box.addEventListener('dragleave', function (e) {
+        e.preventDefault();
+        box.style.border = '1px solid var(--border)';
+        box.style.background = 'var(--bg-alt)';
+      });
+      box.addEventListener('drop', function (e) {
+        e.preventDefault();
+        box.style.border = '1px solid var(--border)';
+        box.style.background = 'var(--bg-alt)';
+        
+        var filesList = Array.prototype.slice.call(e.dataTransfer.files);
+        if (!filesList.length) return;
+        
+        uploadBtn.disabled = true;
+        
+        var customName = null;
+        if (filesList.length === 1) {
+          customName = prompt("Enter a number or name for this image (e.g. '5' to save as '5.jpg' in pool 1-100).\nLeave blank to auto-assign the next available number (1-100):");
+          if (customName === null) {
+            uploadBtn.disabled = false;
+            return;
+          }
+        }
+        
+        var uploadIndex = 0;
+        
+        function uploadNext(overwrite) {
+          if (uploadIndex >= filesList.length) {
+            toast('Successfully uploaded ' + filesList.length + ' images!');
+            refreshImages();
+            return;
+          }
+          
+          var file = filesList[uploadIndex];
+          uploadBtn.textContent = 'Uploading (' + (uploadIndex + 1) + '/' + filesList.length + ')...';
+          
+          var reader = new FileReader();
+          reader.onload = function (evt) {
+            api('/admin/images/upload', {
+              method: 'POST',
+              body: {
+                channel: activeChannel,
+                filename: file.name,
+                base64: evt.target.result,
+                customName: filesList.length === 1 ? customName : null,
+                overwrite: !!overwrite
+              }
+            }).then(function (r) {
+              if (r && r.conflict) {
+                if (confirm("An image named '" + r.filename + "' already exists in this pool. Overwrite it?")) {
+                  uploadNext(true);
+                } else {
+                  uploadBtn.disabled = false;
+                  uploadBtn.textContent = '📤 Upload Image(s)';
+                }
+                return;
+              }
+              uploadIndex++;
+              uploadNext();
+            }).catch(function (err) {
+              toast('Failed uploading ' + file.name + ': ' + err.message, true);
+              uploadBtn.disabled = false;
+              uploadBtn.textContent = '📤 Upload Image(s)';
+            });
+          };
+          reader.readAsDataURL(file);
+        }
+        
+        uploadNext();
+      });
+      
       pane.appendChild(box);
     }
     

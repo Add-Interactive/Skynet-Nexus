@@ -1133,6 +1133,77 @@ function openPublicImagePicker(channel, currentImageUrl, onSelect) {
     reader.readAsDataURL(file);
   });
   
+  // Bind Drag & Drop uploads on the popup grid
+  grid.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    grid.style.borderColor = 'var(--accent)';
+    grid.style.background = 'rgba(0, 229, 255, 0.05)';
+  });
+  grid.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    grid.style.borderColor = 'var(--border)';
+    grid.style.background = 'var(--bg-alt)';
+  });
+  grid.addEventListener('drop', (e) => {
+    e.preventDefault();
+    grid.style.borderColor = 'var(--border)';
+    grid.style.background = 'var(--bg-alt)';
+    
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    
+    const customName = prompt("Enter a number or name for this image (e.g. '5' for '5.jpg').\nLeave blank to auto-assign:");
+    if (customName === null) return;
+    
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = 'Uploading...';
+    
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      function sendUpload(overwrite) {
+        fetch('/api/admin/images/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            channel: channel,
+            filename: file.name,
+            base64: evt.target.result,
+            customName: customName,
+            overwrite: !!overwrite
+          })
+        })
+        .then(r => r.json())
+        .then(r => {
+          if (r && r.conflict) {
+            if (confirm("An image named '" + r.filename + "' already exists. Overwrite it?")) {
+              sendUpload(true);
+            } else {
+              uploadBtn.disabled = false;
+              uploadBtn.textContent = '📤 Upload New Image';
+            }
+            return;
+          }
+          if (r && r.ok) {
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = '📤 Upload New Image';
+            refreshGrid();
+          } else {
+            alert(r.error || 'Upload failed');
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = '📤 Upload New Image';
+          }
+        })
+        .catch(err => {
+          alert('Upload error: ' + err.message);
+          uploadBtn.disabled = false;
+          uploadBtn.textContent = '📤 Upload New Image';
+        });
+      }
+      sendUpload(false);
+    };
+    reader.readAsDataURL(file);
+  });
+
   refreshGrid();
 }
 
