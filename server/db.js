@@ -314,6 +314,8 @@ const stmts = {
   findQueuedStory: db.prepare(`SELECT * FROM queued_stories WHERE id = ?`),
   listQueuedStories: db.prepare(`SELECT * FROM queued_stories ORDER BY id DESC LIMIT ? OFFSET ?`),
   listQueuedByStatus: db.prepare(`SELECT * FROM queued_stories WHERE status = ? ORDER BY id DESC LIMIT ? OFFSET ?`),
+  deleteQueuedStory: db.prepare(`DELETE FROM queued_stories WHERE id = ?`),
+  clearPublishedStories: db.prepare(`DELETE FROM queued_stories WHERE status = 'published'`),
   scheduleQueuedStory: db.prepare(`
     UPDATE queued_stories SET
       status = 'scheduled',
@@ -656,6 +658,12 @@ module.exports = {
       ? stmts.listQueuedByStatus.all(status, limit, offset)
       : stmts.listQueuedStories.all(limit, offset);
     return rows.map(toPublicQueuedStory);
+  },
+  deleteQueuedStory(id) {
+    return stmts.deleteQueuedStory.run(id).changes;
+  },
+  clearPublishedStories() {
+    return stmts.clearPublishedStories.run().changes;
   },
   scheduleQueuedStory({ id, publishAt, edition = null }) {
     stmts.scheduleQueuedStory.run(publishAt, edition, id);

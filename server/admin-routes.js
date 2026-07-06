@@ -344,6 +344,29 @@ router.post('/stories/queue', (req, res) => {
   res.status(201).json({ story });
 });
 
+router.delete('/stories/queue/clear-published', (req, res) => {
+  try {
+    const changes = db.clearPublishedStories();
+    logAction(req.adminUser.id, 'story.queue.clear_published', 'story', null, { count: changes });
+    res.json({ ok: true, cleared: changes });
+  } catch (err) {
+    res.status(500).json({ error: 'clear failed: ' + err.message });
+  }
+});
+
+router.delete('/stories/queue/:id', (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const current = db.findQueuedStory(id);
+    if (!current) return res.status(404).json({ error: 'not found' });
+    db.deleteQueuedStory(id);
+    logAction(req.adminUser.id, 'story.queue.delete', 'story', id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'delete failed: ' + err.message });
+  }
+});
+
 router.patch('/stories/queue/:id', (req, res) => {
   const id = Number(req.params.id);
   const current = db.findQueuedStory(id);

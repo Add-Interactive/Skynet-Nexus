@@ -1016,7 +1016,10 @@
 
     var grid = h(
       '<div class="admin-panel">' +
-        '<h2>13-Channel Live Desk</h2>' +
+        '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 12px;">' +
+          '<h2 style="margin: 0;">13-Channel Live Desk</h2>' +
+          '<button id="btn-clear-all-published" class="admin-btn admin-btn-sm" style="background:#ff2e63; color:#fff;">🧹 Clear All Published</button>' +
+        '</div>' +
         '<p style="font-size: 14px; opacity: 0.8; margin-bottom: 16px;">Correspondents bridge officers status monitor.</p>' +
         '<div class="channel-status-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;" id="channel-status-grid"></div>' +
       '</div>'
@@ -1058,26 +1061,30 @@
           return a.cat === ch.id && a.date === today;
         });
 
+        // Find queued story
+        var q = queued.find(function (a) {
+          return a.channel === ch.id && a.payload && a.payload.date === today;
+        });
+
+        if (q) {
+          queueId = q.id;
+        }
+
         if (pub) {
           status = 'published';
           title = pub.title;
-        } else {
-          // Find queued story
-          var q = queued.find(function (a) {
-            return a.channel === ch.id && a.payload && a.payload.date === today;
-          });
-
-          if (q) {
-            status = q.status; // 'draft', 'approved', 'published'
-            title = q.payload.title;
-            queueId = q.id;
-          }
+        } else if (q) {
+          status = q.status; // 'draft', 'approved', 'published'
+          title = q.payload.title;
         }
 
         var statusBadge = '';
         var actionBtn = '';
         if (status === 'published') {
           statusBadge = '<span class="pill published">🟢 Published</span>';
+          if (queueId) {
+            actionBtn = '<button class="admin-btn admin-btn-sm btn-clear-single" data-id="' + queueId + '" style="background:#475569;color:#fff;">Clear</button>';
+          }
         } else if (status === 'approved') {
           statusBadge = '<span class="pill assigned">🔵 Ready (Approved)</span>';
           actionBtn = '<button class="admin-btn admin-btn-sm btn-pub-single" data-id="' + queueId + '" style="background:#2dd4bf;color:#0a0e17;">Publish</button>';
@@ -1103,24 +1110,62 @@
         );
 
         if (queueId) {
-          card.querySelector('.btn-pub-single').addEventListener('click', function (e) {
-            var btn = e.target;
-            btn.disabled = true;
-            btn.textContent = 'Publishing...';
-            api('/admin/stories/queue/' + queueId + '/publish', { method: 'POST' }).then(function () {
-              toast('Story published successfully!');
-              Views.antigravity();
-              refreshBadges();
-            }).catch(function (err) {
-              toast(err.message, true);
-              btn.disabled = false;
-              btn.textContent = 'Publish';
+          var btnPub = card.querySelector('.btn-pub-single');
+          if (btnPub) {
+            btnPub.addEventListener('click', function (e) {
+              var btn = e.target;
+              btn.disabled = true;
+              btn.textContent = 'Publishing...';
+              api('/admin/stories/queue/' + queueId + '/publish', { method: 'POST' }).then(function () {
+                toast('Story published successfully!');
+                Views.antigravity();
+                refreshBadges();
+              }).catch(function (err) {
+                toast(err.message, true);
+                btn.disabled = false;
+                btn.textContent = 'Publish';
+              });
             });
-          });
+          }
+
+          var btnClear = card.querySelector('.btn-clear-single');
+          if (btnClear) {
+            btnClear.addEventListener('click', function (e) {
+              var btn = e.target;
+              btn.disabled = true;
+              btn.textContent = 'Clearing...';
+              api('/admin/stories/queue/' + queueId, { method: 'DELETE' }).then(function () {
+                toast('Story cleared from queue!');
+                Views.antigravity();
+                refreshBadges();
+              }).catch(function (err) {
+                toast(err.message, true);
+                btn.disabled = false;
+                btn.textContent = 'Clear';
+              });
+            });
+          }
         }
 
         gridEl.appendChild(card);
       });
+
+      // Bind clear all published button
+      var btnClearAll = grid.querySelector('#btn-clear-all-published');
+      if (btnClearAll) {
+        btnClearAll.addEventListener('click', function () {
+          if (!confirm('Are you sure you want to clear all published stories from the queue? This will clean up the status monitor.')) return;
+          btnClearAll.disabled = true;
+          api('/admin/stories/queue/clear-published', { method: 'DELETE' }).then(function () {
+            toast('All published stories cleared!');
+            Views.antigravity();
+            refreshBadges();
+          }).catch(function (err) {
+            toast(err.message, true);
+            btnClearAll.disabled = false;
+          });
+        });
+      }
 
       // Bind seed button
       controlBar.querySelector('#btn-seed-drops').addEventListener('click', function (e) {
