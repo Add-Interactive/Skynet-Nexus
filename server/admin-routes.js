@@ -732,8 +732,13 @@ router.post('/antigravity/generate-drops', (req, res) => {
   }
 });
 
-router.post('/antigravity/schedule-tomorrow-drop', (req, res) => {
+router.post('/antigravity/schedule-custom-drop', (req, res) => {
   try {
+    const { targetDay, edition } = req.body;
+    if (!targetDay || !edition) {
+      return res.status(400).json({ error: 'Missing targetDay or edition.' });
+    }
+
     const { DatabaseSync } = require('node:sqlite');
     const { DB_PATH } = require('./storage');
     const { generateEmergencyDrops } = require('./antigravity-service');
@@ -743,43 +748,57 @@ router.post('/antigravity/schedule-tomorrow-drop', (req, res) => {
     // 1. Clear any non-published queued stories
     rawDb.prepare("DELETE FROM queued_stories WHERE status != 'published'").run();
     
-    // 2. Generate 13 fresh emergency drafts (will be inserted in 'approved' status)
+    // 2. Generate 13 fresh emergency drafts (inserted in 'approved' status)
     const genResult = generateEmergencyDrops();
     
-    // 3. Target date is tomorrow (relative to Eastern Time / server time)
+    // 3. Resolve target date (relative to server time)
     const target = new Date();
-    target.setDate(target.getDate() + 1);
+    if (targetDay === 'tomorrow') {
+      target.setDate(target.getDate() + 1);
+    }
     
     const year = target.getFullYear();
     const month = String(target.getMonth() + 1).padStart(2, '0');
     const day = String(target.getDate()).padStart(2, '0');
     const targetDate = `${year}-${month}-${day}`;
     
-    // Tomorrow 10:15 AM ET = 14:15 UTC
-    const publishAtET = `${targetDate}T10:15:00-04:00`;
-    const publishAtUTC = `${targetDate}T14:15:00.000Z`;
+    // Resolve time
+    let timeET, timeUTC;
+    if (edition === 'morning') {
+      timeET = `${targetDate}T10:15:00-04:00`;
+      timeUTC = `${targetDate}T14:15:00.000Z`;
+    } else if (edition === 'midday') {
+      timeET = `${targetDate}T14:15:00-04:00`;
+      timeUTC = `${targetDate}T18:15:00.000Z`;
+    } else if (edition === 'evening') {
+      timeET = `${targetDate}T18:15:00-04:00`;
+      timeUTC = `${targetDate}T22:15:00.000Z`;
+    } else {
+      return res.status(400).json({ error: 'Invalid edition value.' });
+    }
     
     const approvedRows = rawDb.prepare("SELECT id, payload FROM queued_stories WHERE status = 'approved'").all();
     
     approvedRows.forEach(row => {
       const payload = JSON.parse(row.payload);
       payload.date = targetDate;
-      payload.publishedAt = publishAtET;
-      payload.id = `${targetDate}-${payload.cat}-emergency`;
+      payload.publishedAt = timeET;
+      payload.id = `${targetDate}-${payload.cat}-${edition}`;
+      payload.edition = edition;
       
       rawDb.prepare(`
         UPDATE queued_stories 
            SET status = 'scheduled',
                publish_at = ?,
-               edition = 'morning',
+               edition = ?,
                payload = ?,
                updated_at = datetime('now')
          WHERE id = ?
-      `).run(publishAtUTC, JSON.stringify(payload), row.id);
+      `).run(timeUTC, edition, JSON.stringify(payload), row.id);
     });
     
-    logAction(req.adminUser.id, 'antigravity.schedule-tomorrow-drop', 'story', null, { date: targetDate });
-    res.json({ ok: true, count: approvedRows.length, targetDate });
+    logAction(req.adminUser.id, 'antigravity.schedule-custom-drop', 'story', null, { date: targetDate, edition });
+    res.json({ ok: true, count: approvedRows.length, targetDate, edition, timeET });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

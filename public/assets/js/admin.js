@@ -1009,7 +1009,19 @@
           '<button id="btn-seed-drops" class="admin-btn">🚀 Generate Drafts</button>' +
           '<button id="btn-publish-all" class="admin-btn" style="background: #2dd4bf; color: #0a0e17;">📢 Auto-Publish Ready Drafts</button>' +
           '<button id="btn-run-it" class="admin-btn admin-btn-primary" style="background: var(--lcars-gold); color: #000; font-weight: 900; box-shadow: 0 0 10px rgba(255, 184, 0, 0.4);">⚡ RUN IT (Generate & Publish)</button>' +
-          '<button id="btn-schedule-tomorrow" class="admin-btn" style="background: #a855f7; color: #fff;">📅 Schedule Tomorrow\'s Drop</button>' +
+        '</div>' +
+        '<div style="display: flex; gap: 12px; align-items: center; margin-top: 16px; padding: 12px; background: rgba(0, 229, 255, 0.05); border: 1px solid rgba(0, 229, 255, 0.15); border-radius: 8px; flex-wrap: wrap; width: 100%;">' +
+          '<div style="font-weight: 600; font-size: 14px; color: var(--text);">Schedule Drop:</div>' +
+          '<select id="schedule-target-day" class="sort-select" style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); font-size: 0.85rem; outline: none; cursor: pointer;">' +
+            '<option value="today">Today</option>' +
+            '<option value="tomorrow" selected>Tomorrow</option>' +
+          '</select>' +
+          '<select id="schedule-target-edition" class="sort-select" style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); font-size: 0.85rem; outline: none; cursor: pointer;">' +
+            '<option value="morning">Morning Drop (10:15 AM ET)</option>' +
+            '<option value="midday">Midday Drop (2:15 PM ET)</option>' +
+            '<option value="evening">Evening Drop (6:15 PM ET)</option>' +
+          '</select>' +
+          '<button id="btn-schedule-custom" class="admin-btn" style="background: #a855f7; color: #fff; border: none; font-weight: 600; border-radius: 6px; padding: 6px 14px; cursor: pointer;">📅 Schedule 13-Channel Drop</button>' +
         '</div>' +
       '</div>'
     );
@@ -1264,22 +1276,31 @@
         });
       });
 
-      // Bind Schedule Tomorrow's Drop button
-      controlBar.querySelector('#btn-schedule-tomorrow').addEventListener('click', function (e) {
+      // Bind Schedule Custom Drop button
+      controlBar.querySelector('#btn-schedule-custom').addEventListener('click', function (e) {
         var btn = e.target;
-        if (!confirm("Are you sure you want to Clear the current draft queue, generate 13 new articles, and Schedule them for Tomorrow Morning's Drop at 10:15 AM ET?")) return;
+        var targetDay = controlBar.querySelector('#schedule-target-day').value;
+        var edition = controlBar.querySelector('#schedule-target-edition').value;
+        
+        var labelDay = targetDay.charAt(0).toUpperCase() + targetDay.slice(1);
+        var labelEdition = edition.charAt(0).toUpperCase() + edition.slice(1);
+        
+        if (!confirm("Are you sure you want to Clear the current draft queue, generate 13 new articles, and Schedule them for " + labelDay + "'s " + labelEdition + " Drop?")) return;
         
         btn.disabled = true;
-        btn.textContent = 'Scheduling Tomorrow\'s Drop...';
+        btn.textContent = 'Scheduling Drop...';
         
-        api('/admin/antigravity/schedule-tomorrow-drop', { method: 'POST' }).then(function (r) {
-          toast('Successfully scheduled 13 articles for tomorrow morning (' + r.targetDate + ')!');
+        api('/admin/antigravity/schedule-custom-drop', {
+          method: 'POST',
+          body: { targetDay: targetDay, edition: edition }
+        }).then(function (r) {
+          toast('Successfully scheduled 13 articles for ' + r.targetDate + ' (' + r.edition + ' drop)!');
           Views.antigravity();
           refreshBadges();
         }).catch(function (err) {
           toast(err.message, true);
           btn.disabled = false;
-          btn.textContent = 'Schedule Tomorrow\'s Drop';
+          btn.textContent = 'Schedule 13-Channel Drop';
         });
       });
 
