@@ -1004,11 +1004,12 @@
     var controlBar = h(
       '<div class="admin-panel" style="margin-bottom: 24px;">' +
         '<h2>Emergency Actions</h2>' +
-        '<p style="font-size: 14px; opacity: 0.8; margin-bottom: 16px;">Use these controls to generate, publish, or run the entire process for today\'s 13 channel drops.</p>' +
+        '<p style="font-size: 14px; opacity: 0.8; margin-bottom: 16px;">Use these controls to generate, publish, or schedule the entire process for today\'s or tomorrow\'s 13 channel drops.</p>' +
         '<div class="row-actions" style="display: flex; gap: 12px; flex-wrap: wrap;">' +
           '<button id="btn-seed-drops" class="admin-btn">🚀 Generate Drafts</button>' +
           '<button id="btn-publish-all" class="admin-btn" style="background: #2dd4bf; color: #0a0e17;">📢 Auto-Publish Ready Drafts</button>' +
           '<button id="btn-run-it" class="admin-btn admin-btn-primary" style="background: var(--lcars-gold); color: #000; font-weight: 900; box-shadow: 0 0 10px rgba(255, 184, 0, 0.4);">⚡ RUN IT (Generate & Publish)</button>' +
+          '<button id="btn-schedule-tomorrow" class="admin-btn" style="background: #a855f7; color: #fff;">📅 Schedule Tomorrow\'s Drop</button>' +
         '</div>' +
       '</div>'
     );
@@ -1260,6 +1261,25 @@
           toast(err.message, true);
           Views.antigravity();
           refreshBadges();
+        });
+      });
+
+      // Bind Schedule Tomorrow's Drop button
+      controlBar.querySelector('#btn-schedule-tomorrow').addEventListener('click', function (e) {
+        var btn = e.target;
+        if (!confirm("Are you sure you want to Clear the current draft queue, generate 13 new articles, and Schedule them for Tomorrow Morning's Drop at 10:15 AM ET?")) return;
+        
+        btn.disabled = true;
+        btn.textContent = 'Scheduling Tomorrow\'s Drop...';
+        
+        api('/admin/antigravity/schedule-tomorrow-drop', { method: 'POST' }).then(function (r) {
+          toast('Successfully scheduled 13 articles for tomorrow morning (' + r.targetDate + ')!');
+          Views.antigravity();
+          refreshBadges();
+        }).catch(function (err) {
+          toast(err.message, true);
+          btn.disabled = false;
+          btn.textContent = 'Schedule Tomorrow\'s Drop';
         });
       });
 
