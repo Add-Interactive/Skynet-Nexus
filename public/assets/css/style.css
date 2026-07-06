@@ -225,7 +225,12 @@ body::before{
 /* Right Rail */
 .right-rail{display:flex;flex-direction:column;gap:18px;position:sticky;top:82px;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto;padding-right:2px}
 
-.widget{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+@keyframes widgetGradient {
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+.widget{background:linear-gradient(135deg, var(--bg-card), rgba(0,229,255,0.04), var(--bg-card), rgba(168,85,247,0.04), var(--bg-card));background-size:400% 400%;animation:widgetGradient 18s ease infinite;border:1px solid var(--border);border-radius:var(--radius);padding:16px}
 .widget-title{display:flex;align-items:center;justify-content:space-between;font-size:.78rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-mute);margin-bottom:12px}
 .widget-title .live-dot{width:8px;height:8px;background:var(--accent-4);border-radius:50%;box-shadow:var(--glow-green);animation:pulse 1.5s infinite}
 
