@@ -183,14 +183,32 @@ api.get('/public-db-status', (req, res) => {
   }
   
   const { DatabaseSync } = require('node:sqlite');
-  const { DB_PATH } = require('./storage');
+  const { DB_PATH, DATA_DIR } = require('./storage');
   const rawDb = new DatabaseSync(DB_PATH);
+  
+  let rootFiles = [];
+  try { rootFiles = fs.readdirSync(path.dirname(DB_PATH)); } catch (e) { rootFiles = [e.message]; }
+  
+  let dataFiles = [];
+  try { dataFiles = fs.readdirSync(DATA_DIR); } catch (e) { dataFiles = [e.message]; }
+  
+  let tables = [];
+  try { tables = rawDb.prepare("SELECT name FROM sqlite_master WHERE type='table'").all(); } catch (e) { tables = [e.message]; }
   
   const scheduled = rawDb.prepare("SELECT id, channel, publish_at, status, edition FROM queued_stories WHERE status = 'scheduled'").all();
   const published = rawDb.prepare("SELECT id, channel, publish_at, status, edition FROM queued_stories WHERE status = 'published' AND DATE(publish_at) = '2026-07-06'").all();
   const allStories = rawDb.prepare("SELECT id, status, publish_at, edition FROM queued_stories ORDER BY id DESC LIMIT 50").all();
   
-  res.json({ scheduled, published, allStories });
+  res.json({
+    dbPath: DB_PATH,
+    dataDir: DATA_DIR,
+    rootFiles,
+    dataFiles,
+    tables,
+    scheduled,
+    published,
+    allStories
+  });
 });
 
 // GET /api/auth/me — current user + kid profiles
