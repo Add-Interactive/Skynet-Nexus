@@ -226,19 +226,38 @@
       <div class="widget AGI-card">
         <div class="widget-title">AGI / ASI Clock <span class="live-dot" style="background:#a855f7;box-shadow:0 0 8px #a855f7;"></span></div>
         <div style="margin-bottom:12px;">
-          <select id="agi-predictor" class="sort-select" style="width:100%;background:var(--card-bg);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 10px;font-size:0.85rem;" aria-label="Select AGI Predictor">
+          <select id="agi-predictor" class="sort-select" style="width:100%;color:var(--text);border-radius:6px;padding:6px 10px;font-size:0.85rem;" aria-label="Select AGI Predictor">
             <option value="elon">Elon Musk (AGI: 2026)</option>
+            <option value="jensen">Jensen Huang (AGI: 2026)</option>
             <option value="sam">Sam Altman (AGI: 2027)</option>
+            <option value="dario">Dario Amodei (AGI: 2027)</option>
             <option value="leopold">L. Aschenbrenner (AGI: 2028)</option>
+            <option value="legg">Shane Legg (AGI: 2028)</option>
+            <option value="suleyman">Mustafa Suleyman (AGI: 2028)</option>
+            <option value="ilya">Ilya Sutskever (AGI: 2028)</option>
+            <option value="kurzweil_agi">Ray Kurzweil (AGI: 2029)</option>
             <option value="demis">Demis Hassabis (AGI: 2030)</option>
-            <option value="kurzweil">Ray Kurzweil (ASI: 2045)</option>
+            <option value="carmack">John Carmack (AGI: 2030)</option>
+            <option value="tegmark">Max Tegmark (AGI: 2030)</option>
+            <option value="christiano">Paul Christiano (AGI: 2030)</option>
+            <option value="yudkowsky">Eliezer Yudkowsky (AGI: 2030)</option>
+            <option value="sutton">Richard Sutton (AGI: 2030)</option>
+            <option value="mensch">Arthur Mensch (AGI: 2032)</option>
+            <option value="hinton">Geoffrey Hinton (AGI: 2033)</option>
+            <option value="bengio">Yoshua Bengio (AGI: 2033)</option>
+            <option value="gates">Bill Gates (AGI: 2035)</option>
+            <option value="kurzweil_asi">Ray Kurzweil (ASI: 2045)</option>
+            <option value="lecun">Yann LeCun (AGI: 2050+)</option>
           </select>
         </div>
         <div class="countdown-grid" id="agi-countdown-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;margin-bottom:12px;">
           <!-- dynamic countdown cells -->
         </div>
-        <div id="agi-explanation" style="font-size:0.78rem;color:var(--text-dim);line-height:1.4;text-align:center;min-height:36px;">
+        <div id="agi-explanation" style="font-size:0.78rem;color:var(--text-dim);line-height:1.4;text-align:center;min-height:36px;margin-bottom:8px;">
           Elon Musk predicts scaling compute will unlock human-level AGI by late 2026.
+        </div>
+        <div style="text-align:center;">
+          <a id="agi-source" href="#" target="_blank" rel="noopener" style="font-size:0.75rem;color:var(--accent);text-decoration:none;font-weight:600;">Read Source Statement &rarr;</a>
         </div>
       </div>
 

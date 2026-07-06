@@ -973,23 +973,108 @@ function renderNextDrop() {
 const AGI_PREDICTIONS = {
   elon: {
     date: new Date('2026-12-31T23:59:59'),
-    desc: 'Elon Musk predicts scaling compute will unlock human-level AGI by late 2026.'
+    desc: 'Elon Musk predicts scaling compute will unlock human-level AGI by late 2026.',
+    link: 'https://gizmodo.com/elon-musk-says-ai-will-be-smarter-than-the-smartest-human-by-next-year-1851395568'
+  },
+  jensen: {
+    date: new Date('2026-06-30T23:59:59'),
+    desc: 'Jensen Huang asserts that AGI is here now if defined as AI that can start and run a billion-dollar tech company.',
+    link: 'https://theagiclock.com/'
   },
   sam: {
     date: new Date('2027-12-31T23:59:59'),
-    desc: 'Sam Altman and OpenAI forecast AGI to arrive in the 2025–2027 range as agentic architectures mature.'
+    desc: 'Sam Altman and OpenAI forecast AGI to arrive in the 2025–2027 range as agentic architectures mature.',
+    link: 'https://theagiclock.com/'
+  },
+  dario: {
+    date: new Date('2027-06-30T23:59:59'),
+    desc: 'Dario Amodei expects AGI by 2025–2027, driven by scaling laws and transformer refinements.',
+    link: 'https://theagiclock.com/'
   },
   leopold: {
     date: new Date('2028-12-31T23:59:59'),
-    desc: 'Leopold Aschenbrenner predicts that current trends will yield drop-in AGI/superintelligence by 2027/2028.'
+    desc: 'Leopold Aschenbrenner predicts that current trends will yield drop-in AGI/superintelligence by 2027/2028.',
+    link: 'https://situational-awareness.ai/'
+  },
+  legg: {
+    date: new Date('2028-12-31T23:59:59'),
+    desc: 'Shane Legg believes there is a 50% chance of achieving minimal human-level AGI by 2028.',
+    link: 'https://medium.com/@shanelegg/agi-predictions-2028'
+  },
+  suleyman: {
+    date: new Date('2028-06-30T23:59:59'),
+    desc: 'Mustafa Suleyman predicts AGI by 2028, highlighting immense productivity and economic changes.',
+    link: 'https://www.cnbc.com/2023/05/16/inflection-ai-ceo-mustafa-suleyman-predicts-agi-within-five-years.html'
+  },
+  ilya: {
+    date: new Date('2028-12-31T23:59:59'),
+    desc: 'Ilya Sutskever predicts AGI this decade, prioritizing superalignment and AI safety systems.',
+    link: 'https://www.businessinsider.com/openai-co-founder-ilya-sutskever-on-agi-timeline-2023-11'
+  },
+  kurzweil_agi: {
+    date: new Date('2029-12-31T23:59:59'),
+    desc: 'Ray Kurzweil predicts AI will achieve human-level intelligence (AGI) by 2029.',
+    link: 'https://www.youtube.com/watch?v=ycPr5-27vSI'
   },
   demis: {
     date: new Date('2030-12-31T23:59:59'),
-    desc: 'Demis Hassabis of Google DeepMind predicts AGI could be just a few years away, targeting 2029–2030.'
+    desc: 'Demis Hassabis of Google DeepMind predicts AGI could be just a few years away, targeting 2029–2030.',
+    link: 'https://www.youtube.com/watch?v=y78Qn4JqYlE'
   },
-  kurzweil: {
+  carmack: {
+    date: new Date('2030-12-31T23:59:59'),
+    desc: 'John Carmack predicts a 60% probability of achieving AGI by 2030, using algorithmic breakthroughs.',
+    link: 'https://dallasinnovates.com/john-carmack-agi-2030/'
+  },
+  tegmark: {
+    date: new Date('2030-06-30T23:59:59'),
+    desc: 'Max Tegmark warns AGI is highly likely by 2030, calling for rapid safety regulations.',
+    link: 'https://time.com/6266395/max-tegmark-ai-extinction-risk/'
+  },
+  christiano: {
+    date: new Date('2030-12-31T23:59:59'),
+    desc: 'Paul Christiano estimates AGI by 2030, focusing on standard scaling timelines.',
+    link: 'https://www.lesswrong.com/posts/aG8598vptA5Xb6N7p/paul-christiano-s-views-on-the-ai-timeline'
+  },
+  yudkowsky: {
+    date: new Date('2030-12-31T23:59:59'),
+    desc: 'Eliezer Yudkowsky predicts AGI within 5–10 years, warning of extreme existential risks.',
+    link: 'https://time.com/6266617/eliezer-yudkowsky-ai-extinction-risk/'
+  },
+  sutton: {
+    date: new Date('2030-12-31T23:59:59'),
+    desc: 'Richard Sutton forecasts a 50% probability of human-level AGI by 2030.',
+    link: 'https://www.lesswrong.com/posts/bJyZcRkgJvWn7LkhK/richard-sutton-on-agi-timelines'
+  },
+  mensch: {
+    date: new Date('2032-12-31T23:59:59'),
+    desc: 'Arthur Mensch believes human-level intelligence will take up to a decade as open source models evolve.',
+    link: 'https://mistral.ai/'
+  },
+  hinton: {
+    date: new Date('2033-12-31T23:59:59'),
+    desc: 'Geoffrey Hinton estimates AGI could arrive in 5–20 years, noting risks of superintelligent control.',
+    link: 'https://www.bbc.com/news/technology-65461947'
+  },
+  bengio: {
+    date: new Date('2033-12-31T23:59:59'),
+    desc: 'Yoshua Bengio shifted his timeline to 5–20 years due to the rapid capabilities of modern neural networks.',
+    link: 'https://www.bbc.com/news/technology-65461947'
+  },
+  gates: {
+    date: new Date('2035-12-31T23:59:59'),
+    desc: 'Bill Gates expects AGI within the next 10 to 20 years, transforming global productivity.',
+    link: 'https://www.gatesnotes.com/The-Age-of-AI-Has-Begun'
+  },
+  kurzweil_asi: {
     date: new Date('2045-12-31T23:59:59'),
-    desc: 'Ray Kurzweil famously predicts human-level AGI by 2029, and full superintelligent Singularity (ASI) by 2045.'
+    desc: 'Ray Kurzweil predicts full superintelligence and the Singularity (ASI) by 2045.',
+    link: 'https://www.youtube.com/watch?v=ycPr5-27vSI'
+  },
+  lecun: {
+    date: new Date('2050-12-31T23:59:59'),
+    desc: 'Yann LeCun maintains AGI is decades away, arguing LLMs lack real reasoning and world models.',
+    link: 'https://techcrunch.com/2023/12/14/metas-ai-chief-yann-lecun-says-agi-is-decades-away/'
   }
 };
 
@@ -998,6 +1083,7 @@ function renderAgiCountdown() {
   const select = document.getElementById('agi-predictor');
   const grid = document.getElementById('agi-countdown-grid');
   const explanation = document.getElementById('agi-explanation');
+  const sourceLink = document.getElementById('agi-source');
   if (!select || !grid || !explanation) return;
 
   const update = () => {
@@ -1006,6 +1092,9 @@ function renderAgiCountdown() {
     if (!data) return;
 
     explanation.textContent = data.desc;
+    if (sourceLink) {
+      sourceLink.href = data.link;
+    }
 
     const diff = Math.max(0, data.date - new Date());
     const d = Math.floor(diff / 86400000);

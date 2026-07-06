@@ -164,6 +164,11 @@ body::before{
 .chip.active[data-cat="music"]{background:var(--music);color:#fff;box-shadow:var(--glow-pink)}
 .filter-spacer{flex:1}
 .sort-select{padding:8px 14px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-size:.85rem}
+#agi-predictor{border:1px solid var(--accent) !important;box-shadow:0 0 8px rgba(0,229,255,0.15);cursor:pointer;outline:none}
+#agi-predictor option{background-color:#121824;color:#ffffff}
+[data-theme="light"] #agi-predictor option{background-color:#ffffff;color:#0a0e17}
+.sort-select option{background-color:#121824;color:#ffffff}
+[data-theme="light"] .sort-select option{background-color:#ffffff;color:#0a0e17}
 
 /* Section Title */
 .section-title{display:flex;align-items:center;justify-content:space-between;margin:22px 0 14px}
