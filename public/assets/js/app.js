@@ -1184,14 +1184,27 @@ function renderAgiCountdown() {
         update();
       });
 
+      const positionTooltip = (e) => {
+        if (!tooltip) return;
+        let x = e.clientX + 15;
+        let y = e.clientY + 15;
+        if (x + 240 > window.innerWidth) x = e.clientX - 250;
+        if (y + 120 > window.innerHeight) y = e.clientY - 130;
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      };
+
       // Hover shows tooltip popup over their name
-      item.addEventListener('mouseenter', () => {
+      item.addEventListener('mouseenter', (e) => {
         if (data && tooltip) {
           if (tooltipName) tooltipName.textContent = data.name;
           if (tooltipCredits) tooltipCredits.textContent = data.credits;
           tooltip.style.display = 'block';
+          positionTooltip(e);
         }
       });
+
+      item.addEventListener('mousemove', positionTooltip);
     });
 
     optionsList.addEventListener('mouseleave', () => {
