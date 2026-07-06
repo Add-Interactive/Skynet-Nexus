@@ -957,11 +957,77 @@ function renderNextDrop() {
     const s = Math.floor((diff / 1000) % 60);
     if (timerEl) timerEl.textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
     if (labelEl) labelEl.textContent = edition ? (edition.charAt(0).toUpperCase() + edition.slice(1) + ' edition') : 'Next edition';
+    
+    const dateEl = document.getElementById('drop-date');
+    if (dateEl) {
+      const now = new Date();
+      dateEl.textContent = now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
   };
 
   if (_nextDropTimer) clearInterval(_nextDropTimer);
   load().then(tick);
   _nextDropTimer = setInterval(tick, 1000);
+}
+
+const AGI_PREDICTIONS = {
+  elon: {
+    date: new Date('2026-12-31T23:59:59'),
+    desc: 'Elon Musk predicts scaling compute will unlock human-level AGI by late 2026.'
+  },
+  sam: {
+    date: new Date('2027-12-31T23:59:59'),
+    desc: 'Sam Altman and OpenAI forecast AGI to arrive in the 2025–2027 range as agentic architectures mature.'
+  },
+  leopold: {
+    date: new Date('2028-12-31T23:59:59'),
+    desc: 'Leopold Aschenbrenner predicts that current trends will yield drop-in AGI/superintelligence by 2027/2028.'
+  },
+  demis: {
+    date: new Date('2030-12-31T23:59:59'),
+    desc: 'Demis Hassabis of Google DeepMind predicts AGI could be just a few years away, targeting 2029–2030.'
+  },
+  kurzweil: {
+    date: new Date('2045-12-31T23:59:59'),
+    desc: 'Ray Kurzweil famously predicts human-level AGI by 2029, and full superintelligent Singularity (ASI) by 2045.'
+  }
+};
+
+let _agiTimer = null;
+function renderAgiCountdown() {
+  const select = document.getElementById('agi-predictor');
+  const grid = document.getElementById('agi-countdown-grid');
+  const explanation = document.getElementById('agi-explanation');
+  if (!select || !grid || !explanation) return;
+
+  const update = () => {
+    const predictor = select.value;
+    const data = AGI_PREDICTIONS[predictor];
+    if (!data) return;
+
+    explanation.textContent = data.desc;
+
+    const diff = Math.max(0, data.date - new Date());
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff / 3600000) % 24);
+    const m = Math.floor((diff / 60000) % 60);
+    const s = Math.floor((diff / 1000) % 60);
+
+    grid.innerHTML =
+      '<div class="countdown-cell"><div class="countdown-num">' + String(d).padStart(2, '0') + '</div><div class="countdown-lab">days</div></div>' +
+      '<div class="countdown-cell"><div class="countdown-num">' + String(h).padStart(2, '0') + '</div><div class="countdown-lab">hrs</div></div>' +
+      '<div class="countdown-cell"><div class="countdown-num">' + String(m).padStart(2, '0') + '</div><div class="countdown-lab">min</div></div>' +
+      '<div class="countdown-cell"><div class="countdown-num">' + String(s).padStart(2, '0') + '</div><div class="countdown-lab">sec</div></div>';
+  };
+
+  if (!select.dataset.bound) {
+    select.addEventListener('change', update);
+    select.dataset.bound = 'true';
+  }
+
+  if (_agiTimer) clearInterval(_agiTimer);
+  update();
+  _agiTimer = setInterval(update, 1000);
 }
 
 // Live curated RSS headlines for a channel. If the channel has no editorial
@@ -1575,6 +1641,7 @@ function _initHome(baseUrl) {
   renderPoll();
   renderTicker();
   renderNextDrop();
+  renderAgiCountdown();
   renderNewsletter();
 }
 
@@ -1618,6 +1685,7 @@ function _initChannelPage(baseUrl) {
   renderPoll();
   renderTicker();
   renderNextDrop();
+  renderAgiCountdown();
   renderNewsletter();
   renderChannelRss(cid);
 }
@@ -1723,4 +1791,100 @@ document.addEventListener("submit", function (ev) {
     ev.preventDefault();
     openExternalPopup(a.href);
   });
+})();
+
+// Global initialization for mouse / touch color effects
+(function() {
+  function initInteractiveColorEffects() {
+    const canvas = document.createElement('canvas');
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.zIndex = '9999';
+    document.body.appendChild(canvas);
+
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    const particles = [];
+    const maxParticles = 60;
+
+    class Particle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = Math.random() * 8 + 4;
+        this.speedX = Math.random() * 2 - 1;
+        this.speedY = Math.random() * 2 - 1;
+        this.hue = Math.random() * 360;
+        this.alpha = 1;
+        this.decay = Math.random() * 0.02 + 0.015;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.alpha -= this.decay;
+        this.size *= 0.95;
+      }
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = `hsla(${this.hue}, 100%, 50%, 0.8)`;
+        ctx.fillStyle = `hsla(${this.hue}, 100%, 60%, 1)`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function addParticles(x, y, count=2) {
+      for (let i = 0; i < count; i++) {
+        if (particles.length < maxParticles) {
+          particles.push(new Particle(x, y));
+        }
+      }
+    }
+
+    window.addEventListener('mousemove', (e) => {
+      addParticles(e.clientX, e.clientY);
+    });
+
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches.length > 0) {
+        addParticles(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    });
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.update();
+        if (p.alpha <= 0 || p.size <= 0.5) {
+          particles.splice(i, 1);
+        } else {
+          p.draw();
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+    animate();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initInteractiveColorEffects);
+  } else {
+    initInteractiveColorEffects();
+  }
 })();

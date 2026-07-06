@@ -145,6 +145,7 @@
         <div class="dropbar-body">
           <span class="dropbar-kicker">Next edition drops in</span>
           <span class="dropbar-label" id="drop-label">—</span>
+          <span class="dropbar-date" id="drop-date" style="font-size:0.75rem;opacity:0.85;margin-top:2px;"></span>
         </div>
         <div class="dropbar-timer" id="drop-timer">--:--:--</div>
         <span class="dropbar-cta">Got a story? Submit →</span>
@@ -219,6 +220,26 @@
         <div class="countdown-sub" id="countdown-sub">—</div>
         <div class="countdown-grid" id="countdown-grid"></div>
         <a class="countdown-link" id="countdown-link" href="#" target="_blank" rel="noopener" hidden>View event &rarr;</a>
+      </div>
+
+      <!-- AGI / ASI Clock -->
+      <div class="widget AGI-card">
+        <div class="widget-title">AGI / ASI Clock <span class="live-dot" style="background:#a855f7;box-shadow:0 0 8px #a855f7;"></span></div>
+        <div style="margin-bottom:12px;">
+          <select id="agi-predictor" class="sort-select" style="width:100%;background:var(--card-bg);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 10px;font-size:0.85rem;" aria-label="Select AGI Predictor">
+            <option value="elon">Elon Musk (AGI: 2026)</option>
+            <option value="sam">Sam Altman (AGI: 2027)</option>
+            <option value="leopold">L. Aschenbrenner (AGI: 2028)</option>
+            <option value="demis">Demis Hassabis (AGI: 2030)</option>
+            <option value="kurzweil">Ray Kurzweil (ASI: 2045)</option>
+          </select>
+        </div>
+        <div class="countdown-grid" id="agi-countdown-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;margin-bottom:12px;">
+          <!-- dynamic countdown cells -->
+        </div>
+        <div id="agi-explanation" style="font-size:0.78rem;color:var(--text-dim);line-height:1.4;text-align:center;min-height:36px;">
+          Elon Musk predicts scaling compute will unlock human-level AGI by late 2026.
+        </div>
       </div>
 
       <!-- Stats -->
