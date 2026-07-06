@@ -846,6 +846,41 @@ function checkAndRenderAdminControls() {
         .catch(err => alert('Error locating story: ' + err.message));
     });
     bar.appendChild(editBtn);
+
+    const imgBtn = document.createElement('button');
+    imgBtn.className = 'post-admin-btn';
+    imgBtn.innerHTML = '🖼️';
+    imgBtn.title = 'Change Cover Image';
+    imgBtn.addEventListener('click', ev => {
+      ev.stopPropagation();
+      ev.preventDefault();
+      
+      fetch('/api/admin/stories/by-article-id/' + encodeURIComponent(articleId))
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.story) {
+            openPublicImagePicker(card.dataset.cat || data.story.channel, data.story.payload.heroImage, (newUrl) => {
+              const updatedPayload = Object.assign({}, data.story.payload, { heroImage: newUrl });
+              fetch('/api/admin/stories/published/' + data.story.id, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ payload: updatedPayload })
+              })
+              .then(r => r.ok ? r.json() : Promise.reject())
+              .then(() => {
+                if (typeof toast === 'function') toast('Cover image updated!');
+                const cardImg = card.querySelector('.post-media');
+                if (cardImg) cardImg.src = newUrl;
+              })
+              .catch(() => alert('Failed to update cover image.'));
+            });
+          } else {
+            alert('Failed to find this story in the SQLite database.');
+          }
+        })
+        .catch(err => alert('Error locating story: ' + err.message));
+    });
+    bar.appendChild(imgBtn);
     
     const pinBtn = document.createElement('button');
     pinBtn.className = 'post-admin-btn' + (isPinned ? ' pinned-active' : '');
@@ -908,6 +943,197 @@ function checkAndRenderAdminControls() {
     
     card.appendChild(bar);
   });
+}
+
+function openPublicImagePicker(channel, currentImageUrl, onSelect) {
+  const overlay = document.createElement('div');
+  overlay.className = 'evt-modal-overlay';
+  overlay.style.zIndex = '350';
+  
+  const modal = document.createElement('div');
+  modal.className = 'evt-modal';
+  modal.style.maxWidth = '600px';
+  modal.style.maxHeight = '80vh';
+  
+  const head = document.createElement('div');
+  head.className = 'evt-modal-head';
+  
+  const title = document.createElement('h3');
+  title.className = 'evt-modal-title';
+  title.textContent = 'Swap Hero Image — ' + channel.toUpperCase();
+  
+  const close = document.createElement('button');
+  close.className = 'evt-modal-close';
+  close.textContent = '✕';
+  close.addEventListener('click', () => overlay.remove());
+  
+  head.appendChild(title);
+  head.appendChild(close);
+  modal.appendChild(head);
+  
+  const body = document.createElement('div');
+  body.className = 'evt-modal-body';
+  body.style.display = 'flex';
+  body.style.flexDirection = 'column';
+  body.style.gap = '16px';
+  
+  const helperText = document.createElement('p');
+  helperText.style.fontSize = '13px';
+  helperText.style.color = 'var(--text-mute)';
+  helperText.style.margin = '0';
+  helperText.innerHTML = 'Select a new illustration from the <strong>' + channel + '</strong> pool to instantly swap this card\'s image:';
+  body.appendChild(helperText);
+  
+  const grid = document.createElement('div');
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(100px, 1fr))';
+  grid.style.gap = '10px';
+  grid.style.maxHeight = '350px';
+  grid.style.overflowY = 'auto';
+  grid.style.padding = '8px';
+  grid.style.background = 'var(--bg-alt)';
+  grid.style.border = '1px solid var(--border)';
+  grid.style.borderRadius = 'var(--radius-sm)';
+  
+  body.appendChild(grid);
+  
+  const uploadContainer = document.createElement('div');
+  uploadContainer.style.display = 'flex';
+  uploadContainer.style.justifyContent = 'space-between';
+  uploadContainer.style.alignItems = 'center';
+  uploadContainer.style.paddingTop = '10px';
+  uploadContainer.style.borderTop = '1px solid var(--border)';
+  
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = 'image/jpeg,image/png';
+  fileInput.style.display = 'none';
+  
+  const uploadBtn = document.createElement('button');
+  uploadBtn.className = 'admin-btn admin-btn-primary';
+  uploadBtn.style.padding = '8px 14px';
+  uploadBtn.style.borderRadius = 'var(--radius-sm)';
+  uploadBtn.textContent = '📤 Upload New Image';
+  uploadBtn.style.fontSize = '12px';
+  uploadBtn.style.fontWeight = '700';
+  
+  uploadContainer.appendChild(fileInput);
+  uploadContainer.appendChild(uploadBtn);
+  body.appendChild(uploadContainer);
+  
+  modal.appendChild(body);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  
+  const onEsc = (e) => { if (e.key === 'Escape') overlay.remove(); };
+  document.addEventListener('keydown', onEsc);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  
+  function refreshGrid() {
+    grid.innerHTML = '';
+    fetch('/api/admin/images/list')
+      .then(r => r.json())
+      .then(data => {
+        const files = (data && data.images && data.images[channel]) || [];
+        if (!files.length) {
+          grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:var(--text-mute);">No images in this channel pool.</div>';
+          return;
+        }
+        
+        files.forEach(filename => {
+          const url = '/assets/img/channels/' + channel + '/' + filename;
+          const isSel = (url === currentImageUrl);
+          
+          const card = document.createElement('div');
+          card.style.border = '1px solid var(--border)';
+          card.style.borderRadius = 'var(--radius-sm)';
+          card.style.overflow = 'hidden';
+          card.style.cursor = 'pointer';
+          card.style.background = 'var(--bg-card)';
+          card.style.transition = 'all 0.15s';
+          if (isSel) {
+            card.style.borderColor = 'var(--accent)';
+            card.style.outline = '2px solid var(--accent)';
+          }
+          
+          const img = document.createElement('img');
+          img.src = url;
+          img.style.width = '100%';
+          img.style.height = '64px';
+          img.style.objectFit = 'cover';
+          
+          card.appendChild(img);
+          card.addEventListener('click', () => {
+            onSelect(url);
+            overlay.remove();
+            document.removeEventListener('keydown', onEsc);
+          });
+          grid.appendChild(card);
+        });
+      })
+      .catch(err => {
+        grid.innerHTML = '<div style="color:red; grid-column:1/-1; padding:10px;">Failed to load pool: ' + err.message + '</div>';
+      });
+  }
+  
+  uploadBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const customName = prompt("Enter a number or name for this image (e.g. '5' for '5.jpg').\nLeave blank to auto-assign:");
+    if (customName === null) return;
+    
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = 'Uploading...';
+    
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      function sendUpload(overwrite) {
+        fetch('/api/admin/images/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            channel: channel,
+            filename: file.name,
+            base64: evt.target.result,
+            customName: customName,
+            overwrite: !!overwrite
+          })
+        })
+        .then(r => r.json())
+        .then(r => {
+          if (r && r.conflict) {
+            if (confirm("An image named '" + r.filename + "' already exists. Overwrite it?")) {
+              sendUpload(true);
+            } else {
+              uploadBtn.disabled = false;
+              uploadBtn.textContent = '📤 Upload New Image';
+            }
+            return;
+          }
+          if (r && r.ok) {
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = '📤 Upload New Image';
+            refreshGrid();
+          } else {
+            alert(r.error || 'Upload failed');
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = '📤 Upload New Image';
+          }
+        })
+        .catch(err => {
+          alert('Upload error: ' + err.message);
+          uploadBtn.disabled = false;
+          uploadBtn.textContent = '📤 Upload New Image';
+        });
+      }
+      sendUpload(false);
+    };
+    reader.readAsDataURL(file);
+  });
+  
+  refreshGrid();
 }
 
 // ---------- Filter chips + sort ----------
