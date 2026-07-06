@@ -609,8 +609,21 @@ function rssCardHtml(it, ch) {
 }
 
 function getFilteredArticles() {
+  const params = new URLSearchParams(location.search);
+  const feedType = params.get('feed') || 'home';
+  
   let list = [...ARTICLES];
-  if (currentFilter !== 'all') list = list.filter(a => a.cat === currentFilter);
+  
+  if (currentFilter === 'all') {
+    if (feedType === 'home') {
+      list = list.filter(a => a.cat === 'skynet' || a.cat === 'network');
+    } else if (feedType === 'your') {
+      list = list.filter(a => a.cat !== 'skynet' && a.cat !== 'network');
+    }
+  } else {
+    list = list.filter(a => a.cat === currentFilter);
+  }
+  
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
     list = list.filter(a =>
@@ -642,6 +655,9 @@ function renderFeed() {
   const list = getFilteredArticles();
   const token = ++_feedRssToken;
 
+  const params = new URLSearchParams(location.search);
+  const feedType = params.get('feed') || 'home';
+
   // 1) Editorial stories first (if any match the current filter/search).
   if (list.length) {
     grid.className = 'feed-grid';
@@ -664,7 +680,15 @@ function renderFeed() {
   }
 
   // 3) Fill the feed with live curated RSS for the current channel (or all).
-  loadFeedRss(currentFilter || 'all', grid, list.length, token);
+  if (feedType === 'home' && currentFilter === 'all') {
+    const ph = grid.querySelector('.feed-loading');
+    if (ph) ph.remove();
+    if (!list.length) {
+      grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--text-mute)"><h3 style="margin-bottom:8px;color:var(--text)">No original editorial drops yet</h3></div>';
+    }
+  } else {
+    loadFeedRss(currentFilter || 'all', grid, list.length, token);
+  }
 }
 
 // Loads curated RSS items into the main feed grid. Editorial cards (if any)
@@ -1412,6 +1436,45 @@ function ensureSubmitLink(base) {
     }
   });
   if (!feed) return;
+
+  // Insert "Your Feed" right after Home (before Trending)
+  const homeLink = feed.querySelector('a[href$="index.html"]') || feed.querySelector('a[href="index.html"]');
+  const homeLi = homeLink ? homeLink.parentElement : null;
+  const trendingLink = feed.querySelector('a[href*="#trending"]') || feed.querySelector('a[href*="events.html"]');
+  const trendingLi = trendingLink ? trendingLink.parentElement : null;
+
+  if (!feed.querySelector('a[href*="feed=your"]')) {
+    const li = document.createElement('li');
+    const href = base + 'index.html?feed=your';
+    li.innerHTML = '<a href="' + href + '" class="nav-link" id="nav-your-feed-link"><span class="icon">' + ICONS.bookmarks + '</span><span>Your Feed</span></a>';
+    if (trendingLi) {
+      feed.insertBefore(li, trendingLi);
+    } else if (homeLi && homeLi.nextSibling) {
+      feed.insertBefore(li, homeLi.nextSibling);
+    } else {
+      feed.appendChild(li);
+    }
+  }
+
+  // Handle active states dynamically
+  const params = new URLSearchParams(location.search);
+  const feedType = params.get('feed') || 'home';
+  const homeA = feed.querySelector('a[href$="index.html"]') || feed.querySelector('a[href="index.html"]');
+  const yourFeedA = feed.querySelector('a[href*="feed=your"]');
+
+  if (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname.endsWith('/')) {
+    if (feedType === 'your') {
+      if (homeA) homeA.classList.remove('active');
+      if (yourFeedA) yourFeedA.classList.add('active');
+    } else {
+      if (homeA) homeA.classList.add('active');
+      if (yourFeedA) yourFeedA.classList.remove('active');
+    }
+  } else {
+    if (homeA) homeA.classList.remove('active');
+    if (yourFeedA) yourFeedA.classList.remove('active');
+  }
+
   const summer = feed.querySelector('a[href$="summer.html"]');
   const before = summer && summer.parentElement ? summer.parentElement : null;
   const add = (href, iconHtml, label) => {
@@ -1421,14 +1484,18 @@ function ensureSubmitLink(base) {
     if (before) feed.insertBefore(li, before);
     else feed.appendChild(li);
   };
-  add('submit.html', '\u270d\ufe0f', 'Submit a Story');
-  add('feeds.html', '\ud83d\udce1', 'STEM Feeds');
-  add('creators.html', '\ud83c\udf1f', 'STEM Creators');
+  add('submit.html', '✍️', 'Submit a Story');
+  add('feeds.html', '📡', 'STEM Feeds');
+  add('creators.html', '🌟', 'STEM Creators');
 }
 
 // Rebuild the filter chips in every .filter-bar from the channel registry,
 // preserving any trailing spacer/sort controls, then (re)bind filter events.
 function renderFilterChips() {
+  const params = new URLSearchParams(location.search);
+  const feedType = params.get('feed') || 'home';
+  const isHome = location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname.endsWith('/') || !location.pathname.includes('/pages/');
+
   document.querySelectorAll('.filter-bar').forEach(bar => {
     const spacer = bar.querySelector('.filter-spacer');
     bar.querySelectorAll('.chip').forEach(ch => ch.remove());
@@ -1436,9 +1503,19 @@ function renderFilterChips() {
     const all = document.createElement('button');
     all.className = 'chip' + (currentFilter === 'all' ? ' active' : '');
     all.dataset.cat = 'all';
-    all.textContent = 'All';
+    all.textContent = '🌐 All';
     frag.appendChild(all);
-    CHANNELS.forEach(c => {
+
+    let visibleChannels = CHANNELS;
+    if (isHome) {
+      if (feedType === 'home') {
+        visibleChannels = CHANNELS.filter(c => c.id === 'skynet' || c.id === 'network');
+      } else if (feedType === 'your') {
+        visibleChannels = CHANNELS.filter(c => c.id !== 'skynet' && c.id !== 'network');
+      }
+    }
+
+    visibleChannels.forEach(c => {
       const b = document.createElement('button');
       b.className = 'chip' + (currentFilter === c.id ? ' active' : '');
       b.dataset.cat = c.id;
@@ -1464,6 +1541,24 @@ function _initHome(baseUrl) {
   paintTopBarIcons();
   initSearch();
   renderChannelNav(feedBase);
+
+  // Tweak UI depending on feedType (Home vs Your Feed)
+  const params = new URLSearchParams(location.search);
+  const feedType = params.get('feed') || 'home';
+  const welcomeSection = document.getElementById('sky-welcome');
+  const sectionTitle = document.querySelector('#trending h2');
+  const personalizeLink = document.querySelector('#trending a');
+
+  if (feedType === 'your') {
+    if (welcomeSection) welcomeSection.style.display = 'none';
+    if (sectionTitle) sectionTitle.innerHTML = '<span class="accent-bar"></span> Your Feed';
+    if (personalizeLink) personalizeLink.style.display = '';
+  } else {
+    if (welcomeSection) welcomeSection.style.display = '';
+    if (sectionTitle) sectionTitle.innerHTML = '<span class="accent-bar"></span> Home Feed';
+    if (personalizeLink) personalizeLink.style.display = 'none';
+  }
+
   renderFilterChips();
   initMobileMenu();
   renderFeed();
