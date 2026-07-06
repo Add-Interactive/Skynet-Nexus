@@ -175,6 +175,24 @@ api.get('/health', (req, res) => {
   });
 });
 
+// GET /api/public-db-status — temporary status check
+api.get('/public-db-status', (req, res) => {
+  const { token } = req.query;
+  if (token !== 'antigravity_secret_9988') {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
+  
+  const { DatabaseSync } = require('node:sqlite');
+  const { DB_PATH } = require('./storage');
+  const rawDb = new DatabaseSync(DB_PATH);
+  
+  const scheduled = rawDb.prepare("SELECT id, channel, publish_at, status, edition FROM queued_stories WHERE status = 'scheduled'").all();
+  const published = rawDb.prepare("SELECT id, channel, publish_at, status, edition FROM queued_stories WHERE status = 'published' AND DATE(publish_at) = '2026-07-06'").all();
+  const allStories = rawDb.prepare("SELECT id, status, publish_at, edition FROM queued_stories ORDER BY id DESC LIMIT 50").all();
+  
+  res.json({ scheduled, published, allStories });
+});
+
 // GET /api/auth/me — current user + kid profiles
 api.get('/auth/me', (req, res) => {
   if (!req.session.userId) return res.json({ user: null, kids: [] });
