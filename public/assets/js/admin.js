@@ -1227,7 +1227,7 @@
             '<div style="display:flex; gap:10px;">' +
               '<button id="btn-toggle-batch" class="admin-btn">Toggle Selection Mode</button>' +
               '<button id="btn-delete-selected" class="admin-btn admin-btn-danger" style="display:none">🗑️ Delete Selected</button>' +
-              '<input type="file" id="image-upload-file" accept="image/jpeg,image/png" multiple style="display:none">' +
+              '<input type="file" id="image-upload-file" accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml" multiple style="display:none">' +
               '<button id="btn-trigger-upload" class="admin-btn admin-btn-primary">📤 Upload Image(s)</button>' +
             '</div>' +
           '</div>' +

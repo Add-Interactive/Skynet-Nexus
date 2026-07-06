@@ -822,7 +822,7 @@ router.get('/images/list', (req, res) => {
       dirs.forEach(ch => {
         const fullPath = path.join(dir, ch);
         if (fs.statSync(fullPath).isDirectory()) {
-          const files = fs.readdirSync(fullPath).filter(f => f.endsWith('.jpg') || f.endsWith('.png'));
+          const files = fs.readdirSync(fullPath).filter(f => /\.(jpe?g|png|webp|gif|svg)$/i.test(f));
           result[ch] = files;
         }
       });
@@ -850,14 +850,14 @@ router.post('/images/upload', (req, res) => {
     fs.mkdirSync(dir, { recursive: true });
     
     let ext = '.jpg';
-    const extMatch = filename.match(/\.(jpe?g|png)$/i);
+    const extMatch = filename.match(/\.(jpe?g|png|webp|gif|svg)$/i);
     if (extMatch) ext = extMatch[0].toLowerCase();
     
     let targetName = '';
     
     if (customName && customName.trim()) {
       let cleanCustom = customName.trim().replace(/[^a-zA-Z0-9_\.-]/g, '_');
-      if (!cleanCustom.endsWith('.jpg') && !cleanCustom.endsWith('.jpeg') && !cleanCustom.endsWith('.png')) {
+      if (!/\.(jpe?g|png|webp|gif|svg)$/i.test(cleanCustom)) {
         cleanCustom += ext;
       }
       targetName = cleanCustom;
@@ -865,7 +865,7 @@ router.post('/images/upload', (req, res) => {
       const files = fs.readdirSync(dir);
       const numbers = new Set();
       files.forEach(f => {
-        const m = f.match(/^(\d+)\.(jpe?g|png)$/i);
+        const m = f.match(/^(\d+)\.(jpe?g|png|webp|gif|svg)$/i);
         if (m) {
           const num = parseInt(m[1], 10);
           if (num >= 1 && num <= 100) {

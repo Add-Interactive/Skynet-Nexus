@@ -1006,7 +1006,7 @@ function openPublicImagePicker(channel, currentImageUrl, onSelect) {
   
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
-  fileInput.accept = 'image/jpeg,image/png';
+  fileInput.accept = 'image/jpeg,image/png,image/webp,image/gif,image/svg+xml';
   fileInput.style.display = 'none';
   
   const uploadBtn = document.createElement('button');
