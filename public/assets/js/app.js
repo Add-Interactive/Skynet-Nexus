@@ -1043,8 +1043,8 @@ function renderTicker() {
     .map(a => ({ label: categoryLabel(a.cat).toUpperCase(), text: a.title }));
   if (!items.length) items = TICKER_FALLBACK;
   
-  // Prepend the 4th of July message!
-  items.unshift({ label: 'CELEBRATION', text: 'Happy 4th of July 250th Birthday!' });
+  // Prepend the latest network update message!
+  items.unshift({ label: 'UPDATE', text: 'Skynet Nexus goes live with three daily drops at 10:15 AM, 2:15 PM, and 6:15 PM ET!' });
 
   // duplicate for seamless scroll
   const html = items.concat(items).map(t =>
