@@ -1,5 +1,7 @@
 # Skynet Nexus News
 
+![Skynet Nexus Newsroom Banner](public/assets/img/skynet_newsroom_banner.jpg)
+
 A **family-first daily news network** for readers ages 5–50. Real youth achievement in STEM, robotics, play & design, and music — designed so parents and kids can read together at the kitchen table.
 
 Built as a **Node.js Express app** serving a static site + JSON API + SQLite-backed accounts. Runs on Railway (or any Node 22+ host).
