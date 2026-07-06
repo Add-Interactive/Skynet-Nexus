@@ -1231,6 +1231,9 @@
               '<button id="btn-trigger-upload" class="admin-btn admin-btn-primary">📤 Upload Image(s)</button>' +
             '</div>' +
           '</div>' +
+          '<div style="margin-bottom:18px;">' +
+            '<input type="text" id="gallery-search" placeholder="🔍 Search images by filename..." class="admin-input" style="width:100%; max-width:360px; padding:8px 12px; font-size:13px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-alt); color: var(--text);">' +
+          '</div>' +
           '<div class="admin-image-grid" id="gallery-grid"></div>' +
         '</div>'
       );
@@ -1240,6 +1243,19 @@
       
       var toggleBatchBtn = box.querySelector('#btn-toggle-batch');
       var deleteSelectedBtn = box.querySelector('#btn-delete-selected');
+      var searchInput = box.querySelector('#gallery-search');
+      
+      searchInput.addEventListener('input', function (e) {
+        var query = e.target.value.toLowerCase().trim();
+        box.querySelectorAll('.admin-image-card').forEach(function (card) {
+          var name = card.dataset.filename.toLowerCase();
+          if (name.indexOf(query) > -1) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
       
       toggleBatchBtn.addEventListener('click', function () {
         batchMode = !batchMode;
@@ -1251,6 +1267,9 @@
         
         box.querySelectorAll('.admin-image-card').forEach(function (c) {
           c.classList.remove('selected');
+        });
+        box.querySelectorAll('.admin-card-actions').forEach(function (el) {
+          el.style.display = batchMode ? 'none' : 'flex';
         });
       });
       
@@ -1287,11 +1306,21 @@
         files.forEach(function (filename) {
           var imgUrl = '/assets/img/channels/' + activeChannel + '/' + filename;
           var card = h(
-            '<div class="admin-image-card">' +
+            '<div class="admin-image-card" data-filename="' + esc(filename) + '">' +
               '<img src="' + imgUrl + '" class="admin-image-thumb" loading="lazy">' +
-              '<div class="admin-image-info">' + esc(filename) + '</div>' +
+              '<div class="admin-image-info">' +
+                '<div class="filename-text" style="font-weight:600; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; margin-bottom:4px;" title="' + esc(filename) + '">' + esc(filename) + '</div>' +
+                '<div class="admin-card-actions" style="display:flex; gap:6px; font-size:11px; margin-top:2px; flex-wrap:wrap;">' +
+                  '<button class="action-btn btn-rename" style="background:none; border:none; color:var(--accent); cursor:pointer; padding:0; font-size:11px;">✏️ Rename</button>' +
+                  '<span style="color:var(--border)">|</span>' +
+                  '<button class="action-btn btn-move" style="background:none; border:none; color:var(--accent-3); cursor:pointer; padding:0; font-size:11px;">🔄 Move</button>' +
+                  '<span style="color:var(--border)">|</span>' +
+                  '<button class="action-btn btn-delete" style="background:none; border:none; color:#ff5555; cursor:pointer; padding:0; font-size:11px;">🗑️ Delete</button>' +
+                '</div>' +
+              '</div>' +
             '</div>'
           );
+          
           card.addEventListener('click', function () {
             if (batchMode) {
               var idx = selectedFiles.indexOf(filename);
@@ -1309,6 +1338,74 @@
               });
             }
           });
+          
+          card.querySelector('.btn-rename').addEventListener('click', function (ev) {
+            ev.stopPropagation();
+            var newName = prompt('Enter a new filename/number for this image:', filename);
+            if (!newName || newName.trim() === filename) return;
+            
+            api('/images/rename', {
+              method: 'POST',
+              body: {
+                channel: activeChannel,
+                oldFilename: filename,
+                newFilename: newName
+              }
+            }).then(function (r) {
+              toast('Successfully renamed image to ' + r.filename + '!');
+              refreshImages();
+            }).catch(function (err) {
+              alert(err.message);
+            });
+          });
+
+          card.querySelector('.btn-move').addEventListener('click', function (ev) {
+            ev.stopPropagation();
+            var listHtml = Object.keys(channelLabels)
+              .filter(function (ch) { return ch !== activeChannel; })
+              .map(function (ch) { return ch.toUpperCase(); })
+              .join(', ');
+            var target = prompt('Enter destination channel name (choose from: ' + listHtml + '):');
+            if (!target) return;
+            target = target.toLowerCase().trim();
+            if (!channelLabels[target]) {
+              alert('Invalid channel name.');
+              return;
+            }
+            
+            api('/images/move', {
+              method: 'POST',
+              body: {
+                sourceChannel: activeChannel,
+                targetChannel: target,
+                filename: filename
+              }
+            }).then(function () {
+              toast('Successfully moved image to ' + target.toUpperCase() + '!');
+              refreshImages();
+            }).catch(function (err) {
+              alert(err.message);
+            });
+          });
+
+          card.querySelector('.btn-delete').addEventListener('click', function (ev) {
+            ev.stopPropagation();
+            if (!confirm('Are you sure you want to permanently delete ' + filename + '?')) return;
+            
+            api('/images/delete-batch', {
+              method: 'POST',
+              body: {
+                channel: activeChannel,
+                filenames: [filename]
+              }
+            }).then(function () {
+              toast('Successfully deleted image!');
+              refreshImages();
+            }).catch(function (err) {
+              alert(err.message);
+            });
+          });
+          
           grid.appendChild(card);
         });
       }

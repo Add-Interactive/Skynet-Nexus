@@ -935,6 +935,81 @@ router.post('/images/delete-batch', (req, res) => {
   }
 });
 
+// POST /admin/images/rename — rename a file in a channel's pool
+router.post('/images/rename', (req, res) => {
+  try {
+    const { channel, oldFilename, newFilename } = req.body;
+    if (!channel || !oldFilename || !newFilename) {
+      return res.status(400).json({ error: 'Missing channel, oldFilename, or newFilename.' });
+    }
+
+    const validCats = ['skynet', 'ai', 'space', 'robotics', 'biotech', 'quantum', 'climate', 'engineering', 'math', 'cyber', 'gaming', 'music', 'stem', 'play', 'network'];
+    if (!validCats.includes(channel)) {
+      return res.status(400).json({ error: 'Invalid channel.' });
+    }
+
+    const dir = path.join(ROOT, 'public', 'assets', 'img', 'channels', channel);
+    const oldPath = path.join(dir, oldFilename.replace(/[^a-zA-Z0-9_\.-]/g, '_'));
+    let cleanNew = newFilename.trim().replace(/[^a-zA-Z0-9_\.-]/g, '_');
+
+    const extMatch = oldFilename.match(/\.(jpe?g|png|webp|gif|svg)$/i);
+    if (extMatch && !/\.(jpe?g|png|webp|gif|svg)$/i.test(cleanNew)) {
+      cleanNew += extMatch[0].toLowerCase();
+    }
+
+    const newPath = path.join(dir, cleanNew);
+
+    if (!fs.existsSync(oldPath)) {
+      return res.status(404).json({ error: 'Source file does not exist.' });
+    }
+    if (fs.existsSync(newPath)) {
+      return res.status(400).json({ error: 'A file with that name already exists in this pool.' });
+    }
+
+    fs.renameSync(oldPath, newPath);
+    logAction(req.adminUser.id, 'images.rename', 'system', null, { channel, oldFilename, newFilename: cleanNew });
+    res.json({ ok: true, filename: cleanNew });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/images/move — move a file from one channel pool to another
+router.post('/images/move', (req, res) => {
+  try {
+    const { sourceChannel, targetChannel, filename } = req.body;
+    if (!sourceChannel || !targetChannel || !filename) {
+      return res.status(400).json({ error: 'Missing sourceChannel, targetChannel, or filename.' });
+    }
+
+    const validCats = ['skynet', 'ai', 'space', 'robotics', 'biotech', 'quantum', 'climate', 'engineering', 'math', 'cyber', 'gaming', 'music', 'stem', 'play', 'network'];
+    if (!validCats.includes(sourceChannel) || !validCats.includes(targetChannel)) {
+      return res.status(400).json({ error: 'Invalid channels.' });
+    }
+
+    const sourceDir = path.join(ROOT, 'public', 'assets', 'img', 'channels', sourceChannel);
+    const targetDir = path.join(ROOT, 'public', 'assets', 'img', 'channels', targetChannel);
+    fs.mkdirSync(targetDir, { recursive: true });
+
+    const cleanName = filename.replace(/[^a-zA-Z0-9_\.-]/g, '_');
+    const sourcePath = path.join(sourceDir, cleanName);
+    const targetPath = path.join(targetDir, cleanName);
+
+    if (!fs.existsSync(sourcePath)) {
+      return res.status(404).json({ error: 'Source file does not exist.' });
+    }
+    if (fs.existsSync(targetPath)) {
+      return res.status(400).json({ error: 'A file with that name already exists in target channel pool.' });
+    }
+
+    fs.renameSync(sourcePath, targetPath);
+    logAction(req.adminUser.id, 'images.move', 'system', null, { filename: cleanName, source: sourceChannel, target: targetChannel });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // PATCH /admin/stories/published/:id — edit published post payload & sync to disk JSON + manifest
 router.patch('/stories/published/:id', (req, res) => {
   try {
