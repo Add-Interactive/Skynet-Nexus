@@ -1322,9 +1322,20 @@
         if (!filesList.length) return;
         
         uploadBtn.disabled = true;
+        
+        var customName = null;
+        if (filesList.length === 1) {
+          customName = prompt("Enter a number or name for this image (e.g. '5' to save as '5.jpg' in pool 1-100).\nLeave blank to auto-assign the next available number (1-100):");
+          if (customName === null) {
+            uploadBtn.disabled = false;
+            fileInput.value = '';
+            return;
+          }
+        }
+        
         var uploadIndex = 0;
         
-        function uploadNext() {
+        function uploadNext(overwrite) {
           if (uploadIndex >= filesList.length) {
             toast('Successfully uploaded ' + filesList.length + ' images!');
             refreshImages();
@@ -1341,9 +1352,20 @@
               body: {
                 channel: activeChannel,
                 filename: file.name,
-                base64: evt.target.result
+                base64: evt.target.result,
+                customName: filesList.length === 1 ? customName : null,
+                overwrite: !!overwrite
               }
-            }).then(function () {
+            }).then(function (r) {
+              if (r && r.conflict) {
+                if (confirm("An image named '" + r.filename + "' already exists in this pool. Overwrite it?")) {
+                  uploadNext(true);
+                } else {
+                  uploadBtn.disabled = false;
+                  uploadBtn.textContent = '📤 Upload Image(s)';
+                }
+                return;
+              }
               uploadIndex++;
               uploadNext();
             }).catch(function (err) {

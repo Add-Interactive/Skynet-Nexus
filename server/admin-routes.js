@@ -833,10 +833,10 @@ router.get('/images/list', (req, res) => {
   }
 });
 
-// POST /admin/images/upload — upload new base64 image to specific channel folder
+// POST /admin/images/upload — upload new base64 image with custom/auto-naming up to 100
 router.post('/images/upload', (req, res) => {
   try {
-    const { channel, filename, base64 } = req.body;
+    const { channel, filename, base64, customName, overwrite } = req.body;
     if (!channel || !filename || !base64) {
       return res.status(400).json({ error: 'Missing channel, filename, or base64.' });
     }
@@ -846,17 +846,58 @@ router.post('/images/upload', (req, res) => {
       return res.status(400).json({ error: 'Invalid channel name.' });
     }
     
-    const cleanName = filename.replace(/[^a-zA-Z0-9_\.-]/g, '_');
     const dir = path.join(ROOT, 'public', 'assets', 'img', 'channels', channel);
     fs.mkdirSync(dir, { recursive: true });
     
-    const filePath = path.join(dir, cleanName);
+    let ext = '.jpg';
+    const extMatch = filename.match(/\.(jpe?g|png)$/i);
+    if (extMatch) ext = extMatch[0].toLowerCase();
+    
+    let targetName = '';
+    
+    if (customName && customName.trim()) {
+      let cleanCustom = customName.trim().replace(/[^a-zA-Z0-9_\.-]/g, '_');
+      if (!cleanCustom.endsWith('.jpg') && !cleanCustom.endsWith('.jpeg') && !cleanCustom.endsWith('.png')) {
+        cleanCustom += ext;
+      }
+      targetName = cleanCustom;
+    } else {
+      const files = fs.readdirSync(dir);
+      const numbers = new Set();
+      files.forEach(f => {
+        const m = f.match(/^(\d+)\.(jpe?g|png)$/i);
+        if (m) {
+          const num = parseInt(m[1], 10);
+          if (num >= 1 && num <= 100) {
+            numbers.add(num);
+          }
+        }
+      });
+      
+      let nextNum = 1;
+      while (nextNum <= 100 && numbers.has(nextNum)) {
+        nextNum++;
+      }
+      
+      if (nextNum > 100) {
+        return res.status(400).json({ error: 'Pool is full! Capped at 100 images per channel.' });
+      }
+      
+      targetName = nextNum + ext;
+    }
+    
+    const filePath = path.join(dir, targetName);
+    
+    if (fs.existsSync(filePath) && !overwrite) {
+      return res.json({ conflict: true, filename: targetName });
+    }
+    
     const dataStr = base64.replace(/^data:image\/\w+;base64,/, '');
     const buffer = Buffer.from(dataStr, 'base64');
     
     fs.writeFileSync(filePath, buffer);
     console.log(`[admin-routes] Saved uploaded image to: ${filePath}`);
-    res.json({ ok: true, path: `/assets/img/channels/${channel}/${cleanName}` });
+    res.json({ ok: true, path: `/assets/img/channels/${channel}/${targetName}`, filename: targetName });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
