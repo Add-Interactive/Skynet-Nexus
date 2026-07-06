@@ -130,27 +130,72 @@ The publish script:
 
 To git-commit + deploy after publishing, `git add data/ && git commit -m "publish YYYY-MM-DD" && git push`. Railway auto-redeploys on push.
 
-## Editorial mission
+## Editorial Mission
 
 - **Family-first, always.** Content is written for 5-year-olds reading with 50-year-old parents.
 - **Every article has three sections designed for co-reading:**
-  1. Full story for adults + older kids
-  2. **Kid Take** — 2-3 sentences at ~age 8 reading level
-  3. **Family Discussion** — 2-3 questions to talk about together
+  1. Full story for adults + older kids.
+  2. **Kid Take** — 2-3 sentences at ~age 8 reading level.
+  3. **Family Discussion** — 2-3 questions to talk about together.
 - **No mainstream news outlets, no politics, no violence.** Primary sources only (universities, competition organizers, NASA, NSF, artist pages).
 - **Free forever.** No paywall, no ads targeted at kids, no dark patterns.
 
-## Automated daily edition
+---
 
-Daily at **10:00 AM Eastern**, the OpenClaw cron job spawns four correspondent sub-agents:
-- **STEM** — young scientists, aerospace, science fair winners
-- **Robotics** — FIRST, VEX, BEST, RoboCup Junior student teams
-- **Play & Design** — Scratch, Minecraft Education, Roblox creators, chess prodigies, scholastic esports
-- **Music** — YoungArts, All-State, teen songwriters, Tiny Desk newcomers under 25
+## Agentic Editorial Setup (Antigravity Desk)
 
-Each correspondent researches (Brave Search), writes their story, and files JSON. `publish.js` validates against kid-safe schema, adds to manifest, git-commits, pushes. Railway redeploys.
+Skynet Nexus News operates as an **autonomous publisher orchestration pipeline** where the user is the **only human editor-in-chief**, and all other staff and writers are automated sub-agents. 
 
-**Status:** Live and publishing daily since 2026-07-02.
+### 1. The Autonomous Newsroom Core
+* **Main Orchestrator Agent (Antigravity / OpenClaw):** Coordinates the sub-agents, structures daily cron routines, validates schema guardrails, and deploys updates.
+* **Specialized AI Correspondents (Sub-Agents):**
+  * **AI & Machine Learning** (Dr. Nova Sterling) — Tracks neural networks, LLM models, and computing breakthroughs.
+  * **Robotics & Automation** (Jax Henderson) — Covers student robotics leagues (FIRST, VEX, RoboCup Jr).
+  * **Climate & Energy** (Terra Green) — Reports on green technology, renewables, and student ecology initiatives.
+  * **Cybersecurity & Coding** (Cipher Crypt) — Investigates privacy extensions, open-source code, and cryptography.
+  * **Space & Aerospace** (Dr. Orion Atlas) — Monitors model cubesat launches, NASA student challenges, and astrophysics.
+  * **STEM Innovation** (Adara Matrix) — Highlights youth science fairs, molecular biology, and high school research.
+  * **Creative Play & Design** (Leo Pixel) — Chronicles Minecraft Education, Roblox developers, and scholastic chess.
+  * **Music & Performance** (Aria Harmony) — Showcases All-State orchestras, YoungArts, and bedroom songwriters.
+
+---
+
+## The 3-Daily Drops Cadence & Custom Drop Manager
+
+Instead of a single daily paper, Skynet Nexus News drops **three scheduled editions every day** at the following Eastern times:
+1. **Morning Drop** (10:15 AM ET / 14:15 UTC)
+2. **Midday Drop** (2:15 PM ET / 18:15 UTC)
+3. **Evening Drop** (6:15 PM ET / 22:15 UTC)
+
+### Antigravity Custom Drop Scheduler:
+Under `/pages/admin.html` (accessible by authenticated admins), the **Antigravity Desk** features a flexible dropdown drop manager. You can:
+* Target **Today** or **Tomorrow**.
+* Choose **Morning**, **Midday**, or **Evening** drop slots.
+* Click **"Schedule 13-Channel Drop"** to wipe the local queue, trigger the sub-agents to compile 13 fresh stories, and automatically write scheduled, timezone-corrected entries into the SQLite database.
+
+---
+
+## Assets & Image Rotation System
+
+To keep the homepage feeling active and fresh, we avoid duplicate images using a continuous daily image rotation:
+* **The Channel Folders:** Under `/public/assets/img/channels/[channelId]/`, we store 30 themed, high-quality sci-fi cartoon illustrations named `1.jpg` to `30.jpg`.
+* **The Prompts Library:** Inside each channel folder, a `prompts.txt` file contains **10 tailored, educational sci-fi prompts** that can be used with text-to-image AI generators to expand the folder assets.
+* **Collision-Free Mapping Algorithm:** When scheduling drops, we map the story cover image using this timezone-safe sequential formula:
+  $$\text{imgIndex} = (((\text{day} \times 3) + \text{editionOffset}) \pmod{30}) + 1$$
+  *Where:*
+  * $\text{day}$ is the calendar day of the month (1 to 31).
+  * $\text{editionOffset}$ is `0` for Morning, `1` for Midday, and `2` for Evening.
+  This guarantees that drops on the same day and drops across consecutive days will never show duplicate images.
+* **Editorial Exclusions:** Restores the custom graphic covers (`skywelcome.png` and `franklin_stem.jpg`) for the special pinned Welcome and STEM History posts.
+
+---
+
+## AGI/ASI Countdown Widget
+
+An interactive sidebar widget that counts down to artificial intelligence milestones predicted by **21 leading AI scholars, founders, and industry leaders** (e.g. Sam Altman, Elon Musk, Jensen Huang).
+* **Dynamic Hover Bio-Tooltips:** Features a fully custom dropdown interface that maps the mouse position to float a detailed background bio-card. Hovering over any predictor's name displays their credentials, company connection, and model history on top of the map layer.
+
+---
 
 ## License
 
