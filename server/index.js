@@ -176,15 +176,64 @@ api.get('/health', (req, res) => {
 });
 
 // GET /api/public-db-status — temporary status check
-api.get('/public-db-status', (req, res) => {
-  const { token } = req.query;
+api.get('/public-db-status', async (req, res) => {
+  const { token, trigger } = req.query;
   if (token !== 'antigravity_secret_9988') {
     return res.status(401).json({ error: 'unauthorized' });
   }
   
   const { DatabaseSync } = require('node:sqlite');
   const { DB_PATH, DATA_DIR } = require('./storage');
+  const { generateEmergencyDrops } = require('./antigravity-service');
+  const { releaseDue } = require('./scheduler');
   const rawDb = new DatabaseSync(DB_PATH);
+  
+  let triggered = false;
+  let count = 0;
+  
+  if (trigger === 'midday') {
+    rawDb.prepare("DELETE FROM queued_stories WHERE status != 'published'").run();
+    const genResult = generateEmergencyDrops();
+    
+    const target = new Date();
+    const year = target.getFullYear();
+    const month = String(target.getMonth() + 1).padStart(2, '0');
+    const day = String(target.getDate()).padStart(2, '0');
+    const targetDate = `${year}-${month}-${day}`;
+    
+    const timeET = `${targetDate}T14:15:00-04:00`;
+    const timeUTC = `${targetDate}T18:15:00.000Z`;
+    
+    const approvedRows = rawDb.prepare("SELECT id, payload FROM queued_stories WHERE status = 'approved'").all();
+    
+    approvedRows.forEach(row => {
+      const payload = JSON.parse(row.payload);
+      payload.date = targetDate;
+      payload.publishedAt = timeET;
+      payload.id = `${targetDate}-${payload.cat}-midday`;
+      payload.edition = 'midday';
+      
+      const dayNum = parseInt(day, 10) || 1;
+      const editionOffset = 1;
+      
+      const imgIndex = (((dayNum * 3) + editionOffset) % 30) + 1;
+      payload.heroImage = `/assets/img/channels/${payload.cat}/${imgIndex}.jpg`;
+      
+      rawDb.prepare(`
+        UPDATE queued_stories 
+           SET status = 'scheduled',
+               publish_at = ?,
+               edition = ?,
+               payload = ?,
+               updated_at = datetime('now')
+         WHERE id = ?
+      `).run(timeUTC, 'midday', JSON.stringify(payload), row.id);
+    });
+    
+    await releaseDue();
+    triggered = true;
+    count = approvedRows.length;
+  }
   
   let rootFiles = [];
   try { rootFiles = fs.readdirSync(path.dirname(DB_PATH)); } catch (e) { rootFiles = [e.message]; }
@@ -200,6 +249,8 @@ api.get('/public-db-status', (req, res) => {
   const allStories = rawDb.prepare("SELECT id, status, publish_at, edition FROM queued_stories ORDER BY id DESC LIMIT 50").all();
   
   res.json({
+    triggered,
+    count,
     dbPath: DB_PATH,
     dataDir: DATA_DIR,
     rootFiles,
