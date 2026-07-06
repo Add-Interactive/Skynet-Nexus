@@ -786,6 +786,14 @@ router.post('/antigravity/schedule-custom-drop', (req, res) => {
       payload.id = `${targetDate}-${payload.cat}-${edition}`;
       payload.edition = edition;
       
+      const dayNum = parseInt(day, 10) || 1;
+      let editionOffset = 0;
+      if (edition === 'midday') editionOffset = 1;
+      else if (edition === 'evening') editionOffset = 2;
+      
+      const imgIndex = ((dayNum - 1 + editionOffset) % 30) + 1;
+      payload.heroImage = `/assets/img/channels/${payload.cat}/${imgIndex}.jpg`;
+      
       rawDb.prepare(`
         UPDATE queued_stories 
            SET status = 'scheduled',

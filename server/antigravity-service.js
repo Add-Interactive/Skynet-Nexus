@@ -337,7 +337,7 @@ function generateEmergencyDrops() {
       title: art.title,
       subtitle: art.subtitle,
       excerpt: art.excerpt,
-      heroImage: channelImages[art.channel] || '',
+      heroImage: `/assets/img/channels/${art.channel}/${((parseInt(today.split('-')[2], 10) - 1) % 30) + 1}.jpg`,
       body: art.body,
       kidTake: art.kidTake,
       familyDiscussion: art.familyDiscussion,
