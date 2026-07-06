@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-06-engineering-emergency",
+  "slug": "engineering-emergency",
+  "cat": "engineering",
+  "categoryLabel": "Engineering & Making",
+  "title": "14-Year-Old Clara Zhang Builds Gravity-Powered Light for Power Outages",
+  "subtitle": "Middle school maker designs mechanical lantern that generates electricity from falling weights",
+  "excerpt": "Clara Zhang, 14, designed a mechanical light called GravityGlow that uses a system of gears and a slow-falling weight to provide battery-free illumination.",
+  "heroImage": "/assets/img/channels/engineering/19.jpg",
+  "body": "<p>In many parts of the world, electricity is unreliable, and batteries are expensive. To provide a dependable light source, 14-year-old Clara Zhang from Seattle, Washington, has built GravityGlow—a mechanical lantern powered completely by gravity. By raising a weight and letting it slowly fall, the device generates enough electricity to power a bright LED for twenty minutes.</p><p>Clara was inspired by reading about rural schools where students cannot study after sunset. She wanted to design a light that didn't rely on solar power, which doesn't work on rainy days, or batteries, which eventually wear out and pollute the soil.</p><p>The heart of GravityGlow is a gear system salvaging gears from old clocks. When a user lifts a bag filled with dirt or rocks, it stores potential energy. As the bag slowly descends under the pull of gravity, it spins a small generator, converting the movement into electricity. The gear ratio is designed to let the weight fall very slowly, keeping the LED glowing steadily.</p><blockquote>I wanted to use basic physics to solve a practical problem. Gravity is free, it never runs out, and it works everywhere in the world, day or night.<footer>— Clara Zhang, 14</footer></blockquote><p>Clara's design uses 3D-printed parts and recycled gears, costing about five dollars to build. She is currently working on an assembly guide to help kids in communities with unstable power grids build their own lanterns.</p>",
+  "kidTake": "A 14-year-old girl named Clara built a lamp that doesn't need batteries or plugs. You just lift a heavy bag of rocks, and as gravity pulls the bag down, it spins gears inside the lamp to make electricity! It gives you free light just from gravity.",
+  "familyDiscussion": [
+    "How is lifting a heavy object like storing energy in a battery?",
+    "Why would a gravity-powered lamp be helpful in places that have lots of storms or power outages?",
+    "What is another daily chore where we could use gravity to help do the work?"
+  ],
+  "glossary": [
+    {
+      "term": "Potential energy",
+      "meaning": "Stored energy in an object due to its position, like a heavy weight held up high before it falls."
+    },
+    {
+      "term": "Gear ratio",
+      "meaning": "The relationship between the rotation speed of two or more connected gears, used to slow down or speed up movement."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Mason Rivet",
+  "authorInit": "MR",
+  "authorRole": "Correspondent - Engineering & Making",
+  "date": "2026-07-06",
+  "publishedAt": "2026-07-06T10:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "gravity-power",
+    "mechanical-engineering",
+    "makers",
+    "battery-free"
+  ],
+  "color": "#f97316",
+  "gradient": "linear-gradient(135deg, #ffb800, #ff2e63)",
+  "emoji": "🔧",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "14-Year-Old Clara Zhang Builds Gravity-Powered Light for Power Outages Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/engineering"
+    }
+  ]
+}

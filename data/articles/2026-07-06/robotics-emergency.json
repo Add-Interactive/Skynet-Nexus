@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-06-robotics-emergency",
+  "slug": "robotics-emergency",
+  "cat": "robotics",
+  "categoryLabel": "Robotics & Automation",
+  "title": "FIRST Team Builds Assistive Robotics Arm for Libraries",
+  "subtitle": "High school students engineer 3D-printed wheelchair attachment to help retrieve books",
+  "excerpt": "FIRST Robotics Team \"Circuit Breakers\" designed a lightweight, motorized arm to assist library visitors with limited mobility.",
+  "heroImage": "/assets/img/channels/robotics/19.jpg",
+  "body": "<p>For library visitors who use wheelchairs, reaching books on high shelves can be difficult. To help solve this problem, a high school robotics team from Portland, Oregon, has engineered an assistive robotic arm. Named ShelfReach, the 3D-printed motorized arm attaches to a wheelchair and is controlled using a simple smartphone joystick, allowing users to safely retrieve books from shelves up to eight feet high.</p><p>The team, known as FRC Team 3673 \"Circuit Breakers,\" includes 18 students from local schools. They spent their off-season working on the project after volunteering at a community library and noticing that visitors frequently had to ask staff for help reaching materials.</p><p>ShelfReach is made of lightweight carbon-fiber rods and 3D-printed joints. The arm uses three electric motors powered by a rechargeable wheelchair battery. The claw is lined with soft silicone pads to securely grip books without damaging paper covers. The students spent weeks programming the arm's control software to ensure movements are slow and precise.</p><blockquote>We wanted to use our competitive robotics experience to build something that increases independence for people in our community. Seeing the arm retrieve its first book was better than winning a tournament.<footer>— Julia Martinez, 17, mechanical lead</footer></blockquote><p>The team has open-sourced the mechanical blueprints and control software, allowing other robotics clubs around the world to build ShelfReach arms for their local libraries. They are currently working with a local rehabilitation center to gather feedback from wheelchair users to improve the joystick interface.</p>",
+  "kidTake": "A high school robotics team built a cool mechanical arm that clips onto a wheelchair. Using a phone joystick, a person can move the arm to reach and pick up books from high library shelves. The students made their designs free so anyone can build one.",
+  "familyDiscussion": [
+    "Why does being able to reach things on your own make a big difference in how independent you feel?",
+    "The students used soft silicone to line the robot's claw. Why is the choice of materials important in engineering?",
+    "What is another place besides a library where a mechanical reacher arm would be helpful?"
+  ],
+  "glossary": [
+    {
+      "term": "Assistive technology",
+      "meaning": "Devices or software designed to help people with disabilities perform daily tasks more easily."
+    },
+    {
+      "term": "Open-source",
+      "meaning": "Blueprints, code, or designs that are made free for anyone to use, modify, and share."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Jax Henderson",
+  "authorInit": "JH",
+  "authorRole": "Correspondent - Robotics & Automation",
+  "date": "2026-07-06",
+  "publishedAt": "2026-07-06T10:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "assistive-tech",
+    "3d-printing",
+    "robotics-arm",
+    "outreach"
+  ],
+  "color": "#eab308",
+  "gradient": "linear-gradient(135deg, #a855f7, #ff2e63)",
+  "emoji": "🤖",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "FIRST Team Builds Assistive Robotics Arm for Libraries Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/robotics"
+    }
+  ]
+}

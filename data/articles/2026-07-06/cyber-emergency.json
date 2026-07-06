@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-06-cyber-emergency",
+  "slug": "cyber-emergency",
+  "cat": "cyber",
+  "categoryLabel": "Cybersecurity & Code",
+  "title": "High Schooler Devises DNS-Over-HTTPS Tool to Shield School WiFi",
+  "subtitle": "16-year-old programmer builds security utility to protect student search data from public snooping",
+  "excerpt": "High school programmer Leo Vance built a lightweight tool that encrypts web address requests, keeping public internet users safe from tracking.",
+  "heroImage": "/assets/img/channels/cyber/19.jpg",
+  "body": "<p>Every time you type a web address, your computer sends a request to find that site. On public networks, this data is often unencrypted, allowing hackers to see what sites you visit. To protect students, 16-year-old programmer Leo Vance from Boston, Massachusetts, has built a lightweight security tool that encrypts these requests, ensuring total privacy on shared networks.</p><p>Leo's project, named ShieldDNS, runs on a micro-computer plugged into a router. It intercepts Domain Name System (DNS) requests and wraps them in secure HTTPS encryption before sending them to the internet. This technique, known as DNS-over-HTTPS (DoH), blocks network snoopers from tracking which websites students access.</p><p>Leo got the idea after learning that public library and school WiFi networks are frequently scanned by advertising trackers to build profiles of young users. He wanted to build a simple plug-and-play device that schools could install for under thirty dollars.</p><blockquote>Privacy shouldn't be a premium feature. ShieldDNS makes it easy for schools and community centers to protect their kids from internet trackers with zero configuration.<footer>— Leo Vance, 16</footer></blockquote><p>Leo has published the ShieldDNS code on GitHub as an open-source project. He plans to work with three local youth centers this summer to deploy the hardware, securing internet traffic for hundreds of young students.</p>",
+  "kidTake": "A 16-year-old programmer named Leo built a small, inexpensive device that protects your privacy when you use public WiFi. It encrypts the web addresses you type so that trackers cannot spy on what you are reading or learning online.",
+  "familyDiscussion": [
+    "Why is it important to have privacy when we are searching for information online?",
+    "How is sending a secret message in code similar to what Leo's security device does?",
+    "What are some good safety habits you practice when using public internet networks?"
+  ],
+  "glossary": [
+    {
+      "term": "DNS",
+      "meaning": "Domain Name System: the phonebook of the internet, which translates human-readable web addresses (like google.com) into computer-readable numbers."
+    },
+    {
+      "term": "Encryption",
+      "meaning": "The process of encoding messages or information so that only authorized parties can read it."
+    }
+  ],
+  "ageBand": "10+",
+  "author": "Cipher Crypt",
+  "authorInit": "CC",
+  "authorRole": "Correspondent - Cybersecurity & Code",
+  "date": "2026-07-06",
+  "publishedAt": "2026-07-06T10:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "privacy",
+    "dns-security",
+    "encryption",
+    "open-source"
+  ],
+  "color": "#6366f1",
+  "gradient": "linear-gradient(135deg, #38bdf8, #a855f7)",
+  "emoji": "🔐",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "High Schooler Devises DNS-Over-HTTPS Tool to Shield School WiFi Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/cyber"
+    }
+  ]
+}

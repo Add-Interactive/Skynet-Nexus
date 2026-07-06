@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-06-stem-emergency",
+  "slug": "stem-emergency",
+  "cat": "stem",
+  "categoryLabel": "STEM",
+  "title": "High School Team Wins STEM Prize for Algae-Based Bio-Plastic Packaging",
+  "subtitle": "Students cultivate freshwater microalgae to create compostable packaging wrap",
+  "excerpt": "A student science team developed an algae-based packaging wrap that degrades in 14 days, providing a green alternative to plastic wrap.",
+  "heroImage": "/assets/img/channels/stem/19.jpg",
+  "body": "<p>Plastic packaging is one of the largest sources of waste in our oceans. To find a green alternative, a student science team from Seattle, Washington, has developed a compostable packaging wrap made from freshwater algae. The material is durable, waterproof, and decomposes naturally in garden soil in just two weeks, compared to hundreds of years for plastic wrap.</p><p>The project, named AlgaeWrap, was developed by three juniors—Sofia, Maya, and Kai. They began researching algae because it grows rapidly using only sunlight, water, and carbon dioxide, without needing chemical fertilizers or land used for food crops.</p><p>The students grew microalgae in plastic tubes inside their classroom. They harvested the algae and mixed it with water and a plant-based binding agent, then spread it into thin sheets to dry. The result is a flexible, clear film that behaves similarly to cling wrap.</p><blockquote>We wanted to show that bio-plastics can be made easily from natural sources. AlgaeWrap is completely natural; if it ends up in the ocean, it simply dissolves and acts as food for fish instead of polluting the water.<footer>— Sofia Rodriguez, 16</footer></blockquote><p>The team's project won first place in the environmental science division at the National STEM Fair. They are currently working with a local bakery to test AlgaeWrap on bread and pastries to evaluate how well it keeps food fresh.</p>",
+  "kidTake": "Three high school students grew green algae in their classroom and turned it into clear packaging wrap, like plastic wrap. Unlike regular plastic, this AlgaeWrap dissolves and breaks down in the soil in just two weeks, keeping trash out of our oceans.",
+  "familyDiscussion": [
+    "Why is finding an alternative to plastic wrap important for ocean animals?",
+    "AlgaeWrap dissolves in water after a long time. What kinds of products are best wrapped in AlgaeWrap?",
+    "If you were to invent a new eco-friendly material, what plant or natural substance would you use?"
+  ],
+  "glossary": [
+    {
+      "term": "Microalgae",
+      "meaning": "Microscopic algae that grow in water and perform photosynthesis, converting sunlight and carbon dioxide into energy."
+    },
+    {
+      "term": "Bioplastic",
+      "meaning": "A type of plastic made from biological substances, like plants or algae, rather than petroleum oil."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Priya Ramanathan",
+  "authorInit": "PR",
+  "authorRole": "Correspondent — STEM",
+  "date": "2026-07-06",
+  "publishedAt": "2026-07-06T10:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "bioplastic",
+    "algae",
+    "environmental-science",
+    "zero-waste"
+  ],
+  "color": "#00e5ff",
+  "gradient": "linear-gradient(135deg, #00e5ff, #a855f7)",
+  "emoji": "🧬",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "High School Team Wins STEM Prize for Algae-Based Bio-Plastic Packaging Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/stem"
+    }
+  ]
+}

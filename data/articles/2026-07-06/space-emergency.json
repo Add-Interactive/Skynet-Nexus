@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-06-space-emergency",
+  "slug": "space-emergency",
+  "cat": "space",
+  "categoryLabel": "Space & Aerospace",
+  "title": "Indiana High School Rocketry Club Launches Dual-Stage Rocket to 15,000 Feet",
+  "subtitle": "Student team designs custom carbon-fiber booster and flight computer for high-altitude launch",
+  "excerpt": "The rocketry club \"AeroDevs\" successfully launched and recovered a dual-stage rocket, capturing high-altitude atmospheric data.",
+  "heroImage": "/assets/img/channels/space/19.jpg",
+  "body": "<p>Reaching the edge of space requires precision engineering and teamwork. Last weekend, a high school rocketry club from South Bend, Indiana, demonstrated both by successfully launching a dual-stage model rocket to an altitude of 15,000 feet. The rocket, named Pathfinder II, carried a student-designed flight computer that recorded atmospheric pressure and radiation levels before returning safely under parachute.</p><p>The club, named the AeroDevs, consists of 12 students who spent nine months designing and testing the rocket. Pathfinder II is a dual-stage rocket, meaning it features two motor sections: a booster stage that launches the rocket off the pad, and a second stage that ignites mid-air once the booster is spent.</p><p>The students fabricated the rocket's body tubes from carbon-fiber sheets to keep the weight under ten pounds. They programmed the flight computer using a micro-controller, writing code that monitors altitude and fires black powder charges to deploy the parachutes at the peak of the flight.</p><blockquote>Igniting a rocket motor mid-flight is incredibly difficult. If the second stage fires even a fraction of a second late, the rocket will tilt and fly off-course. It took months of testing to get the timing perfect.<footer>— Ben Harris, 18, team lead</footer></blockquote><p>The launch took place at a commercial rocketry range in Wisconsin. Pathfinder II reached a top speed of Mach 1.2 (about 900 miles per hour) before deploying its parachute and landing two miles from the launch pad. The AeroDevs are now analyzing the collected atmospheric data and plan to submit their flight computer designs to a national amateur space contest.</p>",
+  "kidTake": "A group of high school students built a carbon-fiber rocket that launched nearly three miles into the air! The rocket had two engines that fired one after another. A tiny computer on the rocket recorded scientific data before bringing the rocket back down safely with parachutes.",
+  "familyDiscussion": [
+    "Why is it important for a rocket to deploy its parachute at the exact highest point of its flight?",
+    "The students spent nine months building a rocket that flew for just a few minutes. Why is the preparation work in science so long?",
+    "If you could send one tiny science experiment up on a student rocket, what would you want to measure?"
+  ],
+  "glossary": [
+    {
+      "term": "Dual-stage rocket",
+      "meaning": "A rocket that uses two separate engine booster sections to reach higher speeds and altitudes than a single-stage rocket."
+    },
+    {
+      "term": "Flight computer",
+      "meaning": "A small electronic brain on a rocket that monitors sensors and triggers events, like opening parachutes at the right time."
+    }
+  ],
+  "ageBand": "10+",
+  "author": "Commander Leo Vance",
+  "authorInit": "CL",
+  "authorRole": "Correspondent - Space & Aerospace",
+  "date": "2026-07-06",
+  "publishedAt": "2026-07-06T10:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "rocketry",
+    "flight-computer",
+    "aerospace",
+    "high-altitude"
+  ],
+  "color": "#3b82f6",
+  "gradient": "linear-gradient(135deg, #7c5cff, #00e5ff)",
+  "emoji": "🚀",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "Indiana High School Rocketry Club Launches Dual-Stage Rocket to 15,000 Feet Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/space"
+    }
+  ]
+}

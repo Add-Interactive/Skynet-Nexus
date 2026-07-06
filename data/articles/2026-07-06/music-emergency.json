@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-06-music-emergency",
+  "slug": "music-emergency",
+  "cat": "music",
+  "categoryLabel": "Music & Festivals",
+  "title": "Teen Violinist Marcus Chen Wins International Paganini Prize in Genoa",
+  "subtitle": "15-year-old virtuoso earns top honors at prestigious classical music competition in Italy",
+  "excerpt": "Marcus Chen, 15, won first place at the international Paganini Competition, performing challenging violin caprices with stunning technique.",
+  "heroImage": "/assets/img/channels/music/19.jpg",
+  "body": "<p>The Paganini Violin Competition in Genoa, Italy, is legendary for being one of the most difficult classical music contests in the world. This year, the top honor went to 15-year-old Marcus Chen from San Francisco, California. Marcus became one of the youngest winners in the competition's history, performing Niccolò Paganini's notoriously difficult Caprices with flawless technique and emotional depth.</p><p>Marcus began playing the violin at age four. To prepare for the competition, he practiced up to six hours a day, studying both the mechanical difficulty of the pieces and the history of how they were composed. Paganini's works are famous for requiring complex techniques like left-hand pizzicato (plucking strings with the left hand) and double-stops (playing two notes at once).</p><p>During the final round, Marcus performed alongside the Genoa Opera Orchestra, playing Paganini's Violin Concerto No. 1. The audience gave him a five-minute standing ovation, and the international jury awarded him first prize, which includes a cash award and the chance to perform on Paganini's personal 1743 Guarneri violin, nicknamed \"il Cannone\" (the Cannon).</p><blockquote>Playing on Paganini's actual violin was an indescribable feeling. You can feel the history inside the wood. I wanted to bring out the joy in his music, not just play the difficult notes.<footer>— Marcus Chen, 15</footer></blockquote><p>Marcus plans to continue his studies at the conservatory while performing as a guest soloist with symphonies around the world. He hopes to introduce classical violin music to younger audiences through school workshops.</p>",
+  "kidTake": "A 15-year-old boy named Marcus won one of the hardest violin contests in the world! He played in Italy with a full orchestra and won first place. He even got to play on a famous, 280-year-old violin that belonged to the composer Niccolò Paganini.",
+  "familyDiscussion": [
+    "Marcus practiced for six hours a day to get ready. What is something you enjoy enough to practice for a long time?",
+    "How does listening to classical music make you feel compared to modern pop music?",
+    "Why do you think some old musical instruments are considered historical treasures?"
+  ],
+  "glossary": [
+    {
+      "term": "Virtuoso",
+      "meaning": "A person who is highly skilled in music or another artistic pursuit."
+    },
+    {
+      "term": "Pizzicato",
+      "meaning": "A playing technique that involves plucking the strings of a string instrument with the fingers instead of using the bow."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Aria Harmony",
+  "authorInit": "AH",
+  "authorRole": "Correspondent - Music & Festivals",
+  "date": "2026-07-06",
+  "publishedAt": "2026-07-06T10:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "violin",
+    "classical-music",
+    "paganini",
+    "music-competition"
+  ],
+  "color": "#ec4899",
+  "gradient": "linear-gradient(135deg, #ff2e63, #ffb800)",
+  "emoji": "🎧",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "Teen Violinist Marcus Chen Wins International Paganini Prize in Genoa Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/music"
+    }
+  ]
+}

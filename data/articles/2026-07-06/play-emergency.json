@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-06-play-emergency",
+  "slug": "play-emergency",
+  "cat": "play",
+  "categoryLabel": "Play & Design",
+  "title": "Roblox Adventure Game Teaches Kids Wilderness Survival Skills",
+  "subtitle": "Teen developers build popular multiplayer game simulating shelter construction and foraging",
+  "excerpt": "A team of three high school game designers built \"Wild Survival\" on Roblox, attracting over 200,000 players with realistic outdoor simulation.",
+  "heroImage": "/assets/img/channels/play/19.jpg",
+  "body": "<p>Can playing video games help you survive in the wilderness? A team of three high school game designers from Denver, Colorado, believes so. They have built \"Wild Survival,\" an adventure game on the Roblox platform that teaches players real-world survival skills, like building windproof shelters, filtering muddy water, and identifying edible plants.</p><p>The developers—16-year-old Chloe Martinez, her brother Liam, and classmate Sam—are avid scouts who spend their summers backpacking. During the winter, they decided to combine their love of the outdoors with game programming. They noticed that many survival games are unrealistic, so they focused on real physics and biology.</p><p>In \"Wild Survival,\" players must manage their body temperature, hydration, and energy. To build a shelter, they must gather branches and angle them against the wind. To find food, they must inspect forest plants; eating the wrong berry causes their character's energy to drop. The game features realistic weather cycles, forcing players to adapt to sudden rainstorms and cold nights.</p><blockquote>We wanted to make a game that is fun but teaches actual skills. If you know how to build a debris shelter in our game, you know the basic steps of how to build one in a real forest.<footer>— Chloe Martinez, 16</footer></blockquote><p>Since its launch, \"Wild Survival\" has been played by over 200,000 users. The team is currently designing a new update that teaches wilderness navigation using a map and compass.</p>",
+  "kidTake": "Three teenagers built a popular game on Roblox where you learn how to survive in the forest. Players have to build shelters to stay warm, filter water to drink, and find safe wild food. The game teaches real scouting skills while you play with friends.",
+  "familyDiscussion": [
+    "If you were lost in a forest, what is the very first thing you would need to do to stay safe?",
+    "Why is a video game a good way to practice skills that might be scary to try in real life?",
+    "What other real-world hobby would make a great simulator game?"
+  ],
+  "glossary": [
+    {
+      "term": "Foraging",
+      "meaning": "Searching wild areas for food, plants, or provisions."
+    },
+    {
+      "term": "Simulation game",
+      "meaning": "A video game category designed to closely copy or mimic real-world activities and environments."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Amara Okafor",
+  "authorInit": "AO",
+  "authorRole": "Correspondent — Play & Design",
+  "date": "2026-07-06",
+  "publishedAt": "2026-07-06T10:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "roblox",
+    "survival-skills",
+    "game-design",
+    "scouting"
+  ],
+  "color": "#39ff14",
+  "gradient": "linear-gradient(135deg, #39ff14, #00e5ff)",
+  "emoji": "🎨",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "Roblox Adventure Game Teaches Kids Wilderness Survival Skills Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/play"
+    }
+  ]
+}

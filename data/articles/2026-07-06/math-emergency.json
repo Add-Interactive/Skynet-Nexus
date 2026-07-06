@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-06-math-emergency",
+  "slug": "math-emergency",
+  "cat": "math",
+  "categoryLabel": "Math & Data Science",
+  "title": "Undergrad Math Team Solves Longstanding Grid Congestion Problem",
+  "subtitle": "Student researchers use graph theory to optimize electricity distribution across power networks",
+  "excerpt": "A team of three undergraduate mathematicians designed an algorithm that reduces electrical grid overload risks using network graph theory.",
+  "heroImage": "/assets/img/channels/math/19.jpg",
+  "body": "<p>As cities grow, electrical grids can become overloaded, leading to blackouts. To prevent these failures, a team of three undergraduate math students from Chicago has developed a new optimization model. Using graph theory—the study of points and connecting lines—the team designed an algorithm that routes electricity more efficiently, preventing congestion on high-voltage power lines.</p><p>The team, led by 19-year-old Priya Patel, began looking at power grids after a heatwave caused blackouts in their city. They realized that routing electricity is similar to managing traffic on a highway system. If too many generators send power through the same power line, it overheats and shuts down.</p><p>The students modeled the electrical grid as a mathematical graph, where cities and generators are \"nodes\" and power lines are \"edges.\" They wrote an algorithm that dynamically recalculates the optimal path for electricity based on real-time demand. The model adapts instantly if a power line fails, rerouting energy before a chain reaction triggers a larger blackout.</p><blockquote>We used pure mathematics to solve a hardware problem. By routing power along the paths of least resistance mathematically, we can make the existing grid much safer.<footer>— Priya Patel, 19</footer></blockquote><p>The team's algorithm was presented at an engineering conference, where utility operators noted it could help integrate renewable energy sources, like wind and solar, which produce variable power and stress older grids. The team is now testing their model on a simulated scale model of Illinois' electrical grid.</p>",
+  "kidTake": "A team of young mathematicians used math puzzles called graphs to find a better way to send electricity through power lines. Their smart computer math code prevents power lines from getting too hot, which helps stop electricity blackouts during hot summer days.",
+  "familyDiscussion": [
+    "How is sending electricity through a grid similar to cars driving on roads during rush hour?",
+    "Why is it helpful to test new ideas on a computer simulation before trying them in real life?",
+    "How does math help solve everyday problems that seem like engineering problems?"
+  ],
+  "glossary": [
+    {
+      "term": "Graph theory",
+      "meaning": "A branch of mathematics that studies networks of points (called nodes) connected by lines (called edges)."
+    },
+    {
+      "term": "Grid overload",
+      "meaning": "When too much electrical current flows through a power line or transformer, causing it to overheat and fail."
+    }
+  ],
+  "ageBand": "12+",
+  "author": "Adara Matrix",
+  "authorInit": "AM",
+  "authorRole": "Correspondent - Math & Data Science",
+  "date": "2026-07-06",
+  "publishedAt": "2026-07-06T10:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "mathematics",
+    "graph-theory",
+    "power-grid",
+    "optimization"
+  ],
+  "color": "#ef4444",
+  "gradient": "linear-gradient(135deg, #f472b6, #a855f7)",
+  "emoji": "📐",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "Undergrad Math Team Solves Longstanding Grid Congestion Problem Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/math"
+    }
+  ]
+}

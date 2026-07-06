@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-06-ai-emergency",
+  "slug": "ai-emergency",
+  "cat": "ai",
+  "categoryLabel": "AI & Machine Learning",
+  "title": "15-Year-Old Tara Sullivan Builds AI to Help Farmers Spot Crop Diseases Early",
+  "subtitle": "High school sophomore trains neural network on leaf photographs to identify plant stress",
+  "excerpt": "Tara Sullivan, 15, developed a mobile app called LeafScan AI that helps local farmers identify crop diseases in seconds, protecting food supplies.",
+  "heroImage": "/assets/img/channels/ai/19.jpg",
+  "body": "<p>Protecting crops from diseases is one of the oldest challenges in farming. Now, 15-year-old Tara Sullivan from Ames, Iowa, has developed a modern solution using artificial intelligence. She built a mobile app named LeafScan AI that allows farmers to take a picture of a plant leaf and instantly diagnose whether the crop is sick, hours before visible signs of damage spread across the fields.</p><p>Tara, who grew up visiting her grandparents' soybean farm, saw how quickly crop blight could destroy a season's harvest. She realized that while experienced farmers can spot diseases, it often takes too long to inspect every row. Tara wondered if a computer vision model could do the work automatically.</p><p>Using a database of over 20,000 images of healthy and diseased plant leaves, Tara trained a neural network to recognize subtle patterns in leaf discoloration, spots, and shape changes. She spent her weekends fine-tuning the model to ensure it could work under different lighting conditions, such as bright sunlight or morning shadows.</p><blockquote>I wanted to build something practical that farmers could use right in the field without needing an internet connection. If we can catch these plant diseases early, we can save tons of food.<footer>— Tara Sullivan, 15</footer></blockquote><p>In field tests, LeafScan AI achieved a 93 percent accuracy rate in detecting common crop diseases like leaf rust and bacterial blight. The app runs completely on-device, meaning farmers do not need cell service to use it. Tara has shared her app with local farmers and plans to expand the database to include fruit orchards this summer.</p>",
+  "kidTake": "A 15-year-old girl named Tara built a smart phone app that helps farmers keep their crops healthy. Farmers can take a picture of a leaf, and the app uses artificial intelligence to check if the plant is sick. This helps farmers save their crops and grow more food.",
+  "familyDiscussion": [
+    "If you could build a phone app to help someone in your family with their job, what would it do?",
+    "Why is growing healthy food important for everyone around the world?",
+    "How do you think a computer can learn to recognize different patterns in pictures?"
+  ],
+  "glossary": [
+    {
+      "term": "Computer vision",
+      "meaning": "A field of artificial intelligence that trains computers to interpret and understand the visual world, like photos and videos."
+    },
+    {
+      "term": "Blight",
+      "meaning": "A plant disease, typically caused by fungi or bacteria, that causes crops to wither and die rapidly."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Dr. Nova Sterling",
+  "authorInit": "DN",
+  "authorRole": "Correspondent - AI & Machine Learning",
+  "date": "2026-07-06",
+  "publishedAt": "2026-07-06T10:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "agriculture",
+    "computer-vision",
+    "neural-networks",
+    "farming"
+  ],
+  "color": "#a855f7",
+  "gradient": "linear-gradient(135deg, #00e5ff, #a855f7)",
+  "emoji": "🧠",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "15-Year-Old Tara Sullivan Builds AI to Help Farmers Spot Crop Diseases Early Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/ai"
+    }
+  ]
+}

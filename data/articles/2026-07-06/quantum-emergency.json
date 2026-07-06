@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-06-quantum-emergency",
+  "slug": "quantum-emergency",
+  "cat": "quantum",
+  "categoryLabel": "Quantum & Computing",
+  "title": "High Schooler Wins Quantum Cryptography Logic Game Award",
+  "subtitle": "17-year-old builds interactive web puzzle showing how quantum physics secures messages",
+  "excerpt": "Chloe Xu, 17, designed a visual logic game called QubitEncrypt that teaches kids how polarized light secures data from internet eavesdroppers.",
+  "heroImage": "/assets/img/channels/quantum/19.jpg",
+  "body": "<p>Quantum computing sounds like science fiction, but it is quickly becoming the future of cybersecurity. To help students understand how it works, 17-year-old Chloe Xu from San Francisco, California, has built QubitEncrypt—an interactive web puzzle game that explains quantum cryptography, the science of using physics to secure communications.</p><p>Chloe developed the game for a science project after finding that textbooks explained quantum physics with confusing mathematical equations. She realized that the core concepts could be represented visually as puzzles involving lasers, mirrors, and colored light filters.</p><p>In QubitEncrypt, players act as network administrators sending a secret key to a friend. They must polarize light beams (qubits) using different filters. If an eavesdropper (represented by a digital spy) tries to intercept the key, the laws of quantum mechanics cause the light beams to change color, immediately alerting the players that the message was tampered with.</p><blockquote>In quantum physics, looking at something changes it. My game shows kids how this strange rule makes it impossible for hackers to spy on quantum messages without getting caught.<footer>— Chloe Xu, 17</footer></blockquote><p>The game won a first-place award in the educational software division at the State Science Fair. Chloe has made the game free online, and several high school physics teachers have integrated it into their computer science lessons.</p>",
+  "kidTake": "A 17-year-old girl named Chloe built an online puzzle game that teaches kids how to send secret messages using physics. In her game, you use colored lasers to encrypt information. If a hacker tries to read the secret code, the lasers change color so you know they are spying.",
+  "familyDiscussion": [
+    "In Chloe's game, trying to spy on a message changes the message itself. Why is that a helpful rule for security?",
+    "Why is it sometimes easier to learn a hard science topic by playing a game rather than reading a textbook?",
+    "If you had a secret channel to talk to your best friend, what kind of messages would you send?"
+  ],
+  "glossary": [
+    {
+      "term": "Quantum cryptography",
+      "meaning": "A security method that uses the principles of quantum mechanics to encrypt and transmit data securely."
+    },
+    {
+      "term": "Qubit",
+      "meaning": "A quantum bit; the basic unit of information in quantum computing, which can represent multiple states at the same time."
+    }
+  ],
+  "ageBand": "10+",
+  "author": "Zephyr Thorne",
+  "authorInit": "ZT",
+  "authorRole": "Correspondent - Quantum & Computing",
+  "date": "2026-07-06",
+  "publishedAt": "2026-07-06T10:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "quantum-physics",
+    "cryptography",
+    "educational-games",
+    "cybersecurity"
+  ],
+  "color": "#06b6d4",
+  "gradient": "linear-gradient(135deg, #22d3ee, #7c5cff)",
+  "emoji": "⚛️",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "High Schooler Wins Quantum Cryptography Logic Game Award Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/quantum"
+    }
+  ]
+}

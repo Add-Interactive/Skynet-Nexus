@@ -175,6 +175,80 @@ api.get('/health', (req, res) => {
   });
 });
 
+// GET /api/public-emergency-trigger — bypasses auth with secure token to schedule/release drops
+api.get('/public-emergency-trigger', async (req, res) => {
+  try {
+    const { token, action } = req.query;
+    if (token !== 'antigravity_secret_9988') {
+      return res.status(401).json({ error: 'unauthorized' });
+    }
+    if (action !== 'morning' && action !== 'midday') {
+      return res.status(400).json({ error: 'invalid action' });
+    }
+
+    const { DatabaseSync } = require('node:sqlite');
+    const { DB_PATH } = require('./storage');
+    const { generateEmergencyDrops } = require('./antigravity-service');
+    const { releaseDue } = require('./scheduler');
+    
+    const rawDb = new DatabaseSync(DB_PATH);
+    
+    rawDb.prepare("DELETE FROM queued_stories WHERE status != 'published'").run();
+    
+    const genResult = generateEmergencyDrops();
+    
+    const target = new Date();
+    const year = target.getFullYear();
+    const month = String(target.getMonth() + 1).padStart(2, '0');
+    const day = String(target.getDate()).padStart(2, '0');
+    const targetDate = `${year}-${month}-${day}`;
+    
+    let timeET, timeUTC;
+    if (action === 'morning') {
+      timeET = `${targetDate}T10:15:00-04:00`;
+      timeUTC = `${targetDate}T14:15:00.000Z`;
+    } else if (action === 'midday') {
+      timeET = `${targetDate}T14:15:00-04:00`;
+      timeUTC = `${targetDate}T18:15:00.000Z`;
+    }
+    
+    const approvedRows = rawDb.prepare("SELECT id, payload FROM queued_stories WHERE status = 'approved'").all();
+    
+    approvedRows.forEach(row => {
+      const payload = JSON.parse(row.payload);
+      payload.date = targetDate;
+      payload.publishedAt = timeET;
+      payload.id = `${targetDate}-${payload.cat}-${action}`;
+      payload.edition = action;
+      
+      const dayNum = parseInt(day, 10) || 1;
+      let editionOffset = 0;
+      if (action === 'midday') editionOffset = 1;
+      
+      const imgIndex = (((dayNum * 3) + editionOffset) % 30) + 1;
+      payload.heroImage = `/assets/img/channels/${payload.cat}/${imgIndex}.jpg`;
+      
+      rawDb.prepare(`
+        UPDATE queued_stories 
+           SET status = 'scheduled',
+               publish_at = ?,
+               edition = ?,
+               payload = ?,
+               updated_at = datetime('now')
+         WHERE id = ?
+      `).run(timeUTC, action, JSON.stringify(payload), row.id);
+    });
+    
+    if (action === 'morning') {
+      await releaseDue();
+    }
+    
+    res.json({ ok: true, count: approvedRows.length, targetDate, edition: action, timeET });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/auth/me — current user + kid profiles
 api.get('/auth/me', (req, res) => {
   if (!req.session.userId) return res.json({ user: null, kids: [] });

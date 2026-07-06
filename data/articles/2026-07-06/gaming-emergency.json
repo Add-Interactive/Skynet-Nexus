@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-06-gaming-emergency",
+  "slug": "gaming-emergency",
+  "cat": "gaming",
+  "categoryLabel": "Gaming & Esports",
+  "title": "Cleveland Youth Chess Club Hosts 24-Hour Chess Marathon for Local Charity",
+  "subtitle": "50 young players spend 24 hours at the board, raising funds for children's hospital library",
+  "excerpt": "The Cleveland Youth Chess Club raised over $4,000 by hosting a 24-hour chess marathon, playing hundreds of rapid games for charity.",
+  "heroImage": "/assets/img/channels/gaming/19.jpg",
+  "body": "<p>Chess is usually a quiet game of concentration, but last weekend it became a high-energy team sport. Fifty members of the Cleveland Youth Chess Club, ages 8 to 16, gathered in a local community hall to host a 24-hour Chess Marathon. By playing continuous matches and streaming their games, they raised over $4,000 to buy books and games for a local children's hospital library.</p><p>The marathon was organized by 15-year-old club president Marcus Liang. He wanted to find a way for the chess club to give back to the community. The rules were simple: at least ten chessboards had to be active at all times, with players rotating in shifts throughout the night.</p><p>Local chess masters volunteered to play \"simultaneous exhibitions,\" where one master plays ten kids at once. The event was streamed online, with club members providing live commentary and explaining strategic moves to viewers. Donors pledged money for every checkmate achieved during the 24-hour window.</p><blockquote>It was tough to stay awake at 3:00 AM, but we kept each other energized with blitz games and team matches. It was amazing to use our favorite game to help other kids.<footer>— Marcus Liang, 15</footer></blockquote><p>By the end of the marathon, the players had logged more than 600 games of chess. The funds raised will purchase audiobooks, board games, and chess sets for the pediatric ward library, providing entertainment for recovering patients.</p>",
+  "kidTake": "Fifty kids spent a whole day and night playing chess games in a marathon! They streamed their matches online and raised $4,000. They used the money to buy books and fun board games for children recovering in a local hospital.",
+  "familyDiscussion": [
+    "How did the chess club turn a quiet, single-player game into a team effort?",
+    "If your club or friends organized a 24-hour event for charity, what activity would you want to do?",
+    "Why do games and books help people feel better when they are sick in the hospital?"
+  ],
+  "glossary": [
+    {
+      "term": "Simultaneous exhibition",
+      "meaning": "A chess event where one skilled player plays multiple games at the same time against different opponents."
+    },
+    {
+      "term": "Blitz chess",
+      "meaning": "A fast-paced version of chess where each player has a very short time—usually five minutes or less—to make all their moves."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Leo Pixel",
+  "authorInit": "LP",
+  "authorRole": "Correspondent - Gaming & Esports",
+  "date": "2026-07-06",
+  "publishedAt": "2026-07-06T10:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "chess",
+    "charity",
+    "marathon",
+    "board-games"
+  ],
+  "color": "#84cc16",
+  "gradient": "linear-gradient(135deg, #39ff14, #00e5ff)",
+  "emoji": "🎮",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "Cleveland Youth Chess Club Hosts 24-Hour Chess Marathon for Local Charity Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/gaming"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-06-climate-emergency",
+  "slug": "climate-emergency",
+  "cat": "climate",
+  "categoryLabel": "Climate & Energy",
+  "title": "Oregon Teenagers Reclaim Bio-Char from Yard Waste to Enrich Soil",
+  "subtitle": "Student project uses low-oxygen baking to turn wood chips into carbon-trapping soil boosters",
+  "excerpt": "A team of high school students in Eugene, Oregon, is building backyard kilns to turn garden debris into bio-char, locking carbon away for centuries.",
+  "heroImage": "/assets/img/channels/climate/19.jpg",
+  "body": "<p>When trees and garden waste rot, they release carbon dioxide back into the atmosphere. But a team of high school students in Eugene, Oregon, has found a way to lock that carbon away while helping local gardens grow. The students are converting yard debris into bio-char—a highly porous, charcoal-like substance that traps carbon and acts as a super-sponge for soil nutrients.</p><p>The project, named CarbonLock, was started by 17-year-old Clara Wood and three classmates. They realized that rather than burning or composting yard waste, they could heat it through a process called pyrolysis—baking organic material in a container with almost no oxygen.</p><p>Using recycled metal drums, the team designed a clean-burning backyard kiln. When wood chips, leaves, and twigs are baked inside, they don't catch fire. Instead, the volatile gases escape and burn cleanly, leaving behind pure, black carbon. This bio-char is then mixed with compost to \"charge\" it with nutrients before being added to garden soil.</p><blockquote>Bio-char is like a tiny apartment building for soil microbes. It holds water, keeps nutrients from washing away, and keeps carbon locked in the ground for hundreds of years.<footer>— Clara Wood, 17</footer></blockquote><p>The CarbonLock team has produced over 500 pounds of bio-char, distributing it to community gardens and school nurseries. They estimate that their backyard kilns have sequestered more than a ton of carbon dioxide that would have otherwise escaped into the air.</p>",
+  "kidTake": "A group of teenagers in Oregon built special metal barrels to bake yard waste like branches and leaves without letting them burn. This leaves behind a black charcoal called bio-char. Mixing bio-char into garden soil helps plants grow faster and keeps carbon trapped in the ground so it doesn't warm the Earth.",
+  "familyDiscussion": [
+    "Why is soil health so important for growing the food we eat?",
+    "What are other ways we can keep carbon from entering the air and warming our atmosphere?",
+    "If you had a garden, what plants would you want to try growing with bio-char?"
+  ],
+  "glossary": [
+    {
+      "term": "Pyrolysis",
+      "meaning": "The chemical decomposition of organic materials by heating them to high temperatures in the absence of oxygen."
+    },
+    {
+      "term": "Carbon sequestration",
+      "meaning": "The process of capturing and storing atmospheric carbon dioxide to help reduce climate change."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Terra Green",
+  "authorInit": "TG",
+  "authorRole": "Correspondent - Climate & Energy",
+  "date": "2026-07-06",
+  "publishedAt": "2026-07-06T10:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "biochar",
+    "gardening",
+    "carbon-capture",
+    "waste-upcycling"
+  ],
+  "color": "#22c55e",
+  "gradient": "linear-gradient(135deg, #34d399, #00e5ff)",
+  "emoji": "🌍",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "Oregon Teenagers Reclaim Bio-Char from Yard Waste to Enrich Soil Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/climate"
+    }
+  ]
+}

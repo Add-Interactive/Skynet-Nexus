@@ -1,0 +1,56 @@
+{
+  "id": "2026-07-06-biotech-emergency",
+  "slug": "biotech-emergency",
+  "cat": "biotech",
+  "categoryLabel": "Biotech & Health",
+  "title": "Teen Researcher Aaron Patel Invents Wearable Sensor to Monitor Hydration",
+  "subtitle": "16-year-old uses non-invasive biochemical sweat analysis to prevent heatstroke in young athletes",
+  "excerpt": "Aaron Patel designed a flexible skin patch that analyzes sweat electrolytes in real-time, sending hydration alerts to a smartphone app.",
+  "heroImage": "/assets/img/channels/biotech/19.jpg",
+  "body": "<p>As summer temperatures rise, dehydration becomes a serious risk for kids playing sports. To help athletes stay safe, 16-year-old Aaron Patel from Phoenix, Arizona, has developed a wearable biochemical sensor. The device is a thin, flexible patch that sticks to the skin and monitors hydration levels by analyzing sweat in real time, alerting players before they experience heat exhaustion.</p><p>Aaron, a cross-country runner, experienced mild heatstroke during a race last year. The experience led him to research how the body handles heat. He learned that tracking water loss isn't just about thirst; it's about electrolytes—specifically sodium and potassium—which are lost through sweat.</p><p>The sensor Aaron designed uses microfluidic channels to channel tiny drops of sweat across electrodes coated with specialized chemicals. These chemicals react with the electrolytes, producing a tiny electrical signal. A small transmitter on the patch sends this data wirelessly to a smartphone app, which displays a simple green, yellow, or red hydration gauge.</p><blockquote>Thirst is actually a late warning sign of dehydration. My goal was to create a simple, cheap sensor that tells you exactly when you need to drink water before you feel sick.<footer>— Aaron Patel, 16</footer></blockquote><p>The patch is made of biocompatible silicone and costs less than two dollars to manufacture. Aaron has tested the patch with his high school cross-country team and is currently working on making the sensor fully biodegradable to reduce electronic waste.</p>",
+  "kidTake": "A 16-year-old runner named Aaron invented a smart skin patch that tells you when you need to drink water. The patch reads your sweat and sends a message to your phone. This helps athletes stay safe and healthy while playing outside in the heat.",
+  "familyDiscussion": [
+    "How does your body tell you that you are thirsty? Why is water so important for our bodies?",
+    "Aaron invented this patch after getting sick himself. How can our own experiences help us come up with new ideas?",
+    "What is another sport where a wearable health sensor would be really useful?"
+  ],
+  "glossary": [
+    {
+      "term": "Electrolytes",
+      "meaning": "Important minerals in your body—like sodium and potassium—that help your muscles and nerves work properly."
+    },
+    {
+      "term": "Microfluidics",
+      "meaning": "The science of designing devices that control and manipulate tiny amounts of liquids through microscopic channels."
+    }
+  ],
+  "ageBand": "10+",
+  "author": "Dr. Sage Rivers",
+  "authorInit": "DS",
+  "authorRole": "Correspondent - Biotech & Health",
+  "date": "2026-07-06",
+  "publishedAt": "2026-07-06T10:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "hydration",
+    "sports-science",
+    "sensors",
+    "health-tech"
+  ],
+  "color": "#10b981",
+  "gradient": "linear-gradient(135deg, #2dd4bf, #00e5ff)",
+  "emoji": "🧬",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": [
+    {
+      "label": "Teen Researcher Aaron Patel Invents Wearable Sensor to Monitor Hydration Primary Source",
+      "url": "https://www.example.com/skynet-newsroom/biotech"
+    }
+  ]
+}
