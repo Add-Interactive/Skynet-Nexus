@@ -791,7 +791,7 @@ router.post('/antigravity/schedule-custom-drop', (req, res) => {
       if (edition === 'midday') editionOffset = 1;
       else if (edition === 'evening') editionOffset = 2;
       
-      const imgIndex = ((dayNum - 1 + editionOffset) % 30) + 1;
+      const imgIndex = (((dayNum * 3) + editionOffset) % 30) + 1;
       payload.heroImage = `/assets/img/channels/${payload.cat}/${imgIndex}.jpg`;
       
       rawDb.prepare(`

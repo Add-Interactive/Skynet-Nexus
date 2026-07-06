@@ -337,7 +337,7 @@ function generateEmergencyDrops() {
       title: art.title,
       subtitle: art.subtitle,
       excerpt: art.excerpt,
-      heroImage: `/assets/img/channels/${art.channel}/${((parseInt(today.split('-')[2], 10) - 1) % 30) + 1}.jpg`,
+      heroImage: `/assets/img/channels/${art.channel}/${(((parseInt(today.split('-')[2], 10) || 1) * 3/1) % 30) + 1}.jpg`, // default morning offset
       body: art.body,
       kidTake: art.kidTake,
       familyDiscussion: art.familyDiscussion,
