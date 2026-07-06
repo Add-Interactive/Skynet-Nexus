@@ -812,4 +812,27 @@ router.post('/antigravity/schedule-custom-drop', (req, res) => {
   }
 });
 
+router.post('/antigravity/run-maintenance', (req, res) => {
+  try {
+    const { DatabaseSync } = require('node:sqlite');
+    const { DB_PATH } = require('./storage');
+    const rawDb = new DatabaseSync(DB_PATH);
+    
+    // 1. Delete expired sessions
+    const nowMs = Date.now();
+    const delSessions = rawDb.prepare("DELETE FROM sessions WHERE expires_at < ?").run(nowMs);
+    
+    // 2. Run SQLite PRAGMA optimize
+    rawDb.exec("PRAGMA optimize;");
+    
+    // 3. Run SQLite VACUUM to shrink size
+    rawDb.exec("VACUUM;");
+    
+    logAction(req.adminUser.id, 'antigravity.run-maintenance', 'system', null, { deletedSessions: delSessions.changes });
+    res.json({ ok: true, deletedSessionsCount: delSessions.changes });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

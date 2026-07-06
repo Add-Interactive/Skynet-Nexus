@@ -1009,6 +1009,7 @@
           '<button id="btn-seed-drops" class="admin-btn">🚀 Generate Drafts</button>' +
           '<button id="btn-publish-all" class="admin-btn" style="background: #2dd4bf; color: #0a0e17;">📢 Auto-Publish Ready Drafts</button>' +
           '<button id="btn-run-it" class="admin-btn admin-btn-primary" style="background: var(--lcars-gold); color: #000; font-weight: 900; box-shadow: 0 0 10px rgba(255, 184, 0, 0.4);">⚡ RUN IT (Generate & Publish)</button>' +
+          '<button id="btn-run-maintenance" class="admin-btn" style="background: #e11d48; color: #fff; border: none; font-weight: 600; border-radius: 6px; padding: 6px 14px; cursor: pointer;">🧹 Clean & Optimize DB</button>' +
         '</div>' +
         '<div style="display: flex; gap: 12px; align-items: center; margin-top: 16px; padding: 12px; background: rgba(0, 229, 255, 0.05); border: 1px solid rgba(0, 229, 255, 0.15); border-radius: 8px; flex-wrap: wrap; width: 100%;">' +
           '<div style="font-weight: 600; font-size: 14px; color: var(--text);">Schedule Drop:</div>' +
@@ -1301,6 +1302,25 @@
           toast(err.message, true);
           btn.disabled = false;
           btn.textContent = 'Schedule 13-Channel Drop';
+        });
+      });
+
+      // Bind Run Maintenance button
+      controlBar.querySelector('#btn-run-maintenance').addEventListener('click', function (e) {
+        var btn = e.target;
+        if (!confirm("Are you sure you want to delete expired sessions, run PRAGMA optimize, and VACUUM the SQLite database to shrink file size?")) return;
+        
+        btn.disabled = true;
+        btn.textContent = 'Optimizing...';
+        
+        api('/admin/antigravity/run-maintenance', { method: 'POST' }).then(function (r) {
+          toast('Maintenance complete! Cleared ' + r.deletedSessionsCount + ' expired sessions and compressed the database!');
+          Views.antigravity();
+          refreshBadges();
+        }).catch(function (err) {
+          toast(err.message, true);
+          btn.disabled = false;
+          btn.textContent = '🧹 Clean & Optimize DB';
         });
       });
 
