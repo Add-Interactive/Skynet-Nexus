@@ -1224,14 +1224,61 @@
               '<h3 style="margin:0">' + esc(channelLabels[activeChannel]) + ' Pool</h3>' +
               '<p style="margin:4px 0 0; font-size:13px; color:var(--text-mute)">' + files.length + ' images available in <code>/public/assets/img/channels/' + activeChannel + '/</code></p>' +
             '</div>' +
-            '<div>' +
-              '<input type="file" id="image-upload-file" accept="image/jpeg,image/png" style="display:none">' +
-              '<button id="btn-trigger-upload" class="admin-btn admin-btn-primary">📤 Upload Image</button>' +
+            '<div style="display:flex; gap:10px;">' +
+              '<button id="btn-toggle-batch" class="admin-btn">Toggle Selection Mode</button>' +
+              '<button id="btn-delete-selected" class="admin-btn admin-btn-danger" style="display:none">🗑️ Delete Selected</button>' +
+              '<input type="file" id="image-upload-file" accept="image/jpeg,image/png" multiple style="display:none">' +
+              '<button id="btn-trigger-upload" class="admin-btn admin-btn-primary">📤 Upload Image(s)</button>' +
             '</div>' +
           '</div>' +
           '<div class="admin-image-grid" id="gallery-grid"></div>' +
         '</div>'
       );
+      
+      var batchMode = false;
+      var selectedFiles = [];
+      
+      var toggleBatchBtn = box.querySelector('#btn-toggle-batch');
+      var deleteSelectedBtn = box.querySelector('#btn-delete-selected');
+      
+      toggleBatchBtn.addEventListener('click', function () {
+        batchMode = !batchMode;
+        selectedFiles = [];
+        toggleBatchBtn.classList.toggle('admin-btn-primary', batchMode);
+        toggleBatchBtn.textContent = batchMode ? 'Cancel Selection Mode' : 'Toggle Selection Mode';
+        deleteSelectedBtn.style.display = batchMode ? '' : 'none';
+        deleteSelectedBtn.textContent = '🗑️ Delete Selected';
+        
+        box.querySelectorAll('.admin-image-card').forEach(function (c) {
+          c.classList.remove('selected');
+        });
+      });
+      
+      deleteSelectedBtn.addEventListener('click', function () {
+        if (!selectedFiles.length) {
+          alert('No images selected.');
+          return;
+        }
+        if (!confirm('Are you sure you want to permanently delete these ' + selectedFiles.length + ' selected images from the ' + activeChannel + ' pool?')) return;
+        
+        deleteSelectedBtn.disabled = true;
+        deleteSelectedBtn.textContent = 'Deleting...';
+        
+        api('/images/delete-batch', {
+          method: 'POST',
+          body: {
+            channel: activeChannel,
+            filenames: selectedFiles
+          }
+        }).then(function (r) {
+          toast('Successfully deleted ' + r.deletedCount + ' images!');
+          refreshImages();
+        }).catch(function (err) {
+          toast(err.message, true);
+          deleteSelectedBtn.disabled = false;
+          deleteSelectedBtn.textContent = '🗑️ Delete Selected';
+        });
+      });
       
       var grid = box.querySelector('#gallery-grid');
       if (!files.length) {
@@ -1246,9 +1293,21 @@
             '</div>'
           );
           card.addEventListener('click', function () {
-            navigator.clipboard.writeText(imgUrl).then(function () {
-              toast('Copied image path to clipboard: ' + imgUrl);
-            });
+            if (batchMode) {
+              var idx = selectedFiles.indexOf(filename);
+              if (idx > -1) {
+                selectedFiles.splice(idx, 1);
+                card.classList.remove('selected');
+              } else {
+                selectedFiles.push(filename);
+                card.classList.add('selected');
+              }
+              deleteSelectedBtn.textContent = '🗑️ Delete Selected (' + selectedFiles.length + ')';
+            } else {
+              navigator.clipboard.writeText(imgUrl).then(function () {
+                toast('Copied image path to clipboard: ' + imgUrl);
+              });
+            }
           });
           grid.appendChild(card);
         });
@@ -1259,31 +1318,44 @@
       
       uploadBtn.addEventListener('click', function () { fileInput.click(); });
       fileInput.addEventListener('change', function (e) {
-        var file = e.target.files[0];
-        if (!file) return;
+        var filesList = Array.prototype.slice.call(e.target.files);
+        if (!filesList.length) return;
         
-        var reader = new FileReader();
-        reader.onload = function (evt) {
-          uploadBtn.disabled = true;
-          uploadBtn.textContent = 'Uploading...';
-          
-          api('/admin/images/upload', {
-            method: 'POST',
-            body: {
-              channel: activeChannel,
-              filename: file.name,
-              base64: evt.target.result
-            }
-          }).then(function (r) {
-            toast('Successfully uploaded image!');
+        uploadBtn.disabled = true;
+        var uploadIndex = 0;
+        
+        function uploadNext() {
+          if (uploadIndex >= filesList.length) {
+            toast('Successfully uploaded ' + filesList.length + ' images!');
             refreshImages();
-          }).catch(function (err) {
-            toast(err.message, true);
-            uploadBtn.disabled = false;
-            uploadBtn.textContent = '📤 Upload Image';
-          });
-        };
-        reader.readAsDataURL(file);
+            return;
+          }
+          
+          var file = filesList[uploadIndex];
+          uploadBtn.textContent = 'Uploading (' + (uploadIndex + 1) + '/' + filesList.length + ')...';
+          
+          var reader = new FileReader();
+          reader.onload = function (evt) {
+            api('/admin/images/upload', {
+              method: 'POST',
+              body: {
+                channel: activeChannel,
+                filename: file.name,
+                base64: evt.target.result
+              }
+            }).then(function () {
+              uploadIndex++;
+              uploadNext();
+            }).catch(function (err) {
+              toast('Failed uploading ' + file.name + ': ' + err.message, true);
+              uploadBtn.disabled = false;
+              uploadBtn.textContent = '📤 Upload Image(s)';
+            });
+          };
+          reader.readAsDataURL(file);
+        }
+        
+        uploadNext();
       });
       
       pane.appendChild(box);

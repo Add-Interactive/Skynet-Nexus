@@ -862,6 +862,38 @@ router.post('/images/upload', (req, res) => {
   }
 });
 
+// POST /admin/images/delete-batch — delete multiple images from a channel pool
+router.post('/images/delete-batch', (req, res) => {
+  try {
+    const { channel, filenames } = req.body;
+    if (!channel || !Array.isArray(filenames) || !filenames.length) {
+      return res.status(400).json({ error: 'Missing channel or filenames array.' });
+    }
+    
+    const validCats = ['skynet', 'ai', 'space', 'robotics', 'biotech', 'quantum', 'climate', 'engineering', 'math', 'cyber', 'gaming', 'music', 'stem', 'play', 'network'];
+    if (!validCats.includes(channel)) {
+      return res.status(400).json({ error: 'Invalid channel name.' });
+    }
+    
+    const dir = path.join(ROOT, 'public', 'assets', 'img', 'channels', channel);
+    let deletedCount = 0;
+    
+    filenames.forEach(filename => {
+      const cleanName = filename.replace(/[^a-zA-Z0-9_\.-]/g, '_');
+      const filePath = path.join(dir, cleanName);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        deletedCount++;
+      }
+    });
+    
+    logAction(req.adminUser.id, 'images.delete_batch', 'system', null, { channel, count: deletedCount });
+    res.json({ ok: true, deletedCount });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // PATCH /admin/stories/published/:id — edit published post payload & sync to disk JSON + manifest
 router.patch('/stories/published/:id', (req, res) => {
   try {
