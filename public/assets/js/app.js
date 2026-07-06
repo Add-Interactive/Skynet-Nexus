@@ -1121,20 +1121,21 @@ const AGI_PREDICTIONS = {
 };
 
 let _agiTimer = null;
+let _currentAgiPredictor = 'elon';
 function renderAgiCountdown() {
-  const select = document.getElementById('agi-predictor');
+  const triggerBtn = document.getElementById('agi-select-trigger');
+  const valEl = document.getElementById('agi-select-val');
+  const optionsList = document.getElementById('agi-options-list');
   const grid = document.getElementById('agi-countdown-grid');
   const explanation = document.getElementById('agi-explanation');
   const sourceLink = document.getElementById('agi-source');
-  const trigger = document.getElementById('agi-info-trigger');
   const tooltip = document.getElementById('agi-tooltip');
   const tooltipName = document.getElementById('agi-tooltip-name');
   const tooltipCredits = document.getElementById('agi-tooltip-credits');
-  if (!select || !grid || !explanation) return;
+  if (!triggerBtn || !grid || !explanation) return;
 
   const update = () => {
-    const predictor = select.value;
-    const data = AGI_PREDICTIONS[predictor];
+    const data = AGI_PREDICTIONS[_currentAgiPredictor];
     if (!data) return;
 
     explanation.textContent = data.desc;
@@ -1155,35 +1156,58 @@ function renderAgiCountdown() {
       '<div class="countdown-cell"><div class="countdown-num">' + String(s).padStart(2, '0') + '</div><div class="countdown-lab">sec</div></div>';
   };
 
-  if (!select.dataset.bound) {
-    select.addEventListener('change', update);
-    select.dataset.bound = 'true';
+  // Toggle options list when trigger is clicked
+  if (!triggerBtn.dataset.bound) {
+    triggerBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = optionsList && optionsList.style.display === 'block';
+      if (optionsList) optionsList.style.display = open ? 'none' : 'block';
+      if (tooltip) tooltip.style.display = 'none';
+    });
+    triggerBtn.dataset.bound = 'true';
   }
 
-  // Bind tooltip hover & click events
-  if (trigger && tooltip && !trigger.dataset.bound) {
-    const showTooltip = () => {
-      const predictor = select.value;
-      const data = AGI_PREDICTIONS[predictor];
-      if (data) {
-        if (tooltipName) tooltipName.textContent = data.name;
-        if (tooltipCredits) tooltipCredits.textContent = data.credits;
-        tooltip.style.display = 'block';
-      }
-    };
-    const hideTooltip = () => {
-      tooltip.style.display = 'none';
-    };
+  // Handle options list item hovers and clicks
+  if (optionsList && !optionsList.dataset.bound) {
+    const items = optionsList.querySelectorAll('.agi-opt-item');
+    items.forEach(item => {
+      const val = item.dataset.value;
+      const data = AGI_PREDICTIONS[val];
+      
+      // Click selects item
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        _currentAgiPredictor = val;
+        if (valEl) valEl.textContent = item.textContent;
+        optionsList.style.display = 'none';
+        if (tooltip) tooltip.style.display = 'none';
+        update();
+      });
 
-    trigger.addEventListener('mouseenter', showTooltip);
-    trigger.addEventListener('mouseleave', hideTooltip);
-    trigger.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (tooltip.style.display === 'block') hideTooltip(); else showTooltip();
+      // Hover shows tooltip popup over their name
+      item.addEventListener('mouseenter', () => {
+        if (data && tooltip) {
+          if (tooltipName) tooltipName.textContent = data.name;
+          if (tooltipCredits) tooltipCredits.textContent = data.credits;
+          tooltip.style.display = 'block';
+        }
+      });
     });
 
-    document.addEventListener('click', hideTooltip);
-    trigger.dataset.bound = 'true';
+    optionsList.addEventListener('mouseleave', () => {
+      if (tooltip) tooltip.style.display = 'none';
+    });
+
+    optionsList.dataset.bound = 'true';
+  }
+
+  // Click outside to close dropdown and hide tooltip
+  if (!document.datasetAgiBound) {
+    document.addEventListener('click', () => {
+      if (optionsList) optionsList.style.display = 'none';
+      if (tooltip) tooltip.style.display = 'none';
+    });
+    document.datasetAgiBound = 'true';
   }
 
   if (_agiTimer) clearInterval(_agiTimer);
