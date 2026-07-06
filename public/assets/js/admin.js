@@ -977,6 +977,316 @@
     }).catch(errView);
   };
 
+  // ===== Published Articles =====
+  Views.published = function () {
+    api('/admin/stories/queue?status=published&limit=100').then(function (r) {
+      var stories = r.stories || [];
+      main.innerHTML = '';
+      main.appendChild(h('<div class="admin-view-head"><h1>Published Articles</h1><p>Edit cover images, titles, contents, pin updates, or remove published articles from live feeds.</p></div>'));
+      
+      if (!stories.length) {
+        main.appendChild(h('<div class="admin-empty">No published articles found. Run a drop to publish some!</div>'));
+        return;
+      }
+      
+      var panel = h(
+        '<div class="admin-panel">' +
+          '<table class="admin-table">' +
+            '<thead>' +
+              '<tr>' +
+                '<th>Title</th>' +
+                '<th>Channel</th>' +
+                '<th>Date</th>' +
+                '<th>Edition</th>' +
+                '<th>Badges</th>' +
+                '<th>Actions</th>' +
+              '</tr>' +
+            '</thead>' +
+            '<tbody></tbody>' +
+          '</table>' +
+        '</div>'
+      );
+      
+      var tbody = panel.querySelector('tbody');
+      stories.forEach(function (st) {
+        var p = st.payload || {};
+        var tr = h(
+          '<tr>' +
+            '<td><strong>' + esc(p.title || '(untitled)') + '</strong></td>' +
+            '<td>' + esc(st.channel) + '</td>' +
+            '<td class="num">' + esc(p.date || '—') + '</td>' +
+            '<td>' + esc(st.edition || 'morning') + '</td>' +
+            '<td>' +
+              (p.pinned ? '<span class="pill approved" style="background:#e11d48">Pinned</span>' : '') +
+              (p.featured ? '<span class="pill approved" style="background:var(--lcars-gold); color:#000">Featured</span>' : '') +
+            '</td>' +
+            '<td class="row-actions"></td>' +
+          '</tr>'
+        );
+        
+        var actions = tr.querySelector('.row-actions');
+        
+        var editBtn = h('<button class="admin-btn admin-btn-sm">Edit</button>');
+        editBtn.addEventListener('click', function () { editPublishedStory(st); });
+        actions.appendChild(editBtn);
+        
+        var pinBtn = h('<button class="admin-btn admin-btn-sm">' + (p.pinned ? '📌 Unpin' : '📌 Pin') + '</button>');
+        pinBtn.addEventListener('click', function () {
+          p.pinned = !p.pinned;
+          api('/admin/stories/published/' + st.id, { method: 'PATCH', body: { payload: p } })
+            .then(function () { toast(p.pinned ? 'Article Pinned!' : 'Article Unpinned!'); Views.published(); })
+            .catch(function (e) { toast(e.message, true); });
+        });
+        actions.appendChild(pinBtn);
+        
+        var deleteBtn = h('<button class="admin-btn admin-btn-sm admin-btn-danger">Delete</button>');
+        deleteBtn.addEventListener('click', function () {
+          if (!confirm("Are you sure you want to PERMANENTLY delete this published article? This deletes the SQLite database row, the JSON file on disk, and manifest index.")) return;
+          api('/admin/stories/published/' + st.id, { method: 'DELETE' })
+            .then(function () { toast('Successfully deleted published article!'); Views.published(); })
+            .catch(function (e) { toast(e.message, true); });
+        });
+        actions.appendChild(deleteBtn);
+        
+        tbody.appendChild(tr);
+      });
+      
+      main.appendChild(panel);
+    }).catch(errView);
+  };
+
+  function editPublishedStory(st) {
+    var p = st.payload || {};
+    var modal = openModal('Edit Published Article');
+    
+    var form = h(
+      '<form style="display:flex; flex-direction:column; gap:12px;">' +
+        '<label class="admin-label">Title<input type="text" id="edit-title" class="admin-input" required></label>' +
+        '<label class="admin-label">Subtitle<input type="text" id="edit-subtitle" class="admin-input"></label>' +
+        '<label class="admin-label">Excerpt<textarea id="edit-excerpt" class="admin-input" rows="2" required></textarea></label>' +
+        '<label class="admin-label">Body (HTML)<textarea id="edit-body" class="admin-input" rows="6" required></textarea></label>' +
+        '<label class="admin-label">Kid Take<textarea id="edit-kidtake" class="admin-input" rows="2" required></textarea></label>' +
+        '<div class="admin-form-image-picker">' +
+          '<span class="admin-label" style="margin:0">Hero Image</span>' +
+          '<div class="admin-form-image-current">' +
+            '<img src="' + esc(p.heroImage) + '" id="edit-image-preview" class="admin-form-image-preview">' +
+            '<span id="edit-image-path" class="admin-form-image-path">' + esc(p.heroImage || '(none)') + '</span>' +
+            '<button type="button" id="btn-browse-gallery" class="admin-btn admin-btn-sm">🖼️ Browse Pool</button>' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:flex; gap:16px; margin-top:8px;">' +
+          '<label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit-pinned"> Pin on feed</label>' +
+          '<label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit-featured"> Feature article</label>' +
+        '</div>' +
+        '<div style="display:flex; justify-content:flex-end; gap:10px; margin-top:14px;">' +
+          '<button type="button" id="btn-edit-cancel" class="admin-btn">Cancel</button>' +
+          '<button type="submit" class="admin-btn admin-btn-primary">Save Changes</button>' +
+        '</div>' +
+      '</form>'
+    );
+    
+    form.querySelector('#edit-title').value = p.title || '';
+    form.querySelector('#edit-subtitle').value = p.subtitle || '';
+    form.querySelector('#edit-excerpt').value = p.excerpt || '';
+    form.querySelector('#edit-body').value = p.body || '';
+    form.querySelector('#edit-kidtake').value = p.kidTake || '';
+    form.querySelector('#edit-pinned').checked = !!p.pinned;
+    form.querySelector('#edit-featured').checked = !!p.featured;
+    
+    var selectedImgUrl = p.heroImage || '';
+    
+    form.querySelector('#btn-browse-gallery').addEventListener('click', function () {
+      var pickerModal = openModal('Select Hero Image');
+      pickerModal.overlay.querySelector('.admin-modal').classList.add('admin-image-picker-modal');
+      
+      pickerModal.body.appendChild(h('<p style="font-size:13px; color:var(--text-mute); margin-bottom:12px;">Choose an illustration from the <strong>' + esc(st.channel) + '</strong> channel pool:</p>'));
+      
+      var grid = h('<div class="admin-image-picker-grid"></div>');
+      
+      api('/admin/images/list').then(function (r) {
+        var files = r.images[st.channel] || [];
+        if (!files.length) {
+          grid.appendChild(h('<div class="admin-empty" style="grid-column:1/-1">No images in this channel pool.</div>'));
+        } else {
+          files.forEach(function (filename) {
+            var url = '/assets/img/channels/' + st.channel + '/' + filename;
+            var isSel = (url === selectedImgUrl);
+            var card = h(
+              '<div class="admin-image-picker-card' + (isSel ? ' selected' : '') + '">' +
+                '<img src="' + url + '" class="admin-image-picker-thumb">' +
+              '</div>'
+            );
+            card.addEventListener('click', function () {
+              selectedImgUrl = url;
+              form.querySelector('#edit-image-preview').src = url;
+              form.querySelector('#edit-image-path').textContent = url;
+              closeModal(pickerModal);
+            });
+            grid.appendChild(card);
+          });
+        }
+      }).catch(function (err) { toast(err.message, true); });
+      
+      pickerModal.body.appendChild(grid);
+    });
+    
+    form.querySelector('#btn-edit-cancel').addEventListener('click', function () { closeModal(modal); });
+    
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      
+      p.title = form.querySelector('#edit-title').value;
+      p.subtitle = form.querySelector('#edit-subtitle').value;
+      p.excerpt = form.querySelector('#edit-excerpt').value;
+      p.body = form.querySelector('#edit-body').value;
+      p.kidTake = form.querySelector('#edit-kidtake').value;
+      p.heroImage = selectedImgUrl;
+      p.pinned = form.querySelector('#edit-pinned').checked;
+      p.featured = form.querySelector('#edit-featured').checked;
+      
+      api('/admin/stories/published/' + st.id, {
+        method: 'PATCH',
+        body: { payload: p }
+      }).then(function () {
+        toast('Published article updated successfully!');
+        closeModal(modal);
+        Views.published();
+      }).catch(function (err) {
+        toast(err.message, true);
+      });
+    });
+    
+    modal.body.appendChild(form);
+  }
+
+  // ===== Image Pools =====
+  Views.images = function () {
+    main.innerHTML = '';
+    main.appendChild(h('<div class="admin-view-head"><h1>Image Pools Manager</h1><p>Browse and upload images for each channel. Uploaded files grow the monthly image pools.</p></div>'));
+    
+    var layout = h(
+      '<div class="admin-split-layout">' +
+        '<div class="admin-left-pane"><ul class="admin-sidebar-list" id="images-channel-list"></ul></div>' +
+        '<div class="admin-right-pane" id="images-channel-gallery"></div>' +
+      '</div>'
+    );
+    main.appendChild(layout);
+    
+    var activeChannel = 'ai';
+    var imagesList = {};
+    
+    var channelLabels = {
+      skynet:'Skynet', ai:'AI & Machine Learning', space:'Space & Aerospace', robotics:'Robotics & Automation',
+      biotech:'Biotech & Health', quantum:'Quantum & Computing', climate:'Climate & Energy', engineering:'Engineering & Making',
+      math:'Math & Data Science', cyber:'Cybersecurity & Code', gaming:'Gaming Tournaments', music:'Music Festivals',
+      stem:'STEM Signal', play:'Play & Design', network:'Network News'
+    };
+    
+    function renderChannelsList() {
+      var ul = $('#images-channel-list');
+      if (!ul) return;
+      ul.innerHTML = '';
+      Object.keys(channelLabels).forEach(function (ch) {
+        var li = h('<li><button class="admin-sidebar-item' + (ch === activeChannel ? ' active' : '') + '">' + esc(channelLabels[ch]) + '</button></li>');
+        li.querySelector('button').addEventListener('click', function () {
+          activeChannel = ch;
+          renderChannelsList();
+          renderGallery();
+        });
+        ul.appendChild(li);
+      });
+    }
+    
+    function renderGallery() {
+      var pane = $('#images-channel-gallery');
+      if (!pane) return;
+      pane.innerHTML = '';
+      
+      var files = imagesList[activeChannel] || [];
+      
+      var box = h(
+        '<div class="admin-gallery-box">' +
+          '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;">' +
+            '<div>' +
+              '<h3 style="margin:0">' + esc(channelLabels[activeChannel]) + ' Pool</h3>' +
+              '<p style="margin:4px 0 0; font-size:13px; color:var(--text-mute)">' + files.length + ' images available in <code>/public/assets/img/channels/' + activeChannel + '/</code></p>' +
+            '</div>' +
+            '<div>' +
+              '<input type="file" id="image-upload-file" accept="image/jpeg,image/png" style="display:none">' +
+              '<button id="btn-trigger-upload" class="admin-btn admin-btn-primary">📤 Upload Image</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="admin-image-grid" id="gallery-grid"></div>' +
+        '</div>'
+      );
+      
+      var grid = box.querySelector('#gallery-grid');
+      if (!files.length) {
+        grid.appendChild(h('<div class="admin-empty" style="grid-column:1/-1">No custom images uploaded yet.</div>'));
+      } else {
+        files.forEach(function (filename) {
+          var imgUrl = '/assets/img/channels/' + activeChannel + '/' + filename;
+          var card = h(
+            '<div class="admin-image-card">' +
+              '<img src="' + imgUrl + '" class="admin-image-thumb" loading="lazy">' +
+              '<div class="admin-image-info">' + esc(filename) + '</div>' +
+            '</div>'
+          );
+          card.addEventListener('click', function () {
+            navigator.clipboard.writeText(imgUrl).then(function () {
+              toast('Copied image path to clipboard: ' + imgUrl);
+            });
+          });
+          grid.appendChild(card);
+        });
+      }
+      
+      var fileInput = box.querySelector('#image-upload-file');
+      var uploadBtn = box.querySelector('#btn-trigger-upload');
+      
+      uploadBtn.addEventListener('click', function () { fileInput.click(); });
+      fileInput.addEventListener('change', function (e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        
+        var reader = new FileReader();
+        reader.onload = function (evt) {
+          uploadBtn.disabled = true;
+          uploadBtn.textContent = 'Uploading...';
+          
+          api('/admin/images/upload', {
+            method: 'POST',
+            body: {
+              channel: activeChannel,
+              filename: file.name,
+              base64: evt.target.result
+            }
+          }).then(function (r) {
+            toast('Successfully uploaded image!');
+            refreshImages();
+          }).catch(function (err) {
+            toast(err.message, true);
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = '📤 Upload Image';
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+      
+      pane.appendChild(box);
+    }
+    
+    function refreshImages() {
+      api('/admin/images/list').then(function (r) {
+        imagesList = r.images || {};
+        renderChannelsList();
+        renderGallery();
+      }).catch(errView);
+    }
+    
+    refreshImages();
+  };
+
   // ===== Antigravity Workspace =====
   Views.antigravity = function () {
     main.innerHTML = '';

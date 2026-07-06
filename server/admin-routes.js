@@ -812,6 +812,160 @@ router.post('/antigravity/schedule-custom-drop', (req, res) => {
   }
 });
 
+// GET /admin/images/list — returns list of images inside channel subfolders
+router.get('/images/list', (req, res) => {
+  try {
+    const dir = path.join(ROOT, 'public', 'assets', 'img', 'channels');
+    const result = {};
+    if (fs.existsSync(dir)) {
+      const dirs = fs.readdirSync(dir);
+      dirs.forEach(ch => {
+        const fullPath = path.join(dir, ch);
+        if (fs.statSync(fullPath).isDirectory()) {
+          const files = fs.readdirSync(fullPath).filter(f => f.endsWith('.jpg') || f.endsWith('.png'));
+          result[ch] = files;
+        }
+      });
+    }
+    res.json({ ok: true, images: result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/images/upload — upload new base64 image to specific channel folder
+router.post('/images/upload', (req, res) => {
+  try {
+    const { channel, filename, base64 } = req.body;
+    if (!channel || !filename || !base64) {
+      return res.status(400).json({ error: 'Missing channel, filename, or base64.' });
+    }
+    
+    const validCats = ['skynet', 'ai', 'space', 'robotics', 'biotech', 'quantum', 'climate', 'engineering', 'math', 'cyber', 'gaming', 'music', 'stem', 'play', 'network'];
+    if (!validCats.includes(channel)) {
+      return res.status(400).json({ error: 'Invalid channel name.' });
+    }
+    
+    const cleanName = filename.replace(/[^a-zA-Z0-9_\.-]/g, '_');
+    const dir = path.join(ROOT, 'public', 'assets', 'img', 'channels', channel);
+    fs.mkdirSync(dir, { recursive: true });
+    
+    const filePath = path.join(dir, cleanName);
+    const dataStr = base64.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(dataStr, 'base64');
+    
+    fs.writeFileSync(filePath, buffer);
+    console.log(`[admin-routes] Saved uploaded image to: ${filePath}`);
+    res.json({ ok: true, path: `/assets/img/channels/${channel}/${cleanName}` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PATCH /admin/stories/published/:id — edit published post payload & sync to disk JSON + manifest
+router.patch('/stories/published/:id', (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const current = db.findQueuedStory(id);
+    if (!current) return res.status(404).json({ error: 'not found' });
+    if (current.status !== 'published') return res.status(400).json({ error: 'story is not published yet' });
+    
+    const b = req.body || {};
+    const payload = b.payload && typeof b.payload === 'object' ? b.payload : null;
+    if (!payload) return res.status(400).json({ error: 'Missing updated payload.' });
+    
+    // 1. Update SQLite DB
+    const story = db.updateQueuedStory({ id, payload });
+    
+    // 2. Resolve article JSON file path on disk
+    const pubId = current.publishedArticleId;
+    if (pubId) {
+      const artPath = path.join(DATA_DIR, 'articles', pubId + '.json');
+      if (fs.existsSync(artPath)) {
+        let existing = {};
+        try { existing = JSON.parse(fs.readFileSync(artPath, 'utf8')); } catch(e) {}
+        
+        const merged = Object.assign({}, existing, payload, {
+          id: existing.id || payload.id,
+          slug: existing.slug || payload.slug
+        });
+        
+        fs.writeFileSync(artPath, JSON.stringify(merged, null, 2), 'utf8');
+        console.log(`[admin-routes] Updated JSON file on disk: ${artPath}`);
+      }
+      
+      // 3. Update data/manifest.json
+      const manifestPath = path.join(DATA_DIR, 'manifest.json');
+      if (fs.existsSync(manifestPath)) {
+        let manifest = {};
+        try { manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')); } catch(e) {}
+        
+        if (manifest && Array.isArray(manifest.articles)) {
+          const index = manifest.articles.findIndex(a => a.id === payload.id || a.slug === payload.slug);
+          if (index !== -1) {
+            const existingInManifest = manifest.articles[index];
+            manifest.articles[index] = Object.assign({}, existingInManifest, payload, {
+              id: existingInManifest.id || payload.id,
+              slug: existingInManifest.slug || payload.slug
+            });
+            fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+            console.log(`[admin-routes] Updated entry in manifest.json for: ${payload.id}`);
+          }
+        }
+      }
+    }
+    
+    logAction(req.adminUser.id, 'story.publish.edit', 'story', id, { title: payload.title });
+    res.json({ ok: true, story });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /admin/stories/published/:id — delete published post from DB, disk JSON, and manifest
+router.delete('/stories/published/:id', (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const current = db.findQueuedStory(id);
+    if (!current) return res.status(404).json({ error: 'not found' });
+    if (current.status !== 'published') return res.status(400).json({ error: 'story is not published' });
+    
+    let payload = {};
+    try { payload = JSON.parse(current.payload); } catch(e) {}
+    
+    // 1. Delete from database
+    db.deleteQueuedStory(id);
+    
+    // 2. Delete JSON file from disk
+    const pubId = current.publishedArticleId;
+    if (pubId) {
+      const artPath = path.join(DATA_DIR, 'articles', pubId + '.json');
+      if (fs.existsSync(artPath)) {
+        fs.unlinkSync(artPath);
+        console.log(`[admin-routes] Deleted JSON file from disk: ${artPath}`);
+      }
+      
+      // 3. Remove from manifest.json
+      const manifestPath = path.join(DATA_DIR, 'manifest.json');
+      if (fs.existsSync(manifestPath)) {
+        let manifest = {};
+        try { manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')); } catch(e) {}
+        
+        if (manifest && Array.isArray(manifest.articles)) {
+          manifest.articles = manifest.articles.filter(a => a.id !== payload.id && a.slug !== payload.slug);
+          fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+          console.log(`[admin-routes] Removed entry from manifest.json for: ${payload.id}`);
+        }
+      }
+    }
+    
+    logAction(req.adminUser.id, 'story.publish.delete', 'story', id, { title: payload.title });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post('/antigravity/run-maintenance', (req, res) => {
   try {
     const { DatabaseSync } = require('node:sqlite');
