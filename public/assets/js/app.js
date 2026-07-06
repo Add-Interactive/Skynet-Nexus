@@ -1559,6 +1559,12 @@ function _initHome(baseUrl) {
     if (personalizeLink) personalizeLink.style.display = 'none';
   }
 
+  // Tweak display of summer-promos
+  const promos = document.querySelectorAll('.summer-promo');
+  promos.forEach(p => {
+    p.style.display = feedType === 'your' ? 'none' : '';
+  });
+
   renderFilterChips();
   initMobileMenu();
   renderFeed();
