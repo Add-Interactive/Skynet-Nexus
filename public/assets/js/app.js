@@ -726,7 +726,8 @@ function loadFeedRss(channel, grid, hadEditorial, token) {
 
 function bindPostEvents() {
   document.querySelectorAll('.post-card').forEach(card => {
-    card.addEventListener('click', () => {
+    card.addEventListener('click', (ev) => {
+      if (ev.target.closest('.post-admin-bar')) return;
       const href = card.dataset.href;
       if (href) window.location.href = href;
     });
@@ -797,6 +798,115 @@ function bindPostEvents() {
       btn.classList.toggle('liked');
       toast(cur ? 'Removed from bookmarks' : 'Saved to bookmarks');
     });
+  });
+  
+  checkAndRenderAdminControls();
+}
+
+function checkAndRenderAdminControls() {
+  if (!window.SkyAuth || !SkyAuth.state || !SkyAuth.state.user) {
+    document.querySelectorAll('.post-admin-bar').forEach(el => el.remove());
+    return;
+  }
+  const u = SkyAuth.state.user;
+  if (u.role !== 'admin' && u.role !== 'editor') {
+    document.querySelectorAll('.post-admin-bar').forEach(el => el.remove());
+    return;
+  }
+  
+  document.querySelectorAll('.post-card').forEach(card => {
+    if (card.querySelector('.post-admin-bar')) return;
+    
+    const articleId = card.dataset.id;
+    if (!articleId) return;
+    
+    const entry = (ARTICLES || []).find(x => String(x.id) === String(articleId));
+    const isPinned = entry && !!entry.pinned;
+    
+    const bar = document.createElement('div');
+    bar.className = 'post-admin-bar';
+    
+    const editBtn = document.createElement('button');
+    editBtn.className = 'post-admin-btn';
+    editBtn.innerHTML = '✏️';
+    editBtn.title = 'Edit Article';
+    editBtn.addEventListener('click', ev => {
+      ev.stopPropagation();
+      ev.preventDefault();
+      
+      fetch('/api/admin/stories/by-article-id/' + encodeURIComponent(articleId))
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.story) {
+            location.href = '/pages/admin.html?editStoryId=' + data.story.id;
+          } else {
+            alert('Failed to find this story in the SQLite database.');
+          }
+        })
+        .catch(err => alert('Error locating story: ' + err.message));
+    });
+    bar.appendChild(editBtn);
+    
+    const pinBtn = document.createElement('button');
+    pinBtn.className = 'post-admin-btn' + (isPinned ? ' pinned-active' : '');
+    pinBtn.innerHTML = '📌';
+    pinBtn.title = isPinned ? 'Unpin Article' : 'Pin Article';
+    pinBtn.addEventListener('click', ev => {
+      ev.stopPropagation();
+      ev.preventDefault();
+      
+      fetch('/api/admin/stories/by-article-id/' + encodeURIComponent(articleId))
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.story) {
+            const updatedPayload = Object.assign({}, data.story.payload, { pinned: !isPinned });
+            fetch('/api/admin/stories/published/' + data.story.id, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ payload: updatedPayload })
+            })
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then(() => {
+              if (typeof toast === 'function') toast(isPinned ? 'Article Unpinned!' : 'Article Pinned!');
+              location.reload();
+            })
+            .catch(() => alert('Failed to toggle pin state.'));
+          } else {
+            alert('Failed to find this story in the SQLite database.');
+          }
+        });
+    });
+    bar.appendChild(pinBtn);
+    
+    const delBtn = document.createElement('button');
+    delBtn.className = 'post-admin-btn';
+    delBtn.innerHTML = '🗑️';
+    delBtn.title = 'Delete Article';
+    delBtn.addEventListener('click', ev => {
+      ev.stopPropagation();
+      ev.preventDefault();
+      
+      if (!confirm("Are you sure you want to PERMANENTLY delete this published article? This deletes the SQLite row, disk JSON file, and manifest index.")) return;
+      
+      fetch('/api/admin/stories/by-article-id/' + encodeURIComponent(articleId))
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.story) {
+            fetch('/api/admin/stories/published/' + data.story.id, { method: 'DELETE' })
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then(() => {
+              if (typeof toast === 'function') toast('Article Deleted!');
+              location.reload();
+            })
+            .catch(() => alert('Failed to delete story.'));
+          } else {
+            alert('Failed to find this story in the SQLite database.');
+          }
+        });
+    });
+    bar.appendChild(delBtn);
+    
+    card.appendChild(bar);
   });
 }
 
@@ -1990,3 +2100,12 @@ document.addEventListener("submit", function (ev) {
     openExternalPopup(a.href);
   });
 })();
+
+// Subscribe to SkyAuth changes for admin post overlays
+if (window.SkyAuth) {
+  window.SkyAuth.subscribe(function () {
+    if (typeof checkAndRenderAdminControls === 'function') {
+      checkAndRenderAdminControls();
+    }
+  });
+}
