@@ -238,9 +238,34 @@ async function generateImageForArticle(channel, title, subfolder = '') {
                 const cleanFilename = filename.replace(`${subfolder}_`, 'comfy_');
                 const destPath = path.join(destDir, cleanFilename);
                 
-                fs.renameSync(srcPath, destPath);
-                console.log(`[comfy-generator] Moved image to: ${destPath}`);
-                return `${subfolder}/${cleanFilename}`;
+                let moved = false;
+                for (let retry = 1; retry <= 5; retry++) {
+                  try {
+                    fs.renameSync(srcPath, destPath);
+                    moved = true;
+                    console.log(`[comfy-generator] Moved image to: ${destPath} (attempt ${retry})`);
+                    break;
+                  } catch (renameErr) {
+                    if (retry === 5) {
+                      // Fallback: Copy and delete
+                      try {
+                        fs.copyFileSync(srcPath, destPath);
+                        fs.unlinkSync(srcPath);
+                        moved = true;
+                        console.log(`[comfy-generator] Copied and deleted image to: ${destPath}`);
+                        break;
+                      } catch (fallbackErr) {
+                        throw new Error(`Rename failed and fallback copy failed: ${fallbackErr.message}`);
+                      }
+                    }
+                    console.warn(`[comfy-generator] Rename locked, retrying in 1s (attempt ${retry}/5)...`);
+                    await new Promise(r => setTimeout(r, 1000));
+                  }
+                }
+                
+                if (moved) {
+                  return `${subfolder}/${cleanFilename}`;
+                }
               } else {
                 console.warn(`[comfy-generator] Source image path not found: ${srcPath}`);
               }
