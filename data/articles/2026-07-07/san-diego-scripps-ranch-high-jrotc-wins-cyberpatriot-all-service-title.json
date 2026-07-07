@@ -1,0 +1,47 @@
+{
+  "id": "2026-07-07-cyber-evening",
+  "slug": "san-diego-scripps-ranch-high-jrotc-wins-cyberpatriot-all-service-title",
+  "path": "data/articles/2026-07-07/san-diego-scripps-ranch-high-jrotc-wins-cyberpatriot-all-service-title.json",
+  "cat": "cyber",
+  "title": "San Diego Scripps Ranch High JROTC Wins CyberPatriot All-Service Title",
+  "excerpt": "JROTC cadets secured the national title in the All-Service division, demonstrating elite skill in cybersecurity defense.",
+  "heroImage": "/assets/img/channels/cyber/2026-07-07-evening/2026-07-07-evening/comfy_00001_.png",
+  "body": "<p>Cadets from Scripps Ranch High School Air Force JROTC in San Diego, California, have secured the national title in the All-Service Division of the CyberPatriot XVII National Youth Cyber Defense Competition.</p><h2>Defending Military and Civil Networks</h2><p>Competing under the team name \"Terabyte Falcons,\" the cadets competed in a series of online rounds against JROTC teams representing the Army, Navy, Air Force, Marine Corps, and Civil Air Patrol. The national finals challenged cadets to secure virtual servers, clean malware, and configure secure communications channels.</p><h2>Elite Discipline and Cybersecurity</h2><p>Judges noted that JROTC teams benefit from military-style discipline and communication protocols, which help them delegate tasks quickly under the strict 6-hour time limit in the competitive hacking arena.</p>",
+  "kidTake": "High school JROTC cadets won a national cybersecurity competition. They acted like internet security guards, cleaning computer viruses and locking down private servers to protect important files!",
+  "familyDiscussion": [
+    "Why is teamwork so important when a group of people is defending a network against a virtual attack?",
+    "What are some similarities between defending a physical building and defending a virtual computer network?"
+  ],
+  "glossary": [
+    {
+      "term": "Malware",
+      "meaning": "Software that is specifically designed to disrupt, damage, or gain unauthorized access to a computer system."
+    },
+    {
+      "term": "JROTC",
+      "meaning": "Junior Reserve Officers' Training Corps, a high school leadership program supported by the US military."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Cipher Crypt",
+  "authorInit": "CC",
+  "date": "2026-07-07",
+  "publishedAt": "2026-07-07T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "jrotc",
+    "cyberpatriot",
+    "network-defense",
+    "teamwork"
+  ],
+  "color": "#a855f7",
+  "gradient": "linear-gradient(135deg, #a855f7, #ec4899)",
+  "emoji": "🛡️",
+  "featured": false,
+  "pinned": false,
+  "live": false
+}

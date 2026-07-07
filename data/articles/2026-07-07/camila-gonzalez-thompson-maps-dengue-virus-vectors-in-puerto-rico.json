@@ -1,0 +1,47 @@
+{
+  "id": "2026-07-07-stem-evening",
+  "slug": "camila-gonzalez-thompson-maps-dengue-virus-vectors-in-puerto-rico",
+  "path": "data/articles/2026-07-07/camila-gonzalez-thompson-maps-dengue-virus-vectors-in-puerto-rico.json",
+  "cat": "stem",
+  "title": "Camila Gonzalez-Thompson Maps Dengue Virus Vectors in Puerto Rico",
+  "excerpt": "14-year-old Camila Gonzalez-Thompson used blood sample data to map and track dengue virus outbreaks for local health officials.",
+  "heroImage": "/assets/img/channels/stem/2026-07-07-evening/2026-07-07-evening/comfy_00001_.png",
+  "body": "<p>Camila Isabel Gonzalez-Thompson, a 14-year-old student, has won recognition at national science fairs for her public health research project focused on tracking and mapping the dengue virus in Puerto Rico.</p><h2>Tracking Disease Vectors</h2><p>Dengue virus is spread by mosquitoes, and outbreaks can spike rapidly in tropical environments. Gonzalez-Thompson examined local health department blood sample data and mapped the coordinates of outbreaks against local rainfall and temperature records.</p><h2>Guiding Health Interventions</h2><p>Her research helped local public health officials identify endemic areas and target mosquito control efforts more effectively. Her work demonstrates how youth researchers can use data science to address immediate public health challenges in their communities.</p>",
+  "kidTake": "A 14-year-old student named Camila built a disease map in Puerto Rico. By comparing weather records with blood samples, she helped health officials figure out where mosquitoes were spreading viruses, keeping families safe!",
+  "familyDiscussion": [
+    "How does mapping weather and rainfall help health officials predict where mosquitoes will breed?",
+    "Why is data science such a helpful tool for preventing the spread of diseases?"
+  ],
+  "glossary": [
+    {
+      "term": "Vector",
+      "meaning": "An organism, typically a biting insect, that transmits a disease or parasite from one animal to another."
+    },
+    {
+      "term": "Endemic",
+      "meaning": "A disease regularly found among particular people or in a certain area."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Priya Ramanathan",
+  "authorInit": "PR",
+  "date": "2026-07-07",
+  "publishedAt": "2026-07-07T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "public-health",
+    "data-science",
+    "disease-mapping",
+    "puerto-rico"
+  ],
+  "color": "#14b8a6",
+  "gradient": "linear-gradient(135deg, #14b8a6, #a855f7)",
+  "emoji": "🦟",
+  "featured": false,
+  "pinned": false,
+  "live": false
+}

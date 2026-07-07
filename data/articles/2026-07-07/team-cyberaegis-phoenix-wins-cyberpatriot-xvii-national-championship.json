@@ -1,0 +1,50 @@
+{
+  "id": "2026-07-07-cyber-midday",
+  "slug": "team-cyberaegis-phoenix-wins-cyberpatriot-xvii-national-championship",
+  "cat": "cyber",
+  "categoryLabel": "Cybersecurity & Code",
+  "title": "Team CyberAegis Phoenix Wins CyberPatriot XVII National Championship",
+  "subtitle": "",
+  "excerpt": "San Diego high schoolers secured first place in the nation for finding and fixing system vulnerabilities in the CyberPatriot finals.",
+  "heroImage": "/assets/img/channels/cyber/2026-07-07-midday/2026-07-07-midday/comfy_00001_.png",
+  "body": "<p>The national champions for CyberPatriot XVII (2025) were announced on March 17, 2025, in Orlando, Florida. Team CyberAegis Phoenix from Scouting America Exploring Post 2928 in San Diego, California, won the prestigious Open Division National Championship.</p><h2>Securing Virtual Networks</h2><p>The competition placed students in the position of newly hired IT professionals tasked with managing the network of a small company. In the national finals, the high school students had to identify cyber security vulnerabilities, configure firewalls, remove unauthorized software, and defend against active virtual attacks across Windows and Linux systems.</p><h2>San Diego Sweep</h2><p>Teams from San Diego swept the competition, with Scripps Ranch High School JROTC winning the All-Service Division and Scouting America Exploring Club 2927 winning the Middle School Division, showcasing the region’s strong youth training programs.</p>",
+  "kidTake": "A group of high school students from San Diego won a national computer defense competition called CyberPatriot. They acted like cybersecurity police, finding weaknesses in virtual networks and locking out hackers to keep data safe!",
+  "familyDiscussion": [
+    "What are some safe habits you can practice online to keep your own home computers and files secure?",
+    "Why is cybersecurity one of the fastest-growing careers for young students today?"
+  ],
+  "glossary": [
+    {
+      "term": "Firewall",
+      "meaning": "A security system that monitors and controls incoming and outgoing network traffic."
+    },
+    {
+      "term": "Vulnerability",
+      "meaning": "A weakness in a computer system that can be exploited by hackers."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Cipher Crypt",
+  "authorInit": "CC",
+  "authorRole": "Cybersecurity Correspondent",
+  "date": "2026-07-07",
+  "publishedAt": "2026-07-07T14:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "cybersecurity",
+    "cyberpatriot",
+    "network-defense",
+    "coding"
+  ],
+  "color": "#a855f7",
+  "gradient": "linear-gradient(135deg, #a855f7, #6366f1)",
+  "emoji": "🔒",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": []
+}

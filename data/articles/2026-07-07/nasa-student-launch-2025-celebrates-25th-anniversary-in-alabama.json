@@ -1,0 +1,47 @@
+{
+  "id": "2026-07-07-space-evening",
+  "slug": "nasa-student-launch-2025-celebrates-25th-anniversary-in-alabama",
+  "path": "data/articles/2026-07-07/nasa-student-launch-2025-celebrates-25th-anniversary-in-alabama.json",
+  "cat": "space",
+  "title": "NASA Student Launch 2025 Celebrates 25th Anniversary in Alabama",
+  "excerpt": "Middle and high school rocketry teams designed and launched research payloads at the NASA Student Launch finals.",
+  "heroImage": "/assets/img/channels/space/2026-07-07-evening/2026-07-07-evening/comfy_00001_.png",
+  "body": "<p>The 25th-anniversary NASA Student Launch competition concluded on May 4, 2025, near NASA’s Marshall Space Flight Center in Huntsville, Alabama, featuring over 980 middle school, high school, and university students.</p><h2>Launching Scientific Payloads</h2><p>The nine-month challenge tasks student teams with designing, building, and launching high-powered rockets to altitudes between 3,500 and 5,500 feet. More importantly, the rockets must carry a scientific payload, such as a camera array to track landing sites or atmospheric sensors to record air density.</p><h2>Professional Engineering Standards</h2><p>Teams undergo reviews similar to NASA’s aerospace design reviews, preparing students for future careers at NASA and commercial aerospace companies by enforcing strict safety and engineering documentation standards.</p>",
+  "kidTake": "Nearly 1,000 students went to NASA's launch site in Alabama to shoot large model rockets high into the clouds. The rockets carried science experiments like cameras and sensors, acting like real space satellites!",
+  "familyDiscussion": [
+    "Why is it helpful for students to have their rockets carry science experiments instead of just launching them for height?",
+    "How does preparing engineering reviews help students when they get real jobs in aerospace?"
+  ],
+  "glossary": [
+    {
+      "term": "Payload",
+      "meaning": "The carrying capacity of an aircraft or launch vehicle, usually representing scientific instruments."
+    },
+    {
+      "term": "Aerospace",
+      "meaning": "The branch of technology and industry concerned with both aviation and space flight."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Commander Leo Vance",
+  "authorInit": "LV",
+  "date": "2026-07-07",
+  "publishedAt": "2026-07-07T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "rocketry",
+    "nasa",
+    "huntsville",
+    "student-launch"
+  ],
+  "color": "#0ea5e9",
+  "gradient": "linear-gradient(135deg, #0ea5e9, #e11d48)",
+  "emoji": "🌌",
+  "featured": false,
+  "pinned": false,
+  "live": false
+}

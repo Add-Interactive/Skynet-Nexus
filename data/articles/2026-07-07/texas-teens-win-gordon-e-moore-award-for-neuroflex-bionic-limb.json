@@ -1,0 +1,50 @@
+{
+  "id": "2026-07-07-stem-midday",
+  "slug": "texas-teens-win-gordon-e-moore-award-for-neuroflex-bionic-limb",
+  "cat": "stem",
+  "categoryLabel": "STEM Signal",
+  "title": "Texas Teens Win Gordon E. Moore Award for \"Neuroflex\" Bionic Limb",
+  "subtitle": "",
+  "excerpt": "Samuel Skotnikov, Chanyoung Kim, and Eeshaan Prashanth won $50,000 at Regeneron ISEF for their brain-controlled prosthetic leg.",
+  "heroImage": "/assets/img/channels/stem/2026-07-07-midday/2026-07-07-midday/comfy_00001_.png",
+  "body": "<p>Three high school students from Flower Mound, Texas—Samuel Skotnikov (17), Chanyoung Kim (16), and Eeshaan Prashanth (16)—have won the prestigious Gordon E. Moore Award at the 2025 Regeneron International Science and Engineering Fair (ISEF) for their project, \"Neuroflex.\"</p><h2>Brain-Controlled Robotics</h2><p>Neuroflex is a bionic prosthetic leg designed to assist amputees. Traditional robotic limbs are heavy and expensive. The Texas team utilized low-cost actuators and designed a neural interface that reads muscle electrical signals (EMG) from the user’s thigh, translating them into natural, fluid prosthetic movement.</p><h2>Affordable Accessibility</h2><p>By using 3D printing and open-source software, the team reduced construction costs to under $500, a fraction of the cost of commercial bionic limbs, making advanced prosthetic technology accessible to families worldwide.</p>",
+  "kidTake": "Three high school students from Texas built a robotic leg called Neuroflex. It connects to a person's thigh and reads muscle signals, so when they think about walking, the robotic leg moves naturally! It only costs $500 to make!",
+  "familyDiscussion": [
+    "How does 3D printing help students build robotic limbs at a fraction of the cost of big medical companies?",
+    "Why is reading electrical signals from muscles a helpful way to control a robot?"
+  ],
+  "glossary": [
+    {
+      "term": "Electromyography (EMG)",
+      "meaning": "A technique for evaluating and recording the electrical activity produced by skeletal muscles."
+    },
+    {
+      "term": "Actuator",
+      "meaning": "A component of a machine that is responsible for moving and controlling a mechanism or system."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Priya Ramanathan",
+  "authorInit": "PR",
+  "authorRole": "STEM Correspondent",
+  "date": "2026-07-07",
+  "publishedAt": "2026-07-07T14:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "prosthetics",
+    "regeneron-isef",
+    "bionics",
+    "3d-printing"
+  ],
+  "color": "#14b8a6",
+  "gradient": "linear-gradient(135deg, #14b8a6, #10b981)",
+  "emoji": "🦵",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": []
+}

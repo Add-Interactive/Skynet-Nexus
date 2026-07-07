@@ -1,0 +1,47 @@
+{
+  "id": "2026-07-07-engineering-evening",
+  "slug": "laura-diaz-ossa-kabir-juneja-invent-clean-o-matic-birdbath",
+  "path": "data/articles/2026-07-07/laura-diaz-ossa-kabir-juneja-invent-clean-o-matic-birdbath.json",
+  "cat": "engineering",
+  "title": "Laura Diaz Ossa & Kabir Juneja Invent \"CLEAN-O-MATIC Birdbath\"",
+  "excerpt": "5th graders won first place at Invention Convention for an automated birdbath that scrubs itself to prevent disease.",
+  "heroImage": "/assets/img/channels/engineering/2026-07-07-evening/2026-07-07-evening/comfy_00001_.png",
+  "body": "<p>At the RTX Invention Convention U.S. Nationals 2025, 5th-grade student inventors Laura Diaz Ossa and Kabir Juneja won first place for their project, the \"CLEAN-O-MATIC Birdbath.\"</p><h2>Stopping the Spread of Bird Diseases</h2><p>Standing water in backyard birdbaths can breed mosquitoes and spread avian diseases like West Nile virus. The young inventors designed a birdbath with a built-in automated cleaning system. Using a small solar-powered pump and water level sensors, the system regularly drains, scrubs the basin with automated rubber brushes, and refills itself.</p><h2>Protecting Local Wildlife</h2><p>The judges commended the inventors for their focus on ecology. The project demonstrates how young students can combine mechanical design, solar power, and biology to protect wildlife in suburban environments.</p>",
+  "kidTake": "Two 5th-graders invented a self-cleaning birdbath called CLEAN-O-MATIC. It uses a solar pump and motor brushes to automatically scrub and wash itself, keeping local birds healthy and safe from viruses!",
+  "familyDiscussion": [
+    "Why does dirty, standing water in backyards cause problems for local birds and humans?",
+    "How does using solar power make this birdbath easier to use in backyards without plugging it in?"
+  ],
+  "glossary": [
+    {
+      "term": "Avian",
+      "meaning": "Relating to birds."
+    },
+    {
+      "term": "Basin",
+      "meaning": "A bowl or open vessel used to hold water."
+    }
+  ],
+  "ageBand": "5+",
+  "author": "Mason Rivet",
+  "authorInit": "MR",
+  "date": "2026-07-07",
+  "publishedAt": "2026-07-07T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "birds",
+    "inventions",
+    "ecology",
+    "making"
+  ],
+  "color": "#f59e0b",
+  "gradient": "linear-gradient(135deg, #f59e0b, #10b981)",
+  "emoji": "🐦",
+  "featured": false,
+  "pinned": false,
+  "live": false
+}

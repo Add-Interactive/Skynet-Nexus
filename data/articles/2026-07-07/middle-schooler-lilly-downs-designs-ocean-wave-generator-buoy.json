@@ -1,0 +1,47 @@
+{
+  "id": "2026-07-07-climate-evening",
+  "slug": "middle-schooler-lilly-downs-designs-ocean-wave-generator-buoy",
+  "path": "data/articles/2026-07-07/middle-schooler-lilly-downs-designs-ocean-wave-generator-buoy.json",
+  "cat": "climate",
+  "title": "Middle Schooler Lilly Downs Designs Ocean Wave Generator Buoy",
+  "excerpt": "Lilly Downs created a wave energy buoy using magnets and copper wire to generate clean electricity from ocean motion.",
+  "heroImage": "/assets/img/channels/climate/2026-07-07-evening/2026-07-07-evening/comfy_00001_.png",
+  "body": "<p>Middle school student Lilly Downs has received recognition at national science fairs for her prototype of a green energy buoy designed to capture electricity from ocean waves.</p><h2>Generating Current from Waves</h2><p>Her invention uses a floating buoy containing powerful neodymium magnets that slide up and down a central shaft wrapped in copper wire. As ocean waves bob the buoy up and down, the moving magnetic field passes through the copper coils, inducing an electrical current.</p><h2>A Simple, Durable Design</h2><p>Downs’s prototype was praised for its simplicity. Unlike large wave-power turbines that have complex gears that can break in salt water, her design has only one moving part, making it a durable, low-cost solution for powering marine research equipment and ocean tracking buoys.</p>",
+  "kidTake": "A middle school student named Lilly built a floating buoy that makes clean electricity from ocean waves! As the waves rock the buoy, magnets inside slide past copper wire to generate power without any pollution!",
+  "familyDiscussion": [
+    "How does moving a magnet past copper wire generate electricity?",
+    "What are some challenges that ocean wave generators face compared to wind turbines or solar panels?"
+  ],
+  "glossary": [
+    {
+      "term": "Neodymium Magnet",
+      "meaning": "A powerful permanent magnet made from an alloy of neodymium, iron, and boron."
+    },
+    {
+      "term": "Electromagnetic Induction",
+      "meaning": "The production of an electromotive force across an electrical conductor in a changing magnetic field."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Terra Green",
+  "authorInit": "TG",
+  "date": "2026-07-07",
+  "publishedAt": "2026-07-07T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "wave-energy",
+    "clean-electricity",
+    "engineering",
+    "green-power"
+  ],
+  "color": "#059669",
+  "gradient": "linear-gradient(135deg, #059669, #3b82f6)",
+  "emoji": "🌊",
+  "featured": false,
+  "pinned": false,
+  "live": false
+}

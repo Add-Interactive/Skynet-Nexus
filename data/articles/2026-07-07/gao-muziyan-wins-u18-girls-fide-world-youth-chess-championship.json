@@ -1,0 +1,47 @@
+{
+  "id": "2026-07-07-play-evening",
+  "slug": "gao-muziyan-wins-u18-girls-fide-world-youth-chess-championship",
+  "path": "data/articles/2026-07-07/gao-muziyan-wins-u18-girls-fide-world-youth-chess-championship.json",
+  "cat": "play",
+  "title": "Gao Muziyan Wins U18 Girls FIDE World Youth Chess Championship",
+  "excerpt": "Chinese chess prodigy Gao Muziyan claimed the gold medal in the girls under-18 division at the 2025 FIDE youth finals.",
+  "heroImage": "/assets/img/channels/play/2026-07-07-evening/2026-07-07-evening/comfy_00001_.png",
+  "body": "<p>The FIDE World Youth Chess Championships 2025 concluded in Durrës, Albania, with WIM Gao Muziyan of China winning the gold medal in the Under-18 Girls category.</p><h2>Strategic Dominance on the Board</h2><p>Muziyan, a rising star in international women’s chess, competed against 80 top-rated female chess players from around the world. Her precise opening strategies and deep tactical calculations secured her the gold medal after 11 rounds of play.</p><h2>Inspiring Young Girls in Chess</h2><p>Muziyan’s victory is part of a broader trend of rising female participation in chess, inspired by new online streams and scholastic chess clubs that encourage girls to take up the game at an early age.</p>",
+  "kidTake": "A girl named Gao Muziyan won the gold medal at the World Girls Chess Championship! She used smart chess strategies over 11 rounds to defeat players from dozens of other countries.",
+  "familyDiscussion": [
+    "Why is it important to support and encourage more girls to play strategy games like chess?",
+    "How do chess tournaments help kids make friends with other players from different countries?"
+  ],
+  "glossary": [
+    {
+      "term": "WIM",
+      "meaning": "Woman International Master, a high title awarded by FIDE to female chess players."
+    },
+    {
+      "term": "Swiss System",
+      "meaning": "A tournament format where players do not get knocked out, but play a fixed number of rounds."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Amara Okafor",
+  "authorInit": "AO",
+  "date": "2026-07-07",
+  "publishedAt": "2026-07-07T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "chess",
+    "world-youth-championship",
+    "fide",
+    "girls-chess"
+  ],
+  "color": "#84cc16",
+  "gradient": "linear-gradient(135deg, #84cc16, #f43f5e)",
+  "emoji": "🧩",
+  "featured": false,
+  "pinned": false,
+  "live": false
+}

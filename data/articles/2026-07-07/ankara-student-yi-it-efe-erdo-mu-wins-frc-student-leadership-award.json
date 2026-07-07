@@ -1,0 +1,47 @@
+{
+  "id": "2026-07-07-robotics-evening",
+  "slug": "ankara-student-yi-it-efe-erdo-mu-wins-frc-student-leadership-award",
+  "path": "data/articles/2026-07-07/ankara-student-yi-it-efe-erdo-mu-wins-frc-student-leadership-award.json",
+  "cat": "robotics",
+  "title": "Ankara Student Yiğit Efe Erdoğmuş Wins FRC Student Leadership Award",
+  "excerpt": "Turkish student Yiğit Efe Erdoğmuş was recognized at the 2025 FIRST Robotics Championship for outstanding outreach leadership.",
+  "heroImage": "/assets/img/channels/robotics/2026-07-07-evening/2026-07-07-evening/comfy_00001_.png",
+  "body": "<p>At the 2025 FIRST Robotics Competition Championship held in Houston, Texas, student Yiğit Efe Erdoğmuş from Team 9029 in Ankara, Türkiye, was awarded the FIRST Dean’s List Award for outstanding leadership and community outreach.</p><h2>Inspiring STEM in Türkiye</h2><p>Erdoğmuş was recognized for his work in establishing robotics clubs in underprivileged schools across Ankara. He organized local engineering workshops, translating curriculum materials into Turkish, and helped gather sponsorships for students who could not afford robot components.</p><h2>Robotics Beyond the Arena</h2><p>The Dean’s List Award recognizes that the most successful student engineers are not just those who write code or weld metal, but those who lead, inspire, and build sustainable local ecosystems for the next generation.</p>",
+  "kidTake": "A student named Yiğit from Turkey won a leadership award at the World Robotics Championship. He was celebrated for helping poor schools in his city start their own robotics clubs so more kids can learn engineering!",
+  "familyDiscussion": [
+    "Why is translating engineering materials into other languages important for global science collaboration?",
+    "How can a student leader help their school build a successful science or robotics team?"
+  ],
+  "glossary": [
+    {
+      "term": "FRC",
+      "meaning": "FIRST Robotics Competition, a high school program where teams build large robots."
+    },
+    {
+      "term": "Dean's List",
+      "meaning": "A prestigious award at FRC recognizing student leaders who promote STEM."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Jax Henderson",
+  "authorInit": "JH",
+  "date": "2026-07-07",
+  "publishedAt": "2026-07-07T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "robotics",
+    "first-championship",
+    "leadership",
+    "turkey-stem"
+  ],
+  "color": "#e11d48",
+  "gradient": "linear-gradient(135deg, #e11d48, #3b82f6)",
+  "emoji": "⚙️",
+  "featured": false,
+  "pinned": false,
+  "live": false
+}

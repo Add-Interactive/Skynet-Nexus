@@ -1,0 +1,47 @@
+{
+  "id": "2026-07-07-biotech-evening",
+  "slug": "slovak-student-adam-koval-k-invents-cost-saving-antiviral-synthesizer-method",
+  "path": "data/articles/2026-07-07/slovak-student-adam-koval-k-invents-cost-saving-antiviral-synthesizer-method.json",
+  "cat": "biotech",
+  "title": "Slovak Student Adam Kovalčík Invents Cost-Saving Antiviral Synthesizer Method",
+  "excerpt": "19-year-old Adam Kovalčík won the top prize at ISEF for reducing the production cost of Zika/Ebola drug galidesivir by 80%.",
+  "heroImage": "/assets/img/channels/biotech/2026-07-07-evening/2026-07-07-evening/comfy_00001_.png",
+  "body": "<p>Adam Kovalčík, a 19-year-old from Dulovce, Slovakia, has received the prestigious George D. Yancopoulos Innovator Award and a $100,000 prize at the 2025 Regeneron International Science and Engineering Fair (ISEF) for his chemistry research.</p><h2>Antiviral Synthesis Breakthrough</h2><p>Kovalčík developed a faster, more cost-effective method to produce galidesivir, an experimental antiviral drug used to target RNA viruses like Zika, Ebola, and COVID-19. By utilizing materials derived from corn husk waste, he reduced the chemical production process from 15 steps down to 10.</p><h2>Lowering Medical Barriers</h2><p>His research demonstrated a potential way to reduce production costs of this vital antiviral compound from $75 per gram to approximately $12.50 per gram. This massive cost reduction could make emergency antiviral stockpiles far more affordable for developing nations facing virus outbreaks.</p>",
+  "kidTake": "A 19-year-old student named Adam figured out how to make a medicine for dangerous viruses using leftover corn husks! His new method makes the drug much faster and drops the cost by 80 percent, helping poor countries buy medicine.",
+  "familyDiscussion": [
+    "How does using waste materials like corn husks to make medicine help protect the environment?",
+    "Why is it important for medicines to be cheap and affordable for all countries in the world?"
+  ],
+  "glossary": [
+    {
+      "term": "Galidesivir",
+      "meaning": "An experimental broad-spectrum antiviral drug that stops viruses from replicating."
+    },
+    {
+      "term": "Synthesis",
+      "meaning": "The execution of chemical reactions to obtain a product."
+    }
+  ],
+  "ageBand": "12+",
+  "author": "Dr. Sage Rivers",
+  "authorInit": "SR",
+  "date": "2026-07-07",
+  "publishedAt": "2026-07-07T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "biotechnology",
+    "antivirals",
+    "organic-chemistry",
+    "science-fair"
+  ],
+  "color": "#10b981",
+  "gradient": "linear-gradient(135deg, #10b981, #059669)",
+  "emoji": "💊",
+  "featured": false,
+  "pinned": false,
+  "live": false
+}

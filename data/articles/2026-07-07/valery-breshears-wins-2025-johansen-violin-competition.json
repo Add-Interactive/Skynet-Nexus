@@ -1,0 +1,47 @@
+{
+  "id": "2026-07-07-music-evening",
+  "slug": "valery-breshears-wins-2025-johansen-violin-competition",
+  "path": "data/articles/2026-07-07/valery-breshears-wins-2025-johansen-violin-competition.json",
+  "cat": "music",
+  "title": "Valery Breshears Wins 2025 Johansen Violin Competition",
+  "excerpt": "The teenage violinist won first prize at the Johansen International Competition in Washington, DC for young string players.",
+  "heroImage": "/assets/img/channels/music/2026-07-07-evening/2026-07-07-evening/comfy_00001_.png",
+  "body": "<p>The Johansen International Competition for Young String Players concluded in March 2025 in Washington, DC. Violinist Valery Breshears won the first prize in the violin division, earning a cash award and solo performance opportunities.</p><h2>A Prestigious Youth Audition</h2><p>Held once every three years, the Johansen Competition welcomes classical string players aged 13 to 17 from around the globe. Breshears performed a complex classical program for a panel of judges, demonstrating elite technique and musical expression.</p><h2>Launching Classical Careers</h2><p>The Johansen Competition is known as a major springboard for young artists, helping them secure instrument loans from historic collections and performance invitations from symphony orchestras worldwide.</p>",
+  "kidTake": "A young violinist named Valery won first place at a big string music competition in Washington, DC. She played a difficult classical concert on her violin, showing off her talent to judges from all over the world!",
+  "familyDiscussion": [
+    "How does practicing a musical instrument help train your brain to concentrate on other tasks?",
+    "What does \"musical expression\" mean compared to just playing the correct notes on a page?"
+  ],
+  "glossary": [
+    {
+      "term": "Springboard",
+      "meaning": "Something that provides a strong launch or start for a career."
+    },
+    {
+      "term": "String Player",
+      "meaning": "A musician who plays an instrument with strings, such as a violin, viola, cello, or double bass."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Aria Harmony",
+  "authorInit": "AH",
+  "date": "2026-07-07",
+  "publishedAt": "2026-07-07T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "violin",
+    "classical-music",
+    "johansen-competition",
+    "youth-arts"
+  ],
+  "color": "#f43f5e",
+  "gradient": "linear-gradient(135deg, #f43f5e, #3b82f6)",
+  "emoji": "🎼",
+  "featured": false,
+  "pinned": false,
+  "live": false
+}

@@ -1,0 +1,47 @@
+{
+  "id": "2026-07-07-ai-evening",
+  "slug": "south-boston-teens-build-ai-goal-tracker-app-for-youth-club-members",
+  "path": "data/articles/2026-07-07/south-boston-teens-build-ai-goal-tracker-app-for-youth-club-members.json",
+  "cat": "ai",
+  "title": "South Boston Teens Build AI Goal Tracker App for Youth Club Members",
+  "excerpt": "Teens developed an AI-powered goal and achievement tracker app to help Boys and Girls Club members monitor progress.",
+  "heroImage": "/assets/img/channels/ai/2026-07-07-evening/2026-07-07-evening/comfy_00001_.png",
+  "body": "<p>In South Boston, a group of teenagers has collaborated to develop an AI-powered goal and achievement tracker application designed specifically for members of the local Boys and Girls Club.</p><h2>Tracking Student Success</h2><p>The app uses a lightweight natural language processing model to help students describe their goals, such as completing homework, practicing music, or learning to swim. The AI breaks down these broad goals into daily action items and sends automated positive reminders to the student’s phone.</p><h2>Bridging the Parent-Child Gap</h2><p>The app includes a parent portal where parents can view goals and progress, offering suggestions for family discussions. The project was created as part of a summer AI incubator program, demonstrating how teenagers can apply software design to local social causes.</p>",
+  "kidTake": "A group of teenagers in Boston built a smart goal app. You tell the app what you want to learn, and the AI breaks it down into small, daily steps, reminding you with happy messages while letting your parents cheer you on!",
+  "familyDiscussion": [
+    "What is a big goal you want to achieve this month, and how could you break it down into smaller daily steps?",
+    "Why is it helpful to have a computer app send positive reminders when you are practicing a new skill?"
+  ],
+  "glossary": [
+    {
+      "term": "Natural Language Processing (NLP)",
+      "meaning": "A branch of AI that helps computers understand and respond to human language."
+    },
+    {
+      "term": "Incubator",
+      "meaning": "A collaborative program designed to help young projects or startups succeed."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Dr. Nova Sterling",
+  "authorInit": "NS",
+  "date": "2026-07-07",
+  "publishedAt": "2026-07-07T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "goal-tracking",
+    "app-development",
+    "community-project",
+    "ai-assist"
+  ],
+  "color": "#00e5ff",
+  "gradient": "linear-gradient(135deg, #00e5ff, #3b82f6)",
+  "emoji": "📱",
+  "featured": false,
+  "pinned": false,
+  "live": false
+}

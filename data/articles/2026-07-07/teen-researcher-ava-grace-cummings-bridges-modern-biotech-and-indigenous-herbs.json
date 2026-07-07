@@ -1,0 +1,50 @@
+{
+  "id": "2026-07-07-biotech-midday",
+  "slug": "teen-researcher-ava-grace-cummings-bridges-modern-biotech-and-indigenous-herbs",
+  "cat": "biotech",
+  "categoryLabel": "Biotech & Health",
+  "title": "Teen Researcher Ava Grace Cummings Bridges Modern Biotech and Indigenous Herbs",
+  "subtitle": "",
+  "excerpt": "Ava Grace Cummings used fruit fly models to test traditional Lumbee Tribe common nettle treatments for rare muscle myopathy.",
+  "heroImage": "/assets/img/channels/biotech/2026-07-07-midday/2026-07-07-midday/comfy_00001_.png",
+  "body": "<p>Ava Grace Cummings, a student at the North Carolina School of Science and Mathematics, was awarded second place and a $175,000 prize at the 2025 Regeneron Science Talent Search for her research on STAC3 disorder, historically known as Native American myopathy.</p><h2>Modeling a Rare Muscle Disorder</h2><p>Cummings developed a model organism of the disorder by creating a strain of fruit flies that lacked the <em>dstac</em> gene. She then tested the effectiveness of both the experimental drug Tirasemtiv and an extract from the common nettle herb (<em>Urtica dioica</em>), which is traditionally used by the Lumbee Tribe of North Carolina for wellness.</p><h2>Bridging Cultures for Healing</h2><p>Her research demonstrated that treatment with both the herb alone and the combination of the herb and the drug resulted in significantly improved movement in both adult flies and larvae. Her project seeks to identify potential new treatments for this rare genetic muscle disorder, which disproportionately affects her community, the Lumbee Tribe.</p>",
+  "kidTake": "A high school student named Ava used fruit flies to study a rare muscle disease that affects people in her Native American tribe. By combining a modern drug with a traditional herbal medicine made from common nettles, she helped the flies move much better!",
+  "familyDiscussion": [
+    "How does looking at traditional medicines from history help scientists discover new modern cures?",
+    "Why do you think scientists use tiny fruit flies to study human genetic diseases?"
+  ],
+  "glossary": [
+    {
+      "term": "Myopathy",
+      "meaning": "A disease of the muscle tissue that leads to weakness."
+    },
+    {
+      "term": "Gene Knockdown",
+      "meaning": "A technique used to reduce the expression of a specific gene in an organism."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Dr. Sage Rivers",
+  "authorInit": "SR",
+  "authorRole": "Biotech Correspondent",
+  "date": "2026-07-07",
+  "publishedAt": "2026-07-07T14:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "biotech",
+    "lumbee-tribe",
+    "herbal-medicine",
+    "fruit-flies"
+  ],
+  "color": "#10b981",
+  "gradient": "linear-gradient(135deg, #10b981, #3b82f6)",
+  "emoji": "🧬",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": []
+}

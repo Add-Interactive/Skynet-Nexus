@@ -1,0 +1,50 @@
+{
+  "id": "2026-07-07-robotics-midday",
+  "slug": "australian-team-project-bucephalus-wins-first-impact-award",
+  "cat": "robotics",
+  "categoryLabel": "Robotics & Automation",
+  "title": "Australian Team \"Project Bucephalus\" Wins FIRST Impact Award",
+  "subtitle": "",
+  "excerpt": "Team 5985 from Wollongong won the highest honor at the 2025 FIRST Robotics Championship in Houston for community outreach.",
+  "heroImage": "/assets/img/channels/robotics/2026-07-07-midday/2026-07-07-midday/comfy_00001_.png",
+  "body": "<p>At the 2025 FIRST Robotics Competition Championship held in Houston, Texas, Team 5985, Project Bucephalus, from Wollongong, Australia, was awarded the FIRST Impact Award. This is the highest honor in the competition, celebrating the team that best embodies the values of STEM education and community service.</p><h2>Engineering Community Impact</h2><p>Project Bucephalus designed and built a 120-pound robot to compete in the seasonal game challenge. However, the Impact Award recognizes their work outside the arena: mentoring younger teams, organizing STEM workshops in rural Australian towns, and developing accessibility toolkits for disabled students to participate in robotics.</p><h2>The World Stage</h2><p>The 2025 Championship gathered over 15,000 students from dozens of countries, emphasizing collaboration and gracious professionalism alongside mechanical engineering excellence.</p>",
+  "kidTake": "A robotics team from Australia won the top award at the World Championship in Texas. They built a great robot, but they won because they spent their spare time teaching other kids in small towns how to build robots too!",
+  "familyDiscussion": [
+    "How does helping other people learn STEM make a team more successful than just building a good robot?",
+    "What does \"gracious professionalism\" mean when competing in a sports or science event?"
+  ],
+  "glossary": [
+    {
+      "term": "FIRST",
+      "meaning": "For Inspiration and Recognition of Science and Technology, a youth organization promoting STEM."
+    },
+    {
+      "term": "FIRST Impact Award",
+      "meaning": "The most prestigious award at FRC, celebrating community outreach and leadership."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Jax Henderson",
+  "authorInit": "JH",
+  "authorRole": "Robotics Correspondent",
+  "date": "2026-07-07",
+  "publishedAt": "2026-07-07T14:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "robotics",
+    "first-championship",
+    "community-service",
+    "stem-education"
+  ],
+  "color": "#e11d48",
+  "gradient": "linear-gradient(135deg, #e11d48, #f59e0b)",
+  "emoji": "🤖",
+  "featured": false,
+  "pinned": false,
+  "live": false,
+  "sources": []
+}

@@ -1,0 +1,47 @@
+{
+  "id": "2026-07-07-math-evening",
+  "slug": "high-schooler-qiao-zhang-achieves-perfect-score-at-66th-imo",
+  "path": "data/articles/2026-07-07/high-schooler-qiao-zhang-achieves-perfect-score-at-66th-imo.json",
+  "cat": "math",
+  "title": "High Schooler Qiao Zhang Achieves Perfect Score at 66th IMO",
+  "excerpt": "US team member Qiao Zhang won a gold medal with a perfect score at the 2025 International Mathematical Olympiad.",
+  "heroImage": "/assets/img/channels/math/2026-07-07-evening/2026-07-07-evening/comfy_00001_.png",
+  "body": "<p>At the 66th International Mathematical Olympiad (IMO) held in July 2025 on the Sunshine Coast of Australia, US team member Qiao Zhang won a gold medal and was one of only five contestants in the world to achieve a perfect score.</p><h2>Six Complex Math Proofs</h2><p>The IMO is the premier world championship mathematics competition for high school students. Over two days, contestants face six extremely difficult math proofs spanning geometry, number theory, algebra, and combinatorics. Each day, players have 4.5 hours to solve just three questions.</p><h2>A High-Stakes Contest</h2><p>Zhang’s perfect performance helped lead the United States team to a second-place finish overall with 216 points, just behind the team from China, which secured first place with 231 points, showing the elite mathematical talent of the young contestants.</p>",
+  "kidTake": "A high school student named Qiao won a gold medal at the World Math Olympics in Australia. He solved six incredibly difficult math riddles without making a single mistake, earning a perfect score!",
+  "familyDiscussion": [
+    "What are some strategies you use when you are trying to solve a very difficult homework or puzzle question?",
+    "Why is it helpful for math students from different countries to meet and compete together?"
+  ],
+  "glossary": [
+    {
+      "term": "Number Theory",
+      "meaning": "A branch of pure mathematics devoted primarily to the study of the integers."
+    },
+    {
+      "term": "IMO",
+      "meaning": "The International Mathematical Olympiad, founded in 1959."
+    }
+  ],
+  "ageBand": "12+",
+  "author": "Adara Matrix",
+  "authorInit": "AM",
+  "date": "2026-07-07",
+  "publishedAt": "2026-07-07T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "mathematics",
+    "olympiad",
+    "imo-2025",
+    "student-awards"
+  ],
+  "color": "#3b82f6",
+  "gradient": "linear-gradient(135deg, #3b82f6, #6366f1)",
+  "emoji": "🧮",
+  "featured": false,
+  "pinned": false,
+  "live": false
+}

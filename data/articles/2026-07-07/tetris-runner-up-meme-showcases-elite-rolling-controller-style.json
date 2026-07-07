@@ -1,0 +1,47 @@
+{
+  "id": "2026-07-07-gaming-evening",
+  "slug": "tetris-runner-up-meme-showcases-elite-rolling-controller-style",
+  "path": "data/articles/2026-07-07/tetris-runner-up-meme-showcases-elite-rolling-controller-style.json",
+  "cat": "gaming",
+  "title": "Tetris Runner-Up \"meme\" Showcases Elite \"Rolling\" Controller Style",
+  "excerpt": "The teenage competitor reached the finals of the 2025 Classic Tetris Championship, demonstrating the limits of NES play.",
+  "heroImage": "/assets/img/channels/gaming/2026-07-07-evening/2026-07-07-evening/comfy_00001_.png",
+  "body": "<p>At the 2025 Classic Tetris World Championship in Pasadena, California, the teenage competitor playing under the alias \"meme\" captured the attention of the esports world by reaching the final match against champion Alex Thach.</p><h2>The Mastery of Rolling</h2><p>Classic Tetris requires players to move blocks at high speeds as the game advances. \"meme\" utilized the \"rolling\" play style, where players slide their fingers across the back of the controller to press the D-pad against their other hand. This allows input speeds of up to 30 buttons per second, far exceeding older thumb-tapping methods.</p><h2>The Youth Domination</h2><p>Esports researchers noted that young players dominate Classic Tetris because their reflexes and willingness to master new mechanical controller styles have transformed a 35-year-old game into a fast-paced modern sport.</p>",
+  "kidTake": "A teenage gamer named \"meme\" reached the finals of the World Tetris Championship. He used a cool controller trick called \"rolling\" to move blocks faster than the human eye can track, setting new high scores!",
+  "familyDiscussion": [
+    "Why does competitive gaming require physical coordination and practice, just like physical sports?",
+    "How does a new way of holding a controller completely change the way a video game is played?"
+  ],
+  "glossary": [
+    {
+      "term": "NES Controller",
+      "meaning": "The simple, rectangular controller used for the Nintendo Entertainment System released in 1985."
+    },
+    {
+      "term": "Esports",
+      "meaning": "A form of competition using video games, often played in tournaments."
+    }
+  ],
+  "ageBand": "8+",
+  "author": "Leo Pixel",
+  "authorInit": "LP",
+  "date": "2026-07-07",
+  "publishedAt": "2026-07-07T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "tetris",
+    "gaming",
+    "controller-tech",
+    "reflexes"
+  ],
+  "color": "#ec4899",
+  "gradient": "linear-gradient(135deg, #ec4899, #84cc16)",
+  "emoji": "🕹️",
+  "featured": false,
+  "pinned": false,
+  "live": false
+}

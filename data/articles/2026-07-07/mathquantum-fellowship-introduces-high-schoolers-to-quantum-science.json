@@ -1,0 +1,47 @@
+{
+  "id": "2026-07-07-quantum-evening",
+  "slug": "mathquantum-fellowship-introduces-high-schoolers-to-quantum-science",
+  "path": "data/articles/2026-07-07/mathquantum-fellowship-introduces-high-schoolers-to-quantum-science.json",
+  "cat": "quantum",
+  "title": "MathQuantum Fellowship Introduces High Schoolers to Quantum Science",
+  "excerpt": "The 2025 MathQuantum fellowship program gives students early exposure to quantum algorithms and computer architectures.",
+  "heroImage": "/assets/img/channels/quantum/2026-07-07-evening/2026-07-07-evening/comfy_00001_.png",
+  "body": "<p>In 2025, the academic community launched the MathQuantum High School Fellowship, a program designed to give students early exposure to the fields of quantum information science and quantum computing.</p><h2>Preparing for the Quantum Era</h2><p>Modern computers use bits that are either 0 or 1, but quantum computers use qubits that can exist as both at once, allowing them to solve complex problems much faster. The MathQuantum program teaches high schoolers the linear algebra and physics behind quantum algorithm design.</p><h2>Hands-On Algorithm Projects</h2><p>Fellows work under the mentorship of university researchers to build tiny simulation projects using open-source quantum software, helping them prepare for future careers in the quantum computing industry.</p>",
+  "kidTake": "A new fellowship program called MathQuantum is teaching high school students how to build code for future quantum computers. They learn how to use qubit math to create programs that could change the world!",
+  "familyDiscussion": [
+    "Why do we need to train a new generation of scientists to write programs for quantum computers instead of normal computers?",
+    "How does thinking in \"qubits\" (both 0 and 1) differ from thinking in normal computer bits (0 or 1)?"
+  ],
+  "glossary": [
+    {
+      "term": "Linear Algebra",
+      "meaning": "The branch of mathematics concerning linear equations and linear maps."
+    },
+    {
+      "term": "Quantum Information Science",
+      "meaning": "An academic field focused on analyzing and manipulating information using quantum mechanics."
+    }
+  ],
+  "ageBand": "12+",
+  "author": "Zephyr Thorne",
+  "authorInit": "ZT",
+  "date": "2026-07-07",
+  "publishedAt": "2026-07-07T18:15:00-04:00",
+  "read": 2,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "quantum-computing",
+    "education",
+    "algorithms",
+    "physics"
+  ],
+  "color": "#6366f1",
+  "gradient": "linear-gradient(135deg, #6366f1, #0ea5e9)",
+  "emoji": "🌀",
+  "featured": false,
+  "pinned": false,
+  "live": false
+}
