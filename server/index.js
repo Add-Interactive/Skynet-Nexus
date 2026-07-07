@@ -1148,14 +1148,14 @@ app.listen(PORT, () => {
     console.error('[skynet] Startup evening seeding failed:', e.message);
   }
 
-  // Self-healing: Update legacy Star Trek author names in SQLite database, manifest.json, and published articles
+  // Self-healing: Update legacy Star Trek author names and missing images in SQLite database, manifest.json, and published articles
   try {
     const { DatabaseSync } = require('node:sqlite');
-    const { DB_PATH } = require('./storage');
+    const { DB_PATH, DATA_DIR } = require('./storage');
     const rawDb = new DatabaseSync(DB_PATH);
     const fs = require('fs');
     const path = require('path');
-
+ 
     const nameMap = {
       'Captain Jean-Luc Picard': { name: 'Dr. Nova Sterling', role: 'Correspondent - AI & Machine Learning', init: 'NS' },
       'Commander William Riker': { name: 'Commander Leo Vance', role: 'Correspondent - Space & Aerospace', init: 'LV' },
@@ -1189,9 +1189,8 @@ app.listen(PORT, () => {
       } catch (e) {}
     });
 
-    // 2. Update manifest.json and articles directory on disk
-    const dataDir = path.resolve(__dirname, '..', 'data');
-    const manifestPath = path.join(dataDir, 'manifest.json');
+    // 2. Update manifest.json and articles directory in persistent DATA_DIR
+    const manifestPath = path.join(DATA_DIR, 'manifest.json');
     if (fs.existsSync(manifestPath)) {
       const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
       let manifestChanged = false;
@@ -1203,8 +1202,8 @@ app.listen(PORT, () => {
             art.authorInit = mapped.init;
             manifestChanged = true;
           }
-          // Update individual article files
-          const artFilePath = path.resolve(path.join(dataDir, 'articles', art.date, art.slug + '.json'));
+          // Update individual article files in DATA_DIR
+          const artFilePath = path.resolve(path.join(DATA_DIR, art.path.replace(/^data\//, '')));
           if (fs.existsSync(artFilePath)) {
             try {
               const article = JSON.parse(fs.readFileSync(artFilePath, 'utf8'));
@@ -1225,8 +1224,125 @@ app.listen(PORT, () => {
       }
       if (manifestChanged) {
         fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-        console.log('[skynet] Self-healing: Successfully resolved and updated legacy author names in production manifest.');
+        console.log('[skynet] Self-healing: Successfully resolved and updated legacy author names in persistent manifest.');
       }
+    }
+
+    // 3. Self-healing: Resolve and repair missing placeholder JPG cover images in persistent DATA_DIR
+    try {
+      const repoChannelsDir = path.join(ROOT, 'public', 'assets', 'img', 'channels');
+      const channelsList = ['ai', 'biotech', 'climate', 'cyber', 'engineering', 'gaming', 'math', 'music', 'play', 'quantum', 'robotics', 'space', 'stem', 'network', 'skynet'];
+      const channelImages = {};
+      
+      const { COMFY_PATH } = require('./sync-comfy-helper');
+      
+      function getImagesForChannel(ch) {
+        const list = new Set();
+        function walk(baseDir, currentSubdir = '') {
+          const dirPath = path.join(baseDir, currentSubdir);
+          if (!fs.existsSync(dirPath) || !fs.statSync(dirPath).isDirectory()) return;
+          fs.readdirSync(dirPath).forEach(item => {
+            const rel = currentSubdir ? `${currentSubdir}/${item}` : item;
+            const full = path.join(baseDir, rel);
+            if (fs.statSync(full).isDirectory()) {
+              walk(baseDir, rel);
+            } else if (/\.(jpe?g|png|webp|gif|svg)$/i.test(item)) {
+              list.add(rel.replace(/\\/g, '/'));
+            }
+          });
+        }
+        
+        const repoPath = path.join(repoChannelsDir, ch);
+        walk(repoPath);
+        
+        if (COMFY_PATH && fs.existsSync(COMFY_PATH)) {
+          const comfyDirs = fs.readdirSync(COMFY_PATH);
+          const matchedDir = comfyDirs.find(d => d.toLowerCase() === ch.toLowerCase());
+          if (matchedDir) {
+            walk(path.join(COMFY_PATH, matchedDir));
+          }
+        }
+        return Array.from(list);
+      }
+      
+      channelsList.forEach(ch => {
+        channelImages[ch] = getImagesForChannel(ch);
+      });
+      
+      function imageExists(ch, filename) {
+        const p1 = path.join(repoChannelsDir, ch, filename);
+        if (fs.existsSync(p1) && fs.statSync(p1).isFile()) return true;
+        if (COMFY_PATH && fs.existsSync(COMFY_PATH)) {
+          const comfyDirs = fs.readdirSync(COMFY_PATH);
+          const matchedDir = comfyDirs.find(d => d.toLowerCase() === ch.toLowerCase());
+          if (matchedDir) {
+            const p2 = path.join(COMFY_PATH, matchedDir, filename);
+            if (fs.existsSync(p2) && fs.statSync(p2).isFile()) return true;
+          }
+        }
+        return false;
+      }
+      
+      // Update DB queued stories
+      queued.forEach(row => {
+        try {
+          const payload = JSON.parse(row.payload);
+          if (payload.heroImage && payload.heroImage.startsWith('/assets/img/channels/')) {
+            const parts = payload.heroImage.replace('/assets/img/channels/', '').split('/');
+            const ch = parts[0];
+            const filename = parts.slice(1).join('/');
+            
+            if (!imageExists(ch, filename)) {
+              const list = channelImages[ch] || [];
+              if (list.length > 0) {
+                const rand = list[Math.floor(Math.random() * list.length)];
+                payload.heroImage = `/assets/img/channels/${ch}/${rand}`;
+                rawDb.prepare("UPDATE queued_stories SET payload = ? WHERE id = ?").run(JSON.stringify(payload), row.id);
+              }
+            }
+          }
+        } catch (e) {}
+      });
+      
+      // Update manifest and article files in DATA_DIR
+      if (fs.existsSync(manifestPath)) {
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+        let manifestChanged = false;
+        if (Array.isArray(manifest.articles)) {
+          manifest.articles.forEach(art => {
+            if (art.heroImage && art.heroImage.startsWith('/assets/img/channels/')) {
+              const parts = art.heroImage.replace('/assets/img/channels/', '').split('/');
+              const ch = parts[0];
+              const filename = parts.slice(1).join('/');
+              
+              if (!imageExists(ch, filename)) {
+                const list = channelImages[ch] || [];
+                if (list.length > 0) {
+                  const rand = list[Math.floor(Math.random() * list.length)];
+                  const newImg = `/assets/img/channels/${ch}/${rand}`;
+                  art.heroImage = newImg;
+                  manifestChanged = true;
+                  
+                  const artFilePath = path.resolve(path.join(DATA_DIR, art.path.replace(/^data\//, '')));
+                  if (fs.existsSync(artFilePath)) {
+                    try {
+                      const article = JSON.parse(fs.readFileSync(artFilePath, 'utf8'));
+                      article.heroImage = newImg;
+                      fs.writeFileSync(artFilePath, JSON.stringify(article, null, 2));
+                    } catch (e) {}
+                  }
+                }
+              }
+            }
+          });
+        }
+        if (manifestChanged) {
+          fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+          console.log('[skynet] Self-healing: Successfully resolved and updated missing placeholder images in persistent manifest.');
+        }
+      }
+    } catch (e) {
+      console.error('[skynet] Self-healing missing images failed:', e.message);
     }
   } catch (e) {
     console.error('[skynet] Self-healing legacy names failed:', e.message);
