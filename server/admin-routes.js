@@ -732,7 +732,7 @@ router.post('/antigravity/generate-drops', (req, res) => {
   }
 });
 
-router.post('/antigravity/schedule-custom-drop', (req, res) => {
+router.post('/antigravity/schedule-custom-drop', async (req, res) => {
   try {
     const { targetDay, edition } = req.body;
     if (!targetDay || !edition) {
@@ -742,6 +742,7 @@ router.post('/antigravity/schedule-custom-drop', (req, res) => {
     const { DatabaseSync } = require('node:sqlite');
     const { DB_PATH } = require('./storage');
     const { generateEmergencyDrops } = require('./antigravity-service');
+    const { generateImageForArticle } = require('./comfy-generator');
     
     const rawDb = new DatabaseSync(DB_PATH);
     
@@ -779,7 +780,7 @@ router.post('/antigravity/schedule-custom-drop', (req, res) => {
     
     const approvedRows = rawDb.prepare("SELECT id, payload FROM queued_stories WHERE status = 'approved'").all();
     
-    approvedRows.forEach(row => {
+    for (const row of approvedRows) {
       const payload = JSON.parse(row.payload);
       payload.date = targetDate;
       payload.publishedAt = timeET;
@@ -791,8 +792,21 @@ router.post('/antigravity/schedule-custom-drop', (req, res) => {
       if (edition === 'midday') editionOffset = 1;
       else if (edition === 'evening') editionOffset = 2;
       
-      const imgIndex = (((dayNum * 3) + editionOffset) % 30) + 1;
-      payload.heroImage = `/assets/img/channels/${payload.cat}/${imgIndex}.jpg`;
+      let customImg = null;
+      if (payload.cat !== 'skynet' && payload.cat !== 'network') {
+        try {
+          customImg = await generateImageForArticle(payload.cat, payload.title);
+        } catch (e) {
+          console.warn(`[admin-routes] ComfyUI generation failed for ${payload.cat}:`, e.message);
+        }
+      }
+      
+      if (customImg) {
+        payload.heroImage = `/assets/img/channels/${payload.cat}/${customImg}`;
+      } else {
+        const imgIndex = (((dayNum * 3) + editionOffset) % 30) + 1;
+        payload.heroImage = `/assets/img/channels/${payload.cat}/${imgIndex}.jpg`;
+      }
       
       rawDb.prepare(`
         UPDATE queued_stories 
@@ -803,7 +817,7 @@ router.post('/antigravity/schedule-custom-drop', (req, res) => {
                updated_at = datetime('now')
          WHERE id = ?
       `).run(timeUTC, edition, JSON.stringify(payload), row.id);
-    });
+    }
     
     logAction(req.adminUser.id, 'antigravity.schedule-custom-drop', 'story', null, { date: targetDate, edition });
     res.json({ ok: true, count: approvedRows.length, targetDate, edition, timeET });
