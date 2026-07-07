@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const COMFY_URL = process.env.COMFY_URL || 'http://127.0.0.1:8188';
+const { COMFY_PATH } = require('./sync-comfy-helper');
 
 function postJson(urlStr, payload) {
   return new Promise((resolve, reject) => {
@@ -211,12 +212,13 @@ async function generateImageForArticle(channel, title, subfolder = '') {
     console.log(`[comfy-generator] Prompt queued in ComfyUI. ID: ${promptId}`);
     
     const start = Date.now();
-    while (Date.now() - start < 90000) {
+    while (Date.now() - start < 300000) {
       await new Promise(r => setTimeout(r, 2000));
       const history = await getJson(COMFY_URL, '/history');
       if (history[promptId]) {
         const promptInfo = history[promptId];
         const outputs = promptInfo.outputs;
+        console.log(`[comfy-generator] Prompt completed. saveNodeId: "${saveNodeId}". Outputs keys:`, Object.keys(outputs || {}));
         if (outputs && outputs[saveNodeId] && outputs[saveNodeId].images && outputs[saveNodeId].images[0]) {
           const imageInfo = outputs[saveNodeId].images[0];
           const filename = imageInfo.filename;
@@ -239,12 +241,16 @@ async function generateImageForArticle(channel, title, subfolder = '') {
                 fs.renameSync(srcPath, destPath);
                 console.log(`[comfy-generator] Moved image to: ${destPath}`);
                 return `${subfolder}/${cleanFilename}`;
+              } else {
+                console.warn(`[comfy-generator] Source image path not found: ${srcPath}`);
               }
             } catch (err) {
               console.error('[comfy-generator] Failed to move file to subfolder:', err.message);
             }
           }
           return filename;
+        } else {
+          console.warn(`[comfy-generator] Outputs for node "${saveNodeId}" not found or mismatch:`, JSON.stringify(outputs));
         }
         break;
       }
