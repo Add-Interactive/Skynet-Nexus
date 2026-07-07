@@ -1336,9 +1336,59 @@ app.listen(PORT, () => {
             }
           });
         }
-        if (manifestChanged) {
-          fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-          console.log('[skynet] Self-healing: Successfully resolved and updated missing placeholder images in persistent manifest.');
+        
+        // 3b. Self-healing: Resolve and repair duplicate heroImage usage across articles in persistent manifest
+        try {
+          const imageMap = {};
+          let duplicateImagesChanged = false;
+          
+          manifest.articles.forEach(art => {
+            if (!art.heroImage) return;
+            // Ignore pins / welcome articles
+            if (art.id === '2026-07-01-welcome-to-skynet-nexus' || art.id === '2026-07-04-franklin-stem-excellence') return;
+            if (art.heroImage.includes('skywelcome') || art.heroImage.includes('franklin_stem') || art.heroImage.includes('whitney_stem')) return;
+            
+            if (!imageMap[art.heroImage]) imageMap[art.heroImage] = [];
+            imageMap[art.heroImage].push(art);
+          });
+          
+          for (const [imgUrl, arts] of Object.entries(imageMap)) {
+            if (arts.length > 1) {
+              console.log(`[skynet] Self-healing: Found duplicate image use for "${imgUrl}" across ${arts.length} articles.`);
+              for (let i = 1; i < arts.length; i++) {
+                const art = arts[i];
+                const ch = art.cat;
+                const list = channelImages[ch] || [];
+                if (list.length > 0) {
+                  const cleanImgUrl = imgUrl.replace(`/assets/img/channels/${ch}/`, '');
+                  const filteredList = list.filter(item => item !== cleanImgUrl);
+                  const replacementList = filteredList.length > 0 ? filteredList : list;
+                  const rand = replacementList[Math.floor(Math.random() * replacementList.length)];
+                  const newImg = `/assets/img/channels/${ch}/${rand}`;
+                  
+                  console.log(`  -> Reassigning [${art.id}]: ${art.heroImage} -> ${newImg}`);
+                  art.heroImage = newImg;
+                  duplicateImagesChanged = true;
+                  
+                  const artFilePath = path.resolve(path.join(DATA_DIR, art.path.replace(/^data\//, '')));
+                  if (fs.existsSync(artFilePath)) {
+                    try {
+                      const article = JSON.parse(fs.readFileSync(artFilePath, 'utf8'));
+                      article.heroImage = newImg;
+                      fs.writeFileSync(artFilePath, JSON.stringify(article, null, 2));
+                    } catch (e) {}
+                  }
+                }
+              }
+            }
+          }
+          
+          if (duplicateImagesChanged) {
+            fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+            console.log('[skynet] Self-healing: Successfully resolved duplicate images in persistent manifest.');
+          }
+        } catch (dupImgErr) {
+          console.error('[skynet] Self-healing duplicate images failed:', dupImgErr.message);
         }
       }
     } catch (e) {
