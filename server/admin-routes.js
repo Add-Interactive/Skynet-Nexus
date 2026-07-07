@@ -812,21 +812,52 @@ router.post('/antigravity/schedule-custom-drop', (req, res) => {
   }
 });
 
-// GET /admin/images/list — returns list of images inside channel subfolders
+// GET /admin/images/list — returns list of images inside channel subfolders (merged from ComfyUI outputs, users folder, and repo)
 router.get('/images/list', (req, res) => {
   try {
-    const dir = path.join(ROOT, 'public', 'assets', 'img', 'channels');
+    const { COMFY_PATH } = require('./sync-comfy-helper');
+    const { USERS_DIR } = require('./storage');
+    const repoChannelsDir = path.join(ROOT, 'public', 'assets', 'img', 'channels');
+    
+    const validCats = ['skynet', 'ai', 'space', 'robotics', 'biotech', 'quantum', 'climate', 'engineering', 'math', 'cyber', 'gaming', 'music', 'stem', 'play', 'network'];
     const result = {};
-    if (fs.existsSync(dir)) {
-      const dirs = fs.readdirSync(dir);
-      dirs.forEach(ch => {
-        const fullPath = path.join(dir, ch);
-        if (fs.statSync(fullPath).isDirectory()) {
-          const files = fs.readdirSync(fullPath).filter(f => /\.(jpe?g|png|webp|gif|svg)$/i.test(f));
-          result[ch] = files;
+    
+    validCats.forEach(ch => {
+      const filenames = new Set();
+      
+      // 1. Default repo channels folder
+      const repoPath = path.join(repoChannelsDir, ch);
+      if (fs.existsSync(repoPath) && fs.statSync(repoPath).isDirectory()) {
+        fs.readdirSync(repoPath).forEach(f => {
+          if (/\.(jpe?g|png|webp|gif|svg)$/i.test(f)) filenames.add(f);
+        });
+      }
+      
+      // 2. ComfyUI outputs folder
+      if (fs.existsSync(COMFY_PATH)) {
+        const comfyDirs = fs.readdirSync(COMFY_PATH);
+        const matchedDir = comfyDirs.find(d => d.toLowerCase() === ch.toLowerCase());
+        if (matchedDir) {
+          const comfyPath = path.join(COMFY_PATH, matchedDir);
+          if (fs.existsSync(comfyPath) && fs.statSync(comfyPath).isDirectory()) {
+            fs.readdirSync(comfyPath).forEach(f => {
+              if (/\.(jpe?g|png|webp|gif|svg)$/i.test(f)) filenames.add(f);
+            });
+          }
         }
-      });
-    }
+      }
+      
+      // 3. Users uploads folder
+      const userPath = path.join(USERS_DIR, ch);
+      if (fs.existsSync(userPath) && fs.statSync(userPath).isDirectory()) {
+        fs.readdirSync(userPath).forEach(f => {
+          if (/\.(jpe?g|png|webp|gif|svg)$/i.test(f)) filenames.add(f);
+        });
+      }
+      
+      result[ch] = Array.from(filenames);
+    });
+    
     res.json({ ok: true, images: result });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -846,7 +877,8 @@ router.post('/images/upload', (req, res) => {
       return res.status(400).json({ error: 'Invalid channel name.' });
     }
     
-    const dir = path.join(ROOT, 'public', 'assets', 'img', 'channels', channel);
+    const { USERS_DIR } = require('./storage');
+    const dir = path.join(USERS_DIR, channel);
     fs.mkdirSync(dir, { recursive: true });
     
     let ext = '.jpg';
@@ -916,14 +948,40 @@ router.post('/images/delete-batch', (req, res) => {
       return res.status(400).json({ error: 'Invalid channel name.' });
     }
     
-    const dir = path.join(ROOT, 'public', 'assets', 'img', 'channels', channel);
+    const { COMFY_PATH } = require('./sync-comfy-helper');
+    const { USERS_DIR } = require('./storage');
+    const repoChannelsDir = path.join(ROOT, 'public', 'assets', 'img', 'channels');
     let deletedCount = 0;
     
     filenames.forEach(filename => {
       const cleanName = filename.replace(/[^a-zA-Z0-9_\.-]/g, '_');
-      const filePath = path.join(dir, cleanName);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+      let didDelete = false;
+      
+      const repoPath = path.join(repoChannelsDir, channel, cleanName);
+      if (fs.existsSync(repoPath)) {
+        fs.unlinkSync(repoPath);
+        didDelete = true;
+      }
+      
+      const userPath = path.join(USERS_DIR, channel, cleanName);
+      if (fs.existsSync(userPath)) {
+        fs.unlinkSync(userPath);
+        didDelete = true;
+      }
+      
+      if (fs.existsSync(COMFY_PATH)) {
+        const comfyDirs = fs.readdirSync(COMFY_PATH);
+        const matchedDir = comfyDirs.find(d => d.toLowerCase() === channel.toLowerCase());
+        if (matchedDir) {
+          const comfyPath = path.join(COMFY_PATH, matchedDir, cleanName);
+          if (fs.existsSync(comfyPath)) {
+            fs.unlinkSync(comfyPath);
+            didDelete = true;
+          }
+        }
+      }
+      
+      if (didDelete) {
         deletedCount++;
       }
     });
@@ -948,8 +1006,11 @@ router.post('/images/rename', (req, res) => {
       return res.status(400).json({ error: 'Invalid channel.' });
     }
 
-    const dir = path.join(ROOT, 'public', 'assets', 'img', 'channels', channel);
-    const oldPath = path.join(dir, oldFilename.replace(/[^a-zA-Z0-9_\.-]/g, '_'));
+    const { COMFY_PATH } = require('./sync-comfy-helper');
+    const { USERS_DIR } = require('./storage');
+    const repoChannelsDir = path.join(ROOT, 'public', 'assets', 'img', 'channels');
+
+    const cleanOld = oldFilename.replace(/[^a-zA-Z0-9_\.-]/g, '_');
     let cleanNew = newFilename.trim().replace(/[^a-zA-Z0-9_\.-]/g, '_');
 
     const extMatch = oldFilename.match(/\.(jpe?g|png|webp|gif|svg)$/i);
@@ -957,16 +1018,39 @@ router.post('/images/rename', (req, res) => {
       cleanNew += extMatch[0].toLowerCase();
     }
 
-    const newPath = path.join(dir, cleanNew);
+    let renamed = false;
 
-    if (!fs.existsSync(oldPath)) {
+    const repoOld = path.join(repoChannelsDir, channel, cleanOld);
+    const repoNew = path.join(repoChannelsDir, channel, cleanNew);
+    if (fs.existsSync(repoOld)) {
+      fs.renameSync(repoOld, repoNew);
+      renamed = true;
+    }
+
+    const userOld = path.join(USERS_DIR, channel, cleanOld);
+    const userNew = path.join(USERS_DIR, channel, cleanNew);
+    if (fs.existsSync(userOld)) {
+      fs.renameSync(userOld, userNew);
+      renamed = true;
+    }
+
+    if (fs.existsSync(COMFY_PATH)) {
+      const comfyDirs = fs.readdirSync(COMFY_PATH);
+      const matchedDir = comfyDirs.find(d => d.toLowerCase() === channel.toLowerCase());
+      if (matchedDir) {
+        const comfyOld = path.join(COMFY_PATH, matchedDir, cleanOld);
+        const comfyNew = path.join(COMFY_PATH, matchedDir, cleanNew);
+        if (fs.existsSync(comfyOld)) {
+          fs.renameSync(comfyOld, comfyNew);
+          renamed = true;
+        }
+      }
+    }
+
+    if (!renamed) {
       return res.status(404).json({ error: 'Source file does not exist.' });
     }
-    if (fs.existsSync(newPath)) {
-      return res.status(400).json({ error: 'A file with that name already exists in this pool.' });
-    }
 
-    fs.renameSync(oldPath, newPath);
     logAction(req.adminUser.id, 'images.rename', 'system', null, { channel, oldFilename, newFilename: cleanNew });
     res.json({ ok: true, filename: cleanNew });
   } catch (err) {
@@ -987,22 +1071,48 @@ router.post('/images/move', (req, res) => {
       return res.status(400).json({ error: 'Invalid channels.' });
     }
 
-    const sourceDir = path.join(ROOT, 'public', 'assets', 'img', 'channels', sourceChannel);
-    const targetDir = path.join(ROOT, 'public', 'assets', 'img', 'channels', targetChannel);
-    fs.mkdirSync(targetDir, { recursive: true });
+    const { COMFY_PATH } = require('./sync-comfy-helper');
+    const { USERS_DIR } = require('./storage');
+    const repoChannelsDir = path.join(ROOT, 'public', 'assets', 'img', 'channels');
 
     const cleanName = filename.replace(/[^a-zA-Z0-9_\.-]/g, '_');
-    const sourcePath = path.join(sourceDir, cleanName);
-    const targetPath = path.join(targetDir, cleanName);
+    let moved = false;
 
-    if (!fs.existsSync(sourcePath)) {
+    const repoSrc = path.join(repoChannelsDir, sourceChannel, cleanName);
+    const repoDst = path.join(repoChannelsDir, targetChannel, cleanName);
+    if (fs.existsSync(repoSrc)) {
+      fs.mkdirSync(path.dirname(repoDst), { recursive: true });
+      fs.renameSync(repoSrc, repoDst);
+      moved = true;
+    }
+
+    const userSrc = path.join(USERS_DIR, sourceChannel, cleanName);
+    const userDst = path.join(USERS_DIR, targetChannel, cleanName);
+    if (fs.existsSync(userSrc)) {
+      fs.mkdirSync(path.dirname(userDst), { recursive: true });
+      fs.renameSync(userSrc, userDst);
+      moved = true;
+    }
+
+    if (fs.existsSync(COMFY_PATH)) {
+      const comfyDirs = fs.readdirSync(COMFY_PATH);
+      const matchedSrcDir = comfyDirs.find(d => d.toLowerCase() === sourceChannel.toLowerCase());
+      const matchedDstDir = comfyDirs.find(d => d.toLowerCase() === targetChannel.toLowerCase()) || targetChannel;
+      if (matchedSrcDir) {
+        const comfySrc = path.join(COMFY_PATH, matchedSrcDir, cleanName);
+        const comfyDst = path.join(COMFY_PATH, matchedDstDir, cleanName);
+        if (fs.existsSync(comfySrc)) {
+          fs.mkdirSync(path.dirname(comfyDst), { recursive: true });
+          fs.renameSync(comfySrc, comfyDst);
+          moved = true;
+        }
+      }
+    }
+
+    if (!moved) {
       return res.status(404).json({ error: 'Source file does not exist.' });
     }
-    if (fs.existsSync(targetPath)) {
-      return res.status(400).json({ error: 'A file with that name already exists in target channel pool.' });
-    }
 
-    fs.renameSync(sourcePath, targetPath);
     logAction(req.adminUser.id, 'images.move', 'system', null, { filename: cleanName, source: sourceChannel, target: targetChannel });
     res.json({ ok: true });
   } catch (err) {

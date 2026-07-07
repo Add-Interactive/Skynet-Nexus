@@ -11,7 +11,8 @@
     "start": "node server/index.js",
     "dev": "node --watch server/index.js",
     "publish-article": "node newsroom/publish.js",
-    "init-db": "node server/init-db.js"
+    "init-db": "node server/init-db.js",
+    "sync-images": "node -e \"require('./server/sync-comfy-helper').syncComfyImages()\""
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

@@ -25,17 +25,19 @@ const SEED_DATA_DIR = path.join(ROOT, 'data');
 // Where the app actually reads/writes at runtime.
 const DATA_DIR = process.env.DATA_DIR || (VOLUME ? path.join(VOLUME, 'data') : SEED_DATA_DIR);
 const DB_PATH = process.env.DB_PATH || (VOLUME ? path.join(VOLUME, 'skynet.db') : path.join(__dirname, 'skynet.db'));
+const USERS_DIR = process.env.USERS_DIR || (VOLUME ? path.join(VOLUME, 'users') : path.join(ROOT, 'public', 'assets', 'img', 'users'));
 
 let _prepared = false;
 
 // Create the storage locations and, on a fresh persistent volume, copy the
 // bundled seed content (welcome article + manifest) into it once.
 function ensureStorage() {
-  if (_prepared) return { DATA_DIR, DB_PATH, VOLUME };
+  if (_prepared) return { DATA_DIR, DB_PATH, USERS_DIR, VOLUME };
   _prepared = true;
 
   fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
   fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.mkdirSync(USERS_DIR, { recursive: true });
 
   // Seed the persistent data dir from the image bundle on first boot only.
   if (DATA_DIR !== SEED_DATA_DIR && fs.existsSync(SEED_DATA_DIR)) {
@@ -109,7 +111,7 @@ function ensureStorage() {
     console.warn('[storage] No persistent volume detected. Users and the article archive are EPHEMERAL — attach a Railway volume and the app will store them there automatically.');
   }
 
-  return { DATA_DIR, DB_PATH, VOLUME };
+  return { DATA_DIR, DB_PATH, USERS_DIR, VOLUME };
 }
 
-module.exports = { ROOT, SEED_DATA_DIR, DATA_DIR, DB_PATH, VOLUME, ensureStorage };
+module.exports = { ROOT, SEED_DATA_DIR, DATA_DIR, DB_PATH, USERS_DIR, VOLUME, ensureStorage };

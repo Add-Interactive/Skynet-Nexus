@@ -768,6 +768,48 @@ app.use('/data', express.static(DATA_DIR, {
   }
 }));
 
+// Serve /assets/img/channels virtual directories (ComfyUI local mapping + users uploads + repo default channels)
+app.use('/assets/img/channels', (req, res, next) => {
+  const { COMFY_PATH } = require('./sync-comfy-helper');
+  const { USERS_DIR } = require('./storage');
+  
+  const relPath = decodeURIComponent(req.path);
+  const pathParts = relPath.replace(/^\/+/, '').split('/');
+  const channel = pathParts[0];
+  const filename = pathParts[1];
+  
+  if (channel && filename) {
+    if (fs.existsSync(COMFY_PATH)) {
+      const comfyDirs = fs.readdirSync(COMFY_PATH);
+      const matchedDir = comfyDirs.find(d => d.toLowerCase() === channel.toLowerCase());
+      if (matchedDir) {
+        const comfyFilePath = path.join(COMFY_PATH, matchedDir, filename);
+        if (fs.existsSync(comfyFilePath) && fs.statSync(comfyFilePath).isFile()) {
+          return res.sendFile(comfyFilePath);
+        }
+      }
+    }
+    
+    const userFilePath = path.join(USERS_DIR, channel, filename);
+    if (fs.existsSync(userFilePath) && fs.statSync(userFilePath).isFile()) {
+      return res.sendFile(userFilePath);
+    }
+  }
+  
+  next();
+});
+
+// Serve /assets/img/users from USERS_DIR (volume in prod, local folder in dev)
+app.use('/assets/img/users', (req, res, next) => {
+  const { USERS_DIR } = require('./storage');
+  const relPath = decodeURIComponent(req.path);
+  const targetPath = path.join(USERS_DIR, relPath);
+  if (fs.existsSync(targetPath) && fs.statSync(targetPath).isFile()) {
+    return res.sendFile(targetPath);
+  }
+  next();
+});
+
 // Everything else -> /public.
 app.use(express.static(PUBLIC_DIR, {
   etag: true,
@@ -801,6 +843,14 @@ app.listen(PORT, () => {
   console.log(`[skynet] public:  ${PUBLIC_DIR}`);
   console.log(`[skynet] data:    ${DATA_DIR}`);
   console.log(`[skynet] session: ${IS_PROD ? 'secure' : 'insecure (dev)'} cookies`);
+  
+  // Synchronize ComfyUI outputs on local development boot
+  try {
+    const { syncComfyImages } = require('./sync-comfy-helper');
+    syncComfyImages();
+  } catch (e) {
+    console.warn('[skynet] ComfyUI image sync skipped:', e.message);
+  }
   
   // Auto-seed emergency drops on boot (disabled now that they are permanently published to git)
   /*
