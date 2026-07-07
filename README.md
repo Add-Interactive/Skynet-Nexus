@@ -177,18 +177,16 @@ Under `/pages/admin.html` (accessible by authenticated admins), the **Antigravit
 
 ---
 
-## Assets & Image Rotation System
+## Assets, ComfyUI Image Generation & Sync Pipeline
 
-To keep the homepage feeling active and fresh, we avoid duplicate images using a continuous daily image rotation:
-* **The Channel Folders:** Under `/public/assets/img/channels/[channelId]/`, we store 30 themed, high-quality sci-fi cartoon illustrations named `1.jpg` to `30.jpg`.
-* **The Prompts Library:** Inside each channel folder, a `prompts.txt` file contains **10 tailored, educational sci-fi prompts** that can be used with text-to-image AI generators to expand the folder assets.
-* **Collision-Free Mapping Algorithm:** When scheduling drops, we map the story cover image using this timezone-safe sequential formula:
-  $$\text{imgIndex} = (((\text{day} \times 3) + \text{editionOffset}) \pmod{30}) + 1$$
-  *Where:*
-  * $\text{day}$ is the calendar day of the month (1 to 31).
-  * $\text{editionOffset}$ is `0` for Morning, `1` for Midday, and `2` for Evening.
-  This guarantees that drops on the same day and drops across consecutive days will never show duplicate images.
-* **Editorial Exclusions:** Restores the custom graphic covers (`skywelcome.png` and `franklin_stem.jpg`) for the special pinned Welcome and STEM History posts.
+To maintain visual uniqueness, Skynet Nexus News uses an automated text-to-image pipeline for article illustrations:
+* **Krea2 Turbo ComfyUI Pipeline:** During local drop scheduling, the server issues sequential requests to a local ComfyUI instance (port `8188`). It queries the ComfyUI API to run a **Krea2 Turbo** workflow loaded from workspace history.
+* **Vision-Language Prompt Expansion:** The workflow utilizes the Qwen 3B Vision-Language model (`qwen3vl_4b_fp8_scaled.safetensors` CLIP loader) to expand article titles into descriptive image prompts, generating cartoon-style sci-fi illustrations using the `krea2_turbo_fp8_scaled.safetensors` diffusion UNet model.
+* **Dated Subfolder Organization:** Generated illustrations are automatically organized into subfolders based on target date and edition (e.g., `/public/assets/img/channels/[channelId]/[date]-[edition]/comfy_xxxx_.png`).
+* **Windows-Safe File Lock Protection:** Relocations utilize a robust retry mechanism (up to 5 attempts, waiting 1s between attempts) with a copy-and-unlink fallback to resolve transient `EBUSY`/`EACCES` file locks on Windows environments.
+* **Recursive Repository Sync:** The `npm run sync-images` command recursively copies generated assets from ComfyUI shared output directories into the local Git directory, ensuring images are tracked and pushed to GitHub for Railway cloud deployment.
+* **Admin Portal Cover Management:** The Story Queue details panel displays custom cover previews for scheduled drafts, allowing human editors to review and swap out covers from the recursive catalog using an interactive picker modal.
+* **Auto-Healing Database Sanitizer:** An automated sanitization script (`scratch/sanitize_images_db.js`) scans SQLite `queued_stories`, `data/manifest.json`, and individual article files, automatically repairing missing placeholders by matching them with valid, existing ComfyUI images.
 
 ---
 
