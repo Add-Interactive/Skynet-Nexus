@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 
 const COMFY_URL = process.env.COMFY_URL || 'http://127.0.0.1:8188';
-const COMFY_CKPT = process.env.COMFY_CHECKPOINT || 'Krea2.safetensors';
 
 function postJson(urlStr, payload) {
   return new Promise((resolve, reject) => {
@@ -73,74 +72,143 @@ async function generateImageForArticle(channel, title, subfolder = '') {
 
   console.log(`[comfy-generator] Triggering ComfyUI for [${channel}] post: "${title}" (subfolder: ${subfolder || 'root'})`);
   
-  const positivePrompt = `cartoon illustration, ${title}, vibrant color palette, sci-fi, futuristic, educational, digital art style, high quality`;
-  const negativePrompt = `bad quality, blurry, low resolution, deformed, text, watermark, signature`;
-
   const folderPrefix = subfolder ? `skynet/channels/${channel}/${subfolder}/` : `skynet/channels/${channel}/`;
 
-  const workflow = {
-    "3": {
-      "class_type": "KSampler",
+  // Default fallback workflow optimized for Krea2 Turbo (UNet + CLIP + VAE loaders)
+  let workflow = {
+    "29": {
       "inputs": {
-        "cfg": 8,
-        "denoise": 1,
-        "latent_image": ["5", 0],
-        "model": ["4", 0],
+        "filename_prefix": folderPrefix + "comfy",
+        "images": ["30:8", 0]
+      },
+      "class_type": "SaveImage"
+    },
+    "49": {
+      "inputs": {
+        "aspect_ratio": "16:9",
+        "megapixels": 1,
+        "multiple": 8
+      },
+      "class_type": "ResolutionSelector"
+    },
+    "30:6": {
+      "inputs": {
+        "text": `cartoon illustration, ${title}, vibrant color palette, sci-fi, futuristic, educational, digital art style, high quality`,
+        "clip": ["30:11", 0]
+      },
+      "class_type": "CLIPTextEncode"
+    },
+    "30:5": {
+      "inputs": {
+        "width": ["49", 0],
+        "height": ["49", 1],
+        "batch_size": 1
+      },
+      "class_type": "EmptyLatentImage"
+    },
+    "30:3": {
+      "inputs": {
+        "seed": Math.floor(Math.random() * 100000000000),
+        "steps": 8,
+        "cfg": 1.5,
         "sampler_name": "euler",
-        "scheduler": "normal",
-        "seed": Math.floor(Math.random() * 10000000),
-        "steps": 20,
-        "positive": ["6", 0],
-        "negative": ["7", 0]
-      }
+        "scheduler": "simple",
+        "denoise": 1,
+        "model": ["30:10", 0],
+        "positive": ["30:6", 0],
+        "negative": ["30:13", 0],
+        "latent_image": ["30:5", 0]
+      },
+      "class_type": "KSampler"
     },
-    "4": {
-      "class_type": "CheckpointLoaderSimple",
+    "30:8": {
       "inputs": {
-        "ckpt_name": COMFY_CKPT
-      }
+        "samples": ["30:3", 0],
+        "vae": ["30:12", 0]
+      },
+      "class_type": "VAEDecode"
     },
-    "5": {
-      "class_type": "EmptyLatentImage",
+    "30:10": {
       "inputs": {
-        "batch_size": 1,
-        "height": 512,
-        "width": 896
-      }
+        "unet_name": "krea2_turbo_fp8_scaled.safetensors",
+        "weight_dtype": "default"
+      },
+      "class_type": "UNETLoader"
     },
-    "6": {
-      "class_type": "CLIPTextEncode",
+    "30:11": {
       "inputs": {
-        "clip": ["4", 1],
-        "text": positivePrompt
-      }
+        "clip_name": "qwen3vl_4b_fp8_scaled.safetensors",
+        "type": "krea2",
+        "device": "default"
+      },
+      "class_type": "CLIPLoader"
     },
-    "7": {
-      "class_type": "CLIPTextEncode",
+    "30:12": {
       "inputs": {
-        "clip": ["4", 1],
-        "text": negativePrompt
-      }
+        "vae_name": "qwen_image_vae.safetensors"
+      },
+      "class_type": "VAELoader"
     },
-    "8": {
-      "class_type": "VAEDecode",
+    "30:13": {
       "inputs": {
-        "samples": ["3", 0],
-        "vae": ["4", 2]
-      }
-    },
-    "9": {
-      "class_type": "SaveImage",
-      "inputs": {
-        "filename_prefix": folderPrefix,
-        "images": ["8", 0]
-      }
+        "conditioning": ["30:6", 0]
+      },
+      "class_type": "ConditioningZeroOut"
     }
   };
+
+  // Try to load user's actual Krea2 workflow from the saved history JSON
+  const lastPromptFile = path.join(__dirname, '..', 'scratch', 'last_comfy_prompt.json');
+  let saveNodeId = "29"; // default
+  
+  if (fs.existsSync(lastPromptFile)) {
+    try {
+      const data = JSON.parse(fs.readFileSync(lastPromptFile, 'utf8'));
+      const parsedWorkflow = Array.isArray(data) ? data[2] : (data.prompt || data);
+      if (parsedWorkflow && typeof parsedWorkflow === 'object') {
+        workflow = parsedWorkflow;
+        console.log('[comfy-generator] Loaded custom Krea2 workflow from history.');
+        
+        // 1. Find the User Prompt text multiline node and update its text
+        if (workflow["30:19"]) {
+          workflow["30:19"].inputs.value = ` cartoonish Pixar style \n\n${title}\n\n`;
+        }
+        
+        // 2. Find KSampler seed and randomize it
+        if (workflow["30:3"]) {
+          workflow["30:3"].inputs.seed = Math.floor(Math.random() * 1000000000000);
+        }
+        
+        // 3. Find SaveImage node to update output path prefix
+        let foundSave = false;
+        for (const [id, node] of Object.entries(workflow)) {
+          if (node.class_type === 'SaveImage') {
+            node.inputs.filename_prefix = folderPrefix;
+            saveNodeId = id;
+            foundSave = true;
+            break;
+          }
+        }
+        if (!foundSave) {
+          workflow["29"] = {
+            "inputs": {
+              "filename_prefix": folderPrefix,
+              "images": ["30:8", 0]
+            },
+            "class_type": "SaveImage"
+          };
+          saveNodeId = "29";
+        }
+      }
+    } catch (e) {
+      console.warn('[comfy-generator] Failed to load custom workflow from history, using default:', e.message);
+    }
+  }
 
   try {
     const res = await postJson(COMFY_URL, { prompt: workflow });
     const promptId = res.prompt_id;
+    console.log(`[comfy-generator] Prompt queued in ComfyUI. ID: ${promptId}`);
     
     const start = Date.now();
     while (Date.now() - start < 90000) {
@@ -149,10 +217,34 @@ async function generateImageForArticle(channel, title, subfolder = '') {
       if (history[promptId]) {
         const promptInfo = history[promptId];
         const outputs = promptInfo.outputs;
-        if (outputs && outputs["9"] && outputs["9"].images && outputs["9"].images[0]) {
-          const imageInfo = outputs["9"].images[0];
+        if (outputs && outputs[saveNodeId] && outputs[saveNodeId].images && outputs[saveNodeId].images[0]) {
+          const imageInfo = outputs[saveNodeId].images[0];
           const filename = imageInfo.filename;
-          return subfolder ? `${subfolder}/${filename}` : filename;
+          console.log(`[comfy-generator] Generated flat file: ${filename}`);
+          
+          if (subfolder && COMFY_PATH) {
+            try {
+              const comfyDirs = fs.readdirSync(COMFY_PATH);
+              const matchedDir = comfyDirs.find(d => d.toLowerCase() === channel.toLowerCase()) || channel;
+              const srcPath = path.join(COMFY_PATH, matchedDir, filename);
+              
+              if (fs.existsSync(srcPath)) {
+                const destDir = path.join(COMFY_PATH, matchedDir, subfolder);
+                fs.mkdirSync(destDir, { recursive: true });
+                
+                // Clean the name from ComfyUI output flat prefix to simple comfy name
+                const cleanFilename = filename.replace(`${subfolder}_`, 'comfy_');
+                const destPath = path.join(destDir, cleanFilename);
+                
+                fs.renameSync(srcPath, destPath);
+                console.log(`[comfy-generator] Moved image to: ${destPath}`);
+                return `${subfolder}/${cleanFilename}`;
+              }
+            } catch (err) {
+              console.error('[comfy-generator] Failed to move file to subfolder:', err.message);
+            }
+          }
+          return filename;
         }
         break;
       }
