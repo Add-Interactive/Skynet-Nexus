@@ -1344,6 +1344,46 @@ app.listen(PORT, () => {
     } catch (e) {
       console.error('[skynet] Self-healing missing images failed:', e.message);
     }
+
+    // 4. Self-healing: Remove duplicate articles (same title) from persistent manifest.json
+    try {
+      const manifestPath = path.join(DATA_DIR, 'manifest.json');
+      if (fs.existsSync(manifestPath)) {
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+        if (Array.isArray(manifest.articles)) {
+          const uniqueArticles = [];
+          const seenTitles = new Set();
+          let removedCount = 0;
+          
+          // Loop backwards to keep the latest published version of each title
+          for (let i = manifest.articles.length - 1; i >= 0; i--) {
+            const art = manifest.articles[i];
+            const normTitle = (art.title || '').trim().toLowerCase();
+            if (seenTitles.has(normTitle)) {
+              removedCount++;
+              // Attempt to delete the duplicate article file from disk
+              const artFilePath = path.resolve(path.join(DATA_DIR, art.path.replace(/^data\//, '')));
+              if (fs.existsSync(artFilePath)) {
+                try {
+                  fs.unlinkSync(artFilePath);
+                } catch (unlinkErr) {}
+              }
+            } else {
+              seenTitles.add(normTitle);
+              uniqueArticles.unshift(art);
+            }
+          }
+          
+          if (removedCount > 0) {
+            manifest.articles = uniqueArticles;
+            fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+            console.log(`[skynet] Self-healing: Successfully removed ${removedCount} duplicate articles from persistent manifest.`);
+          }
+        }
+      }
+    } catch (e) {
+      console.error('[skynet] Self-healing duplicate articles failed:', e.message);
+    }
   } catch (e) {
     console.error('[skynet] Self-healing legacy names failed:', e.message);
   }
