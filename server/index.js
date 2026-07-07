@@ -178,7 +178,7 @@ api.get('/health', (req, res) => {
 // GET /api/public-emergency-trigger — bypasses auth with secure token to schedule/release drops
 api.get('/public-emergency-trigger', async (req, res) => {
   try {
-    const { token, action } = req.query;
+    const { token, action, date } = req.query;
     if (token !== 'antigravity_secret_9988') {
       return res.status(401).json({ error: 'unauthorized' });
     }
@@ -197,11 +197,18 @@ api.get('/public-emergency-trigger', async (req, res) => {
     
     const genResult = generateEmergencyDrops();
     
-    const target = new Date();
-    const year = target.getFullYear();
-    const month = String(target.getMonth() + 1).padStart(2, '0');
-    const day = String(target.getDate()).padStart(2, '0');
-    const targetDate = `${year}-${month}-${day}`;
+    let targetDate, day;
+    if (date && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      targetDate = date;
+      day = date.split('-')[2];
+    } else {
+      const target = new Date();
+      const year = target.getFullYear();
+      const month = String(target.getMonth() + 1).padStart(2, '0');
+      const d = String(target.getDate()).padStart(2, '0');
+      targetDate = `${year}-${month}-${d}`;
+      day = d;
+    }
     
     let timeET, timeUTC;
     if (action === 'morning') {
