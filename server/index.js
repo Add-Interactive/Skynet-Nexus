@@ -776,23 +776,25 @@ app.use('/assets/img/channels', (req, res, next) => {
   const relPath = decodeURIComponent(req.path);
   const pathParts = relPath.replace(/^\/+/, '').split('/');
   const channel = pathParts[0];
-  const filename = pathParts[1];
   
-  if (channel && filename) {
-    if (fs.existsSync(COMFY_PATH)) {
-      const comfyDirs = fs.readdirSync(COMFY_PATH);
-      const matchedDir = comfyDirs.find(d => d.toLowerCase() === channel.toLowerCase());
-      if (matchedDir) {
-        const comfyFilePath = path.join(COMFY_PATH, matchedDir, filename);
-        if (fs.existsSync(comfyFilePath) && fs.statSync(comfyFilePath).isFile()) {
-          return res.sendFile(comfyFilePath);
+  if (channel) {
+    const subPath = pathParts.slice(1).join('/');
+    if (subPath) {
+      if (fs.existsSync(COMFY_PATH)) {
+        const comfyDirs = fs.readdirSync(COMFY_PATH);
+        const matchedDir = comfyDirs.find(d => d.toLowerCase() === channel.toLowerCase());
+        if (matchedDir) {
+          const comfyFilePath = path.join(COMFY_PATH, matchedDir, subPath);
+          if (fs.existsSync(comfyFilePath) && fs.statSync(comfyFilePath).isFile()) {
+            return res.sendFile(comfyFilePath);
+          }
         }
       }
-    }
-    
-    const userFilePath = path.join(USERS_DIR, channel, filename);
-    if (fs.existsSync(userFilePath) && fs.statSync(userFilePath).isFile()) {
-      return res.sendFile(userFilePath);
+      
+      const userFilePath = path.join(USERS_DIR, channel, subPath);
+      if (fs.existsSync(userFilePath) && fs.statSync(userFilePath).isFile()) {
+        return res.sendFile(userFilePath);
+      }
     }
   }
   

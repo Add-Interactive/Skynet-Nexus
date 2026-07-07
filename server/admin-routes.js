@@ -795,7 +795,8 @@ router.post('/antigravity/schedule-custom-drop', async (req, res) => {
       let customImg = null;
       if (payload.cat !== 'skynet' && payload.cat !== 'network') {
         try {
-          customImg = await generateImageForArticle(payload.cat, payload.title);
+          const subDirName = `${targetDate}-${edition}`;
+          customImg = await generateImageForArticle(payload.cat, payload.title, subDirName);
         } catch (e) {
           console.warn(`[admin-routes] ComfyUI generation failed for ${payload.cat}:`, e.message);
         }
@@ -826,7 +827,7 @@ router.post('/antigravity/schedule-custom-drop', async (req, res) => {
   }
 });
 
-// GET /admin/images/list — returns list of images inside channel subfolders (merged from ComfyUI outputs, users folder, and repo)
+// GET /admin/images/list — returns list of images inside channel subfolders (merged recursively from ComfyUI outputs, users folder, and repo)
 router.get('/images/list', (req, res) => {
   try {
     const { COMFY_PATH } = require('./sync-comfy-helper');
@@ -835,17 +836,32 @@ router.get('/images/list', (req, res) => {
     
     const validCats = ['skynet', 'ai', 'space', 'robotics', 'biotech', 'quantum', 'climate', 'engineering', 'math', 'cyber', 'gaming', 'music', 'stem', 'play', 'network'];
     const result = {};
+
+    function readFilesRecursive(baseDir, currentSubdir = '') {
+      const dirPath = path.join(baseDir, currentSubdir);
+      if (!fs.existsSync(dirPath) || !fs.statSync(dirPath).isDirectory()) return [];
+      
+      let results = [];
+      const items = fs.readdirSync(dirPath);
+      items.forEach(item => {
+        const rel = currentSubdir ? `${currentSubdir}/${item}` : item;
+        const full = path.join(baseDir, rel);
+        const stats = fs.statSync(full);
+        if (stats.isDirectory()) {
+          results = results.concat(readFilesRecursive(baseDir, rel));
+        } else if (stats.isFile() && /\.(jpe?g|png|webp|gif|svg)$/i.test(item)) {
+          results.push(rel);
+        }
+      });
+      return results;
+    }
     
     validCats.forEach(ch => {
       const filenames = new Set();
       
       // 1. Default repo channels folder
       const repoPath = path.join(repoChannelsDir, ch);
-      if (fs.existsSync(repoPath) && fs.statSync(repoPath).isDirectory()) {
-        fs.readdirSync(repoPath).forEach(f => {
-          if (/\.(jpe?g|png|webp|gif|svg)$/i.test(f)) filenames.add(f);
-        });
-      }
+      readFilesRecursive(repoPath).forEach(f => filenames.add(f));
       
       // 2. ComfyUI outputs folder
       if (fs.existsSync(COMFY_PATH)) {
@@ -853,21 +869,13 @@ router.get('/images/list', (req, res) => {
         const matchedDir = comfyDirs.find(d => d.toLowerCase() === ch.toLowerCase());
         if (matchedDir) {
           const comfyPath = path.join(COMFY_PATH, matchedDir);
-          if (fs.existsSync(comfyPath) && fs.statSync(comfyPath).isDirectory()) {
-            fs.readdirSync(comfyPath).forEach(f => {
-              if (/\.(jpe?g|png|webp|gif|svg)$/i.test(f)) filenames.add(f);
-            });
-          }
+          readFilesRecursive(comfyPath).forEach(f => filenames.add(f));
         }
       }
       
       // 3. Users uploads folder
       const userPath = path.join(USERS_DIR, ch);
-      if (fs.existsSync(userPath) && fs.statSync(userPath).isDirectory()) {
-        fs.readdirSync(userPath).forEach(f => {
-          if (/\.(jpe?g|png|webp|gif|svg)$/i.test(f)) filenames.add(f);
-        });
-      }
+      readFilesRecursive(userPath).forEach(f => filenames.add(f));
       
       result[ch] = Array.from(filenames);
     });

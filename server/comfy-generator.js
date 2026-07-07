@@ -65,16 +65,18 @@ async function isComfyOnline() {
   }
 }
 
-async function generateImageForArticle(channel, title) {
+async function generateImageForArticle(channel, title, subfolder = '') {
   const online = await isComfyOnline();
   if (!online) {
     return null;
   }
 
-  console.log(`[comfy-generator] Triggering ComfyUI for [${channel}] post: "${title}"`);
+  console.log(`[comfy-generator] Triggering ComfyUI for [${channel}] post: "${title}" (subfolder: ${subfolder || 'root'})`);
   
   const positivePrompt = `cartoon illustration, ${title}, vibrant color palette, sci-fi, futuristic, educational, digital art style, high quality`;
   const negativePrompt = `bad quality, blurry, low resolution, deformed, text, watermark, signature`;
+
+  const folderPrefix = subfolder ? `skynet/channels/${channel}/${subfolder}/` : `skynet/channels/${channel}/`;
 
   const workflow = {
     "3": {
@@ -130,7 +132,7 @@ async function generateImageForArticle(channel, title) {
     "9": {
       "class_type": "SaveImage",
       "inputs": {
-        "filename_prefix": `skynet/channels/${channel}/`,
+        "filename_prefix": folderPrefix,
         "images": ["8", 0]
       }
     }
@@ -140,7 +142,6 @@ async function generateImageForArticle(channel, title) {
     const res = await postJson(COMFY_URL, { prompt: workflow });
     const promptId = res.prompt_id;
     
-    // Poll for up to 90 seconds
     const start = Date.now();
     while (Date.now() - start < 90000) {
       await new Promise(r => setTimeout(r, 2000));
@@ -150,7 +151,8 @@ async function generateImageForArticle(channel, title) {
         const outputs = promptInfo.outputs;
         if (outputs && outputs["9"] && outputs["9"].images && outputs["9"].images[0]) {
           const imageInfo = outputs["9"].images[0];
-          return imageInfo.filename;
+          const filename = imageInfo.filename;
+          return subfolder ? `${subfolder}/${filename}` : filename;
         }
         break;
       }
