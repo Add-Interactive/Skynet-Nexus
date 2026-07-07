@@ -695,8 +695,70 @@
         (st.editorNotes ? '<dt>Editor notes</dt><dd>' + esc(st.editorNotes) + '</dd>' : '') +
         (st.scheduledAt ? '<dt>Scheduled for</dt><dd>' + fmtDate(st.scheduledAt) + (st.edition ? ' (' + esc(st.edition) + ')' : '') + '</dd>' : '') +
         (st.publishedArticleId ? '<dt>Published as</dt><dd>' + esc(st.publishedArticleId) + '</dd>' : '') +
+        '<dt>Cover Image</dt><dd id="draft-cover-container">' +
+          (p.heroImage ? '<img src="' + esc(p.heroImage) + '" style="max-width:240px; border-radius:8px; display:block; margin-bottom:8px;" id="draft-cover-preview">' : '<span class="hint" id="draft-cover-none">No cover image selected</span>') +
+          '<button class="admin-btn admin-btn-sm" id="btn-change-draft-cover" style="margin-top:6px;">🖼️ Change Cover Image</button>' +
+        '</dd>' +
       '</dl>'
     ));
+
+    var changeBtn = panel.querySelector('#btn-change-draft-cover');
+    if (changeBtn) {
+      changeBtn.addEventListener('click', function () {
+        var selectedImgUrl = p.heroImage || '';
+        var pickerModal = openModal('Select Hero Image');
+        pickerModal.overlay.querySelector('.admin-modal').classList.add('admin-image-picker-modal');
+        
+        pickerModal.body.appendChild(h('<p style="font-size:13px; color:var(--text-mute); margin-bottom:12px;">Choose an illustration from the <strong>' + esc(st.channel) + '</strong> channel pool:</p>'));
+        
+        var grid = h('<div class="admin-image-picker-grid"></div>');
+        
+        api('/admin/images/list').then(function (r) {
+          var files = r.images[st.channel] || [];
+          if (!files.length) {
+            grid.appendChild(h('<div class="admin-empty" style="grid-column:1/-1">No images in this channel pool.</div>'));
+          } else {
+            files.forEach(function (filename) {
+              var url = '/assets/img/channels/' + st.channel + '/' + filename;
+              var isSel = (url === selectedImgUrl);
+              var card = h(
+                '<div class="admin-image-picker-card' + (isSel ? ' selected' : '') + '">' +
+                  '<img src="' + url + '" class="admin-image-picker-thumb">' +
+                '</div>'
+              );
+              card.addEventListener('click', function () {
+                selectedImgUrl = url;
+                p.heroImage = url;
+                
+                api('/admin/stories/queue/' + st.id, {
+                  method: 'PATCH',
+                  body: { payload: p }
+                }).then(function () {
+                  toast('Draft cover image updated');
+                  var container = panel.querySelector('#draft-cover-container');
+                  var preview = container.querySelector('#draft-cover-preview');
+                  if (!preview) {
+                    var none = container.querySelector('#draft-cover-none');
+                    if (none) none.remove();
+                    preview = h('<img style="max-width:240px; border-radius:8px; display:block; margin-bottom:8px;" id="draft-cover-preview">');
+                    container.insertBefore(preview, changeBtn);
+                  }
+                  preview.src = url;
+                }).catch(function (e) {
+                  toast(e.message, true);
+                });
+                
+                closeModal(pickerModal);
+              });
+              grid.appendChild(card);
+            });
+          }
+        }).catch(function (err) { toast(err.message, true); });
+        
+        pickerModal.body.appendChild(grid);
+      });
+    }
+
     var actions = h('<div class="row-actions" style="margin-top:14px"></div>');
     if (st.status !== 'published') {
       if (st.status !== 'approved') {
