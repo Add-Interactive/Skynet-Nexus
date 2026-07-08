@@ -657,52 +657,89 @@
       main.appendChild(h('<div class="admin-view-head"><h1>Story Queue</h1><p>Drafts filed by correspondents. Review, approve, and publish. Publishing runs the kid-safe guardrail pipeline and posts to the live site.</p></div>'));
       main.appendChild(h('<div class="admin-inline-note">Auto-post: an approved draft can be published in one click — it is validated by the newsroom guardrails, written to <code>data/articles</code>, and added to the live manifest instantly.</div>'));
       if (!stories.length) { main.appendChild(h('<div class="admin-empty">No drafts in the queue. Assign a correspondent a task, or use “Write / Publish”.</div>')); return; }
-      var panel = h('<div class="admin-panel"><table class="admin-table"><thead><tr><th>Title</th><th>Channel</th><th>By</th><th>Status</th><th>When</th><th></th></tr></thead><tbody></tbody></table></div>');
-      var tb = panel.querySelector('tbody');
+      
+      var grid = h('<div class="admin-queue-grid"></div>');
+      
+      var emojiByCat = { skynet:'🛰️', ai:'🧠', space:'🚀', robotics:'🤖', biotech:'🧬', quantum:'⚛️', climate:'🌍', engineering:'🔧', math:'📐', cyber:'🔐', gaming:'🎮', music:'🎧', stem:'🧬', play:'🎨', network:'🛰️' };
+      var colorByCat = { skynet:'#00e5ff', ai:'#00e5ff', space:'#7c5cff', robotics:'#a855f7', biotech:'#2dd4bf', quantum:'#22d3ee', climate:'#34d399', engineering:'#ffb800', math:'#f472b6', cyber:'#38bdf8', gaming:'#39ff14', music:'#ff2e63', stem:'#00e5ff', play:'#39ff14', network:'#00e5ff' };
+
       ensureStaff().then(function () {
         stories.forEach(function (st) {
           var p = st.payload || {};
           var author = staffName(st.staffId);
-          var tr = h(
-            '<tr><td><strong>' + esc(p.title || '(untitled)') + '</strong></td>' +
-            '<td>' + esc(st.channel) + '</td>' +
-            '<td>' + esc(author) + '</td>' +
-            '<td><span class="pill ' + esc(st.status) + '">' + esc(st.status) + '</span></td>' +
-            '<td class="num">' + fmtDate(st.createdAt) + '</td>' +
-            '<td class="row-actions"></td></tr>'
+          var chanColor = colorByCat[st.channel] || '#00e5ff';
+          var chanEmoji = emojiByCat[st.channel] || '📝';
+          
+          var heroHtml = '';
+          if (p.heroImage) {
+            heroHtml = '<img src="' + esc(p.heroImage) + '" class="admin-queue-card-hero" alt="Cover">';
+          } else {
+            heroHtml = '<div class="admin-queue-card-placeholder" style="border-bottom: 3px solid ' + chanColor + '">' + chanEmoji + '</div>';
+          }
+          
+          var card = h(
+            '<div class="admin-queue-card">' +
+              heroHtml +
+              '<div class="admin-queue-card-content">' +
+                '<div class="admin-queue-card-meta">' +
+                  '<span class="admin-queue-card-channel" style="color:' + chanColor + '">' + esc(st.channel) + '</span>' +
+                  '<span class="pill ' + esc(st.status) + '">' + esc(st.status) + '</span>' +
+                '</div>' +
+                '<h3 class="admin-queue-card-title">' + esc(p.title || '(untitled)') + '</h3>' +
+                '<div class="admin-queue-card-author">✍️ ' + esc(author) + '</div>' +
+                '<div class="admin-queue-card-time">' + fmtDate(st.createdAt) + '</div>' +
+              '</div>' +
+              '<div class="admin-queue-card-actions">' +
+                '<button class="admin-btn admin-btn-sm admin-btn-primary" style="width: 100%">Review Draft</button>' +
+              '</div>' +
+            '</div>'
           );
-          var actions = tr.querySelector('.row-actions');
-          var open = h('<button class="admin-btn admin-btn-sm">Review</button>');
-          open.addEventListener('click', function () { openStory(st); });
-          actions.appendChild(open);
-          tb.appendChild(tr);
+          
+          card.querySelector('.admin-queue-card-actions button').addEventListener('click', function () {
+            openStory(st);
+          });
+          
+          grid.appendChild(card);
         });
       });
-      main.appendChild(panel);
+      main.appendChild(grid);
     }).catch(errView);
   };
 
   function openStory(st) {
     var p = st.payload || {};
-    var panel = h('<div class="admin-panel"><h2>📝 ' + esc(p.title || '(untitled)') + '</h2></div>');
-    panel.appendChild(h(
-      '<dl class="admin-detail-box">' +
-        '<dt>Channel</dt><dd>' + esc(st.channel) + '</dd>' +
+    
+    var emojiByCat = { skynet:'🛰️', ai:'🧠', space:'🚀', robotics:'🤖', biotech:'🧬', quantum:'⚛️', climate:'🌍', engineering:'🔧', math:'📐', cyber:'🔐', gaming:'🎮', music:'🎧', stem:'🧬', play:'🎨', network:'🛰️' };
+    var colorByCat = { skynet:'#00e5ff', ai:'#00e5ff', space:'#7c5cff', robotics:'#a855f7', biotech:'#2dd4bf', quantum:'#22d3ee', climate:'#34d399', engineering:'#ffb800', math:'#f472b6', cyber:'#38bdf8', gaming:'#39ff14', music:'#ff2e63', stem:'#00e5ff', play:'#39ff14', network:'#00e5ff' };
+    var chanColor = colorByCat[st.channel] || '#00e5ff';
+    var chanEmoji = emojiByCat[st.channel] || '📝';
+
+    var modal = openModal('Review Draft');
+    modal.overlay.querySelector('.admin-modal').style.maxWidth = '640px';
+    
+    var container = h('<div class="admin-story-review"></div>');
+    container.appendChild(h(
+      '<h2 style="font-size:1.3rem; font-weight:800; margin:0 0 16px 0; color:var(--text); line-height:1.35;">📝 ' + esc(p.title || '(untitled)') + '</h2>'
+    ));
+    
+    container.appendChild(h(
+      '<dl class="admin-detail-box" style="margin-bottom: 20px;">' +
+        '<dt>Channel</dt><dd style="color:' + chanColor + '; font-weight:700;">' + chanEmoji + ' ' + esc(st.channel) + '</dd>' +
         '<dt>Status</dt><dd><span class="pill ' + esc(st.status) + '">' + esc(st.status) + '</span></dd>' +
-        (p.excerpt ? '<dt>Excerpt</dt><dd>' + esc(p.excerpt) + '</dd>' : '') +
-        (p.kidTake ? '<dt>Kid Take</dt><dd>' + esc(p.kidTake) + '</dd>' : '') +
-        (p.body ? '<dt>Body (HTML)</dt><dd style="max-height:220px;overflow:auto">' + esc(p.body) + '</dd>' : '') +
-        (st.editorNotes ? '<dt>Editor notes</dt><dd>' + esc(st.editorNotes) + '</dd>' : '') +
+        (p.excerpt ? '<dt>Excerpt</dt><dd style="color:var(--text-dim);">' + esc(p.excerpt) + '</dd>' : '') +
+        (p.kidTake ? '<dt>Kid Take</dt><dd style="background:rgba(0,229,255,0.06); padding:10px; border-radius:6px; border-left:3px solid var(--accent);">' + esc(p.kidTake) + '</dd>' : '') +
+        (p.body ? '<dt>Body (HTML)</dt><dd style="max-height:220px; overflow-y:auto; padding:10px; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; font-size:0.85rem; line-height:1.6;">' + esc(p.body) + '</dd>' : '') +
+        (st.editorNotes ? '<dt>Editor notes</dt><dd style="color:var(--accent-5);">' + esc(st.editorNotes) + '</dd>' : '') +
         (st.scheduledAt ? '<dt>Scheduled for</dt><dd>' + fmtDate(st.scheduledAt) + (st.edition ? ' (' + esc(st.edition) + ')' : '') + '</dd>' : '') +
-        (st.publishedArticleId ? '<dt>Published as</dt><dd>' + esc(st.publishedArticleId) + '</dd>' : '') +
-        '<dt>Cover Image</dt><dd id="draft-cover-container">' +
-          (p.heroImage ? '<img src="' + esc(p.heroImage) + '" style="max-width:240px; border-radius:8px; display:block; margin-bottom:8px;" id="draft-cover-preview">' : '<span class="hint" id="draft-cover-none">No cover image selected</span>') +
+        (st.publishedArticleId ? '<dt>Published as</dt><dd><code>' + esc(st.publishedArticleId) + '</code></dd>' : '') +
+        '<dt>Cover Image</dt><dd id="draft-cover-container" style="margin-top:8px;">' +
+          (p.heroImage ? '<img src="' + esc(p.heroImage) + '" style="max-width:100%; height:180px; object-fit:cover; border-radius:8px; display:block; margin-bottom:8px; border:1px solid var(--border);" id="draft-cover-preview">' : '<span class="hint" id="draft-cover-none">No cover image selected</span>') +
           '<button class="admin-btn admin-btn-sm" id="btn-change-draft-cover" style="margin-top:6px;">🖼️ Change Cover Image</button>' +
         '</dd>' +
       '</dl>'
     ));
 
-    var changeBtn = panel.querySelector('#btn-change-draft-cover');
+    var changeBtn = container.querySelector('#btn-change-draft-cover');
     if (changeBtn) {
       changeBtn.addEventListener('click', function () {
         var selectedImgUrl = p.heroImage || '';
@@ -735,15 +772,16 @@
                   body: { payload: p }
                 }).then(function () {
                   toast('Draft cover image updated');
-                  var container = panel.querySelector('#draft-cover-container');
-                  var preview = container.querySelector('#draft-cover-preview');
+                  var containerEl = container.querySelector('#draft-cover-container');
+                  var preview = containerEl.querySelector('#draft-cover-preview');
                   if (!preview) {
-                    var none = container.querySelector('#draft-cover-none');
+                    var none = containerEl.querySelector('#draft-cover-none');
                     if (none) none.remove();
-                    preview = h('<img style="max-width:240px; border-radius:8px; display:block; margin-bottom:8px;" id="draft-cover-preview">');
-                    container.insertBefore(preview, changeBtn);
+                    preview = h('<img style="max-width:100%; height:180px; object-fit:cover; border-radius:8px; display:block; margin-bottom:8px; border:1px solid var(--border);" id="draft-cover-preview">');
+                    containerEl.insertBefore(preview, changeBtn);
                   }
                   preview.src = url;
+                  Views.queue();
                 }).catch(function (e) {
                   toast(e.message, true);
                 });
@@ -759,19 +797,31 @@
       });
     }
 
-    var actions = h('<div class="row-actions" style="margin-top:14px"></div>');
+    var actions = h('<div class="row-actions" style="margin-top:18px; justify-content: flex-end; gap: 8px;"></div>');
     if (st.status !== 'published') {
       if (st.status !== 'approved') {
-        var approve = h('<button class="admin-btn admin-btn-sm">Approve</button>');
-        approve.addEventListener('click', function () { patchStory(st.id, { status: 'approved' }); });
+        var approve = h('<button class="admin-btn admin-btn-sm" style="background:rgba(57,255,20,0.1); border-color:var(--accent-4); color:var(--accent-4);">Approve</button>');
+        approve.addEventListener('click', function () { 
+          patchStory(st.id, { status: 'approved' }); 
+          closeModal(modal);
+        });
         actions.appendChild(approve);
       }
       var pub = h('<button class="admin-btn admin-btn-primary admin-btn-sm">Publish now ▶</button>');
       pub.addEventListener('click', function () {
         pub.disabled = true; pub.textContent = 'Publishing…';
         api('/admin/stories/queue/' + st.id + '/publish', { method: 'POST' })
-          .then(function () { toast('Published to the live site'); Views.queue(); refreshBadges(); })
-          .catch(function (e) { toast(e.message, true); pub.disabled = false; pub.textContent = 'Publish now ▶'; });
+          .then(function () { 
+            toast('Published to the live site'); 
+            Views.queue(); 
+            refreshBadges(); 
+            closeModal(modal);
+          })
+          .catch(function (e) { 
+            toast(e.message, true); 
+            pub.disabled = false; 
+            pub.textContent = 'Publish now ▶'; 
+          });
       });
       actions.appendChild(pub);
       var sched = h('<button class="admin-btn admin-btn-sm">Schedule next drop ⏱</button>');
@@ -780,18 +830,28 @@
         api('/admin/stories/queue/' + st.id + '/schedule', { method: 'POST', body: {} })
           .then(function (r) {
             var when = r && r.story && r.story.scheduledAt ? fmtDate(r.story.scheduledAt) : 'next drop';
-            toast('Scheduled for ' + when); Views.queue(); refreshBadges();
+            toast('Scheduled for ' + when); 
+            Views.queue(); 
+            refreshBadges(); 
+            closeModal(modal);
           })
-          .catch(function (e) { toast(e.message, true); sched.disabled = false; sched.textContent = 'Schedule next drop ⏱'; });
+          .catch(function (e) { 
+            toast(e.message, true); 
+            sched.disabled = false; 
+            sched.textContent = 'Schedule next drop ⏱'; 
+          });
       });
       actions.appendChild(sched);
       var reject = h('<button class="admin-btn admin-btn-sm admin-btn-danger">Reject</button>');
-      reject.addEventListener('click', function () { patchStory(st.id, { status: 'rejected' }); });
+      reject.addEventListener('click', function () { 
+        patchStory(st.id, { status: 'rejected' }); 
+        closeModal(modal);
+      });
       actions.appendChild(reject);
     }
-    panel.appendChild(actions);
-    main.appendChild(panel);
-    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    container.appendChild(actions);
+    modal.body.appendChild(container);
   }
 
   function patchStory(id, body) {
