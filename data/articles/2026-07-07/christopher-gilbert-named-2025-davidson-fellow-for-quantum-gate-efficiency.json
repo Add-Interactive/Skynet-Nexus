@@ -6,7 +6,7 @@
   "title": "Christopher Gilbert Named 2025 Davidson Fellow for Quantum Gate Efficiency",
   "subtitle": "",
   "excerpt": "Maine student Christopher Gilbert won a fellowship for designing a two-qubit universal gate set that reduces quantum errors.",
-  "heroImage": "/assets/img/channels/quantum/2026-07-07-midday/2026-07-07-midday/comfy_00001_.png",
+  "heroImage": "/assets/img/channels/quantum/1_00024_.png",
   "body": "<p>Christopher Gilbert, a student from Maine, has been named a 2025 Davidson Fellow for his pioneering research in quantum computing. His project identified the smallest known universal quantum gate set that uses only two qubits per operation.</p><h2>Mitigating Quantum Noise</h2><p>Quantum computers utilize qubits, which can exist in multiple states at once. However, they are highly sensitive to environmental interference, which causes errors. By reducing the number of qubits required for operations, Gilbert’s gate set minimizes the potential for error propagation.</p><h2>Stable Quantum Computing</h2><p>His mathematical proof provides a template for builders of physical quantum processors, enabling more stable, accurate quantum calculations that could eventually run complex simulations for chemical and materials research.</p>",
   "kidTake": "A student named Christopher won a big prize for making quantum computers more reliable. He figured out a way to run computer instructions using just two qubits at a time, which helps keep the super-fast computer from making mistakes!",
   "familyDiscussion": [
