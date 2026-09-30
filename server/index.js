@@ -703,6 +703,45 @@ api.post('/newsroom/images', (req, res) => {
   }
 });
 
+// -------------- PURGE CHANNEL IMAGE POOL --------------
+// One-shot cleanup: empties the volume-backed channel image pools
+// (USERS_DIR/<channel>/) so the image pool starts fresh alongside the fresh
+// article start. Repo default images under public/assets/img/channels are
+// untouched. Same X-Newsroom-Key guard as the rest of the newsroom API.
+api.post('/newsroom/images/purge', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  const got = String(req.headers['x-newsroom-key'] || '');
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+  try {
+    const { USERS_DIR } = require('./storage');
+    const validCats = ['skynet', 'ai', 'space', 'robotics', 'biotech', 'quantum', 'climate', 'engineering', 'math', 'cyber', 'gaming', 'music', 'stem', 'play', 'network'];
+    const report = { removed: 0, channels: {} };
+    const rmrfFiles = (dir) => {
+      let n = 0;
+      for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+        const p = path.join(dir, ent.name);
+        if (ent.isDirectory()) { n += rmrfFiles(p); try { fs.rmdirSync(p); } catch (e) {} }
+        else if (ent.isFile()) { fs.unlinkSync(p); n++; }
+      }
+      return n;
+    };
+    for (const channel of validCats) {
+      const dir = path.join(USERS_DIR, channel);
+      // Safety: only touch direct children of USERS_DIR.
+      if (path.dirname(dir) !== USERS_DIR) { report.channels[channel] = 'skipped'; continue; }
+      if (!fs.existsSync(dir)) { report.channels[channel] = 'empty'; continue; }
+      const n = rmrfFiles(dir);
+      report.removed += n;
+      report.channels[channel] = n + ' files';
+    }
+    console.log('[newsroom] image pool purged: ' + report.removed + ' files removed');
+    res.json({ ok: true, report });
+  } catch (e) {
+    res.status(500).json({ error: 'image purge failed: ' + e.message });
+  }
+});
+
 // -------------- GIZMO NEWSROOM TASK PICKUP --------------
 // Lets the correspondent pipeline see tasks Jeff assigns in the admin panel
 // (Agents & Staff -> Assign task) and report them delivered. Same
