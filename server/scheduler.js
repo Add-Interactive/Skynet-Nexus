@@ -12,6 +12,7 @@ const TZ = 'America/New_York';
 const DROP_HOURS = [7, 14, 18];        // edition drop times, Eastern (at :15 minutes)
 const DROP_MINUTES = 15;                 // drop at :15 past the hour (7:15 AM, 2:15 PM, 6:15 PM)
 const CUTOFF_MIN = 60;                   // human stories must be in 1 hour before a drop
+const SOCIAL_RUN_OFFSET_MIN = 30;        // social producers file 30 min after each drop
 const EDITIONS = { 7: 'morning', 14: 'midday', 18: 'evening' };
 const TICK_MS = 60_000;
 
@@ -65,6 +66,15 @@ function nextEligibleDrop(from = new Date(), cutoffMin = CUTOFF_MIN) {
   return nextDrop(cutoff);
 }
 
+// The next social production run: 30 minutes after the next edition drop.
+// The social producer agents are spawned externally (same as correspondent
+// filing) — this exposes the cadence so the pipeline and admin panel agree.
+function nextSocialRun(from = new Date()) {
+  const nd = nextDrop(from);
+  const at = new Date(nd.at.getTime() + SOCIAL_RUN_OFFSET_MIN * 60000);
+  return { at, edition: nd.edition, dropAt: nd.at };
+}
+
 function scheduleInfo() {
   const now = new Date();
   const nd = nextDrop(now);
@@ -77,6 +87,8 @@ function scheduleInfo() {
     editions: EDITIONS,
     nextDrop: { at: nd.at.toISOString(), edition: nd.edition, hour: nd.hour },
     nextEligibleDrop: { at: ne.at.toISOString(), edition: ne.edition, hour: ne.hour },
+    nextSocialRun: (() => { const ns = nextSocialRun(now); return { at: ns.at.toISOString(), edition: ns.edition, dropAt: ns.dropAt.toISOString() }; })(),
+    socialRunOffsetMinutes: SOCIAL_RUN_OFFSET_MIN,
     serverTime: now.toISOString()
   };
 }
@@ -134,4 +146,4 @@ function start() {
   if (_timer.unref) _timer.unref();
 }
 
-module.exports = { start, scheduleInfo, nextDrop, nextEligibleDrop, releaseDue, DROP_HOURS, DROP_MINUTES, CUTOFF_MIN, EDITIONS };
+module.exports = { start, scheduleInfo, nextDrop, nextEligibleDrop, nextSocialRun, releaseDue, DROP_HOURS, DROP_MINUTES, CUTOFF_MIN, SOCIAL_RUN_OFFSET_MIN, EDITIONS };
