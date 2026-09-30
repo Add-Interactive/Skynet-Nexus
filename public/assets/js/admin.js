@@ -429,6 +429,7 @@
         '<button class="agent-tab" data-tab="chat">💬 Chat</button>' +
         '<button class="agent-tab" data-tab="task">📝 Assign task</button>' +
         '<button class="agent-tab" data-tab="tasks">📋 Tasks (' + tasks.length + ')</button>' +
+        '<button class="agent-tab" data-tab="sources">🔍 Sources</button>' +
       '</div>'
     );
     box.appendChild(tabs);
@@ -451,7 +452,76 @@
     if (!pane) return;
     if (tab === 'chat') paintChat(st, messages);
     else if (tab === 'task') paintTaskForm(st);
+    else if (tab === 'sources') paintSources(st);
     else paintTasks(st, tasks);
+  }
+
+  function paintSources(st) {
+    var pane = document.getElementById('agent-pane');
+    pane.innerHTML = '';
+    var wrap = h('<div class="sources-wrap"><div class="sources-loading">Loading sources…</div></div>');
+    pane.appendChild(wrap);
+    api('/admin/staff/' + st.id + '/sources').then(function (r) {
+      var sources = r.sources || [];
+      wrap.innerHTML = '';
+      var head = h('<div class="sources-head"><h3>Story sources for ' + esc(st.displayName) + '</h3>' +
+        '<div class="sub">RSS feeds, sites, and guided searches this correspondent checks before each filing. Priority 1 = checked first.</div></div>');
+      wrap.appendChild(head);
+      var list = h('<div class="sources-list"></div>');
+      if (!sources.length) list.appendChild(h('<div class="chat-empty">No sources yet. Add the first one below — or seed from the registry.</div>'));
+      sources.forEach(function (s) {
+        var badge = s.type === 'rss' ? '📡 RSS' : (s.type === 'site' ? '🌐 Site' : '🔎 Search');
+        var target = s.type === 'search' ? esc(s.query || '') : esc(s.url || '');
+        var row = h(
+          '<div class="source-row' + (s.enabled ? '' : ' disabled') + '">' +
+            '<span class="source-badge">' + badge + '</span>' +
+            '<div class="source-main"><div class="source-label">' + esc(s.label || '(untitled)') + ' <span class="source-prio">P' + Number(s.priority) + '</span></div>' +
+            '<div class="source-target">' + target + '</div>' +
+            (s.notes ? '<div class="source-notes">' + esc(s.notes) + '</div>' : '') + '</div>' +
+            '<label class="source-toggle"><input type="checkbox"' + (s.enabled ? ' checked' : '') + '> on</label>' +
+            '<button class="admin-btn admin-btn-danger admin-btn-sm source-del">✕</button>' +
+          '</div>'
+        );
+        row.querySelector('input').addEventListener('change', function (e) {
+          api('/admin/sources/' + s.id, { method: 'PATCH', body: { enabled: e.target.checked } })
+            .then(function () { toast(e.target.checked ? 'Source enabled' : 'Source disabled'); })
+            .catch(function (err) { toast(err.message, true); e.target.checked = !e.target.checked; });
+        });
+        row.querySelector('.source-del').addEventListener('click', function () {
+          if (!confirm('Delete this source?')) return;
+          api('/admin/sources/' + s.id, { method: 'DELETE' })
+            .then(function () { toast('Source deleted'); paintSources(st); })
+            .catch(function (err) { toast(err.message, true); });
+        });
+        list.appendChild(row);
+      });
+      wrap.appendChild(list);
+      var form = h(
+        '<div class="source-add"><h4>Add source</h4>' +
+        '<div class="form-row"><label>Type <select id="ns-type"><option value="rss">📡 RSS feed</option><option value="site">🌐 Website</option><option value="search">🔎 Guided search</option></select></label>' +
+        '<label>Priority (1–10) <input id="ns-prio" type="number" min="1" max="10" value="5"></label></div>' +
+        '<div class="form-row"><label style="flex:2">Label <input id="ns-label" placeholder="e.g. MIT News - AI"></label></div>' +
+        '<div class="form-row"><label style="flex:2"><span id="ns-target-label">Feed / site URL</span> <input id="ns-target" placeholder="https://…"></label></div>' +
+        '<div class="form-row"><label style="flex:2">Notes <input id="ns-notes" placeholder="What to look for here"></label></div>' +
+        '<button class="admin-btn admin-btn-primary" id="ns-add">Add source</button></div>'
+      );
+      wrap.appendChild(form);
+      var typeSel = form.querySelector('#ns-type'), targetLabel = form.querySelector('#ns-target-label');
+      typeSel.addEventListener('change', function () {
+        targetLabel.textContent = typeSel.value === 'search' ? 'Search query' : 'Feed / site URL';
+        form.querySelector('#ns-target').placeholder = typeSel.value === 'search' ? 'site:.edu …' : 'https://…';
+      });
+      form.querySelector('#ns-add').addEventListener('click', function () {
+        var type = typeSel.value;
+        var target = form.querySelector('#ns-target').value.trim();
+        if (!target) { toast('Enter a URL or search query', true); return; }
+        var body = { type: type, label: form.querySelector('#ns-label').value.trim(), notes: form.querySelector('#ns-notes').value.trim(), priority: Number(form.querySelector('#ns-prio').value) || 5 };
+        if (type === 'search') body.query = target; else body.url = target;
+        api('/admin/staff/' + st.id + '/sources', { method: 'POST', body: body })
+          .then(function () { toast('Source added'); paintSources(st); })
+          .catch(function (e) { toast(e.message, true); });
+      });
+    }).catch(function (e) { wrap.innerHTML = '<div class="chat-empty">Failed to load sources: ' + esc(e.message) + '</div>'; });
   }
 
   function paintChat(st, messages) {
