@@ -398,7 +398,7 @@
     </div>
     <div class="topbar-time">
       <div>NEXT DROP COUNTDOWN</div>
-      <div class="topbar-time-value" id="time-display">10:15 AM ET (1:28 left)</div>
+      <div class="topbar-time-value" id="time-display">7:15 AM ET (1:28 left)</div>
     </div>
   </div>
 
@@ -494,7 +494,7 @@
   <div class="bottom-panel">
     
     <div class="drop-card">
-      <div class="drop-time">10:15 AM ET</div>
+      <div class="drop-time">7:15 AM ET</div>
       <div class="drop-status">📰 MORNING EDITION</div>
       <div class="drop-status">READY: 12 / 15</div>
       <div class="drop-bar">
@@ -972,10 +972,10 @@
     const etHour = parseInt(et.split(':')[0]);
     const etMin = parseInt(et.split(':')[1]);
     
-    let nextDropHour = 10;
+    let nextDropHour = 7;
     let nextDropMin = 15;
     
-    if (etHour > 10 || (etHour === 10 && etMin > 15)) {
+    if (etHour > 7 || (etHour === 7 && etMin > 15)) {
       nextDropHour = 14;
       nextDropMin = 15;
     }
@@ -984,7 +984,7 @@
       nextDropMin = 15;
     }
     if (etHour > 18 || (etHour === 18 && etMin > 15)) {
-      nextDropHour = 10;
+      nextDropHour = 7;
       nextDropMin = 15;
     }
     

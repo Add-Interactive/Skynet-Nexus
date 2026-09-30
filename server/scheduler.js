@@ -1,5 +1,5 @@
 // server/scheduler.js
-// The cadence engine: three daily editions at 10:15 / 2:15 PM / 6:15 PM America/New_York.
+// The cadence engine: three daily editions at 7:15 AM / 2:15 PM / 6:15 PM America/New_York.
 // Correspondents (AI) and approved human submissions are queued ahead of time and
 // time-released at the drop. Human stories must be scheduled >= CUTOFF_MIN before a
 // drop to make that edition; otherwise they roll to the next one. If no human story
@@ -9,10 +9,10 @@ const db = require('./db');
 const { publishPayload } = require('./publisher');
 
 const TZ = 'America/New_York';
-const DROP_HOURS = [10, 14, 18];        // edition drop times, Eastern (at :15 minutes)
-const DROP_MINUTES = 15;                 // drop at :15 past the hour (10:15 AM, 2:15 PM, 6:15 PM)
+const DROP_HOURS = [7, 14, 18];        // edition drop times, Eastern (at :15 minutes)
+const DROP_MINUTES = 15;                 // drop at :15 past the hour (7:15 AM, 2:15 PM, 6:15 PM)
 const CUTOFF_MIN = 60;                   // human stories must be in 1 hour before a drop
-const EDITIONS = { 10: 'morning', 14: 'midday', 18: 'evening' };
+const EDITIONS = { 7: 'morning', 14: 'midday', 18: 'evening' };
 const TICK_MS = 60_000;
 
 // Current wall-clock parts in Eastern time.
