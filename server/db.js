@@ -298,8 +298,8 @@ const stmts = {
   `),
 
   createQueuedStory: db.prepare(`
-    INSERT INTO queued_stories (staff_id, channel, payload, status, submission_id)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO queued_stories (staff_id, channel, payload, status, submission_id, publish_at, edition)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `),
   updateQueuedStory: db.prepare(`
     UPDATE queued_stories SET
@@ -308,6 +308,8 @@ const stmts = {
       payload = COALESCE(?, payload),
       published_article_id = COALESCE(?, published_article_id),
       published_at = COALESCE(?, published_at),
+      publish_at = CASE WHEN ? = '__clear__' THEN NULL ELSE COALESCE(?, publish_at) END,
+      edition = COALESCE(?, edition),
       updated_at = datetime('now')
     WHERE id = ?
   `),
@@ -327,6 +329,11 @@ const stmts = {
   listDueScheduled: db.prepare(`
     SELECT * FROM queued_stories
      WHERE status = 'scheduled' AND publish_at IS NOT NULL AND publish_at <= ?
+     ORDER BY publish_at ASC LIMIT 20
+  `),
+  listDueDrafts: db.prepare(`
+    SELECT * FROM queued_stories
+     WHERE status = 'draft' AND publish_at IS NOT NULL AND publish_at <= ?
      ORDER BY publish_at ASC LIMIT 20
   `),
   listScheduledUpcoming: db.prepare(`
@@ -640,15 +647,19 @@ module.exports = {
     return toPublicSubmission(stmts.findSubmission.get(id));
   },
 
-  createQueuedStory({ staffId, channel, payload, status = 'draft', submissionId = null }) {
-    const info = stmts.createQueuedStory.run(staffId, channel, JSON.stringify(payload), status, submissionId);
+  createQueuedStory({ staffId, channel, payload, status = 'draft', submissionId = null, publishAt = null, edition = null }) {
+    const info = stmts.createQueuedStory.run(staffId, channel, JSON.stringify(payload), status, submissionId, publishAt, edition);
     return toPublicQueuedStory(stmts.findQueuedStory.get(info.lastInsertRowid));
   },
-  updateQueuedStory({ id, status, editorNotes, payload, publishedArticleId, publishedAt }) {
+  // clearDrop=true removes the drop stamp (publish_at -> NULL) so a failed
+  // story stops retrying and waits as an ordinary draft for the director.
+  updateQueuedStory({ id, status, editorNotes, payload, publishedArticleId, publishedAt, clearDrop = false, edition }) {
     stmts.updateQueuedStory.run(
       status ?? null, editorNotes ?? null,
       payload != null ? JSON.stringify(payload) : null,
-      publishedArticleId ?? null, publishedAt ?? null, id
+      publishedArticleId ?? null, publishedAt ?? null,
+      clearDrop ? '__clear__' : null, null,
+      edition ?? null, id
     );
     return toPublicQueuedStory(stmts.findQueuedStory.get(id));
   },
@@ -671,6 +682,9 @@ module.exports = {
   },
   listDueScheduledStories(nowIso) {
     return stmts.listDueScheduled.all(nowIso).map(toPublicQueuedStory);
+  },
+  listDueDraftStories(nowIso) {
+    return stmts.listDueDrafts.all(nowIso).map(toPublicQueuedStory);
   },
   listScheduledStories({ limit = 50, offset = 0 } = {}) {
     return stmts.listScheduledUpcoming.all(limit, offset).map(toPublicQueuedStory);
