@@ -176,6 +176,25 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_agent_messages_staff ON agent_messages(staff_id, id);
 
   -- Admin audit log (who did what, when).
+  -- Correspondent story sources (RSS feeds, sites, guided searches).
+  -- Seeded from newsroom/sources/registry.json; adjustable per-agent in admin.
+  CREATE TABLE IF NOT EXISTS agent_sources (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    staff_id      INTEGER NOT NULL,
+    type          TEXT    NOT NULL,
+    url           TEXT,
+    query         TEXT,
+    label         TEXT,
+    notes         TEXT,
+    priority      INTEGER NOT NULL DEFAULT 5,
+    enabled       INTEGER NOT NULL DEFAULT 1,
+    created_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE CASCADE
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_agent_sources_staff ON agent_sources(staff_id, enabled, priority);
+
   CREATE TABLE IF NOT EXISTS admin_actions (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id      INTEGER NOT NULL,
@@ -357,6 +376,15 @@ const stmts = {
   findAgentTask: db.prepare(`SELECT * FROM agent_tasks WHERE id = ?`),
   listAgentTasksByStaff: db.prepare(`SELECT * FROM agent_tasks WHERE staff_id = ? ORDER BY id DESC LIMIT ? OFFSET ?`),
   listPendingAgentTasks: db.prepare(`SELECT * FROM agent_tasks WHERE status IN ('pending','in_progress') ORDER BY id DESC`),
+
+  // ---------- Correspondent story sources ----------
+  listSourcesByStaff: db.prepare(`SELECT * FROM agent_sources WHERE staff_id = ? ORDER BY priority ASC, id ASC`),
+  listEnabledSourcesByStaff: db.prepare(`SELECT * FROM agent_sources WHERE staff_id = ? AND enabled = 1 ORDER BY priority ASC, id ASC`),
+  findSource: db.prepare(`SELECT * FROM agent_sources WHERE id = ?`),
+  insertSource: db.prepare(`INSERT INTO agent_sources (staff_id, type, url, query, label, notes, priority, enabled) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`),
+  updateSource: db.prepare(`UPDATE agent_sources SET type = COALESCE(?, type), url = ?, query = ?, label = ?, notes = ?, priority = COALESCE(?, priority), enabled = COALESCE(?, enabled), updated_at = datetime('now') WHERE id = ?`),
+  deleteSource: db.prepare(`DELETE FROM agent_sources WHERE id = ?`),
+  countSourcesByStaff: db.prepare(`SELECT COUNT(*) AS n FROM agent_sources WHERE staff_id = ?`),
 
   createAgentMessage: db.prepare(`
     INSERT INTO agent_messages (staff_id, author, author_user_id, body, task_id)
@@ -703,6 +731,21 @@ module.exports = {
     return stmts.listAgentTasksByStaff.all(staffId, limit, offset).map(toPublicAgentTask);
   },
   listPendingAgentTasks() { return stmts.listPendingAgentTasks.all().map(toPublicAgentTask); },
+
+  // ---------- Correspondent story sources ----------
+  listSourcesByStaff(staffId) { return stmts.listSourcesByStaff.all(staffId); },
+  listEnabledSourcesByStaff(staffId) { return stmts.listEnabledSourcesByStaff.all(staffId); },
+  findSource(id) { return stmts.findSource.get(id); },
+  createSource({ staffId, type, url, query, label, notes, priority, enabled }) {
+    const info = stmts.insertSource.run(staffId, type, url || null, query || null, label || null, notes || null, priority != null ? priority : 5, enabled != null ? (enabled ? 1 : 0) : 1);
+    return stmts.findSource.get(info.lastInsertRowid);
+  },
+  updateSource({ id, type, url, query, label, notes, priority, enabled }) {
+    stmts.updateSource.run(type || null, url !== undefined ? url : null, query !== undefined ? query : null, label !== undefined ? label : null, notes !== undefined ? notes : null, priority !== undefined ? priority : null, enabled !== undefined ? (enabled ? 1 : 0) : null, id);
+    return stmts.findSource.get(id);
+  },
+  deleteSource(id) { return stmts.deleteSource.run(id).changes; },
+  countSourcesByStaff(staffId) { return stmts.countSourcesByStaff.get(staffId).n; },
 
   createAgentMessage({ staffId, author, authorUserId, body, taskId }) {
     const info = stmts.createAgentMessage.run(staffId, author, authorUserId ?? null, body, taskId ?? null);
