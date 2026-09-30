@@ -204,6 +204,64 @@ router.get('/staff/:id/tasks', (req, res) => {
   res.json({ tasks: db.listAgentTasksByStaff(id, { limit: 100 }) });
 });
 
+// ---------- Correspondent story sources (per-agent, admin-adjustable) ----------
+router.get('/staff/:id/sources', (req, res) => {
+  const id = Number(req.params.id);
+  if (!db.findStaffById(id)) return res.status(404).json({ error: 'not found' });
+  res.json({ sources: db.listSourcesByStaff(id) });
+});
+
+router.post('/staff/:id/sources', (req, res) => {
+  const id = Number(req.params.id);
+  if (!db.findStaffById(id)) return res.status(404).json({ error: 'not found' });
+  const b = req.body || {};
+  const type = String(b.type || '').trim();
+  if (!['rss', 'site', 'search'].includes(type)) return res.status(400).json({ error: 'type must be rss, site, or search' });
+  if (type === 'search' && !String(b.query || '').trim()) return res.status(400).json({ error: 'search sources need a query' });
+  if (type !== 'search' && !String(b.url || '').trim()) return res.status(400).json({ error: 'rss/site sources need a url' });
+  const created = db.createSource({
+    staffId: id, type,
+    url: String(b.url || '').trim() || null,
+    query: String(b.query || '').trim() || null,
+    label: String(b.label || '').trim() || null,
+    notes: String(b.notes || '').trim() || null,
+    priority: b.priority != null ? Math.max(1, Math.min(10, Number(b.priority) || 5)) : 5,
+    enabled: b.enabled === undefined ? true : !!b.enabled
+  });
+  logAction(req.adminUser.id, 'source.create', 'source', created.id, { staffId: id, type });
+  res.json({ source: created });
+});
+
+router.patch('/sources/:sourceId', (req, res) => {
+  const sourceId = Number(req.params.sourceId);
+  const existing = db.findSource(sourceId);
+  if (!existing) return res.status(404).json({ error: 'not found' });
+  const b = req.body || {};
+  if (b.type !== undefined && !['rss', 'site', 'search'].includes(String(b.type))) {
+    return res.status(400).json({ error: 'type must be rss, site, or search' });
+  }
+  const updated = db.updateSource({
+    id: sourceId,
+    type: b.type !== undefined ? String(b.type).trim() : undefined,
+    url: b.url !== undefined ? (String(b.url).trim() || null) : undefined,
+    query: b.query !== undefined ? (String(b.query).trim() || null) : undefined,
+    label: b.label !== undefined ? (String(b.label).trim() || null) : undefined,
+    notes: b.notes !== undefined ? (String(b.notes).trim() || null) : undefined,
+    priority: b.priority !== undefined ? Math.max(1, Math.min(10, Number(b.priority) || 5)) : undefined,
+    enabled: b.enabled !== undefined ? !!b.enabled : undefined
+  });
+  logAction(req.adminUser.id, 'source.update', 'source', sourceId, { enabled: updated.enabled });
+  res.json({ source: updated });
+});
+
+router.delete('/sources/:sourceId', (req, res) => {
+  const sourceId = Number(req.params.sourceId);
+  if (!db.findSource(sourceId)) return res.status(404).json({ error: 'not found' });
+  db.deleteSource(sourceId);
+  logAction(req.adminUser.id, 'source.delete', 'source', sourceId, {});
+  res.json({ ok: true, deleted: sourceId });
+});
+
 router.post('/staff/:id/tasks', (req, res) => {
   const id = Number(req.params.id);
   const staff = db.findStaffById(id);
