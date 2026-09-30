@@ -96,7 +96,13 @@ function scheduleInfo() {
 // Publish one queued story payload through the publish pipeline.
 async function releaseStory(story, via) {
   try {
-    const result = await publishPayload(story.payload, `drop-${story.id}`);
+    // Stamp the edition and the true drop time onto the payload so the
+    // published article carries its edition (powers the edition front pages).
+    const payload = Object.assign({}, story.payload, {
+      edition: story.edition || story.payload.edition || null,
+      publishedAt: story.scheduledAt || story.payload.publishedAt || new Date().toISOString(),
+    });
+    const result = await publishPayload(payload, `drop-${story.id}`);
     if (result.code === 0) {
       db.updateQueuedStory({
         id: story.id, status: 'published',

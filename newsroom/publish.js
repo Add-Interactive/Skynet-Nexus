@@ -83,6 +83,7 @@ async function main() {
   const authorInit = article.authorInit || author.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   const now = new Date();
   const publishedAt = article.publishedAt || new Date(article.date + 'T10:00:00-04:00').toISOString();
+  const edition = ['morning', 'midday', 'evening'].includes(article.edition) ? article.edition : null;
 
   const full = {
     id,
@@ -103,6 +104,7 @@ async function main() {
     authorRole: article.authorRole || (({ai:'AI Correspondent',space:'Aerospace Correspondent',robotics:'Robotics Correspondent',biotech:'Biotech Correspondent',quantum:'Quantum Correspondent',climate:'Climate Correspondent',engineering:'Engineering Correspondent',math:'Data Science Correspondent',cyber:'Cybersecurity Correspondent',gaming:'Esports Correspondent',music:'Music Correspondent',stem:'STEM Correspondent',play:'Play & Design Correspondent',network:'Newsroom'})[article.cat] || 'Correspondent'),
     date: article.date,
     publishedAt,
+    edition,
     read: article.read || Math.max(2, Math.ceil((article.body.replace(/<[^>]+>/g, ' ').split(/\s+/).length) / 220)),
     views: article.views || 0,
     likes: article.likes || 0,
@@ -142,6 +144,7 @@ async function main() {
     authorInit: full.authorInit,
     date: full.date,
     publishedAt: full.publishedAt,
+    edition: full.edition,
     read: full.read,
     views: full.views,
     likes: full.likes,
