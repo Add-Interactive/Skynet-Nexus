@@ -112,7 +112,7 @@ const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', 1); // Railway/reverse proxy: honor X-Forwarded-Proto for secure cookies.
 
-app.use(express.json({ limit: '256kb' }));
+app.use(express.json({ limit: '3mb' })); // raised for pipeline artwork uploads (base64)
 app.use(express.urlencoded({ extended: false, limit: '256kb' }));
 
 app.use(session({
@@ -665,6 +665,41 @@ api.post('/newsroom/seed-sources', (req, res) => {
     res.json({ ok: true, report });
   } catch (e) {
     res.status(500).json({ error: 'source seeding failed: ' + e.message });
+  }
+});
+
+// -------------- PIPELINE ARTWORK UPLOAD --------------
+// Lets the correspondent pipeline upload generated hero images without an
+// admin session. Saves to the persistent volume's channel image pool
+// (USERS_DIR/<channel>/), served publicly at /assets/img/channels/<channel>/.
+// Same X-Newsroom-Key guard as the rest of the newsroom API.
+api.post('/newsroom/images', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  const got = String(req.headers['x-newsroom-key'] || '');
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+  try {
+    const b = req.body || {};
+    const channel = String(b.channel || '').trim();
+    const validCats = ['skynet', 'ai', 'space', 'robotics', 'biotech', 'quantum', 'climate', 'engineering', 'math', 'cyber', 'gaming', 'music', 'stem', 'play', 'network'];
+    if (!validCats.includes(channel)) return res.status(400).json({ error: 'invalid channel' });
+    let filename = String(b.filename || '').trim().replace(/[^a-zA-Z0-9_.-]/g, '_');
+    if (!filename) return res.status(400).json({ error: 'filename required' });
+    if (!/\.(jpe?g|png|webp)$/i.test(filename)) filename += '.jpg';
+    const base64 = String(b.base64 || '').replace(/^data:image\/\w+;base64,/, '');
+    if (!base64) return res.status(400).json({ error: 'base64 required' });
+    if (base64.length > 4 * 1024 * 1024) return res.status(413).json({ error: 'image too large' });
+    const { USERS_DIR } = require('./storage');
+    const dir = path.join(USERS_DIR, channel);
+    fs.mkdirSync(dir, { recursive: true });
+    const filePath = path.join(dir, filename);
+    if (path.dirname(filePath) !== dir) return res.status(400).json({ error: 'bad filename' });
+    fs.writeFileSync(filePath, Buffer.from(base64, 'base64'));
+    const publicPath = `/assets/img/channels/${channel}/${filename}`;
+    console.log(`[newsroom] artwork uploaded: ${publicPath}`);
+    res.json({ ok: true, path: publicPath, filename });
+  } catch (e) {
+    res.status(500).json({ error: 'artwork upload failed: ' + e.message });
   }
 });
 
