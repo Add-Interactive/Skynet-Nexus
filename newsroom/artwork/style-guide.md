@@ -25,6 +25,17 @@ grain, warm and optimistic. Think high-end children's book meets sci-fi poster.
 - NEVER the generic "corporate stock photo" look.
 - The channel accent color must appear prominently (glow + at least one subject element).
 
+## The watermark
+
+Every article image carries the Skynet Nexus brand bug — bottom-right corner,
+280x60px, 24px margins. It is overlaid by the pipeline AFTER generation, so it
+is identical on every image and survives any drift in the art itself.
+
+- Asset: `newsroom/artwork/watermark.png` (560x120 master, scaled to 280x60 on overlay)
+- Dark navy pill `#080C20` at ~85% opacity, cyan signal arcs, white "SKYNET NEXUS" wordmark
+- Overlay: `ffmpeg -i hero.jpg -i watermark.png -filter_complex "[1:v]scale=280:60[wm];[0:v][wm]overlay=W-w-24:H-h-24" hero-wm.jpg`
+- The house style makes our images beautiful; the watermark makes them ours.
+
 ## Channel accent colors
 
 | Channel     | Color   | Hex       |
@@ -67,6 +78,6 @@ glowing bins..."
 
 1. Correspondent drafts the story (title first).
 2. Correspondent generates the hero image with the prompt above (title → visual).
-3. Image is resized to 1200px wide JPEG and uploaded to the channel's pool via
+3. Image is resized to 1200px wide JPEG, watermark overlaid bottom-right, then uploaded to the channel's pool via
    `POST /api/newsroom/images`.
 4. The returned path becomes the draft's `heroImage` — topic-matched, on-brand.
