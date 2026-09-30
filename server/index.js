@@ -40,7 +40,8 @@ const {
   deleteUser,
   createPasswordReset, findPasswordReset, markPasswordResetUsed, purgeExpiredResets,
   addNewsletter, listNewsletter, countNewsletter,
-  createSubmission, findStaffBySlug, setUserRole, countAdmins, createQueuedStory
+  createSubmission, findStaffBySlug, setUserRole, countAdmins, createQueuedStory,
+  listPendingAgentTasks, findAgentTask, updateAgentTask
 } = require('./db');
 const {
   hashPassword, verifyPassword,
@@ -603,6 +604,56 @@ api.post('/newsroom/drafts', (req, res) => {
   });
   console.log(`[newsroom] draft filed: #${story.id} ${channel} "${String(payload.title).slice(0, 60)}" for ${edition || 'unscheduled'} drop`);
   res.status(201).json({ story });
+});
+
+// -------------- GIZMO NEWSROOM ROSTER SYNC --------------
+// Re-run the correspondent roster sync on demand (same NEWSROOM_API_KEY guard
+// as draft ingestion). Idempotent: creates missing agents by slug and updates
+// displayName/role/bio for existing ones. Returns the sync result so the
+// pipeline can verify the roster without reading the database directly.
+api.post('/newsroom/seed-agents', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  const got = String(req.headers['x-newsroom-key'] || '');
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+  try {
+    const { seedAgents } = require('./seed-agents');
+    const result = seedAgents();
+    console.log('[newsroom] roster sync requested:', JSON.stringify(result));
+    res.json({ ok: true, result });
+  } catch (e) {
+    res.status(500).json({ error: 'roster sync failed: ' + e.message });
+  }
+});
+
+// -------------- GIZMO NEWSROOM TASK PICKUP --------------
+// Lets the correspondent pipeline see tasks Jeff assigns in the admin panel
+// (Agents & Staff -> Assign task) and report them delivered. Same
+// X-Newsroom-Key guard as draft ingestion.
+api.get('/newsroom/tasks/pending', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  const got = String(req.headers['x-newsroom-key'] || '');
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+  res.json({ tasks: listPendingAgentTasks() });
+});
+
+api.patch('/newsroom/tasks/:id', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  const got = String(req.headers['x-newsroom-key'] || '');
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+  const task = findAgentTask(Number(req.params.id));
+  if (!task) return res.status(404).json({ error: 'not found' });
+  const b = req.body || {};
+  const status = ['in_progress', 'delivered', 'cancelled'].includes(b.status) ? b.status : 'delivered';
+  const resultingQueuedStoryId = b.resultingQueuedStoryId ? Number(b.resultingQueuedStoryId) : null;
+  const updated = updateAgentTask({
+    id: task.id, status, resultingQueuedStoryId,
+    deliveredAt: status === 'delivered' ? new Date().toISOString() : null
+  });
+  console.log(`[newsroom] task #${task.id} -> ${status}` + (resultingQueuedStoryId ? ` (story #${resultingQueuedStoryId})` : ''));
+  res.json({ task: updated });
 });
 
 app.use('/api', api);
