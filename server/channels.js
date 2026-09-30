@@ -2,7 +2,7 @@
 // Single source of truth for the Skynet Nexus channel taxonomy (server side).
 // The client mirrors this list in public/assets/js/app.js (CHANNELS).
 
-// The 11 live channels: 9 edge-STEM + 2 culture.
+// The 15 live channels: 11 edge-STEM + 2 culture + 2 editorial.
 const CHANNELS = [
   { id: 'skynet',      label: 'Skynet',                icon: '🛰️', color: '#00e5ff' },
   { id: 'network',     label: 'Network',               icon: '🛰️', color: '#00e5ff' },
@@ -16,7 +16,9 @@ const CHANNELS = [
   { id: 'math',        label: 'Math & Data Science',    icon: '📐', color: '#f472b6' },
   { id: 'cyber',       label: 'Cybersecurity & Code',   icon: '🔐', color: '#38bdf8' },
   { id: 'gaming',      label: 'Gaming Tournaments',     icon: '🎮', color: '#39ff14' },
-  { id: 'music',       label: 'Music Festivals',        icon: '🎧', color: '#ff2e63' }
+  { id: 'music',       label: 'Music Festivals',        icon: '🎧', color: '#ff2e63' },
+  { id: 'stem',        label: 'STEM Signal',            icon: '🔬', color: '#00e5ff' },
+  { id: 'play',        label: 'Play & Design',          icon: '🎨', color: '#39ff14' }
 ];
 
 // The Skynet and Network channels are editorial (SNN original content), not a reader-submission target.
@@ -25,8 +27,8 @@ const EDITORIAL_ONLY = new Set(['skynet', 'network']);
 // Channels a reader may submit a story to (all live channels except editorial-only).
 const SUBMISSION_IDS = new Set(CHANNELS.map(c => c.id).filter(id => !EDITORIAL_ONLY.has(id)));
 
-// Legacy category ids kept valid so pre-existing articles still resolve/publish.
-const LEGACY_IDS = new Set(['stem', 'play']);
+// (stem/play were promoted to full channels; kept here empty for compatibility.)
+const LEGACY_IDS = new Set([]);
 
 // Everything the publish pipeline + admin queue will accept.
 const PUBLISH_IDS = new Set([...SUBMISSION_IDS, ...LEGACY_IDS]);

@@ -1,8 +1,8 @@
 // server/seed-agents.js
-// Seed all 11 correspondent agents into the database.
+// Seed all 13 correspondent agents into the database.
 // Call from server startup or separately as needed.
 
-const { listStaff, findStaffBySlug, createStaff } = require('./db');
+const { listStaff, findStaffBySlug, createStaff, updateStaff } = require('./db');
 
 // Import agent config
 const AGENTS_CONFIG = require('../newsroom/agents-config');
@@ -10,48 +10,48 @@ const { AGENTS } = AGENTS_CONFIG;
 
 /**
  * Seed all correspondent agents.
- * Idempotent: skips agents that already exist by slug.
- * @returns {Object} { created: number, skipped: number, errors: [] }
+ * Idempotent: creates agents missing by slug, and updates displayName/role/bio
+ * for existing slugs so renames propagate on deploy.
+ * @returns {Object} { created: number, updated: number, skipped: number, errors: [] }
  */
 function seedAgents() {
-  const result = { created: 0, skipped: 0, errors: [] };
-  
+  const result = { created: 0, updated: 0, skipped: 0, errors: [] };
+
   for (const agent of AGENTS) {
     try {
-      // Check if agent already exists
       const existing = findStaffBySlug(agent.slug);
-      if (existing) {
-        result.skipped++;
-        continue;
-      }
-      
-      // Create agent
-      const created = createStaff({
-        slug: agent.slug,
-        kind: 'agent',
+      const fields = {
         displayName: agent.displayName,
         role: agent.role,
         channel: agent.channel || null,
         byline: agent.displayName || null,
         avatarEmoji: agent.avatarEmoji || '🛰️',
         accentColor: agent.accentColor || '#00e5ff',
-        status: 'active',
         bio: agent.bio || null,
         promptPath: agent.promptPath || null,
-        linkedUserId: null
-      });
-      
-      result.created++;
-      console.log(`[seed-agents] Created agent: ${agent.displayName} (${agent.slug})`);
+        status: 'active'
+      };
+      if (!existing) {
+        createStaff(Object.assign({ slug: agent.slug, kind: 'agent', linkedUserId: null }, fields));
+        result.created++;
+        console.log(`[seed-agents] Created agent: ${agent.displayName} (${agent.slug})`);
+      } else if (
+        existing.displayName !== fields.displayName ||
+        existing.role !== fields.role ||
+        existing.byline !== fields.byline
+      ) {
+        updateStaff(existing.id, fields);
+        result.updated++;
+        console.log(`[seed-agents] Updated agent: ${agent.displayName} (${agent.slug})`);
+      } else {
+        result.skipped++;
+      }
     } catch (err) {
-      result.errors.push({
-        slug: agent.slug,
-        error: err.message
-      });
+      result.errors.push({ slug: agent.slug, error: err.message });
       console.error(`[seed-agents] Error creating ${agent.slug}:`, err.message);
     }
   }
-  
+
   return result;
 }
 
