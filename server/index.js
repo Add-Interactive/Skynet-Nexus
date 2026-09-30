@@ -40,7 +40,7 @@ const {
   deleteUser,
   createPasswordReset, findPasswordReset, markPasswordResetUsed, purgeExpiredResets,
   addNewsletter, listNewsletter, countNewsletter,
-  createSubmission, findStaffBySlug, setUserRole, countAdmins
+  createSubmission, findStaffBySlug, setUserRole, countAdmins, createQueuedStory
 } = require('./db');
 const {
   hashPassword, verifyPassword,
@@ -475,7 +475,7 @@ api.get('/manifest', (req, res) => {
 });
 
 // ---- Public story submission (readers send tips) ----
-const { SUBMISSION_IDS: SUBMISSION_CHANNELS, CHANNELS: CHANNEL_LIST } = require('./channels');
+const { SUBMISSION_IDS: SUBMISSION_CHANNELS, CHANNELS: CHANNEL_LIST, PUBLISH_IDS } = require('./channels');
 const scheduler = require('./scheduler');
 
 // GET /api/schedule — public cadence info for the submit page + homepage countdown.
@@ -556,6 +556,55 @@ api.post('/submissions', rateLimit({ windowMs: 60 * 60_000, max: 8, key: 'submis
   }
 });
 
+// -------------- GIZMO NEWSROOM INGESTION --------------
+// The correspondent pipeline files drafts here 1 hour before each drop.
+// Guarded by NEWSROOM_API_KEY (set it in Railway env vars). The key never
+// leaves the server and the pipeline — it is not a user credential.
+// Body: { staffSlug, channel, payload, dropAt (ISO), edition? }
+api.post('/newsroom/drafts', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  const got = String(req.headers['x-newsroom-key'] || '');
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+
+  const b = req.body || {};
+  const staff = b.staffSlug ? findStaffBySlug(String(b.staffSlug)) : null;
+  if (!staff) return res.status(400).json({ error: 'unknown staffSlug' });
+  const channel = String(b.channel || '').trim();
+  if (!PUBLISH_IDS.has(channel)) return res.status(400).json({ error: 'unknown channel' });
+  const payload = b.payload;
+  if (!payload || typeof payload !== 'object') return res.status(400).json({ error: 'payload must be an object' });
+
+  // House validation (schema + kid-safe guardrails), same rules as publish.js.
+  let errors = [];
+  try {
+    const { validateDraft } = require('../newsroom/agent-orchestrator');
+    errors = validateDraft(payload);
+  } catch (e) { return res.status(500).json({ error: 'validator unavailable: ' + e.message }); }
+  if (errors.length) return res.status(422).json({ error: 'draft failed validation', details: errors });
+
+  let dropAt = null;
+  if (b.dropAt) {
+    const d = new Date(b.dropAt);
+    if (isNaN(d.getTime())) return res.status(400).json({ error: 'invalid dropAt' });
+    dropAt = d.toISOString();
+  }
+  const edition = ['morning', 'midday', 'evening'].includes(b.edition) ? b.edition : null;
+
+  // Stamp the author/byline from the staff record so the queue always agrees with the roster.
+  const stamped = Object.assign({}, payload, {
+    author: staff.displayName,
+    authorRole: staff.role
+  });
+
+  const story = createQueuedStory({
+    staffId: staff.id, channel, payload: stamped, status: 'draft',
+    publishAt: dropAt, edition
+  });
+  console.log(`[newsroom] draft filed: #${story.id} ${channel} "${String(payload.title).slice(0, 60)}" for ${edition || 'unscheduled'} drop`);
+  res.status(201).json({ story });
+});
+
 app.use('/api', api);
 
 // -------------- ADMIN ROUTER --------------
@@ -618,8 +667,8 @@ app.use('/api/admin', require('./admin-routes'));
 })();
 
 // -------------- SEED ALL AGENTS (runs on every boot) --------------
-// Seeds all 11 correspondent agents from newsroom/agents-config.js into the database.
-// Idempotent: skips agents that already exist by slug.
+// Seeds all 13 correspondent agents from newsroom/agents-config.js into the database.
+// Idempotent: creates missing agents by slug and updates names/roles for existing ones.
 (function seedAllAgents() {
   try {
     const { seedAgents } = require('./seed-agents');
@@ -854,16 +903,6 @@ app.listen(PORT, () => {
     console.warn('[skynet] ComfyUI image sync skipped:', e.message);
   }
   
-  // Auto-seed emergency drops on boot (disabled now that they are permanently published to git)
-  /*
-  try {
-    const { generateEmergencyDrops } = require('./antigravity-service');
-    generateEmergencyDrops();
-    console.log('[skynet] Auto-seeded emergency drops successfully on startup!');
-  } catch (e) {
-    console.error('[skynet] Failed to auto-seed emergency drops:', e);
-  }
-  */
 
   // Clear database submission queues on startup (commented out now that initial cleanup is complete)
   /*
@@ -897,78 +936,20 @@ app.listen(PORT, () => {
     console.error('[skynet] Startup: Failed to seed Jeffrey Hunt:', e.message);
   }
 
-  // Seed OpenClaw Orchestrator into staff database table on boot if not already present
+  // Retire legacy automation staff (OpenClaw / Antigravity) — replaced by the Gizmo Newsroom pipeline.
   try {
     const { DatabaseSync } = require('node:sqlite');
     const { DB_PATH } = require('./storage');
     const rawDb = new DatabaseSync(DB_PATH);
-    const existing = rawDb.prepare("SELECT id FROM staff WHERE slug = 'openclaw'").get();
-    if (!existing) {
-      rawDb.prepare(`
-        INSERT INTO staff (slug, kind, display_name, role, channel, byline, avatar_emoji, accent_color, status, bio)
-        VALUES ('openclaw', 'agent', 'OpenClaw Orchestrator', 'Main System Orchestrator', null, 'OpenClaw', '🦾', '#39ff14', 'active', 'Main orchestrator and task routing copilot agent. Manages system-wide daily news drops when credit limits are active.')
-      `).run();
-      console.log('[skynet] Startup: Successfully seeded OpenClaw Orchestrator in staff table.');
+    for (const slug of ['openclaw', 'agent-antigravity']) {
+      const row = rawDb.prepare("SELECT id, status FROM staff WHERE slug = ?").get(slug);
+      if (row && row.status !== 'retired') {
+        rawDb.prepare("UPDATE staff SET status = 'retired', updated_at = datetime('now') WHERE id = ?").run(row.id);
+        console.log(`[skynet] Startup: retired legacy staff '${slug}'.`);
+      }
     }
   } catch (e) {
-    console.error('[skynet] Startup: Failed to seed OpenClaw Orchestrator:', e.message);
-  }
-
-  // Seed Antigravity into staff database table on boot if not already present
-  try {
-    const { DatabaseSync } = require('node:sqlite');
-    const { DB_PATH } = require('./storage');
-    const rawDb = new DatabaseSync(DB_PATH);
-    const existing = rawDb.prepare("SELECT id FROM staff WHERE slug = 'agent-antigravity'").get();
-    if (!existing) {
-      rawDb.prepare(`
-        INSERT INTO staff (slug, kind, display_name, role, channel, byline, avatar_emoji, accent_color, status, bio)
-        VALUES ('agent-antigravity', 'agent', 'Antigravity', 'Emergency Co-Director & AI Assistant', null, 'Antigravity', '🛰️', '#00e5ff', 'active', 'Emergency Co-Director and AI Assistant. Manages operations during system outages.')
-      `).run();
-      console.log('[skynet] Startup: Successfully seeded Antigravity agent in staff table.');
-    }
-  } catch (e) {
-    console.error('[skynet] Startup: Failed to seed Antigravity:', e.message);
-  }
-
-  // Auto-schedule the 13 new drops for tomorrow (July 5) at 10:15 AM ET if not already scheduled
-  try {
-    const { DatabaseSync } = require('node:sqlite');
-    const { DB_PATH } = require('./storage');
-    const rawDb = new DatabaseSync(DB_PATH);
-    const existing = rawDb.prepare("SELECT count(*) as count FROM queued_stories WHERE status = 'scheduled' AND publish_at LIKE '2026-07-05%'").get();
-    if (!existing || existing.count === 0) {
-      console.log('[skynet] Startup: Seeding and scheduling 13 new stories for July 5...');
-      const { generateEmergencyDrops } = require('./antigravity-service');
-      const result = generateEmergencyDrops();
-      
-      const publishAtET = '2026-07-05T10:15:00-04:00';
-      const publishAtUTC = '2026-07-05T14:15:00.000Z';
-      const targetDate = '2026-07-05';
-      
-      const rows = rawDb.prepare("SELECT id, payload FROM queued_stories WHERE status = 'approved'").all();
-      rows.forEach(row => {
-        const payload = JSON.parse(row.payload);
-        payload.date = targetDate;
-        payload.publishedAt = publishAtET;
-        payload.id = `${targetDate}-${payload.cat}-emergency`;
-        
-        rawDb.prepare(`
-          UPDATE queued_stories 
-             SET status = 'scheduled',
-                 publish_at = ?,
-                 edition = 'morning',
-                 payload = ?,
-                 updated_at = datetime('now')
-           WHERE id = ?
-        `).run(publishAtUTC, JSON.stringify(payload), row.id);
-      });
-      console.log(`[skynet] Startup: Successfully scheduled ${rows.length} stories for July 5 at 10:15 AM ET!`);
-    } else {
-      console.log('[skynet] Startup: Stories for July 5 are already scheduled. Skipping.');
-    }
-  } catch (e) {
-    console.error('[skynet] Startup scheduling failed:', e.message);
+    console.error('[skynet] Startup: Failed to retire legacy staff:', e.message);
   }
 
   // Seed the 13 Midday Drop articles for July 5 if not already scheduled/published
