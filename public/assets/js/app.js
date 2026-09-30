@@ -696,6 +696,7 @@ function renderEditionPackages() {
   if (!editionsActive()) { host.innerHTML = ''; host.style.display = 'none'; return; }
   const groups = {};
   ARTICLES.forEach(a => {
+    if (a.pinned) return; // pinned intros get their own banner, not an edition slot
     const e = editionOf(a);
     if (!e.day) return;
     const k = e.day + '|' + e.edition;
