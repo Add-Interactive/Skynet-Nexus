@@ -41,7 +41,8 @@ const {
   createPasswordReset, findPasswordReset, markPasswordResetUsed, purgeExpiredResets,
   addNewsletter, listNewsletter, countNewsletter,
   createSubmission, findStaffBySlug, setUserRole, countAdmins, createQueuedStory,
-  listPendingAgentTasks, findAgentTask, updateAgentTask
+  listPendingAgentTasks, findAgentTask, updateAgentTask,
+  listQueuedStories, deleteQueuedStory
 } = require('./db');
 const {
   hashPassword, verifyPassword,
@@ -654,6 +655,108 @@ api.patch('/newsroom/tasks/:id', (req, res) => {
   });
   console.log(`[newsroom] task #${task.id} -> ${status}` + (resultingQueuedStoryId ? ` (story #${resultingQueuedStoryId})` : ''));
   res.json({ task: updated });
+});
+
+
+// -------------- FRESH START (Jeff-authorized content reset) --------------
+// Clears the site for a clean relaunch: removes ALL queued drafts and ALL
+// published articles EXCEPT the keep-list, then publishes a new welcome
+// dated today. Guarded by X-Newsroom-Key like the rest of the newsroom API.
+api.post('/newsroom/fresh-start', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  const got = String(req.headers['x-newsroom-key'] || '');
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+
+  const KEEP_IDS = [
+    '2026-07-04-how-youth-stem-achievements-and-innovation-shaped-america' // Jeff's 4th of July movie
+  ];
+  const report = { clearedQueue: 0, removedArticles: [], keptArticles: [], welcome: null, errors: [] };
+
+  // 1. Clear every queued story (drafts, tests, approved leftovers).
+  try {
+    const all = listQueuedStories({ limit: 2000 });
+    for (const s of all) { try { deleteQueuedStory(s.id); report.clearedQueue++; } catch (e) { report.errors.push('queue#' + s.id + ': ' + e.message); } }
+  } catch (e) { report.errors.push('queue list: ' + e.message); }
+
+  // 2. Prune published articles down to the keep-list.
+  try {
+    const manifestPath = path.join(DATA_DIR, 'manifest.json');
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const kept = [];
+    for (const a of (manifest.articles || [])) {
+      if (KEEP_IDS.includes(a.id)) { kept.push(a); report.keptArticles.push(a.id); continue; }
+      const rel = String(a.path || '').replace(/^\/+/, '').replace(/^data\//, '');
+      if (rel) {
+        try { fs.unlinkSync(path.join(DATA_DIR, rel)); report.removedArticles.push(a.id); }
+        catch (e) { report.errors.push('unlink ' + a.id + ': ' + e.message); report.removedArticles.push(a.id + ' (manifest-only)'); }
+      } else { report.removedArticles.push(a.id + ' (manifest-only)'); }
+    }
+
+    // 3. New welcome article, dated today.
+    const today = '2026-09-30';
+    const welcomeId = today + '-welcome-back-to-the-nexus';
+    const welcomeSlug = 'welcome-back-to-the-nexus';
+    const welcome = {
+      id: welcomeId,
+      slug: welcomeSlug,
+      cat: 'network',
+      categoryLabel: 'Network News',
+      title: 'Welcome Back to Skynet Nexus — A Fresh Signal',
+      subtitle: 'A fresh start for the family-first newsroom. Thirteen correspondents, three editions a day.',
+      excerpt: 'Skynet Nexus is back with a fresh start: thirteen correspondents covering AI, space, robotics, biotech, quantum, climate, engineering, math, cybersecurity, gaming, music, STEM and play — three editions every weekday for families to read together.',
+      heroImage: '/assets/img/channels/network/skywelcome.png',
+      body: '<p>Welcome back to <strong>Skynet Nexus News</strong> — and if you are new here, welcome for the first time.</p><p>We have cleared the decks and started fresh. From today, thirteen correspondents file real stories about what young people are building, discovering, and creating — across AI, space, robotics, biotech, quantum computing, climate, engineering, math, cybersecurity, gaming, music, STEM, and play.</p><p>Three editions land every weekday: <strong>morning</strong>, <strong>midday</strong>, and <strong>evening</strong>. Every story carries a <em>Kid Take</em> written for young readers and <em>Family Discussion</em> questions, because the news is better when families read it together.</p><p>Tonight at 6:15 PM Eastern, the first full evening edition drops. See you there.</p>',
+      kidTake: 'This news website is starting fresh! Every weekday, reporters write short true stories about cool things kids and students are doing in science, robots, games, and music — written so families can read them together.',
+      familyDiscussion: [
+        'Which of the thirteen channels are you most curious about — and why?',
+        'What is something you built, made, or figured out that could be a news story?'
+      ],
+      glossary: [
+        { term: 'Correspondent', meaning: 'A reporter whose job is to cover one specific topic or beat.' },
+        { term: 'Edition', meaning: 'One release of the news — Skynet Nexus publishes a morning, midday, and evening edition every weekday.' }
+      ],
+      ageBand: '5+',
+      author: 'The Newsroom',
+      authorInit: 'SN',
+      authorRole: 'Editorial',
+      date: today,
+      publishedAt: today + 'T14:00:00-04:00',
+      read: 4, views: 0, likes: 0, comments: 0, shares: 0,
+      tags: ['welcome', 'relaunch', 'family', 'kid-safe'],
+      color: '#00e5ff',
+      gradient: 'linear-gradient(135deg, #00e5ff, #a855f7)',
+      emoji: '🛰️',
+      featured: true,
+      pinned: true,
+      live: false,
+      sources: [],
+      thread: 'welcome-thread'
+    };
+    const wdir = path.join(DATA_DIR, 'articles', today);
+    fs.mkdirSync(wdir, { recursive: true });
+    fs.writeFileSync(path.join(wdir, welcomeSlug + '.json'), JSON.stringify(welcome, null, 2));
+    const welcomeEntry = {
+      id: welcomeId, slug: welcomeSlug,
+      path: 'data/articles/' + today + '/' + welcomeSlug + '.json',
+      cat: 'network', title: welcome.title, excerpt: welcome.excerpt,
+      heroImage: welcome.heroImage, kidTake: welcome.kidTake, ageBand: welcome.ageBand,
+      author: welcome.author, authorInit: welcome.authorInit, date: today,
+      publishedAt: welcome.publishedAt,
+      read: 4, views: 0, likes: 0, comments: 0, shares: 0,
+      tags: welcome.tags, color: welcome.color, gradient: welcome.gradient,
+      emoji: welcome.emoji, featured: true, pinned: true, live: false
+    };
+    report.welcome = welcomeId;
+    manifest.articles = [welcomeEntry, ...kept];
+    manifest.lastUpdated = new Date().toISOString();
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+  } catch (e) {
+    report.errors.push('manifest: ' + e.message);
+  }
+
+  console.log('[newsroom] fresh-start: queue cleared=' + report.clearedQueue + ', articles removed=' + report.removedArticles.length + ', kept=' + report.keptArticles.length);
+  res.json({ ok: true, report });
 });
 
 app.use('/api', api);
