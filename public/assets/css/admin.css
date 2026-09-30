@@ -132,6 +132,7 @@
 .pill.rejected, .pill.cancelled { background: rgba(255,46,99,.15); color: var(--accent-3); }
 .pill.assigned, .pill.in_progress { background: rgba(168,85,247,.16); color: var(--accent-2); }
 .pill.published, .pill.delivered, .pill.active { background: rgba(0,229,255,.14); color: var(--accent); }
+.pill.posted { background: rgba(0,229,255,.14); color: var(--accent); }
 .pill.paused, .pill.offline { background: rgba(120,130,150,.18); color: var(--text-dim); }
 .pill.priority-urgent { background: rgba(255,46,99,.18); color: var(--accent-3); }
 .pill.priority-high { background: rgba(255,184,0,.16); color: var(--accent-5); }

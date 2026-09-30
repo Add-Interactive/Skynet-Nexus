@@ -203,6 +203,7 @@
       State.overview = o;
       setBadge('nav-badge-submissions', o.submissions && o.submissions.pending);
       setBadge('nav-badge-queue', o.queue && o.queue.draft);
+      setBadge('nav-badge-social', o.social && o.social.draft);
     }).catch(function () {});
   }
   function setBadge(id, n) {
@@ -913,6 +914,136 @@
     api('/admin/stories/queue/' + id, { method: 'PATCH', body: body })
       .then(function () { toast('Draft updated'); Views.queue(); refreshBadges(); })
       .catch(function (e) { toast(e.message, true); });
+  }
+
+
+  // ===== Social =====
+  var SOCIAL_META = {
+    youtube_shorts: { label: 'YouTube Shorts', emoji: '\u25b6\uFE0F', color: '#ff0033' },
+    tiktok: { label: 'TikTok', emoji: '\uD83C\uDFB5', color: '#25f4ee' },
+    instagram_reels: { label: 'Instagram Reels', emoji: '\uD83D\uDCF8', color: '#e1306c' }
+  };
+
+  Views.social = function () {
+    var platformFilter = null;
+    function load() {
+      var q = '/admin/social/queue?limit=100' + (platformFilter ? '&platform=' + platformFilter : '');
+      api(q).then(render).catch(errView);
+    }
+    function render(r) {
+      var drafts = r.drafts || [];
+      main.innerHTML = '';
+      main.appendChild(h('<div class="admin-view-head"><h1>Social Command Center</h1><p>Video packages filed by the social producer agents ~30 min after each edition drop. Review, approve, then post manually &mdash; v1 has no platform API integration.</p></div>'));
+
+      // Accounts (placeholder rows until handles are created)
+      var acc = h('<div class="admin-panel"><h2>Accounts</h2><div class="admin-stat-grid"></div><p class="hint" style="margin-top:8px;">No accounts connected yet. Handles are added when the YouTube, TikTok, and Instagram accounts are created.</p></div>');
+      var ag = acc.querySelector('.admin-stat-grid');
+      Object.keys(SOCIAL_META).forEach(function (p) {
+        var m = SOCIAL_META[p];
+        ag.appendChild(h(
+          '<div class="admin-stat"><div class="n" style="color:' + m.color + '">' + m.emoji + '</div>' +
+          '<div class="l">' + m.label + '</div>' +
+          '<div style="margin-top:6px;"><span class="pill draft">not connected yet</span></div></div>'
+        ));
+      });
+      main.appendChild(acc);
+
+      // Queue with platform tabs
+      var panel = h('<div class="admin-panel"><h2>Social queue</h2><div class="row-actions" style="margin-bottom:12px;" id="social-tabs"></div><div class="admin-queue-grid" id="social-grid"></div></div>');
+      main.appendChild(panel);
+      var tabs = panel.querySelector('#social-tabs');
+      [['', 'All platforms'], ['youtube_shorts', '\u25b6\uFE0F Shorts'], ['tiktok', '\uD83C\uDFB5 TikTok'], ['instagram_reels', '\uD83D\uDCF8 Reels']]
+        .forEach(function (td) {
+          var active = (!platformFilter && !td[0]) || platformFilter === td[0];
+          var b = h('<button class="admin-btn admin-btn-sm' + (active ? ' admin-btn-primary' : '') + '">' + td[1] + '</button>');
+          b.addEventListener('click', function () { platformFilter = td[0] || null; load(); });
+          tabs.appendChild(b);
+        });
+      var sg = panel.querySelector('#social-grid');
+      if (!drafts.length) {
+        sg.appendChild(h('<div class="admin-empty">No social packages yet. Producers file ~30 min after each edition drop (7:45 AM / 2:45 PM / 6:45 PM ET).</div>'));
+        return;
+      }
+      drafts.forEach(function (d) {
+        var m = SOCIAL_META[d.platform] || { label: d.platform, emoji: '\uD83D\uDCF1', color: '#00e5ff' };
+        var card = h(
+          '<div class="admin-queue-card">' +
+            '<div class="admin-queue-card-content">' +
+              '<div class="admin-queue-card-meta">' +
+                '<span class="admin-queue-card-channel" style="color:' + m.color + '">' + m.emoji + ' ' + esc(m.label) + '</span>' +
+                '<span class="pill ' + esc(d.status) + '">' + esc(d.status) + '</span>' +
+              '</div>' +
+              '<h3 class="admin-queue-card-title">' + esc(d.storyTitle || '(untitled)') + '</h3>' +
+              '<div class="admin-queue-card-author">\uD83E\uDE9D ' + esc((d.hook || '').slice(0, 90)) + '</div>' +
+              '<div class="admin-queue-card-time">' + fmtDate(d.createdAt) + (d.dropKey ? ' \u00b7 ' + esc(d.dropKey) : '') + '</div>' +
+            '</div>' +
+            '<div class="admin-queue-card-actions"><button class="admin-btn admin-btn-sm admin-btn-primary" style="width:100%">Review Package</button></div>' +
+          '</div>'
+        );
+        card.querySelector('button').addEventListener('click', function () { openSocialDraft(d.id); });
+        sg.appendChild(card);
+      });
+    }
+    load();
+  };
+
+  function openSocialDraft(id) {
+    api('/admin/social/queue/' + id).then(function (r) {
+      var d = r.draft;
+      var m = SOCIAL_META[d.platform] || { label: d.platform, emoji: '\uD83D\uDCF1', color: '#00e5ff' };
+      var modal = openModal('Review Social Package');
+      modal.overlay.querySelector('.admin-modal').style.maxWidth = '640px';
+      var c = h('<div class="admin-story-review"></div>');
+      c.appendChild(h('<h2 style="font-size:1.3rem;font-weight:800;margin:0 0 16px 0;color:var(--text);">' + m.emoji + ' ' + esc(d.storyTitle || '(untitled)') + '</h2>'));
+      c.appendChild(h(
+        '<dl class="admin-detail-box" style="margin-bottom:20px;">' +
+          '<dt>Platform</dt><dd style="color:' + m.color + ';font-weight:700;">' + esc(m.label) + '</dd>' +
+          '<dt>Status</dt><dd><span class="pill ' + esc(d.status) + '">' + esc(d.status) + '</span></dd>' +
+          (d.edition ? '<dt>Edition</dt><dd>' + esc(d.edition) + '</dd>' : '') +
+          (d.artPick ? '<dt>Art pick</dt><dd><code>' + esc(d.artPick) + '</code></dd>' : '') +
+          (d.editorNotes ? '<dt>Editor notes</dt><dd style="color:var(--accent-5);">' + esc(d.editorNotes) + '</dd>' : '') +
+        '</dl>'
+      ));
+      function field(label, name, value, rows) {
+        var w = h('<label style="display:block;margin:0 0 12px 0;"><span style="font-weight:700;font-size:0.85rem;">' + label + '</span><textarea data-f="' + name + '" rows="' + rows + '" style="width:100%;margin-top:4px;">' + esc(value || '') + '</textarea></label>');
+        c.appendChild(w);
+      }
+      field('Hook (first 3 seconds)', 'hook', d.hook, 2);
+      field('Script (30-60s spoken)', 'script', d.script, 6);
+      field('Caption', 'caption', d.caption, 3);
+      field('Hashtags (comma-separated)', 'hashtags', (d.hashtags || []).join(', '), 1);
+      field('CTA', 'cta', d.cta, 2);
+      field('Art pick (image path)', 'artPick', d.artPick, 1);
+      field('Editor notes', 'editorNotes', d.editorNotes, 2);
+      function readFields() {
+        var out = {};
+        c.querySelectorAll('[data-f]').forEach(function (el) { out[el.getAttribute('data-f')] = el.value; });
+        out.hashtags = out.hashtags.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        return out;
+      }
+      var actions = h('<div class="row-actions" style="margin-top:8px;"></div>');
+      function patch(body, msg) {
+        api('/admin/social/queue/' + d.id, { method: 'PATCH', body: body })
+          .then(function () { toast(msg || 'Package updated'); closeModal(modal); Views.social(); refreshBadges(); })
+          .catch(function (e) { toast(e.message, true); });
+      }
+      var save = h('<button class="admin-btn">Save edits</button>');
+      save.addEventListener('click', function () { patch(readFields(), 'Edits saved'); });
+      var approve = h('<button class="admin-btn admin-btn-primary">Approve</button>');
+      approve.addEventListener('click', function () { var f = readFields(); f.status = 'approved'; patch(f, 'Package approved'); });
+      var posted = h('<button class="admin-btn admin-btn-sm">Mark posted</button>');
+      posted.addEventListener('click', function () { patch({ status: 'posted' }, 'Marked as posted'); });
+      var del = h('<button class="admin-btn admin-btn-sm admin-btn-danger">Delete</button>');
+      del.addEventListener('click', function () {
+        if (!confirm('Delete this social package?')) return;
+        api('/admin/social/queue/' + d.id, { method: 'DELETE' })
+          .then(function () { toast('Package deleted'); closeModal(modal); Views.social(); refreshBadges(); })
+          .catch(function (e) { toast(e.message, true); });
+      });
+      [save, approve, posted, del].forEach(function (b) { actions.appendChild(b); });
+      c.appendChild(actions);
+      modal.body.appendChild(c);
+    }).catch(function (e) { toast(e.message, true); });
   }
 
   // ===== Compose / publish =====

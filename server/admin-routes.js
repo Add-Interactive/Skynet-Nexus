@@ -108,7 +108,8 @@ router.get('/overview', (req, res) => {
       draft: db.listQueuedStories({ status: 'draft', limit: 1000 }).length,
       approved: db.listQueuedStories({ status: 'approved', limit: 1000 }).length,
       published: db.listQueuedStories({ status: 'published', limit: 1000 }).length
-    }
+    },
+    social: db.countSocialDraftsByStatus()
   });
 });
 
@@ -531,6 +532,71 @@ router.post('/stories/queue/:id/schedule', (req, res) => {
 // List all scheduled (not yet released) stories.
 router.get('/stories/scheduled', (req, res) => {
   res.json({ stories: db.listScheduledStories({ limit: 100 }), schedule: scheduler.scheduleInfo() });
+});
+
+
+// -------------------- SOCIAL QUEUE --------------------
+// v1: the social producer agents (YouTube Shorts / TikTok / Instagram Reels)
+// file video packages here ~30 min after each edition drop. The director
+// reviews, approves, and marks posted. Posting itself stays manual — no
+// platform API integration in v1.
+
+const SOCIAL_PLATFORMS = new Set(['youtube_shorts', 'tiktok', 'instagram_reels']);
+const SOCIAL_STATUSES = new Set(['draft', 'approved', 'posted']);
+
+router.get('/social/queue', (req, res) => {
+  const platform = SOCIAL_PLATFORMS.has(req.query.platform) ? req.query.platform : null;
+  const status = SOCIAL_STATUSES.has(req.query.status) ? req.query.status : null;
+  const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 50));
+  const offset = Math.max(0, Number(req.query.offset) || 0);
+  res.json({ drafts: db.listSocialDrafts({ platform, status, limit, offset }) });
+});
+
+router.get('/social/queue/:id', (req, res) => {
+  const draft = db.findSocialDraft(Number(req.params.id));
+  if (!draft) return res.status(404).json({ error: 'not found' });
+  res.json({ draft });
+});
+
+router.patch('/social/queue/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const current = db.findSocialDraft(id);
+  if (!current) return res.status(404).json({ error: 'not found' });
+  const b = req.body || {};
+  const platform = b.platform != null && SOCIAL_PLATFORMS.has(String(b.platform)) ? String(b.platform) : null;
+  const status = b.status != null && SOCIAL_STATUSES.has(String(b.status)) ? String(b.status) : null;
+  const hashtags = Array.isArray(b.hashtags) ? b.hashtags.map(String).slice(0, 12) : null;
+  const str = (v, n) => typeof v === 'string' ? v.slice(0, n) : null;
+  const draft = db.updateSocialDraft({
+    id,
+    platform,
+    storyId: b.storyId != null ? str(b.storyId, 200) : null,
+    storyTitle: b.storyTitle != null ? str(b.storyTitle, 300) : null,
+    hook: b.hook != null ? str(b.hook, 500) : null,
+    script: b.script != null ? str(b.script, 4000) : null,
+    caption: b.caption != null ? str(b.caption, 2000) : null,
+    hashtags,
+    artPick: b.artPick != null ? str(b.artPick, 500) : null,
+    cta: b.cta != null ? str(b.cta, 500) : null,
+    status,
+    editorNotes: typeof b.editorNotes === 'string' ? b.editorNotes.slice(0, 4000) : null,
+    postedAt: status === 'posted' ? new Date().toISOString() : (b.postedAt != null ? str(b.postedAt, 40) : null)
+  });
+  logAction(req.adminUser.id, `social.${status || 'edit'}`, 'social_draft', id, { platform: draft.platform, status: draft.status });
+  res.json({ draft });
+});
+
+router.delete('/social/queue/:id', (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const current = db.findSocialDraft(id);
+    if (!current) return res.status(404).json({ error: 'not found' });
+    db.deleteSocialDraft(id);
+    logAction(req.adminUser.id, 'social.delete', 'social_draft', id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'delete failed: ' + err.message });
+  }
 });
 
 // -------------------- USERS / ROLES --------------------
