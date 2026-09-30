@@ -207,6 +207,32 @@ db.exec(`
   );
 
   CREATE INDEX IF NOT EXISTS idx_admin_actions_user ON admin_actions(user_id, id);
+
+  -- Social drafts: per-platform video packages filed by the social producer
+  -- agents (~30 min after each edition drop). Reviewed in the admin Social tab.
+  -- v1: content only — posting stays manual, no platform API integration.
+  CREATE TABLE IF NOT EXISTS social_drafts (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    platform     TEXT    NOT NULL,             -- youtube_shorts|tiktok|instagram_reels
+    story_id     TEXT,                         -- source article id
+    story_title  TEXT,
+    hook         TEXT    NOT NULL,             -- first-3-seconds hook
+    script       TEXT    NOT NULL,             -- 30-60s spoken script
+    caption      TEXT,
+    hashtags     TEXT,                         -- JSON array
+    art_pick     TEXT,                         -- Nexus Glow image path
+    cta          TEXT,
+    status       TEXT    NOT NULL DEFAULT 'draft', -- draft|approved|posted
+    drop_key     TEXT,                         -- e.g. 2026-09-30-evening
+    edition      TEXT,                         -- morning|midday|evening
+    editor_notes TEXT,
+    posted_at    TEXT,
+    created_at   TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at   TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_social_platform_status ON social_drafts(platform, status);
+  CREATE INDEX IF NOT EXISTS idx_social_drop ON social_drafts(drop_key);
 `);
 
 // ---------- Idempotent additive migrations (safe to run every boot) ----------
@@ -361,6 +387,37 @@ const stmts = {
      ORDER BY publish_at ASC LIMIT ? OFFSET ?
   `),
 
+  createSocialDraft: db.prepare(`
+    INSERT INTO social_drafts (platform, story_id, story_title, hook, script, caption, hashtags, art_pick, cta, status, drop_key, edition)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `),
+  updateSocialDraft: db.prepare(`
+    UPDATE social_drafts SET
+      platform = COALESCE(?, platform),
+      story_id = COALESCE(?, story_id),
+      story_title = COALESCE(?, story_title),
+      hook = COALESCE(?, hook),
+      script = COALESCE(?, script),
+      caption = COALESCE(?, caption),
+      hashtags = COALESCE(?, hashtags),
+      art_pick = COALESCE(?, art_pick),
+      cta = COALESCE(?, cta),
+      status = COALESCE(?, status),
+      drop_key = COALESCE(?, drop_key),
+      edition = COALESCE(?, edition),
+      editor_notes = COALESCE(?, editor_notes),
+      posted_at = COALESCE(?, posted_at),
+      updated_at = datetime('now')
+    WHERE id = ?
+  `),
+  findSocialDraft: db.prepare(`SELECT * FROM social_drafts WHERE id = ?`),
+  listSocialDrafts: db.prepare(`SELECT * FROM social_drafts ORDER BY id DESC LIMIT ? OFFSET ?`),
+  listSocialDraftsByPlatform: db.prepare(`SELECT * FROM social_drafts WHERE platform = ? ORDER BY id DESC LIMIT ? OFFSET ?`),
+  listSocialDraftsByStatus: db.prepare(`SELECT * FROM social_drafts WHERE status = ? ORDER BY id DESC LIMIT ? OFFSET ?`),
+  listSocialDraftsByPlatformStatus: db.prepare(`SELECT * FROM social_drafts WHERE platform = ? AND status = ? ORDER BY id DESC LIMIT ? OFFSET ?`),
+  deleteSocialDraft: db.prepare(`DELETE FROM social_drafts WHERE id = ?`),
+  countSocialDraftsByStatus: db.prepare(`SELECT status, COUNT(*) AS n FROM social_drafts GROUP BY status`),
+
   createAgentTask: db.prepare(`
     INSERT INTO agent_tasks (staff_id, created_by, title, instructions, priority, status, submission_id)
     VALUES (?, ?, ?, ?, ?, 'pending', ?)
@@ -476,6 +533,32 @@ function toPublicQueuedStory(row) {
     publishedAt: row.published_at,
     scheduledAt: row.publish_at,
     edition: row.edition,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
+}
+
+function toPublicSocialDraft(row) {
+  if (!row) return null;
+  let hashtags = [];
+  try { const p = JSON.parse(row.hashtags || '[]'); hashtags = Array.isArray(p) ? p : []; }
+  catch { hashtags = []; }
+  return {
+    id: row.id,
+    platform: row.platform,
+    storyId: row.story_id,
+    storyTitle: row.story_title,
+    hook: row.hook,
+    script: row.script,
+    caption: row.caption,
+    hashtags,
+    artPick: row.art_pick,
+    cta: row.cta,
+    status: row.status,
+    dropKey: row.drop_key,
+    edition: row.edition,
+    editorNotes: row.editor_notes,
+    postedAt: row.posted_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at
   };
@@ -707,6 +790,41 @@ module.exports = {
   scheduleQueuedStory({ id, publishAt, edition = null }) {
     stmts.scheduleQueuedStory.run(publishAt, edition, id);
     return toPublicQueuedStory(stmts.findQueuedStory.get(id));
+  },
+
+  createSocialDraft({ platform, storyId = null, storyTitle = null, hook, script, caption = null, hashtags = [], artPick = null, cta = null, status = 'draft', dropKey = null, edition = null }) {
+    const info = stmts.createSocialDraft.run(
+      platform, storyId, storyTitle, hook, script, caption,
+      JSON.stringify(hashtags || []), artPick, cta, status, dropKey, edition
+    );
+    return toPublicSocialDraft(stmts.findSocialDraft.get(info.lastInsertRowid));
+  },
+  updateSocialDraft({ id, platform, storyId, storyTitle, hook, script, caption, hashtags, artPick, cta, status, dropKey, edition, editorNotes, postedAt }) {
+    stmts.updateSocialDraft.run(
+      platform ?? null, storyId ?? null, storyTitle ?? null, hook ?? null, script ?? null,
+      caption ?? null, hashtags != null ? JSON.stringify(hashtags) : null,
+      artPick ?? null, cta ?? null, status ?? null, dropKey ?? null, edition ?? null,
+      editorNotes ?? null, postedAt ?? null, id
+    );
+    return toPublicSocialDraft(stmts.findSocialDraft.get(id));
+  },
+  findSocialDraft(id) { return toPublicSocialDraft(stmts.findSocialDraft.get(id)); },
+  listSocialDrafts({ platform, status, limit = 50, offset = 0 } = {}) {
+    let rows;
+    if (platform && status) rows = stmts.listSocialDraftsByPlatformStatus.all(platform, status, limit, offset);
+    else if (platform) rows = stmts.listSocialDraftsByPlatform.all(platform, limit, offset);
+    else if (status) rows = stmts.listSocialDraftsByStatus.all(status, limit, offset);
+    else rows = stmts.listSocialDrafts.all(limit, offset);
+    return rows.map(toPublicSocialDraft);
+  },
+  deleteSocialDraft(id) {
+    return stmts.deleteSocialDraft.run(id).changes;
+  },
+  countSocialDraftsByStatus() {
+    const rows = stmts.countSocialDraftsByStatus.all();
+    const out = { draft: 0, approved: 0, posted: 0 };
+    for (const r of rows) out[r.status] = r.n;
+    return out;
   },
   listDueScheduledStories(nowIso) {
     return stmts.listDueScheduled.all(nowIso).map(toPublicQueuedStory);
