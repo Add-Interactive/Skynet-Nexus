@@ -144,21 +144,33 @@ To git-commit + deploy after publishing, `git add data/ && git commit -m "publis
 
 ---
 
-## Agentic Editorial Setup (Antigravity Desk)
+## Agentic Editorial Setup (Gizmo Newsroom)
 
-Skynet Nexus News operates as an **autonomous publisher orchestration pipeline** where the user is the **only human editor-in-chief**, and all other staff and writers are automated sub-agents. 
+Skynet Nexus News operates as an **autonomous publisher pipeline** where the News Director (Jeff) is the **human editor-in-chief**, and all correspondents are sub-agents operated by Gizmo (Add Interactive Studio).
 
-### 1. The Autonomous Newsroom Core
-* **Main Orchestrator Agent (Antigravity / OpenClaw):** Coordinates the sub-agents, structures daily cron routines, validates schema guardrails, and deploys updates.
-* **Specialized AI Correspondents (Sub-Agents):**
-  * **AI & Machine Learning** (Dr. Nova Sterling) — Tracks neural networks, LLM models, and computing breakthroughs.
-  * **Robotics & Automation** (Jax Henderson) — Covers student robotics leagues (FIRST, VEX, RoboCup Jr).
-  * **Climate & Energy** (Terra Green) — Reports on green technology, renewables, and student ecology initiatives.
-  * **Cybersecurity & Coding** (Cipher Crypt) — Investigates privacy extensions, open-source code, and cryptography.
-  * **Space & Aerospace** (Dr. Orion Atlas) — Monitors model cubesat launches, NASA student challenges, and astrophysics.
-  * **STEM Innovation** (Adara Matrix) — Highlights youth science fairs, molecular biology, and high school research.
-  * **Creative Play & Design** (Leo Pixel) — Chronicles Minecraft Education, Roblox developers, and scholastic chess.
-  * **Music & Performance** (Aria Harmony) — Showcases All-State orchestras, YoungArts, and bedroom songwriters.
+### 1. The Newsroom Core
+* **Newsroom Pipeline (Gizmo):** Spawns the correspondents, structures the daily cron routines, validates schema guardrails, and deploys updates.
+* **13 Correspondent Sub-Agents** — one per channel, filing 1 hour before each drop:
+  * **AI & Machine Learning** (Dr. Adaeze Obi) — neural networks, LLM breakthroughs, computing.
+  * **Space & Aerospace** (Stella Reyes) — cubesat launches, NASA student challenges, astrophysics.
+  * **Robotics & Automation** (Dexter Cole) — student robotics leagues (FIRST, VEX, RoboCup Jr).
+  * **Biotech & Health** (Dr. Wren Hollis) — youth science fairs, molecular biology, high-school research.
+  * **Quantum & Computing** (Dr. Quinn Adler) — quantum breakthroughs, supercomputing.
+  * **Climate & Energy** (Rowan Field) — green technology, renewables, student ecology initiatives.
+  * **Engineering & Making** (Gus Delgado) — engineering design, maker projects, builder competitions.
+  * **Math & Data Science** (Dr. Mira Solano) — math competitions, data science.
+  * **Cybersecurity & Code** (Juno Park) — privacy, open-source code, cryptography.
+  * **Gaming Tournaments** (Kai Tanaka) — esports, competitive gaming culture.
+  * **Music Festivals** (Cadence Liu) — All-State orchestras, YoungArts, young songwriters.
+  * **STEM Signal** (Dr. Lena Osei) — cross-disciplinary science, student research.
+  * **Play & Design** (Hazel Quinn) — Minecraft Education, Roblox developers, scholastic chess, game design.
+
+### 2. How a drop gets made
+1. **T-60 min** — correspondents file drafts via `POST /api/newsroom/drafts` (key: `NEWSROOM_API_KEY` env).
+2. **Review window** — the director reviews in the Review Console (`newsroom/dashboard.html`): approve, spike, or leave notes.
+3. **Drop** — the scheduler releases scheduled stories, then **auto-publishes any unreviewed drafts** stamped for that drop. Review is a courtesy, never a blocker.
+
+Full runbook: `newsroom/director.md`.
 
 ---
 
@@ -169,11 +181,12 @@ Instead of a single daily paper, Skynet Nexus News drops **three scheduled editi
 2. **Midday Drop** (2:15 PM ET / 18:15 UTC)
 3. **Evening Drop** (6:15 PM ET / 22:15 UTC)
 
-### Antigravity Custom Drop Scheduler:
-Under `/pages/admin.html` (accessible by authenticated admins), the **Antigravity Desk** features a flexible dropdown drop manager. You can:
-* Target **Today** or **Tomorrow**.
-* Choose **Morning**, **Midday**, or **Evening** drop slots.
-* Click **"Schedule 13-Channel Drop"** to wipe the local queue, trigger the sub-agents to compile 13 fresh stories, and automatically write scheduled, timezone-corrected entries into the SQLite database.
+### Drop Manager
+Under the admin pages (authenticated admins), the **Review Console** manages the drops. You can:
+* Review drafts per edition — **Morning**, **Midday**, or **Evening**.
+* **Approve**, **spike**, or leave **notes** on any draft; notes are applied on the final pre-drop pass.
+* Schedule any draft for a specific drop, or publish it immediately.
+* Anything still unreviewed at drop time **publishes automatically**.
 
 ---
 

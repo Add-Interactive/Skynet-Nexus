@@ -166,35 +166,22 @@ After scraping, images are embedded in article.images for display.
 - 📊 **Dashboard** — today's metrics, recent queue, next drop
 - 📥 **Queue** — all queued stories (draft/approved/published), edit/publish buttons
 - 📸 **Image Editor** — upload/replace/crop article images, scrape from sources
-- 🛰️ **Agents** — status of all 12 correspondents (when integrated)
+- 🛰️ **Agents** — status of all 13 correspondents
 - ⏰ **Schedule** — publication calendar, scheduled stories
 
-## Integration Checklist
+## Pipeline Status
 
-- [ ] **Agent spawning** — wire OpenClaw sessions_spawn to call `agent-orchestrator.spawnAllCorrespondents()`
-- [ ] **Story filing** — agents output JSONL → parsed + validated → `db.createQueuedStory()`
-- [ ] **Image scraping** — run `image-scraper.scrapeArticleImages()` after story creation
-- [ ] **Admin API routes** — expose `/api/admin/queue`, `/api/admin/submissions`, etc. (already done ✅)
-- [ ] **Scheduler** — releaseDue() every 60s (already done ✅)
-- [ ] **Dashboard UI** — serve dashboard.html locally or via newsroom-server
-- [ ] **First cron job** — set up cron to spawn agents at agentSpawnTime() for first drop
+Live. The Gizmo Newsroom pipeline operates the full loop:
 
-## Next Steps for You
+- [x] **Agent spawning** — Gizmo's scheduler spawns one correspondent subagent per channel 1 hour before each drop (`newsroom/agent-orchestrator.js` defines prompts + validation)
+- [x] **Story filing** — drafts validated → `POST /api/newsroom/drafts` → `queued_stories` (status `draft`, stamped for the drop)
+- [x] **Image scraping** — `image-scraper.scrapeArticleImages()` runs after story creation
+- [x] **Admin API routes** — `/api/admin/stories/queue`, `/api/admin/stories/scheduled`, etc.
+- [x] **Scheduler** — `releaseDue()` every 60s: releases scheduled stories, then auto-publishes unreviewed drafts stamped for the drop
+- [x] **Review Console** — `newsroom/dashboard.html`: approve / spike / notes per draft, grouped by edition
+- [x] **Cron** — three daily correspondent runs, one hour before each drop (10:15 AM / 2:15 PM / 6:15 PM ET)
 
-1. **Integrate with OpenClaw:**
-   - Create cron jobs for each drop (10 AM / 2 PM / 6 PM ET)
-   - Each cron spawns `agent-orchestrator.spawnAllCorrespondents()`
-   - Agents generate stories → file to queue
-
-2. **Test workflow:**
-   - Manually trigger one agent via `sessions_spawn`
-   - Verify story lands in db.queued_stories
-   - Approve in admin → auto-publish → check manifest
-
-3. **Polish dashboard:**
-   - Add edit/approve buttons (linked to `/api/admin/stories/queue/:id`)
-   - Add image upload/crop UI
-   - Test with real article data
+See `newsroom/director.md` for the full runbook.
 
 ## Editorial Philosophy
 
@@ -224,11 +211,11 @@ node newsroom/publish.js --file data/articles/YYYY-MM-DD/story-id.json
 node -e "const s = require('./newsroom/image-scraper'); s.scrapeSourceImages('https://example.com').then(console.log)"
 ```
 
-**If agents don't spawn:**
-- Check OpenClaw cron job status: `cron status`
-- Check cron job logs: `cron runs --jobId <id>`
-- Verify agent-orchestrator.js syntax
+**If correspondents don't file:**
+- Check the Gizmo newsroom cron schedule and its run logs
+- Verify drafts are landing: `GET /api/admin/stories/queue?status=draft`
+- Verify agent-orchestrator.js syntax: `node --check newsroom/agent-orchestrator.js`
 
 ---
 
-**Status:** Infrastructure ready. Awaiting OpenClaw integration for agent spawning. 🛰️
+**Status:** Live. Gizmo Newsroom pipeline operates all 13 correspondents. 🛰️
