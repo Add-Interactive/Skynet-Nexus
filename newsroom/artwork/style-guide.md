@@ -78,6 +78,6 @@ glowing bins..."
 
 1. Correspondent drafts the story (title first).
 2. Correspondent generates the hero image with the prompt above (title → visual).
-3. Image is resized to 1200px wide JPEG, watermark overlaid bottom-right, then uploaded to the channel's pool via
+3. Image is cover-cropped to 1280x720 JPEG, watermark overlaid bottom-right, then uploaded to the channel's pool via
    `POST /api/newsroom/images`.
 4. The returned path becomes the draft's `heroImage` — topic-matched, on-brand.
