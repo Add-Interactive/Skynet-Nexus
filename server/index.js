@@ -42,7 +42,8 @@ const {
   addNewsletter, listNewsletter, countNewsletter,
   createSubmission, findStaffBySlug, setUserRole, countAdmins, createQueuedStory,
   listPendingAgentTasks, findAgentTask, updateAgentTask,
-  listQueuedStories, deleteQueuedStory
+  listQueuedStories, deleteQueuedStory,
+  listSourcesByStaff, createSource, countSourcesByStaff
 } = require('./db');
 const {
   hashPassword, verifyPassword,
@@ -624,6 +625,46 @@ api.post('/newsroom/seed-agents', (req, res) => {
     res.json({ ok: true, result });
   } catch (e) {
     res.status(500).json({ error: 'roster sync failed: ' + e.message });
+  }
+});
+
+// -------------- SEED CORRESPONDENT SOURCES --------------
+// Loads newsroom/sources/registry.json and seeds per-agent story sources
+// (RSS feeds, sites, guided searches) for each channel's correspondent.
+// Skips staff who already have sources (idempotent). Same X-Newsroom-Key
+// guard as the rest of the newsroom API.
+api.post('/newsroom/seed-sources', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  const got = String(req.headers['x-newsroom-key'] || '');
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+  try {
+    const regPath = path.join(__dirname, '..', 'newsroom', 'sources', 'registry.json');
+    const registry = JSON.parse(fs.readFileSync(regPath, 'utf8'));
+    const { listStaff } = require('./db');
+    const staff = listStaff();
+    const report = { seeded: 0, skipped: 0, channels: {} };
+    for (const [channel, cfg] of Object.entries(registry.channels || {})) {
+      const person = staff.find(s => s.channel === channel && s.kind === 'agent');
+      if (!person) { report.channels[channel] = 'no staff'; continue; }
+      if (countSourcesByStaff(person.id) > 0) { report.skipped++; report.channels[channel] = 'already seeded'; continue; }
+      let n = 0;
+      for (const s of (cfg.sources || [])) {
+        createSource({
+          staffId: person.id, type: s.type,
+          url: s.url || null, query: s.query || null,
+          label: s.label || null, notes: s.notes || null,
+          priority: s.priority || 5, enabled: s.enabled !== false
+        });
+        n++;
+      }
+      report.seeded += n;
+      report.channels[channel] = n + ' sources';
+    }
+    console.log('[newsroom] source seeding:', JSON.stringify(report.channels));
+    res.json({ ok: true, report });
+  } catch (e) {
+    res.status(500).json({ error: 'source seeding failed: ' + e.message });
   }
 });
 
