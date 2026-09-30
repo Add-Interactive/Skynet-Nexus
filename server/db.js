@@ -333,7 +333,7 @@ const stmts = {
   `),
   listDueDrafts: db.prepare(`
     SELECT * FROM queued_stories
-     WHERE status = 'draft' AND publish_at IS NOT NULL AND publish_at <= ?
+     WHERE status IN ('draft', 'approved') AND publish_at IS NOT NULL AND publish_at <= ?
      ORDER BY publish_at ASC LIMIT 20
   `),
   listScheduledUpcoming: db.prepare(`
