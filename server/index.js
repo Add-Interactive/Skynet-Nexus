@@ -605,6 +605,26 @@ api.post('/newsroom/drafts', (req, res) => {
   res.status(201).json({ story });
 });
 
+// -------------- GIZMO NEWSROOM ROSTER SYNC --------------
+// Re-run the correspondent roster sync on demand (same NEWSROOM_API_KEY guard
+// as draft ingestion). Idempotent: creates missing agents by slug and updates
+// displayName/role/bio for existing ones. Returns the sync result so the
+// pipeline can verify the roster without reading the database directly.
+api.post('/newsroom/seed-agents', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  const got = String(req.headers['x-newsroom-key'] || '');
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+  try {
+    const { seedAgents } = require('./seed-agents');
+    const result = seedAgents();
+    console.log('[newsroom] roster sync requested:', JSON.stringify(result));
+    res.json({ ok: true, result });
+  } catch (e) {
+    res.status(500).json({ error: 'roster sync failed: ' + e.message });
+  }
+});
+
 app.use('/api', api);
 
 // -------------- ADMIN ROUTER --------------
