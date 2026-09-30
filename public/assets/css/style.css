@@ -925,3 +925,59 @@ body::before{
 .post-admin-btn.pinned-active {
   background: rgba(225, 29, 72, 0.95); border-color: #ff4d4d;
 }
+
+/* ============================================================
+   UI refresh — editions, co-reading journey, art-forward (2026-09-30)
+   ============================================================ */
+
+/* Compact dismissible welcome banner */
+.welcome-banner{background:linear-gradient(135deg,rgba(0,229,255,.08),rgba(168,85,247,.08));border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.welcome-banner-main{display:flex;align-items:center;gap:12px;flex:1;min-width:240px}
+.welcome-banner-emoji{font-size:1.6rem}
+.welcome-banner-text{display:flex;flex-direction:column;gap:2px}
+.welcome-banner-text strong{color:var(--text);font-size:.95rem}
+.welcome-banner-text span{color:var(--text-dim);font-size:.8rem}
+.welcome-banner-actions{display:flex;align-items:center;gap:10px;margin-left:auto}
+.welcome-dismiss{background:none;border:1px solid var(--border);border-radius:8px;color:var(--text-mute);width:32px;height:32px;cursor:pointer;font-size:.8rem;line-height:1}
+.welcome-dismiss:hover{color:var(--text);border-color:var(--accent)}
+.welcome-video-wrap{flex-basis:100%;margin-top:6px}
+.welcome-video-wrap video{width:100%;max-height:420px;border-radius:var(--radius-sm);background:#000}
+
+/* Edition packages — the daily front pages */
+#edition-packages{display:flex;flex-direction:column;gap:28px;margin-bottom:8px}
+.edition-pkg{background:linear-gradient(180deg,rgba(0,229,255,.045),transparent 32%);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+.edition-pkg-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.edition-kicker{display:block;font-size:.72rem;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.edition-pkg-head h2{margin:0;font-size:1.5rem;color:var(--text);letter-spacing:.3px}
+.edition-drop{font-size:.78rem;color:var(--text-mute);border:1px solid var(--border);border-radius:999px;padding:6px 12px;background:var(--bg-alt);white-space:nowrap}
+.edition-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+
+/* Read-together journey nav (article page) */
+.read-journey{position:sticky;top:70px;z-index:20;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:color-mix(in srgb,var(--bg-card) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:999px;padding:8px 14px;margin:0 0 22px}
+.rj-label{font-size:.78rem;font-weight:700;color:var(--text-dim);margin-right:4px;white-space:nowrap}
+.rj-step{display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:999px;font-size:.82rem;font-weight:600;color:var(--text-dim);text-decoration:none;border:1px solid transparent;transition:all .18s;white-space:nowrap}
+.rj-step:hover{color:var(--text);border-color:var(--border)}
+.rj-step.active{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#06121c;border-color:transparent;box-shadow:var(--glow-cyan)}
+.rj-num{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:rgba(127,140,160,.18);font-size:.68rem;font-weight:800}
+.rj-step.active .rj-num{background:rgba(0,0,0,.22);color:#06121c}
+.rj-icon{font-size:.9rem}
+#sec-story,#sec-kidtake,#sec-discuss,#sec-glossary{scroll-margin-top:140px}
+.kid-take[data-step]::before,.family-discussion[data-step]::before,.glossary[data-step]::before{content:"Step " attr(data-step) " \00B7 read together";display:block;font-size:.7rem;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--text-mute);margin-bottom:10px}
+
+/* Free art download on the article hero */
+.art-dl{position:absolute;top:14px;right:14px;z-index:3;display:flex;align-items:center;gap:8px;background:rgba(10,14,23,.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid var(--accent);color:var(--text);font-size:.78rem;font-weight:700;padding:9px 14px;border-radius:999px;text-decoration:none;transition:all .2s}
+.art-dl:hover{background:var(--accent);color:#06121c;box-shadow:var(--glow-cyan)}
+.art-dl span{font-weight:600}
+
+/* Art-forward cards — bigger stage for Nexus Glow art */
+.post-media-wrap{aspect-ratio:4/3}
+.post-card.featured .post-media-wrap{aspect-ratio:21/10}
+
+@media (max-width:640px){
+  .edition-pkg{padding:14px}
+  .edition-pkg-head h2{font-size:1.2rem}
+  .read-journey{top:64px;border-radius:16px;padding:6px 10px;gap:4px}
+  .rj-label{display:none}
+  .rj-text{display:none}
+  .rj-step{padding:7px 10px}
+}
