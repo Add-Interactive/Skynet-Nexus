@@ -294,8 +294,6 @@
           '.group-header.open .arrow { transform: rotate(180deg); }' +
           '.humans-hdr.open { background: rgba(239, 68, 68, 0.15) !important; border-bottom: 1px solid rgba(239, 68, 68, 0.3); }' +
           '.humans-content.open { background: rgba(239, 68, 68, 0.04); }' +
-          '.core-hdr.open { background: rgba(57, 255, 20, 0.15) !important; border-bottom: 1px solid rgba(57, 255, 20, 0.3); }' +
-          '.core-content.open { background: rgba(57, 255, 20, 0.04); }' +
           '.subs-hdr.open { background: rgba(168, 85, 247, 0.15) !important; border-bottom: 1px solid rgba(168, 85, 247, 0.3); }' +
           '.subs-content.open { background: rgba(168, 85, 247, 0.04); }' +
         '</style>'
@@ -306,16 +304,13 @@
       main.appendChild(layout);
       var list = layout.querySelector('#agent-list');
 
-      // Separate staff list into three distinct groups
+      // Separate staff list into humans and correspondents
       var humans = [];
-      var core = [];
       var subs = [];
       
       State.staff.forEach(function (st) {
         if (st.slug === 'jeffrey-hunt') {
           humans.push(st);
-        } else if (st.slug === 'agent-antigravity' || st.slug === 'openclaw') {
-          core.push(st);
         } else {
           subs.push(st);
         }
@@ -328,25 +323,17 @@
           '<div class="group-content humans-content" id="list-humans"></div>' +
         '</div>'
       );
-      var coreGroup = h(
-        '<div class="agent-group" id="g-core">' +
-          '<button class="group-header core-hdr">🦾 Core Agents (' + core.length + ') <span class="arrow">▼</span></button>' +
-          '<div class="group-content core-content" id="list-core"></div>' +
-        '</div>'
-      );
       var subsGroup = h(
         '<div class="agent-group" id="g-subs">' +
-          '<button class="group-header subs-hdr">🛰️ Sub Agents (' + subs.length + ') <span class="arrow">▼</span></button>' +
+          '<button class="group-header subs-hdr">🛰️ Correspondents (' + subs.length + ') <span class="arrow">▼</span></button>' +
           '<div class="group-content subs-content" id="list-subs"></div>' +
         '</div>'
       );
       
       list.appendChild(humansGroup);
-      list.appendChild(coreGroup);
       list.appendChild(subsGroup);
       
       var listHumans = humansGroup.querySelector('#list-humans');
-      var listCore = coreGroup.querySelector('#list-core');
       var listSubs = subsGroup.querySelector('#list-subs');
 
       // Render all cards
@@ -378,15 +365,13 @@
         // Distribute to correct group container
         if (st.slug === 'jeffrey-hunt') {
           listHumans.appendChild(card);
-        } else if (st.slug === 'agent-antigravity' || st.slug === 'openclaw') {
-          listCore.appendChild(card);
         } else {
           listSubs.appendChild(card);
         }
       });
 
       // Add collapsible trigger listeners
-      [humansGroup, coreGroup, subsGroup].forEach(function (g) {
+      [humansGroup, subsGroup].forEach(function (g) {
         var hdr = g.querySelector('.group-header');
         var content = g.querySelector('.group-content');
         
@@ -1688,356 +1673,6 @@
     }
     
     refreshImages();
-  };
-
-  // ===== Antigravity Workspace =====
-  Views.antigravity = function () {
-    main.innerHTML = '';
-    main.appendChild(h(
-      '<div class="admin-view-head">' +
-        '<h1>Antigravity Workspace</h1>' +
-        '<p>Emergency Newsroom Desk · Live status of the 13-channel daily drops</p>' +
-      '</div>'
-    ));
-
-    // Render credit/status alert
-    var alertPanel = h(
-      '<div class="admin-panel status-alert-panel" style="border-left: 4px solid #ff2e63; background: rgba(255, 46, 99, 0.05); margin-bottom: 24px;">' +
-        '<div style="display: flex; gap: 16px; align-items: center;">' +
-          '<div style="font-size: 32px;">⚠️</div>' +
-          '<div>' +
-            '<h3 style="margin: 0 0 4px 0; color: #ff2e63;">OpenClaw Gateway Credits Depleted</h3>' +
-            '<p style="margin: 0; font-size: 14px; opacity: 0.8;">The main OpenClaw cron task is suspended because your Copilot credit limit was reached. Today\'s drops are being managed manually via this Antigravity Emergency Desk to ensure continuity.</p>' +
-          '</div>' +
-        '</div>' +
-      '</div>'
-    );
-    main.appendChild(alertPanel);
-
-    var controlBar = h(
-      '<div class="admin-panel" style="margin-bottom: 24px;">' +
-        '<h2>Emergency Actions</h2>' +
-        '<p style="font-size: 14px; opacity: 0.8; margin-bottom: 16px;">Use these controls to generate, publish, or schedule the entire process for today\'s or tomorrow\'s 13 channel drops.</p>' +
-        '<div class="row-actions" style="display: flex; gap: 12px; flex-wrap: wrap;">' +
-          '<button id="btn-seed-drops" class="admin-btn">🚀 Generate Drafts</button>' +
-          '<button id="btn-publish-all" class="admin-btn" style="background: #2dd4bf; color: #0a0e17;">📢 Auto-Publish Ready Drafts</button>' +
-          '<button id="btn-run-it" class="admin-btn admin-btn-primary" style="background: var(--lcars-gold); color: #000; font-weight: 900; box-shadow: 0 0 10px rgba(255, 184, 0, 0.4);">⚡ RUN IT (Generate & Publish)</button>' +
-          '<button id="btn-run-maintenance" class="admin-btn" style="background: #e11d48; color: #fff; border: none; font-weight: 600; border-radius: 6px; padding: 6px 14px; cursor: pointer;">🧹 Clean & Optimize DB</button>' +
-        '</div>' +
-        '<div style="display: flex; gap: 12px; align-items: center; margin-top: 16px; padding: 12px; background: rgba(0, 229, 255, 0.05); border: 1px solid rgba(0, 229, 255, 0.15); border-radius: 8px; flex-wrap: wrap; width: 100%;">' +
-          '<div style="font-weight: 600; font-size: 14px; color: var(--text);">Schedule Drop:</div>' +
-          '<select id="schedule-target-day" class="sort-select" style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); font-size: 0.85rem; outline: none; cursor: pointer;">' +
-            '<option value="today">Today</option>' +
-            '<option value="tomorrow" selected>Tomorrow</option>' +
-          '</select>' +
-          '<select id="schedule-target-edition" class="sort-select" style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); font-size: 0.85rem; outline: none; cursor: pointer;">' +
-            '<option value="morning">Morning Drop (10:15 AM ET)</option>' +
-            '<option value="midday">Midday Drop (2:15 PM ET)</option>' +
-            '<option value="evening">Evening Drop (6:15 PM ET)</option>' +
-          '</select>' +
-          '<button id="btn-schedule-custom" class="admin-btn" style="background: #a855f7; color: #fff; border: none; font-weight: 600; border-radius: 6px; padding: 6px 14px; cursor: pointer;">📅 Schedule 13-Channel Drop</button>' +
-        '</div>' +
-      '</div>'
-    );
-    main.appendChild(controlBar);
-
-    var grid = h(
-      '<div class="admin-panel">' +
-        '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 12px;">' +
-          '<h2 style="margin: 0;">13-Channel Live Desk</h2>' +
-          '<button id="btn-clear-all-published" class="admin-btn admin-btn-sm" style="background:#ff2e63; color:#fff;">🧹 Clear All Published</button>' +
-        '</div>' +
-        '<p style="font-size: 14px; opacity: 0.8; margin-bottom: 16px;">Correspondents bridge officers status monitor.</p>' +
-        '<div class="channel-status-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;" id="channel-status-grid"></div>' +
-      '</div>'
-    );
-    main.appendChild(grid);
-
-    var gridEl = grid.querySelector('#channel-status-grid');
-
-    var channels = [
-      { id: 'ai', name: 'AI & Machine Learning', emoji: '🧠', staff: 'Dr. Nova Sterling' },
-      { id: 'space', name: 'Space & Aerospace', emoji: '🚀', staff: 'Commander Leo Vance' },
-      { id: 'robotics', name: 'Robotics & Automation', emoji: '🤖', staff: 'Jax Henderson' },
-      { id: 'biotech', name: 'Biotech & Health', emoji: '🧬', staff: 'Dr. Sage Rivers' },
-      { id: 'quantum', name: 'Quantum & Computing', emoji: '⚛️', staff: 'Zephyr Thorne' },
-      { id: 'climate', name: 'Climate & Energy', emoji: '🌍', staff: 'Terra Green' },
-      { id: 'engineering', name: 'Engineering & Making', emoji: '🔧', staff: 'Mason Rivet' },
-      { id: 'math', name: 'Math & Data Science', emoji: '📐', staff: 'Adara Matrix' },
-      { id: 'cyber', name: 'Cybersecurity & Code', emoji: '🔐', staff: 'Cipher Crypt' },
-      { id: 'gaming', name: 'Gaming Tournaments', emoji: '🎮', staff: 'Leo Pixel' },
-      { id: 'music', name: 'Music Festivals', emoji: '🎧', staff: 'Aria Harmony' },
-      { id: 'play', name: 'Play & Design', emoji: '🎨', staff: 'Amara Okafor' },
-      { id: 'stem', name: 'STEM', emoji: '🧬', staff: 'Priya Ramanathan' }
-    ];
-
-    // Load status with cache-buster
-    api('/admin/antigravity/status?t=' + Date.now()).then(function (res) {
-      var today = res.today;
-      var articles = res.articles || [];
-      var queued = res.queued || [];
-
-      // Render channel cards
-      channels.forEach(function (ch) {
-        var status = 'missing';
-        var title = '';
-        var queueId = null;
-
-        // Find published article
-        var pub = articles.find(function (a) {
-          return a.cat === ch.id && a.date === today;
-        });
-
-        // Find queued story
-        var q = queued.find(function (a) {
-          return a.channel === ch.id && a.payload && a.payload.date === today;
-        });
-
-        if (q) {
-          queueId = q.id;
-        }
-
-        if (pub) {
-          status = 'published';
-          title = pub.title;
-        } else if (q) {
-          status = q.status; // 'draft', 'approved', 'published'
-          title = q.payload.title;
-        }
-
-        var statusBadge = '';
-        var actionBtn = '';
-        if (status === 'published') {
-          statusBadge = '<span class="pill published">🟢 Published</span>';
-          if (queueId) {
-            actionBtn = '<button class="admin-btn admin-btn-sm btn-clear-single" data-id="' + queueId + '" style="background:#475569;color:#fff;">Clear</button>';
-          }
-        } else if (status === 'approved') {
-          statusBadge = '<span class="pill assigned">🔵 Ready (Approved)</span>';
-          actionBtn = '<button class="admin-btn admin-btn-sm btn-pub-single" data-id="' + queueId + '" style="background:#2dd4bf;color:#0a0e17;">Publish</button>';
-        } else if (status === 'draft') {
-          statusBadge = '<span class="pill paused">🟡 Draft</span>';
-          actionBtn = '<button class="admin-btn admin-btn-sm btn-pub-single" data-id="' + queueId + '" style="background:#ffb800;color:#0a0e17;">Publish</button>';
-        } else {
-          statusBadge = '<span class="pill paused" style="background:#ff2e63;">🔴 Missing</span>';
-        }
-
-        var card = h(
-          '<div class="admin-card channel-card" style="border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; background: rgba(30, 41, 59, 0.3);">' +
-            '<div>' +
-              '<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">' +
-                '<span style="font-size: 16px; font-weight: 700;">' + ch.emoji + ' ' + esc(ch.name) + '</span>' +
-                statusBadge +
-              '</div>' +
-              '<div style="font-size: 12px; opacity: 0.6; margin-bottom: 12px;">Correspondent: ' + esc(ch.staff) + '</div>' +
-              (title ? '<div style="font-size: 13px; font-weight: 500; border-left: 2px solid #00e5ff; padding-left: 8px; margin-bottom: 16px;">' + esc(title) + '</div>' : '<div style="font-size: 13px; font-style: italic; opacity: 0.4; margin-bottom: 16px;">No story filed for today.</div>') +
-            '</div>' +
-            (actionBtn ? '<div style="display: flex; justify-content: flex-end; gap: 8px;">' + actionBtn + '</div>' : '') +
-          '</div>'
-        );
-
-        if (queueId) {
-          var btnPub = card.querySelector('.btn-pub-single');
-          if (btnPub) {
-            btnPub.addEventListener('click', function (e) {
-              var btn = e.target;
-              btn.disabled = true;
-              btn.textContent = 'Publishing...';
-              api('/admin/stories/queue/' + queueId + '/publish', { method: 'POST' }).then(function () {
-                toast('Story published successfully!');
-                Views.antigravity();
-                refreshBadges();
-              }).catch(function (err) {
-                toast(err.message, true);
-                btn.disabled = false;
-                btn.textContent = 'Publish';
-              });
-            });
-          }
-
-          var btnClear = card.querySelector('.btn-clear-single');
-          if (btnClear) {
-            btnClear.addEventListener('click', function (e) {
-              var btn = e.target;
-              btn.disabled = true;
-              btn.textContent = 'Clearing...';
-              api('/admin/stories/queue/' + queueId, { method: 'DELETE' }).then(function () {
-                toast('Story cleared from queue!');
-                Views.antigravity();
-                refreshBadges();
-              }).catch(function (err) {
-                toast(err.message, true);
-                btn.disabled = false;
-                btn.textContent = 'Clear';
-              });
-            });
-          }
-        }
-
-        gridEl.appendChild(card);
-      });
-
-      // Bind clear all published button
-      var btnClearAll = grid.querySelector('#btn-clear-all-published');
-      if (btnClearAll) {
-        btnClearAll.addEventListener('click', function () {
-          if (!confirm('Are you sure you want to clear all published stories from the queue? This will clean up the status monitor.')) return;
-          btnClearAll.disabled = true;
-          api('/admin/stories/queue/clear-published', { method: 'DELETE' }).then(function () {
-            toast('All published stories cleared!');
-            Views.antigravity();
-            refreshBadges();
-          }).catch(function (err) {
-            toast(err.message, true);
-            btnClearAll.disabled = false;
-          });
-        });
-      }
-
-      // Bind seed button
-      controlBar.querySelector('#btn-seed-drops').addEventListener('click', function (e) {
-        var btn = e.target;
-        btn.disabled = true;
-        btn.textContent = 'Generating 13 Articles...';
-        api('/admin/antigravity/generate-drops', { method: 'POST' }).then(function (r) {
-          toast('Successfully generated ' + r.count + ' emergency drafts!');
-          Views.antigravity();
-          refreshBadges();
-        }).catch(function (err) {
-          toast(err.message, true);
-          btn.disabled = false;
-          btn.textContent = 'Generate Today\'s 13-Channel Drop';
-        });
-      });
-
-      // Bind publish all button
-      controlBar.querySelector('#btn-publish-all').addEventListener('click', function (e) {
-        var btn = e.target;
-        var publishable = queued.filter(function (q) {
-          return q.payload && q.payload.date === today && q.status !== 'published' && q.status !== 'rejected';
-        });
-
-        if (!publishable.length) {
-          toast('No draft or approved stories found to publish for today.', true);
-          return;
-        }
-
-        if (!confirm('Are you sure you want to publish all ' + publishable.length + ' ready drafts now? This will make them live on the feed.')) return;
-
-        btn.disabled = true;
-        btn.textContent = 'Publishing all...';
-
-        var chain = Promise.resolve();
-        publishable.forEach(function (story) {
-          chain = chain.then(function () {
-            return api('/admin/stories/queue/' + story.id + '/publish', { method: 'POST' });
-          });
-        });
-
-        chain.then(function () {
-          toast('All ' + publishable.length + ' stories published successfully!');
-          Views.antigravity();
-          refreshBadges();
-        }).catch(function (err) {
-          toast('Error during batch publish: ' + err.message, true);
-          Views.antigravity();
-          refreshBadges();
-        });
-      });
-
-      // Bind Run It button
-      controlBar.querySelector('#btn-run-it').addEventListener('click', function (e) {
-        var btn = e.target;
-        if (!confirm('Are you sure you want to Generate and Auto-Publish all 13 drops for today immediately? This will make them live.')) return;
-        
-        btn.disabled = true;
-        btn.textContent = 'Running (Generating)...';
-        
-        api('/admin/antigravity/generate-drops', { method: 'POST' }).then(function (r) {
-          btn.textContent = 'Running (Publishing ' + r.count + ' stories)...';
-          
-          // Fetch status with cache-buster to get the newly generated queued stories
-          return api('/admin/antigravity/status?t=' + Date.now());
-        }).then(function (res) {
-          var today = res.today;
-          var queued = res.queued || [];
-          var publishable = queued.filter(function (q) {
-            return q.payload && q.payload.date === today && q.status !== 'published' && q.status !== 'rejected';
-          });
-          
-          if (!publishable.length) {
-            throw new Error('No draft stories found to publish for today.');
-          }
-          
-          var chain = Promise.resolve();
-          publishable.forEach(function (story) {
-            chain = chain.then(function () {
-              return api('/admin/stories/queue/' + story.id + '/publish', { method: 'POST' });
-            });
-          });
-          
-          return chain.then(function () {
-            return publishable.length;
-          });
-        }).then(function (count) {
-          toast('Successfully generated and published all ' + count + ' emergency stories!');
-          Views.antigravity();
-          refreshBadges();
-        }).catch(function (err) {
-          toast(err.message, true);
-          Views.antigravity();
-          refreshBadges();
-        });
-      });
-
-      // Bind Schedule Custom Drop button
-      controlBar.querySelector('#btn-schedule-custom').addEventListener('click', function (e) {
-        var btn = e.target;
-        var targetDay = controlBar.querySelector('#schedule-target-day').value;
-        var edition = controlBar.querySelector('#schedule-target-edition').value;
-        
-        var labelDay = targetDay.charAt(0).toUpperCase() + targetDay.slice(1);
-        var labelEdition = edition.charAt(0).toUpperCase() + edition.slice(1);
-        
-        if (!confirm("Are you sure you want to Clear the current draft queue, generate 13 new articles, and Schedule them for " + labelDay + "'s " + labelEdition + " Drop?")) return;
-        
-        btn.disabled = true;
-        btn.textContent = 'Scheduling Drop...';
-        
-        api('/admin/antigravity/schedule-custom-drop', {
-          method: 'POST',
-          body: { targetDay: targetDay, edition: edition }
-        }).then(function (r) {
-          toast('Successfully scheduled 13 articles for ' + r.targetDate + ' (' + r.edition + ' drop)!');
-          Views.antigravity();
-          refreshBadges();
-        }).catch(function (err) {
-          toast(err.message, true);
-          btn.disabled = false;
-          btn.textContent = 'Schedule 13-Channel Drop';
-        });
-      });
-
-      // Bind Run Maintenance button
-      controlBar.querySelector('#btn-run-maintenance').addEventListener('click', function (e) {
-        var btn = e.target;
-        if (!confirm("Are you sure you want to delete expired sessions, run PRAGMA optimize, and VACUUM the SQLite database to shrink file size?")) return;
-        
-        btn.disabled = true;
-        btn.textContent = 'Optimizing...';
-        
-        api('/admin/antigravity/run-maintenance', { method: 'POST' }).then(function (r) {
-          toast('Maintenance complete! Cleared ' + r.deletedSessionsCount + ' expired sessions and compressed the database!');
-          Views.antigravity();
-          refreshBadges();
-        }).catch(function (err) {
-          toast(err.message, true);
-          btn.disabled = false;
-          btn.textContent = '🧹 Clean & Optimize DB';
-        });
-      });
-
-    }).catch(errView);
   };
 
   // ---------- Shared helpers ----------
