@@ -651,6 +651,57 @@ api.post('/newsroom/social-drafts', (req, res) => {
   res.status(201).json({ draft });
 });
 
+// -------------- GIZMO EDITION BACKFILL --------------
+// One-time data repair: stamp edition (+ optional publishedAt) onto published
+// articles of a given date that lack an edition, and optionally correct the
+// network editorialSchedule text. Guarded by NEWSROOM_API_KEY.
+// Body: { date: 'YYYY-MM-DD', edition: 'morning'|'midday'|'evening',
+//         publishedAt?: ISO, editorialSchedule?: string }
+api.post('/newsroom/backfill-editions', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  const got = String(req.headers['x-newsroom-key'] || '');
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+
+  const b = req.body || {};
+  const date = String(b.date || '');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'date required (YYYY-MM-DD)' });
+  const edition = String(b.edition || '');
+  if (!['morning', 'midday', 'evening'].includes(edition)) return res.status(400).json({ error: 'edition must be morning|midday|evening' });
+
+  const manifestPath = path.join(DATA_DIR, 'manifest.json');
+  let manifest;
+  try { manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')); }
+  catch (e) { return res.status(500).json({ error: 'cannot read manifest: ' + e.message }); }
+
+  let updated = 0, filesUpdated = 0;
+  for (const a of (manifest.articles || [])) {
+    if (a.date !== date || a.edition) continue;
+    a.edition = edition;
+    if (b.publishedAt) a.publishedAt = String(b.publishedAt);
+    updated++;
+    const rel = a.path || ('data/articles/' + a.date + '/' + a.slug + '.json');
+    const abs = path.join(DATA_DIR, String(rel).replace(/^data\//, ''));
+    try {
+      if (fs.existsSync(abs)) {
+        const full = JSON.parse(fs.readFileSync(abs, 'utf8'));
+        full.edition = edition;
+        if (b.publishedAt) full.publishedAt = String(b.publishedAt);
+        fs.writeFileSync(abs, JSON.stringify(full, null, 2));
+        filesUpdated++;
+      }
+    } catch (e) { console.warn('[newsroom] backfill file skipped for ' + a.id + ': ' + e.message); }
+  }
+  if (b.editorialSchedule) {
+    manifest.network = manifest.network || {};
+    manifest.network.editorialSchedule = String(b.editorialSchedule);
+  }
+  try { fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2)); }
+  catch (e) { return res.status(500).json({ error: 'cannot write manifest: ' + e.message }); }
+  console.log(`[newsroom] backfill-editions: ${updated} articles stamped ${edition} for ${date}`);
+  res.json({ ok: true, updated, filesUpdated, date, edition });
+});
+
 // -------------- GIZMO NEWSROOM ROSTER SYNC --------------
 // Re-run the correspondent roster sync on demand (same NEWSROOM_API_KEY guard
 // as draft ingestion). Idempotent: creates missing agents by slug and updates

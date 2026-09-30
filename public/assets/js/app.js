@@ -615,9 +615,7 @@ function getFilteredArticles() {
   let list = [...ARTICLES];
   
   if (currentFilter === 'all') {
-    if (feedType === 'home') {
-      list = list.filter(a => a.cat === 'skynet' || a.cat === 'network');
-    } else if (feedType === 'your') {
+    if (feedType === 'your') {
       list = list.filter(a => a.cat !== 'skynet' && a.cat !== 'network');
     }
   } else {
@@ -649,9 +647,115 @@ function getFilteredArticles() {
   return list;
 }
 
+// ---------- Edition packages (morning / midday / evening front pages) ----------
+const EDITION_DEFS = [
+  { id: 'morning', label: 'Morning Edition', icon: '\u2600\uFE0F', drop: '7:15 AM ET' },
+  { id: 'midday',  label: 'Midday Edition',  icon: '\uD83C\uDF24\uFE0F', drop: '2:15 PM ET' },
+  { id: 'evening', label: 'Evening Edition', icon: '\uD83C\uDF19', drop: '6:15 PM ET' }
+];
+
+// Articles are stamped in ET (e.g. 2026-09-30T14:00:00-04:00); parse the stamped
+// hour directly so editions never shift with the viewer's timezone.
+function editionOf(a) {
+  const day = String(a.date || (a.publishedAt || '').slice(0, 10)).slice(0, 10);
+  // Published articles carry their edition stamp (set at the drop). Trust it.
+  if (a.edition === 'morning' || a.edition === 'midday' || a.edition === 'evening') {
+    return { day: day, edition: a.edition };
+  }
+  // Legacy fallback: derive from publishedAt, converted to America/New_York.
+  let hour = 12;
+  if (a.publishedAt) {
+    try {
+      const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', hour12: false }).formatToParts(new Date(a.publishedAt));
+      const h = parts.find(function (p) { return p.type === 'hour'; });
+      if (h) hour = parseInt(h.value, 10) % 24;
+    } catch (e) { /* keep default */ }
+  }
+  return { day: day, edition: hour < 12 ? 'morning' : hour < 17 ? 'midday' : 'evening' };
+}
+
+function editionDayLabel(dayStr) {
+  const now = new Date();
+  const fmt = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  if (dayStr === fmt(now)) return 'Today';
+  if (dayStr === fmt(new Date(now.getTime() - 86400000))) return 'Yesterday';
+  const d = new Date(dayStr + 'T12:00:00');
+  return isNaN(d) ? dayStr : d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+}
+
+// Edition packages own the homepage when nothing is filtered/searched.
+function editionsActive() {
+  const params = new URLSearchParams(location.search);
+  const feedType = params.get('feed') || 'home';
+  return feedType === 'home' && currentFilter === 'all' && !searchQuery;
+}
+
+function renderEditionPackages() {
+  const host = document.getElementById('edition-packages');
+  if (!host) return;
+  if (!editionsActive()) { host.innerHTML = ''; host.style.display = 'none'; return; }
+  const groups = {};
+  ARTICLES.forEach(a => {
+    const e = editionOf(a);
+    if (!e.day) return;
+    const k = e.day + '|' + e.edition;
+    (groups[k] = groups[k] || []).push(a);
+  });
+  const keys = Object.keys(groups).sort().reverse().slice(0, 4);
+  if (!keys.length) { host.innerHTML = ''; host.style.display = 'none'; return; }
+  host.style.display = '';
+  host.innerHTML = keys.map(k => {
+    const parts = k.split('|');
+    const def = EDITION_DEFS.find(e => e.id === parts[1]) || EDITION_DEFS[0];
+    const list = groups[k].slice().sort((a, b) => new Date(b.publishedAt || b.date) - new Date(a.publishedAt || a.date));
+    const cards = list.map((a, i) => renderPost(a, i === 0, feedBase)).join('');
+    return '<section class="edition-pkg" data-edition="' + parts[1] + '">' +
+      '<div class="edition-pkg-head">' +
+        '<div class="edition-pkg-titles">' +
+          '<span class="edition-kicker">' + editionDayLabel(parts[0]) + ' \u00B7 ' + list.length + (list.length === 1 ? ' story' : ' stories') + '</span>' +
+          '<h2>' + def.icon + ' ' + def.label + '</h2>' +
+        '</div>' +
+        '<span class="edition-drop">Dropped ' + def.drop + '</span>' +
+      '</div>' +
+      '<div class="edition-grid">' + cards + '</div>' +
+    '</section>';
+  }).join('');
+  bindPostEvents();
+}
+
+function refreshHomeFeed() {
+  renderEditionPackages();
+  renderFeed();
+}
+
+// ---------- Welcome banner ----------
+function initWelcomeBanner() {
+  const banner = document.getElementById('sky-welcome');
+  if (!banner) return;
+  if (LS.get('welcome_dismissed', false)) { banner.style.display = 'none'; return; }
+  const d = document.getElementById('welcome-dismiss');
+  if (d) d.addEventListener('click', () => { LS.set('welcome_dismissed', true); banner.style.display = 'none'; });
+  const p = document.getElementById('welcome-play');
+  const w = document.getElementById('welcome-video-wrap');
+  if (p && w) p.addEventListener('click', () => {
+    const open = w.hidden;
+    w.hidden = !open;
+    if (open) { const v = w.querySelector('video'); if (v) { try { v.play(); } catch (e) {} } }
+    p.innerHTML = open ? '\u23F8 Hide intro' : '\u25B6 Watch intro';
+  });
+}
+
 function renderFeed() {
   const grid = document.getElementById('feed-grid');
   if (!grid) return;
+  const secTitle = document.getElementById('trending');
+  if (editionsActive()) {
+    grid.style.display = 'none';
+    if (secTitle) secTitle.style.display = 'none';
+    return;
+  }
+  grid.style.display = '';
+  if (secTitle) secTitle.style.display = '';
   const list = getFilteredArticles();
   const token = ++_feedRssToken;
 
@@ -1214,7 +1318,7 @@ function initFilters() {
       document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
       currentFilter = chip.dataset.cat || 'all';
-      renderFeed();
+      refreshHomeFeed();
     });
   });
   const sort = document.getElementById('sort-select');
@@ -1230,7 +1334,7 @@ function initSearch() {
     clearTimeout(deb);
     deb = setTimeout(() => {
       searchQuery = e.target.value.trim();
-      renderFeed();
+      refreshHomeFeed();
     }, 220);
   });
 }
@@ -1778,7 +1882,7 @@ function initArticlePage() {
     LS.set('seen_articles', seen);
   }
 
-  document.title = a.title + ' â€” Skynet Nexus News';
+  document.title = a.title + ' \u2014 Skynet Nexus News';
   const thumbsUp = LS.get('thumbs_up_' + a.id, false);
   const thumbsDown = LS.get('thumbs_down_' + a.id, false);
   const saved = LS.get('save_' + a.id, false);
@@ -1787,7 +1891,7 @@ function initArticlePage() {
 
   // Kid-friendly sections (new schema)
   const kidTakeHtml = a.kidTake ? (
-    '<div class="kid-take">' +
+    '<div class="kid-take" id="sec-kidtake">' +
       '<div class="kid-take-header"><span class="kid-take-badge">Kid Take</span>' +
       (a.ageBand ? '<span class="age-band">Ages ' + a.ageBand + '</span>' : '') + '</div>' +
       '<p>' + a.kidTake + '</p>' +
@@ -1795,7 +1899,7 @@ function initArticlePage() {
   ) : '';
 
   const glossaryHtml = (a.glossary && a.glossary.length) ? (
-    '<div class="glossary">' +
+    '<div class="glossary" id="sec-glossary">' +
       '<div class="glossary-title">Words to know</div>' +
       '<dl>' + a.glossary.map(g =>
         '<dt>' + g.term + '</dt><dd>' + g.meaning + '</dd>'
@@ -1804,7 +1908,7 @@ function initArticlePage() {
   ) : '';
 
   const discussionHtml = (a.familyDiscussion && a.familyDiscussion.length) ? (
-    '<div class="family-discussion">' +
+    '<div class="family-discussion" id="sec-discuss">' +
       '<div class="family-discussion-title"><span class="fd-emoji">💬</span> Talk about it together</div>' +
       '<ol>' + a.familyDiscussion.map(q => '<li>' + q + '</li>').join('') + '</ol>' +
     '</div>'
@@ -1861,6 +1965,25 @@ function initArticlePage() {
     }
   }
 
+  // "Read together" journey — the guided co-reading flow: story, kid take,
+  // talk together, words to know. Only steps with content are shown.
+  const journeySteps = [{ id: 'sec-story', icon: '\uD83D\uDCF0', label: 'Read the story' }]
+    .concat(a.kidTake ? [{ id: 'sec-kidtake', icon: '\uD83E\uDDD2', label: 'Kid Take' }] : [])
+    .concat((a.familyDiscussion && a.familyDiscussion.length) ? [{ id: 'sec-discuss', icon: '\uD83D\uDCAC', label: 'Talk together' }] : [])
+    .concat((a.glossary && a.glossary.length) ? [{ id: 'sec-glossary', icon: '\uD83D\uDCD6', label: 'Words to know' }] : []);
+  journeySteps.forEach((st, i) => { st.n = i + 1; });
+  const journeyHtml =
+    '<nav class="read-journey" aria-label="Read together">' +
+      '<span class="rj-label">\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67 Read together</span>' +
+      journeySteps.map(st =>
+        '<a href="#' + st.id + '" class="rj-step' + (st.n === 1 ? ' active' : '') + '" data-target="' + st.id + '">' +
+          '<span class="rj-num">' + st.n + '</span>' +
+          '<span class="rj-icon">' + st.icon + '</span>' +
+          '<span class="rj-text">' + st.label + '</span>' +
+        '</a>'
+      ).join('') +
+    '</nav>';
+
   container.innerHTML =
     '<article class="article">' +
       '<div class="article-hero">' +
@@ -1877,11 +2000,13 @@ function initArticlePage() {
             '<span>' + a.readTime + ' min read</span>' +
           '</div>' +
         '</div>' +
+        '<a class="art-dl" href="' + (a.heroImage || makeThumb(a.cat, a.id)) + '" download="skynet-nexus-art-' + a.id + '.jpg" title="Free download \u2014 use it for wallpapers or school projects">\u2B07 <span>Free art</span></a>' +
       '</div>' +
-      '<div class="article-body">' + bodyHtml + '</div>' +
+      journeyHtml +
+      '<div class="article-body" id="sec-story">' + bodyHtml + '</div>' +
       kidTakeHtml +
-      glossaryHtml +
       discussionHtml +
+      glossaryHtml +
       sourcesHtml +
       threadHtml +
       '<div class="article-tags">' + (a.tags || []).map(t => '<span class="tag">#' + t + '</span>').join('') + '</div>' +
@@ -1904,6 +2029,11 @@ function initArticlePage() {
         '<div id="comment-list"></div>' +
       '</div>' +
     '</article>';
+
+  // Stamp journey step numbers onto the co-reading sections.
+  journeySteps.forEach(st => {
+    if (st.n > 1) { const el = document.getElementById(st.id); if (el) el.setAttribute('data-step', st.n); }
+  });
 
   // Comments start empty in production; only real reader comments (stored locally) show.
   const userComments = LS.get('comments_' + a.id, []);
@@ -1997,6 +2127,19 @@ function initArticlePage() {
       else { await navigator.clipboard.writeText(location.href); toast('Link copied!'); }
     } catch { toast('Share cancelled'); }
   });
+
+  // Journey scroll-spy: highlight the step the reader is on.
+  if ('IntersectionObserver' in window && journeySteps.length > 1) {
+    const rjLinks = Array.prototype.slice.call(document.querySelectorAll('.rj-step'));
+    const spy = new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (en.isIntersecting) {
+          rjLinks.forEach(l => l.classList.toggle('active', l.getAttribute('data-target') === en.target.id));
+        }
+      });
+    }, { rootMargin: '-35% 0px -55% 0px' });
+    journeySteps.forEach(st => { const el = document.getElementById(st.id); if (el) spy.observe(el); });
+  }
 }
 
 // ---------- Contact form ----------
@@ -2178,12 +2321,8 @@ function renderFilterChips() {
     frag.appendChild(all);
 
     let visibleChannels = CHANNELS;
-    if (isHome) {
-      if (feedType === 'home') {
-        visibleChannels = CHANNELS.filter(c => c.id === 'skynet' || c.id === 'network');
-      } else if (feedType === 'your') {
-        visibleChannels = CHANNELS.filter(c => c.id !== 'skynet' && c.id !== 'network');
-      }
+    if (isHome && feedType === 'your') {
+      visibleChannels = CHANNELS.filter(c => c.id !== 'skynet' && c.id !== 'network');
     }
 
     visibleChannels.forEach(c => {
@@ -2226,7 +2365,7 @@ function _initHome(baseUrl) {
     if (personalizeLink) personalizeLink.style.display = '';
   } else {
     if (welcomeSection) welcomeSection.style.display = '';
-    if (sectionTitle) sectionTitle.innerHTML = '<span class="accent-bar"></span> Home Feed';
+    if (sectionTitle) sectionTitle.innerHTML = '<span class="accent-bar"></span> Browse all stories';
     if (personalizeLink) personalizeLink.style.display = 'none';
   }
 
@@ -2238,7 +2377,8 @@ function _initHome(baseUrl) {
 
   renderFilterChips();
   initMobileMenu();
-  renderFeed();
+  initWelcomeBanner();
+  refreshHomeFeed();
   renderTrending();
   renderLeaderboard();
   renderCountdown();

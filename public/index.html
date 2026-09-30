@@ -7,7 +7,7 @@
   <meta name="description" content="A family-first daily news network for readers ages 5–50. Real youth achievement in STEM, robotics, play & design, and music — with Kid Take and Family Discussion sections on every story."/>
   <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg"/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
-  <link rel="stylesheet" href="assets/css/style.css?v=20260705-1"/>
+  <link rel="stylesheet" href="assets/css/style.css?v=20260930-1"/>
   <link rel="stylesheet" href="/assets/css/auth.css"/>
 
   <!-- Open Graph + link discovery (added by polish pass) -->
@@ -120,22 +120,25 @@
     <!-- Main Column -->
     <main class="main">
 
-      <!-- Welcome video pinned post -->
-      <section class="sky-welcome-post" id="sky-welcome">
-        <div class="sky-welcome-post-head">
-          <span class="sky-welcome-badge">🛰️ WELCOME</span>
-          <span style="color:var(--muted,#7c8898);font:500 12px Inter,sans-serif">Pinned · 2026-07-01 · Skye, News Office Director</span>
+      <!-- Welcome banner (compact, dismissible) -->
+      <section class="welcome-banner" id="sky-welcome">
+        <div class="welcome-banner-main">
+          <span class="welcome-banner-emoji">🛰️</span>
+          <div class="welcome-banner-text">
+            <strong>Welcome to Skynet Nexus News</strong>
+            <span>A daily family-first news network for readers ages 5–50 · Three editions daily — 7:15 AM, 2:15 PM, 6:15 PM ET</span>
+          </div>
         </div>
-        <h2 class="sky-welcome-post-title">Welcome to Skynet Nexus News</h2>
-        <p class="sky-welcome-post-sub">A daily family-first news network for readers ages 5–50. Play the video — it's short.</p>
-        <video class="sky-welcome-post-video" controls preload="metadata" poster="/assets/img/SNN%20logo.jpg">
-          <source src="/assets/video/skynet-intro.mp4" type="video/mp4"/>
-          Sorry, your browser doesn't support this video. <a href="/assets/video/skynet-intro.mp4">Download it here.</a>
-        </video>
-        <div class="sky-welcome-post-actions">
-          <button type="button" class="sky-btn sky-btn-primary" onclick="SkyAuth.playIntro({force:true})">▶ Fullscreen replay</button>
-          <a class="sky-btn" href="/pages/article.html?id=2026-07-01-welcome-to-skynet-nexus">Read our manifesto →</a>
-          <span style="margin-left:auto">📰 Now live daily · 10:15 AM, 2:15 PM, 6:15 PM ET</span>
+        <div class="welcome-banner-actions">
+          <button type="button" class="sky-btn sky-btn-primary" id="welcome-play">▶ Watch intro</button>
+          <a class="sky-btn" href="/pages/article.html?id=2026-07-01-welcome-to-skynet-nexus">Our manifesto →</a>
+          <button type="button" class="welcome-dismiss" id="welcome-dismiss" aria-label="Dismiss welcome">✕</button>
+        </div>
+        <div class="welcome-video-wrap" id="welcome-video-wrap" hidden>
+          <video controls preload="metadata" poster="/assets/img/SNN%20logo.jpg">
+            <source src="/assets/video/skynet-intro.mp4" type="video/mp4"/>
+            Sorry, your browser doesn't support this video. <a href="/assets/video/skynet-intro.mp4">Download it here.</a>
+          </video>
         </div>
       </section>
 
@@ -150,6 +153,9 @@
         <div class="dropbar-timer" id="drop-timer">--:--:--</div>
         <span class="dropbar-cta">Got a story? Submit →</span>
       </a>
+
+      <!-- Edition packages (rendered by renderEditionPackages) -->
+      <section id="edition-packages" aria-live="polite"></section>
 
       <!-- Summer STEM promo -->
       <a class="summer-promo" href="pages/summer.html">
@@ -392,7 +398,7 @@
     </div>
   </footer>
 
-  <script src="assets/js/app.js?v=20260705-5"></script>
+  <script src="assets/js/app.js?v=20260930-1"></script>
   <script>
     // Paint sidebar/footer icons
     const NAV = {
