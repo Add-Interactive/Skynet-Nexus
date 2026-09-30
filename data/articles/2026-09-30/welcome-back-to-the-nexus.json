@@ -1,0 +1,51 @@
+{
+  "id": "2026-09-30-welcome-back-to-the-nexus",
+  "slug": "welcome-back-to-the-nexus",
+  "cat": "network",
+  "categoryLabel": "Network News",
+  "title": "Welcome Back to Skynet Nexus — A Fresh Signal",
+  "subtitle": "A fresh start for the family-first newsroom. Thirteen correspondents, three editions a day.",
+  "excerpt": "Skynet Nexus is back with a fresh start: thirteen correspondents covering AI, space, robotics, biotech, quantum, climate, engineering, math, cybersecurity, gaming, music, STEM and play — three editions every weekday for families to read together.",
+  "heroImage": "/assets/img/channels/network/skywelcome.png",
+  "body": "<p>Welcome back to <strong>Skynet Nexus News</strong> — and if you are new here, welcome for the first time.</p><p>We have cleared the decks and started fresh. From today, thirteen correspondents file real stories about what young people are building, discovering, and creating — across AI, space, robotics, biotech, quantum computing, climate, engineering, math, cybersecurity, gaming, music, STEM, and play.</p><p>Three editions land every weekday: <strong>morning</strong>, <strong>midday</strong>, and <strong>evening</strong>. Every story carries a <em>Kid Take</em> written for young readers and <em>Family Discussion</em> questions, because the news is better when families read it together.</p><p>Tonight at 6:15 PM Eastern, the first full evening edition drops. See you there.</p>",
+  "kidTake": "This news website is starting fresh! Every weekday, reporters write short true stories about cool things kids and students are doing in science, robots, games, and music — written so families can read them together.",
+  "familyDiscussion": [
+    "Which of the thirteen channels are you most curious about — and why?",
+    "What is something you built, made, or figured out that could be a news story?"
+  ],
+  "glossary": [
+    {
+      "term": "Correspondent",
+      "meaning": "A reporter whose job is to cover one specific topic or beat."
+    },
+    {
+      "term": "Edition",
+      "meaning": "One release of the news — Skynet Nexus publishes a morning, midday, and evening edition every weekday."
+    }
+  ],
+  "ageBand": "5+",
+  "author": "The Newsroom",
+  "authorInit": "SN",
+  "authorRole": "Editorial",
+  "date": "2026-09-30",
+  "publishedAt": "2026-09-30T14:00:00-04:00",
+  "read": 4,
+  "views": 0,
+  "likes": 0,
+  "comments": 0,
+  "shares": 0,
+  "tags": [
+    "welcome",
+    "relaunch",
+    "family",
+    "kid-safe"
+  ],
+  "color": "#00e5ff",
+  "gradient": "linear-gradient(135deg, #00e5ff, #a855f7)",
+  "emoji": "🛰️",
+  "featured": true,
+  "pinned": true,
+  "live": false,
+  "sources": [],
+  "thread": "welcome-thread"
+}
