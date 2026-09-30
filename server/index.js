@@ -43,7 +43,8 @@ const {
   createSubmission, findStaffBySlug, setUserRole, countAdmins, createQueuedStory,
   listPendingAgentTasks, findAgentTask, updateAgentTask,
   listQueuedStories, deleteQueuedStory,
-  listSourcesByStaff, createSource, countSourcesByStaff
+  listSourcesByStaff, createSource, countSourcesByStaff,
+  createSocialDraft
 } = require('./db');
 const {
   hashPassword, verifyPassword,
@@ -606,6 +607,48 @@ api.post('/newsroom/drafts', (req, res) => {
   });
   console.log(`[newsroom] draft filed: #${story.id} ${channel} "${String(payload.title).slice(0, 60)}" for ${edition || 'unscheduled'} drop`);
   res.status(201).json({ story });
+});
+
+
+// -------------- GIZMO SOCIAL INGESTION --------------
+// The social producer agents (YouTube Shorts / TikTok / Instagram Reels) file
+// video packages here ~30 min after each edition drop. Same NEWSROOM_API_KEY
+// guard as draft ingestion. v1: content drafts only — posting stays manual,
+// no platform API integration.
+// Body: { platform, storyId?, storyTitle?, hook, script, caption?, hashtags?,
+//         artPick?, cta?, dropKey?, edition? }
+const SOCIAL_PLATFORMS = new Set(['youtube_shorts', 'tiktok', 'instagram_reels']);
+api.post('/newsroom/social-drafts', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  const got = String(req.headers['x-newsroom-key'] || '');
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+
+  const b = req.body || {};
+  const platform = String(b.platform || '').trim();
+  if (!SOCIAL_PLATFORMS.has(platform)) return res.status(400).json({ error: 'unknown platform (youtube_shorts|tiktok|instagram_reels)' });
+  const hook = String(b.hook || '').trim();
+  if (!hook) return res.status(400).json({ error: 'hook is required' });
+  const script = String(b.script || '').trim();
+  if (!script) return res.status(400).json({ error: 'script is required' });
+  const hashtags = Array.isArray(b.hashtags) ? b.hashtags.map(String).slice(0, 12) : [];
+  const edition = ['morning', 'midday', 'evening'].includes(b.edition) ? b.edition : null;
+
+  const draft = createSocialDraft({
+    platform,
+    storyId: b.storyId != null ? String(b.storyId).slice(0, 200) : null,
+    storyTitle: b.storyTitle != null ? String(b.storyTitle).slice(0, 300) : null,
+    hook: hook.slice(0, 500),
+    script: script.slice(0, 4000),
+    caption: b.caption != null ? String(b.caption).slice(0, 2000) : null,
+    hashtags,
+    artPick: b.artPick != null ? String(b.artPick).slice(0, 500) : null,
+    cta: b.cta != null ? String(b.cta).slice(0, 500) : null,
+    dropKey: b.dropKey != null ? String(b.dropKey).slice(0, 60) : null,
+    edition
+  });
+  console.log(`[newsroom] social draft filed: #${draft.id} ${platform} "${String(draft.storyTitle || '').slice(0, 50)}"`);
+  res.status(201).json({ draft });
 });
 
 // -------------- GIZMO NEWSROOM ROSTER SYNC --------------
