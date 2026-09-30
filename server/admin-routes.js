@@ -695,138 +695,6 @@ router.post('/bootstrap-admin', async (req, res) => {
   res.status(201).json({ ok: true, user: db.findUserById(user.id) });
 });
 
-// -------------------- ANTIGRAVITY WORKSPACE --------------------
-router.get('/antigravity/status', (req, res) => {
-  try {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    const manifest = readManifest();
-    const articles = manifest.articles || [];
-    const queued = db.listQueuedStories({ limit: 1000 }) || [];
-    
-    // Resolve today's date dynamically in Eastern Time YYYY-MM-DD
-    const options = { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' };
-    const parts = new Intl.DateTimeFormat('en-US', options).formatToParts(new Date());
-    const month = parts.find(p => p.type === 'month').value;
-    const day = parts.find(p => p.type === 'day').value;
-    const year = parts.find(p => p.type === 'year').value;
-    const today = `${year}-${month}-${day}`;
-
-    res.json({
-      today,
-      articles,
-      queued
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-router.post('/antigravity/generate-drops', (req, res) => {
-  try {
-    const { generateEmergencyDrops } = require('./antigravity-service');
-    const result = generateEmergencyDrops();
-    logAction(req.adminUser.id, 'antigravity.generate-drops', 'story', null, { count: result.count });
-    res.json({ ok: true, count: result.count });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-router.post('/antigravity/schedule-custom-drop', async (req, res) => {
-  try {
-    const { targetDay, edition } = req.body;
-    if (!targetDay || !edition) {
-      return res.status(400).json({ error: 'Missing targetDay or edition.' });
-    }
-
-    const { DatabaseSync } = require('node:sqlite');
-    const { DB_PATH } = require('./storage');
-    const { generateEmergencyDrops } = require('./antigravity-service');
-    const { generateImageForArticle } = require('./comfy-generator');
-    
-    const rawDb = new DatabaseSync(DB_PATH);
-    
-    // 1. Clear any non-published queued stories
-    rawDb.prepare("DELETE FROM queued_stories WHERE status != 'published'").run();
-    
-    // 2. Generate 13 fresh emergency drafts (inserted in 'approved' status)
-    const genResult = generateEmergencyDrops();
-    
-    // 3. Resolve target date (relative to server time)
-    const target = new Date();
-    if (targetDay === 'tomorrow') {
-      target.setDate(target.getDate() + 1);
-    }
-    
-    const year = target.getFullYear();
-    const month = String(target.getMonth() + 1).padStart(2, '0');
-    const day = String(target.getDate()).padStart(2, '0');
-    const targetDate = `${year}-${month}-${day}`;
-    
-    // Resolve time
-    let timeET, timeUTC;
-    if (edition === 'morning') {
-      timeET = `${targetDate}T10:15:00-04:00`;
-      timeUTC = `${targetDate}T14:15:00.000Z`;
-    } else if (edition === 'midday') {
-      timeET = `${targetDate}T14:15:00-04:00`;
-      timeUTC = `${targetDate}T18:15:00.000Z`;
-    } else if (edition === 'evening') {
-      timeET = `${targetDate}T18:15:00-04:00`;
-      timeUTC = `${targetDate}T22:15:00.000Z`;
-    } else {
-      return res.status(400).json({ error: 'Invalid edition value.' });
-    }
-    
-    const approvedRows = rawDb.prepare("SELECT id, payload FROM queued_stories WHERE status = 'approved'").all();
-    
-    for (const row of approvedRows) {
-      const payload = JSON.parse(row.payload);
-      payload.date = targetDate;
-      payload.publishedAt = timeET;
-      payload.id = `${targetDate}-${payload.cat}-${edition}`;
-      payload.edition = edition;
-      
-      const dayNum = parseInt(day, 10) || 1;
-      let editionOffset = 0;
-      if (edition === 'midday') editionOffset = 1;
-      else if (edition === 'evening') editionOffset = 2;
-      
-      let customImg = null;
-      if (payload.cat !== 'skynet' && payload.cat !== 'network') {
-        try {
-          const subDirName = `${targetDate}-${edition}`;
-          customImg = await generateImageForArticle(payload.cat, payload.title, subDirName);
-        } catch (e) {
-          console.warn(`[admin-routes] ComfyUI generation failed for ${payload.cat}:`, e.message);
-        }
-      }
-      
-      if (customImg) {
-        payload.heroImage = `/assets/img/channels/${payload.cat}/${customImg}`;
-      } else {
-        const imgIndex = (((dayNum * 3) + editionOffset) % 30) + 1;
-        payload.heroImage = `/assets/img/channels/${payload.cat}/${imgIndex}.jpg`;
-      }
-      
-      rawDb.prepare(`
-        UPDATE queued_stories 
-           SET status = 'scheduled',
-               publish_at = ?,
-               edition = ?,
-               payload = ?,
-               updated_at = datetime('now')
-         WHERE id = ?
-      `).run(timeUTC, edition, JSON.stringify(payload), row.id);
-    }
-    
-    logAction(req.adminUser.id, 'antigravity.schedule-custom-drop', 'story', null, { date: targetDate, edition });
-    res.json({ ok: true, count: approvedRows.length, targetDate, edition, timeET });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 // GET /admin/images/list — returns list of images inside channel subfolders (merged recursively from ComfyUI outputs, users folder, and repo)
 router.get('/images/list', (req, res) => {
   try {
@@ -1246,7 +1114,7 @@ router.delete('/stories/published/:id', (req, res) => {
   }
 });
 
-router.post('/antigravity/run-maintenance', (req, res) => {
+router.post('/system/run-maintenance', (req, res) => {
   try {
     const { DatabaseSync } = require('node:sqlite');
     const { DB_PATH } = require('./storage');
@@ -1262,7 +1130,7 @@ router.post('/antigravity/run-maintenance', (req, res) => {
     // 3. Run SQLite VACUUM to shrink size
     rawDb.exec("VACUUM;");
     
-    logAction(req.adminUser.id, 'antigravity.run-maintenance', 'system', null, { deletedSessions: delSessions.changes });
+    logAction(req.adminUser.id, 'system.run-maintenance', 'system', null, { deletedSessions: delSessions.changes });
     res.json({ ok: true, deletedSessionsCount: delSessions.changes });
   } catch (err) {
     res.status(500).json({ error: err.message });

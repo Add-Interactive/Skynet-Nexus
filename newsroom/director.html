@@ -535,79 +535,6 @@
 
 </div>
 
-<!-- ANTIGRAVITY MODAL -->
-<div id="antigravity-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px); border: 2px solid #ff2e63;">
-  <div class="modal-card" style="width: 100%; max-width: 600px; background: #000; border: 2px solid #ff2e63; border-radius: 8px; box-shadow: 0 0 30px rgba(255, 46, 99, 0.4); display: flex; flex-direction: column; max-height: 90vh;">
-    <div style="padding: 16px; border-bottom: 1px dashed #ff2e63; display: flex; justify-content: space-between; align-items: center;">
-      <span style="font-weight: 900; color: #ff2e63; font-size: 14px;">👾 ANTIGRAVITY SUBMISSION PROTOCOL</span>
-      <button id="btn-close-console" style="background: transparent; border: none; color: #ff2e63; font-size: 18px; cursor: pointer;">✕</button>
-    </div>
-    <form id="console-form" style="padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #00ff41;">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <label style="display: flex; flex-direction: column; gap: 4px;">
-          <span>Channel / Category</span>
-          <select id="sub-channel" required style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit;">
-            <option value="ai">ai (Dr. Nova Sterling)</option>
-            <option value="space">space (Commander Leo Vance)</option>
-            <option value="robotics">robotics (Jax Henderson)</option>
-            <option value="biotech">biotech (Dr. Sage Rivers)</option>
-            <option value="quantum">quantum (Zephyr Thorne)</option>
-            <option value="climate">climate (Terra Green)</option>
-            <option value="engineering">engineering (Mason Rivet)</option>
-            <option value="math">math (Adara Matrix)</option>
-            <option value="cyber">cyber (Cipher Crypt)</option>
-            <option value="gaming">gaming (Leo Pixel)</option>
-            <option value="music">music (Aria Harmony)</option>
-            <option value="play">play (Amara Okafor)</option>
-            <option value="stem">stem (Priya Ramanathan)</option>
-            <option value="skynet">skynet (Jeffrey Hunt)</option>
-          </select>
-        </label>
-        <label style="display: flex; flex-direction: column; gap: 4px;">
-          <span>Age Band</span>
-          <select id="sub-age" style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit;">
-            <option value="5+">5+</option>
-            <option value="8+">8+</option>
-            <option value="12+">12+</option>
-          </select>
-        </label>
-      </div>
-      <label style="display: flex; flex-direction: column; gap: 4px;">
-        <span>Article Title</span>
-        <input type="text" id="sub-title" required placeholder="e.g. 16-Year-Old Launches Satellite..." style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit;">
-      </label>
-      <label style="display: flex; flex-direction: column; gap: 4px;">
-        <span>Subtitle</span>
-        <input type="text" id="sub-subtitle" placeholder="Catchy supporting hook line..." style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit;">
-      </label>
-      <label style="display: flex; flex-direction: column; gap: 4px;">
-        <span>Summary / Excerpt</span>
-        <input type="text" id="sub-excerpt" required placeholder="1-2 sentences summarizing..." style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit;">
-      </label>
-      <label style="display: flex; flex-direction: column; gap: 4px;">
-        <span>Body Content (HTML paragraphs)</span>
-        <textarea id="sub-body" rows="6" required placeholder="&lt;p&gt;Start writing here...&lt;/p&gt;" style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit; resize: vertical;"></textarea>
-      </label>
-      <label style="display: flex; flex-direction: column; gap: 4px;">
-        <span>Kid's Take (Friendly summary)</span>
-        <textarea id="sub-kidtake" rows="2" required placeholder="Simple explanation for kids..." style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit; resize: vertical;"></textarea>
-      </label>
-      <label style="display: flex; flex-direction: column; gap: 4px;">
-        <span>Family Discussion Questions (one per line)</span>
-        <textarea id="sub-discussion" rows="2" placeholder="Question 1&#10;Question 2" style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit; resize: vertical;"></textarea>
-      </label>
-      <label style="display: flex; flex-direction: column; gap: 4px;">
-        <span>Glossary Terms (format: 'Term: Definition', one per line)</span>
-        <textarea id="sub-glossary" rows="2" placeholder="Superposition: Being in multiple states at once" style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit; resize: vertical;"></textarea>
-      </label>
-      <label style="display: flex; flex-direction: column; gap: 4px;">
-        <span>Tags (comma-separated)</span>
-        <input type="text" id="sub-tags" placeholder="space, satellite, education" style="background: #111; border: 1px solid #00ff41; color: #00ff41; padding: 6px; font-family: inherit;">
-      </label>
-      <button type="submit" class="btn-action" style="margin-top: 10px; border-color: #ff2e63; color: #ff2e63; padding: 12px; font-size: 11px;">👾 TRANSMIT STORY TO SKYNET QUEUE</button>
-    </form>
-  </div>
-</div>
 
 <!-- STORY READER MODAL -->
 <div id="story-reader-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1001; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px); border: 2px solid var(--lcars-gold);">
@@ -706,11 +633,6 @@
         '<div class="kpi-card"><div class="kpi-label">Drafts</div><div class="kpi-value">' + (queued.draft || 0) + '</div><div class="kpi-sub">Pending editorial review</div></div>' +
         '<div class="kpi-card"><div class="kpi-label">Approved</div><div class="kpi-value">' + (queued.approved || 0) + '</div><div class="kpi-sub">Ready to publish</div></div>' +
         '<div class="kpi-card"><div class="kpi-label">Published Today</div><div class="kpi-value">' + (articles.today || 0) + '</div><div class="kpi-sub">Live on feed</div></div>' +
-        '<button class="btn-action" id="btn-open-console" style="width: 100%; margin-top: auto; background: var(--lcars-gold); color: #000;">👾 OPEN ANTIGRAVITY CONSOLE</button>';
-
-      document.getElementById('btn-open-console').addEventListener('click', function () {
-        document.getElementById('antigravity-modal').style.display = 'flex';
-      });
 
       // Update Queue Status panel
       var queuePanel = document.querySelector('.queue-status');
@@ -1036,102 +958,6 @@
     });
   });
 
-  document.getElementById('btn-close-console').addEventListener('click', function () {
-    document.getElementById('antigravity-modal').style.display = 'none';
-  });
-
-  document.getElementById('console-form').addEventListener('submit', function (e) {
-    e.preventDefault();
-    var submitBtn = this.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'TRANSMITTING SIGNAL...';
-
-    var channel = document.getElementById('sub-channel').value;
-    var age = document.getElementById('sub-age').value;
-    var title = document.getElementById('sub-title').value.trim();
-    var subtitle = document.getElementById('sub-subtitle').value.trim();
-    var excerpt = document.getElementById('sub-excerpt').value.trim();
-    var body = document.getElementById('sub-body').value.trim();
-    var kidtake = document.getElementById('sub-kidtake').value.trim();
-    
-    var discussion = document.getElementById('sub-discussion').value.split('\n')
-      .map(function(s) { return s.trim(); }).filter(Boolean);
-    
-    var glossary = document.getElementById('sub-glossary').value.split('\n')
-      .map(function(s) {
-        var parts = s.split(':');
-        if (parts.length < 2) return null;
-        return { term: parts[0].trim(), meaning: parts.slice(1).join(':').trim() };
-      }).filter(Boolean);
-
-    var tags = document.getElementById('sub-tags').value.split(',')
-      .map(function(s) { return s.trim(); }).filter(Boolean);
-
-    var staffSlugs = {
-      ai: 'agent-ai', space: 'agent-space', robotics: 'agent-robotics',
-      biotech: 'agent-biotech', quantum: 'agent-quantum', climate: 'agent-climate',
-      engineering: 'agent-engineering', math: 'agent-math', cyber: 'agent-cyber',
-      gaming: 'agent-gaming', music: 'agent-music', play: 'play', stem: 'stem', skynet: 'jeffrey-hunt'
-    };
-
-    fetchAPI('/admin/staff').then(function (r) {
-      var staffList = r.staff || [];
-      var slug = staffSlugs[channel] || 'jeffrey-hunt';
-      var st = staffList.find(function(x) { return x.slug === slug; }) || { id: 18, displayName: 'Jeffrey Hunt', role: 'Admin & Editor-in-Chief' };
-
-      var payload = {
-        id: new Date().toISOString().slice(0,10) + '-' + channel + '-manual',
-        slug: channel + '-manual',
-        cat: channel,
-        categoryLabel: st.role.replace('Correspondent - ', '').replace('Correspondent — ', ''),
-        title: title,
-        subtitle: subtitle,
-        excerpt: excerpt,
-        body: body,
-        kidTake: kidtake,
-        familyDiscussion: discussion,
-        glossary: glossary,
-        ageBand: age,
-        author: st.displayName,
-        authorInit: st.displayName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
-        authorRole: st.role,
-        date: new Date().toISOString().slice(0,10),
-        publishedAt: new Date().toISOString(),
-        read: Math.max(2, Math.ceil(body.replace(/<[^>]+>/g, ' ').split(/\s+/).length / 220)),
-        views: 0,
-        likes: 0,
-        comments: 0,
-        shares: 0,
-        tags: tags,
-        color: st.accentColor || '#ff2e63',
-        emoji: st.avatarEmoji || '👾',
-        featured: false,
-        pinned: false,
-        live: false,
-        sources: [{ label: 'Skynet Manual Submission', url: 'https://www.example.com/' }]
-      };
-
-      return fetchAPI('/admin/stories/queue', {
-        method: 'POST',
-        body: {
-          staffId: st.id,
-          channel: channel,
-          payload: payload,
-          status: 'approved'
-        }
-      });
-    }).then(function () {
-      alert('Story successfully queued!');
-      document.getElementById('antigravity-modal').style.display = 'none';
-      document.getElementById('console-form').reset();
-      loadDashboard();
-    }).catch(function (err) {
-      alert('Error: ' + err.message);
-    }).finally(function () {
-      submitBtn.disabled = false;
-      submitBtn.textContent = '👾 TRANSMIT STORY TO SKYNET QUEUE';
-    });
-  });
 
   function updateTime() {
     const now = new Date();

@@ -15,7 +15,7 @@ const https = require('https');
 // Load .env if present (super minimal parser, no dep)
 function loadDotEnv() {
   const candidates = [
-    path.join('C:\\Users\\bekin\\.openclaw\\workspace', '.env'),
+    path.join(__dirname, '..', '.env'),
     path.join(process.cwd(), '.env')
   ];
   for (const p of candidates) {
@@ -38,7 +38,7 @@ function braveRequest(endpoint, params) {
   return new Promise((resolve, reject) => {
     const key = process.env.BRAVE_API_KEY;
     if (!key) {
-      return reject(new Error('BRAVE_API_KEY not set. Add it to C:\\Users\\bekin\\.openclaw\\workspace\\.env'));
+      return reject(new Error('BRAVE_API_KEY not set. Add it to the repo .env (see .env.example) or the BRAVE_API_KEY env var.'));
     }
     const qs = Object.entries(params)
       .filter(([, v]) => v != null && v !== '')

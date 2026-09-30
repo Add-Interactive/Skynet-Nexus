@@ -81,34 +81,46 @@ function scheduleInfo() {
   };
 }
 
-// Release any scheduled stories that are now due.
-async function releaseDue() {
-  let due = [];
-  try { due = db.listDueScheduledStories(new Date().toISOString()); }
-  catch (e) { console.warn('[scheduler] query failed:', e.message); return; }
-  for (const story of due) {
-    try {
-      const result = await publishPayload(story.payload, `drop-${story.id}`);
-      if (result.code === 0) {
-        db.updateQueuedStory({
-          id: story.id, status: 'published',
-          publishedArticleId: result.articleId, publishedAt: new Date().toISOString()
+// Publish one queued story payload through the publish pipeline.
+async function releaseStory(story, via) {
+  try {
+    const result = await publishPayload(story.payload, `drop-${story.id}`);
+    if (result.code === 0) {
+      db.updateQueuedStory({
+        id: story.id, status: 'published',
+        publishedArticleId: result.articleId, publishedAt: new Date().toISOString(),
+        editorNotes: via === 'auto' ? '[scheduler] auto-published at drop (no director review)' : undefined
+      });
+      if (story.submissionId) {
+        db.updateSubmission({
+          id: story.submissionId, status: 'published',
+          reviewedAt: new Date().toISOString(), resultingStoryId: result.articleId
         });
-        if (story.submissionId) {
-          db.updateSubmission({
-            id: story.submissionId, status: 'published',
-            reviewedAt: new Date().toISOString(), resultingStoryId: result.articleId
-          });
-        }
-        console.log(`[scheduler] released queued story #${story.id} -> ${result.articleId || '(unknown id)'}`);
-      } else {
-        db.updateQueuedStory({ id: story.id, status: 'draft', editorNotes: '[scheduler] publish failed, returned to drafts: ' + (result.stderr || '').slice(0, 300) });
-        console.warn(`[scheduler] publish failed for #${story.id} (code ${result.code}); returned to drafts`);
       }
-    } catch (e) {
-      console.warn(`[scheduler] release error for #${story.id}:`, e.message);
+      console.log(`[scheduler] released queued story #${story.id} -> ${result.articleId || '(unknown id)'} (${via})`);
+    } else {
+      db.updateQueuedStory({ id: story.id, status: 'draft', clearDrop: true, editorNotes: '[scheduler] publish failed, drop stamp cleared — awaiting director: ' + (result.stderr || '').slice(0, 300) });
+      console.warn(`[scheduler] publish failed for #${story.id} (code ${result.code}); returned to drafts`);
     }
+  } catch (e) {
+    console.warn(`[scheduler] release error for #${story.id}:`, e.message);
   }
+}
+
+// Release any scheduled stories that are now due, then auto-publish any
+// drafts stamped for a drop whose time has come. The director's review is a
+// courtesy: unreviewed drafts still go out on time. Rejected stories never
+// auto-publish.
+async function releaseDue() {
+  const nowIso = new Date().toISOString();
+  let due = [];
+  try { due = db.listDueScheduledStories(nowIso); }
+  catch (e) { console.warn('[scheduler] query failed:', e.message); return; }
+  for (const story of due) { await releaseStory(story, 'scheduled'); }
+  let drafts = [];
+  try { drafts = db.listDueDraftStories(nowIso); }
+  catch (e) { console.warn('[scheduler] draft query failed:', e.message); return; }
+  for (const story of drafts) { await releaseStory(story, 'auto'); }
 }
 
 let _timer = null;
