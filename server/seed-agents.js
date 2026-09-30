@@ -40,7 +40,7 @@ function seedAgents() {
         existing.role !== fields.role ||
         existing.byline !== fields.byline
       ) {
-        updateStaff(existing.id, fields);
+        updateStaff(Object.assign({ id: existing.id }, fields));
         result.updated++;
         console.log(`[seed-agents] Updated agent: ${agent.displayName} (${agent.slug})`);
       } else {
