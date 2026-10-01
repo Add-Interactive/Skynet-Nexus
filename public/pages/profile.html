@@ -29,6 +29,17 @@
     }
     .sky-emoji-swatch:hover { background: rgba(0,229,255,.1); }
     .sky-emoji-swatch.active { border-color: #00e5ff; background: rgba(0,229,255,.15); }
+    .sky-style-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .sky-style-option {
+      flex: 1 1 0; min-width: 150px; padding: 10px 12px; border-radius: 10px;
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1);
+      cursor: pointer; color: var(--text,#e6ecf3); text-align: center; font-family: Inter, sans-serif;
+    }
+    .sky-style-option:hover { background: rgba(0,229,255,.1); }
+    .sky-style-option.active { border-color: #00e5ff; background: rgba(0,229,255,.15); }
+    .sky-style-option .so-emoji { display: block; font-size: 22px; margin-bottom: 4px; }
+    .sky-style-option .so-title { display: block; font-weight: 700; font-size: 13px; margin-bottom: 3px; }
+    .sky-style-option .so-desc { display: block; font-weight: 500; font-size: 11px; line-height: 1.35; color: var(--muted,#7c8898); }
   </style>
 
   <!-- Open Graph + link discovery (added by polish pass) -->
@@ -260,6 +271,14 @@
                   ${EMOJIS.map(e => `<button type="button" class="sky-emoji-swatch ${(existing && existing.avatarEmoji === e) || (!existing && e === '🚀') ? 'active' : ''}" data-e="${e}">${e}</button>`).join('')}
                 </div>
               </div>
+              <div class="sky-field">
+                <label>Correspondent style</label>
+                <div class="sky-style-picker" id="km-styles">
+                  <button type="button" class="sky-style-option ${(existing && (existing.correspondentStyle || 'human') === 'human') || (!existing) ? 'active' : ''}" data-s="human"><span class="so-emoji">🧑</span><span class="so-title">Humans</span><span class="so-desc">Friendly reporters, drawn as people</span></button>
+                  <button type="button" class="sky-style-option ${(existing && existing.correspondentStyle === 'animal') ? 'active' : ''}" data-s="animal"><span class="so-emoji">🐾</span><span class="so-title">Animals</span><span class="so-desc">The crew as cute animal mascots</span></button>
+                  <button type="button" class="sky-style-option ${(existing && existing.correspondentStyle === 'skynet') ? 'active' : ''}" data-s="skynet"><span class="so-emoji">🤖</span><span class="so-title">Skynet Agents</span><span class="so-desc">The crew as friendly robots</span></button>
+                </div>
+              </div>
               <button type="submit" class="sky-btn-block">${isEdit ? 'Save profile' : 'Add profile'}</button>
               <button type="button" class="sky-btn" id="km-cancel" style="margin-top:8px;width:100%">Cancel</button>
             </form>
@@ -283,6 +302,12 @@
           overlay.querySelectorAll('#km-emojis .sky-emoji-swatch').forEach(s => s.classList.remove('active'));
           b.classList.add('active'); selEmoji = b.getAttribute('data-e');
         });
+        let selStyle = existing ? (existing.correspondentStyle || 'human') : 'human';
+        overlay.querySelector('#km-styles').addEventListener('click', (e) => {
+          const b = e.target.closest('.sky-style-option'); if (!b) return;
+          overlay.querySelectorAll('#km-styles .sky-style-option').forEach(s => s.classList.remove('active'));
+          b.classList.add('active'); selStyle = b.getAttribute('data-s');
+        });
 
         overlay.querySelector('#kid-modal-form').addEventListener('submit', async (e) => {
           e.preventDefault();
@@ -292,7 +317,8 @@
             name: overlay.querySelector('#km-name').value.trim(),
             birthYear: Number(overlay.querySelector('#km-year').value),
             avatarColor: selColor,
-            avatarEmoji: selEmoji
+            avatarEmoji: selEmoji,
+            correspondentStyle: selStyle
           };
           const url = isEdit ? '/api/kids/' + existing.id : '/api/kids';
           const method = isEdit ? 'PATCH' : 'POST';
