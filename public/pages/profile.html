@@ -133,6 +133,42 @@
             </div>
           </div>
 
+          ${state.user && (state.user.role === 'teacher' || state.user.role === 'admin') ? `
+          <div class="sky-profile-section">
+            <h2>🏫 Classroom</h2>
+            <p class="sub">Group your students into classes, track their reading, and run article discussions.</p>
+            <a href="/pages/classroom.html" class="sky-btn" style="display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:999px;border:1px solid rgba(0,229,255,.45);background:rgba(0,229,255,.08);color:#e6ecf3;font:700 14px/1 Inter,sans-serif;text-decoration:none">Open Classroom →</a>
+          </div>` : ''}
+
+          <div class="sky-profile-section">
+            <h2>🏆 Junior Correspondent</h2>
+            <p class="sub">Reading XP, levels, streaks, and badges — one progress card per kid. Earn XP by finishing the reading steps on any story.</p>
+            <div id="sky-gam-cards" style="display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
+              ${state.kids.map(k => `
+                <div class="sky-gam-card" data-gam-kid="${k.id}" style="border:1px solid var(--border,rgba(255,255,255,.1));border-radius:14px;padding:16px;background:rgba(255,255,255,.02)">
+                  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                    <span style="width:38px;height:38px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:20px;background:${k.avatarColor}">${k.avatarEmoji || escape(k.name.slice(0,2).toUpperCase())}</span>
+                    <div><div style="font-weight:800">${escape(k.name)}</div><div class="gam-level-line" style="font-size:13px;color:#9aa7bd">Loading…</div></div>
+                    <div class="gam-streak" style="margin-left:auto;font-size:14px;color:#9aa7bd"></div>
+                  </div>
+                  <div style="height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin-bottom:6px"><div class="gam-xpbar" style="height:100%;width:0%;background:linear-gradient(90deg,#00e5ff,#39ff14);border-radius:99px;transition:width .5s"></div></div>
+                  <div class="gam-xp-line" style="font-size:12px;color:#7c8898;margin-bottom:10px"></div>
+                  <div class="gam-badges" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+                </div>`).join('') || '<p class="sub">Add a kid profile above to start earning.</p>'}
+            </div>
+          </div>
+
+          <div class="sky-profile-section">
+            <h2>🌟 Grown-up progress</h2>
+            <p class="sub">You earn XP too — co-reading stories with kids and hosting class discussions.</p>
+            <div id="sky-grownup-card" style="border:1px solid var(--border,rgba(255,255,255,.1));border-radius:14px;padding:16px;background:rgba(255,255,255,.02);max-width:420px">
+              <div class="gam-level-line" style="font-weight:800;margin-bottom:10px">Loading…</div>
+              <div style="height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin-bottom:6px"><div class="gam-xpbar" style="height:100%;width:0%;background:linear-gradient(90deg,#b388ff,#00e5ff);border-radius:99px;transition:width .5s"></div></div>
+              <div class="gam-xp-line" style="font-size:12px;color:#7c8898;margin-bottom:10px"></div>
+              <div class="gam-badges" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+            </div>
+          </div>
+
           <div class="sky-profile-section">
             <h2>Your account</h2>
             <p class="sub">Change your display name, password, or the correspondent art style used when no kid profile is active.</p>
@@ -217,6 +253,53 @@
         document.getElementById('sky-logout-btn').addEventListener('click', () => SkyAuth.logout());
 
         // Account-level correspondent style picker (instant toggle, saved with the form)
+        // Junior Correspondent progress cards — one per kid.
+        document.querySelectorAll('.sky-gam-card').forEach(async (card) => {
+          const kidId = card.getAttribute('data-gam-kid');
+          try {
+            const res = await fetch('/api/gamification/status?kid_id=' + kidId, { credentials: 'same-origin' });
+            if (!res.ok) throw new Error('status ' + res.status);
+            const st = await res.json();
+            const lvl = st.level;
+            card.querySelector('.gam-level-line').textContent = lvl.emoji + ' ' + lvl.name;
+            card.querySelector('.gam-xpbar').style.width = Math.round(lvl.progress * 100) + '%';
+            card.querySelector('.gam-xp-line').textContent = st.xp.toLocaleString() + ' XP' +
+              (lvl.xpForNext != null ? ' · ' + (lvl.xpForNext - st.xp) + ' to next level' : ' · max level!');
+            card.querySelector('.gam-streak').textContent = st.streak > 0 ? '🔥 ' + st.streak + ' day' + (st.streak === 1 ? '' : 's') : '';
+            card.querySelector('.gam-streak').title = 'Reading streak';
+            const badgesEl = card.querySelector('.gam-badges');
+            const earned = st.badges.filter(b => b.earned);
+            badgesEl.innerHTML = earned.length
+              ? earned.map(b => `<span title="${escape(b.name)} — ${escape(b.desc)}" style="font-size:22px;cursor:default">${b.emoji}</span>`).join('') +
+                `<span style="font-size:12px;color:#7c8898;align-self:center">${earned.length}/${st.badgeTotal} badges</span>`
+              : '<span style="font-size:12px;color:#7c8898">No badges yet — finish a story to earn the first!</span>';
+          } catch (e) {
+            card.querySelector('.gam-level-line').textContent = 'Progress unavailable';
+          }
+        });
+
+        // Grown-up progress card.
+        (async () => {
+          const card = document.getElementById('sky-grownup-card');
+          if (!card) return;
+          try {
+            const res = await fetch('/api/gamification/grownup', { credentials: 'same-origin' });
+            if (!res.ok) throw new Error('status ' + res.status);
+            const st = await res.json();
+            const lvl = st.level;
+            card.querySelector('.gam-level-line').textContent = lvl.emoji + ' ' + lvl.name;
+            card.querySelector('.gam-xpbar').style.width = Math.round(lvl.progress * 100) + '%';
+            card.querySelector('.gam-xp-line').textContent = st.xp.toLocaleString() + ' XP' +
+              (lvl.xpForNext != null ? ' · ' + (lvl.xpForNext - st.xp) + ' to next level' : ' · max level!');
+            const earned = st.badges.filter(b => b.earned);
+            card.querySelector('.gam-badges').innerHTML = earned.length
+              ? earned.map(b => `<span title="${escape(b.name)} — ${escape(b.desc)}" style="font-size:22px;cursor:default">${b.emoji}</span>`).join('')
+              : '<span style="font-size:12px;color:#7c8898">Co-read a story or host a discussion to start earning.</span>';
+          } catch (e) {
+            card.querySelector('.gam-level-line').textContent = 'Progress unavailable';
+          }
+        })();
+
         document.getElementById('acc-style-options')?.addEventListener('click', (e) => {
           const btn = e.target.closest('.sky-style-option'); if (!btn) return;
           document.querySelectorAll('#acc-style-options .sky-style-option').forEach(b => b.classList.remove('active'));
