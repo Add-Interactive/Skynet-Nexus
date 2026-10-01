@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Meet the Correspondents — Skynet Nexus News</title>
+  <meta name="description" content="Meet the 13 Skynet Nexus correspondents — the reporters behind your favorite stories. See them as humans, animal mascots, or Skynet Agents."/>
+  <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261001-1"/>
+  <link rel="stylesheet" href="/assets/css/auth.css"/>
+  <style>
+    .corr-switcher { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 22px; }
+    .corr-switcher .chip { font-size: 14px; padding: 10px 18px; }
+    .corr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .corr-card {
+      background: var(--card, rgba(255,255,255,.03));
+      border: 1px solid var(--border, rgba(255,255,255,.08));
+      border-radius: 16px; padding: 22px; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+    }
+    .corr-portrait {
+      width: 150px; height: 150px; border-radius: 50%; object-fit: cover;
+      border: 3px solid var(--pc, #00e5ff);
+      box-shadow: 0 0 22px color-mix(in srgb, var(--pc, #00e5ff) 45%, transparent);
+      background: #0a0e17;
+    }
+    .corr-name { margin: 0; font: 800 19px/1.25 Inter, sans-serif; color: var(--text, #e6ecf3); }
+    .corr-channel {
+      font: 700 11px/1 Inter, sans-serif; text-transform: uppercase; letter-spacing: .08em;
+      padding: 6px 12px; border-radius: 999px; color: #0a0e17; background: var(--pc, #00e5ff);
+    }
+    .corr-bio { margin: 0; font: 500 14px/1.55 Inter, sans-serif; color: var(--muted, #9aa7bd); }
+    .corr-funfact {
+      margin: 4px 0 0; padding: 10px 14px; border-radius: 10px;
+      background: rgba(0,229,255,.06); border: 1px dashed rgba(0,229,255,.35);
+      font: 500 13px/1.5 Inter, sans-serif; color: var(--text, #e6ecf3); text-align: left; width: 100%;
+      box-sizing: border-box;
+    }
+    .corr-funfact strong { color: #00e5ff; }
+    .corr-state { grid-column: 1 / -1; text-align: center; padding: 48px 20px; color: var(--muted, #9aa7bd); }
+    .corr-state h3 { color: var(--text, #e6ecf3); margin: 0 0 8px; }
+  </style>
+
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="Skynet Nexus News"/>
+  <meta property="og:title" content="Meet the Correspondents - Skynet Nexus News"/>
+  <meta property="og:description" content="The reporters behind your favorite stories — pick how you want to see them!"/>
+  <meta property="og:url" content="https://skynet-nexus-production.up.railway.app/pages/team.html"/>
+  <meta property="og:image" content="https://skynet-nexus-production.up.railway.app/assets/img/og-cover.png"/>
+  <meta name="theme-color" content="#0a0e17" media="(prefers-color-scheme: dark)"/>
+  <meta name="theme-color" content="#f0f4ff" media="(prefers-color-scheme: light)"/>
+  <link rel="canonical" href="https://skynet-nexus-production.up.railway.app/pages/team.html"/>
+  <link rel="alternate" type="application/rss+xml" title="Skynet Nexus News RSS" href="/rss.xml"/>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="../index.html" class="brand" aria-label="Skynet Nexus News">
+        <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00e5ff"/><stop offset="100%" stop-color="#a855f7"/></linearGradient></defs>
+          <path d="M20 3l14 8v18l-14 8L6 29V11z" fill="none" stroke="url(#lg1)" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M20 12l7 4v8l-7 4-7-4v-8z" fill="url(#lg1)" opacity=".95"/>
+          <circle cx="20" cy="20" r="2.5" fill="#0a0e17"/>
+        </svg>
+        <div>
+          <div class="brand-name">SKYNET NEXUS</div>
+          <div class="brand-tag">Family Signal</div>
+        </div>
+      </a>
+      <div class="search-wrap">
+        <span id="ic-search"></span>
+        <input id="global-search" type="search" placeholder="Search stories, artists, teams, tags..."/>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn only-mobile" id="menu-toggle" aria-label="Menu"><span id="ic-menu"></span></button>
+        <button class="icon-btn" id="theme-toggle" aria-label="Toggle theme"></button>
+        <div class="sky-user-slot"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="ticker"><div id="ticker-inner" class="ticker-inner"></div></div>
+
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="side-section">
+        <div class="side-title">Feed</div>
+        <ul class="nav-list">
+          <li><a href="../index.html"><span class="icon" id="nav-home"></span><span>Home</span></a></li>
+          <li><a href="../index.html#trending"><span class="icon" id="nav-flame"></span><span>Trending</span></a></li>
+          <li><a href="events.html"><span class="icon" id="nav-events"></span><span>Events</span></a></li>
+          <li><a href="leaderboard.html"><span class="icon" id="nav-trophy"></span><span>Leaderboard</span></a></li>
+          <li><a href="summer.html"><span class="icon">🏕️</span><span>Summer STEM</span></a></li>
+          <li><a href="archive.html"><span class="icon">📚</span><span>Archive</span></a></li>
+          <li><a href="team.html" class="active"><span class="icon" id="nav-team"></span><span>Meet the Team</span></a></li>
+        </ul>
+      </div>
+      <div class="side-section">
+        <div class="side-title">Channels</div>
+        <ul class="nav-list"></ul>
+      </div>
+      <div class="side-section">
+        <div class="side-title">You</div>
+        <ul class="nav-list">
+          <li><a href="about.html"><span class="icon" id="nav-info"></span><span>About</span></a></li>
+          <li><a href="contact.html"><span class="icon" id="nav-mail"></span><span>Contact</span></a></li>
+        </ul>
+      </div>
+      <div class="side-section"><div class="sky-intro-slot"></div></div>
+      <div class="side-section"><div class="sky-user-card-slot"></div></div>
+    </aside>
+
+    <main class="main">
+      <section class="hero">
+        <span class="kicker">🛰️ The Newsroom Crew</span>
+        <h1>Meet the Correspondents</h1>
+        <p>The reporters behind your favorite stories — pick how you want to see them! Each correspondent covers one channel and files stories for every daily edition. Tap a look below and the whole newsroom changes its style.</p>
+      </section>
+
+      <div class="corr-switcher" role="group" aria-label="Choose correspondent portrait style">
+        <button class="chip" data-style="human" aria-pressed="false">🧑 Humans</button>
+        <button class="chip" data-style="animal" aria-pressed="false">🐾 Animals</button>
+        <button class="chip" data-style="skynet" aria-pressed="false">🤖 Skynet Agents</button>
+      </div>
+
+      <div class="section-title">
+        <h2><span class="accent-bar"></span> <span id="corr-heading">Correspondents</span></h2>
+      </div>
+
+      <section id="corr-grid" class="corr-grid" aria-live="polite"></section>
+
+      <p class="prog-disclaimer">Tip: signed-in kids can pick their favorite style on their <a href="profile.html">family profile</a> and every story byline shows their choice.</p>
+    </main>
+
+    <aside class="right-rail">
+      <div class="widget">
+        <div class="widget-title">Three ways to meet the crew</div>
+        <ul class="prog-howto">
+          <li><strong>Humans</strong> — friendly reporters, drawn as people.</li>
+          <li><strong>Animals</strong> — the crew as cute animal mascots.</li>
+          <li><strong>Skynet Agents</strong> — the crew as friendly robots.</li>
+          <li>Your pick is saved on this device, so the newsroom looks the way you like it every visit.</li>
+        </ul>
+      </div>
+      <div class="widget">
+        <div class="widget-title">Right now <span class="live-dot"></span></div>
+        <div id="stat-tiles" class="stat-tiles"></div>
+      </div>
+      <div class="widget news-card">
+        <div class="widget-title">Get the Wire</div>
+        <p>One family-friendly digest of the best youth achievement stories, every Sunday morning.</p>
+        <form id="newsletter-form">
+          <input type="email" placeholder="you@yourcrew.com" required/>
+          <button type="submit">Join</button>
+        </form>
+      </div>
+    </aside>
+
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <h4>SKYNET NEXUS</h4>
+        <p>The signal for the next generation — built for families. Every story includes a Kid Take and Family Discussion questions. Free forever, no ads targeted at kids.</p>
+      </div>
+      <div class="footer-col"><h5>Explore</h5><ul>
+        <li><a href="feeds.html">STEM Feeds</a></li>
+        <li><a href="creators.html">STEM Creators</a></li>
+        <li><a href="summer.html">Summer STEM</a></li>
+        <li><a href="team.html">Meet the Team</a></li>
+        <li><a href="archive.html">Archive</a></li>
+      </ul></div>
+      <div class="footer-col"><h5>Company</h5><ul>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="/rss.xml">RSS feed</a></li>
+      </ul></div>
+      <div class="footer-col footer-col-partners">
+        <h5>Network</h5>
+        <ul class="partners-list">
+          <li><a href="https://addinteractive.com" target="_blank" rel="noopener"><span class="partner-role">Published by</span><span class="partner-name">Add Interactive Studio</span></a></li>
+          <li><a href="https://stemnexus.org" target="_blank" rel="noopener"><span class="partner-role">In partnership with</span><span class="partner-name">STEM Nexus</span></a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-legal">
+        <span class="footer-parent-line">An <a href="https://addinteractive.com" target="_blank" rel="noopener"><strong>Add Interactive Studio</strong></a> production &middot; In partnership with <a href="https://stemnexus.org" target="_blank" rel="noopener"><strong>STEM Nexus</strong></a></span>
+        <span class="footer-copyright">&copy; 2026 Skynet Nexus News. Free forever, family first.</span>
+      </div>
+      <div class="socials"><a href="contact.html">Story tips &rarr;</a></div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/app.js"></script>
+  <script>
+    const NAV = {
+      'nav-home': ICONS.home, 'nav-flame': ICONS.flame, 'nav-events': ICONS.events,
+      'nav-trophy': ICONS.trophy, 'nav-team': ICONS.users, 'nav-info': ICONS.info, 'nav-mail': ICONS.mail
+    };
+    Object.keys(NAV).forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = NAV[id]; });
+    initSimplePage('../');
+    renderStats(); renderTicker(); renderNewsletter();
+
+    // ---- Meet the Correspondents ----
+    (function () {
+      const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const STORE_KEY = 'skynet.corrStyle';
+      const STYLES = ['human', 'animal', 'skynet'];
+      const STYLE_LABEL = { human: 'Humans', animal: 'Animals', skynet: 'Skynet Agents' };
+      const grid = document.getElementById('corr-grid');
+      const headingEl = document.getElementById('corr-heading');
+      const switcher = document.querySelector('.corr-switcher');
+      const state = { correspondents: [], style: 'human' };
+
+      try {
+        const saved = localStorage.getItem(STORE_KEY);
+        if (STYLES.indexOf(saved) !== -1) state.style = saved;
+      } catch (e) { /* private mode: default style */ }
+
+      function portraitUrl(c, style) {
+        const p = c.portraits || {};
+        return p[style] || p.human || '';
+      }
+
+      function card(c) {
+        const color = esc(c.accentColor || '#00e5ff');
+        const name = esc(c.displayName || c.slug || 'Correspondent');
+        const chan = esc(c.channel || '');
+        const src = esc(portraitUrl(c, state.style));
+        const alt = esc('Portrait of ' + (c.displayName || c.slug || 'a correspondent') + ' in the ' + STYLE_LABEL[state.style] + ' style');
+        const img = src
+          ? '<img class="corr-portrait" data-portrait="' + esc(c.slug) + '" src="' + src + '" alt="' + alt + '" loading="lazy"/>'
+          : '';
+        return '<article class="corr-card" style="--pc:' + color + '">' +
+          img +
+          '<h3 class="corr-name">' + name + '</h3>' +
+          (chan ? '<span class="corr-channel">' + chan + '</span>' : '') +
+          (c.kidBio ? '<p class="corr-bio">' + esc(c.kidBio) + '</p>' : '') +
+          (c.funFact ? '<p class="corr-funfact"><strong>🎉 Fun fact:</strong> ' + esc(c.funFact) + '</p>' : '') +
+        '</article>';
+      }
+
+      function swapPortraits() {
+        grid.querySelectorAll('img[data-portrait]').forEach(img => {
+          const c = state.correspondents.find(x => x.slug === img.getAttribute('data-portrait'));
+          if (!c) return;
+          const src = portraitUrl(c, state.style);
+          if (src) img.src = src;
+          img.alt = 'Portrait of ' + (c.displayName || c.slug) + ' in the ' + STYLE_LABEL[state.style] + ' style';
+        });
+      }
+
+      function paintSwitcher() {
+        switcher.querySelectorAll('.chip').forEach(btn => {
+          const on = btn.getAttribute('data-style') === state.style;
+          btn.classList.toggle('active', on);
+          btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+      }
+
+      function setStyle(style) {
+        if (STYLES.indexOf(style) === -1 || style === state.style) { paintSwitcher(); return; }
+        state.style = style;
+        try { localStorage.setItem(STORE_KEY, style); } catch (e) { /* ignore */ }
+        paintSwitcher();
+        swapPortraits();
+      }
+
+      switcher.addEventListener('click', (e) => {
+        const btn = e.target.closest('.chip'); if (!btn) return;
+        setStyle(btn.getAttribute('data-style'));
+      });
+
+      grid.innerHTML = '<div class="corr-state"><h3>Loading correspondents…</h3><p>Fetching the newsroom crew.</p></div>';
+
+      (async function init() {
+        try {
+          const res = await fetch('/api/correspondents');
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const data = await res.json();
+          state.correspondents = Array.isArray(data.correspondents) ? data.correspondents : [];
+        } catch (e) {
+          grid.innerHTML = '<div class="corr-state"><h3>Oh no — the newsroom is offline!</h3>' +
+            '<p>We couldn\'t load the correspondents right now. Please check your connection and refresh the page.</p></div>';
+          return;
+        }
+        if (!state.correspondents.length) {
+          grid.innerHTML = '<div class="corr-state"><h3>No correspondents yet</h3><p>The newsroom crew is being assembled. Check back soon!</p></div>';
+          return;
+        }
+        headingEl.textContent = state.correspondents.length + ' correspondents';
+        grid.innerHTML = state.correspondents.map(card).join('');
+        paintSwitcher();
+      })();
+    })();
+  </script>
+</body>
+</html>
