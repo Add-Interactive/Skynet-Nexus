@@ -601,7 +601,7 @@ router.delete('/social/queue/:id', (req, res) => {
 
 // -------------------- USERS / ROLES --------------------
 
-const USER_ROLES = ['parent', 'editor', 'admin'];
+const USER_ROLES = ['parent', 'teacher', 'editor', 'admin'];
 
 router.get('/users', requireFullAdmin, (req, res) => {
   const q = String(req.query.q || '').trim();
@@ -623,7 +623,7 @@ router.get('/users/:id', requireFullAdmin, (req, res) => {
 router.patch('/users/:id/role', requireFullAdmin, (req, res) => {
   const id = Number(req.params.id);
   const role = String(req.body.role || '').trim();
-  if (!USER_ROLES.includes(role)) return res.status(400).json({ error: 'role must be parent|editor|admin' });
+  if (!USER_ROLES.includes(role)) return res.status(400).json({ error: 'role must be parent|teacher|editor|admin' });
   const target = db.findUserById(id);
   if (!target) return res.status(404).json({ error: 'not found' });
   // Guard: never leave the site without an admin.
