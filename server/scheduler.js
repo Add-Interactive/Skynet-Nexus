@@ -139,6 +139,16 @@ async function releaseDue() {
   try { drafts = db.listDueDraftStories(nowIso); }
   catch (e) { console.warn('[scheduler] draft query failed:', e.message); return; }
   for (const story of drafts) { await releaseStory(story, 'auto'); }
+
+  // The queue clears after each drop: published stories live on as published
+  // articles, so they leave the queue. Rejected stories are kept in the
+  // rejected store (never auto-published, never shown in the queue).
+  try {
+    const cleared = db.clearPublishedStories();
+    if (cleared > 0) console.log(`[scheduler] drop swept ${cleared} published stor(ies) from the queue`);
+  } catch (e) {
+    console.warn('[scheduler] queue sweep failed:', e.message);
+  }
 }
 
 let _timer = null;

@@ -107,7 +107,8 @@ router.get('/overview', (req, res) => {
     queue: {
       draft: db.listQueuedStories({ status: 'draft', limit: 1000 }).length,
       approved: db.listQueuedStories({ status: 'approved', limit: 1000 }).length,
-      published: db.listQueuedStories({ status: 'published', limit: 1000 }).length
+      published: db.listQueuedStories({ status: 'published', limit: 1000 }).length,
+      rejected: db.listQueuedStories({ status: 'rejected', limit: 1000 }).length
     },
     social: db.countSocialDraftsByStatus()
   });
@@ -526,6 +527,22 @@ router.post('/stories/queue/:id/schedule', (req, res) => {
     db.updateSubmission({ id: current.submissionId, status: 'approved', reviewedBy: req.adminUser.id, reviewedAt: new Date().toISOString() });
   }
   logAction(req.adminUser.id, 'story.schedule', 'story', id, { publishAt: drop.at.toISOString(), edition: drop.edition });
+  res.json({ story });
+});
+
+// Re-queue a rejected story as a fresh draft for a future edition.
+// Clears the old drop stamp so it cannot auto-publish on re-queue —
+// the director gives it a new drop via "Schedule next drop".
+router.post('/stories/queue/:id/requeue', (req, res) => {
+  const id = Number(req.params.id);
+  const current = db.findQueuedStory(id);
+  if (!current) return res.status(404).json({ error: 'not found' });
+  if (current.status !== 'rejected') return res.status(400).json({ error: 'only rejected stories can be re-queued' });
+  const story = db.updateQueuedStory({
+    id, status: 'draft', clearDrop: true,
+    editorNotes: '[admin] re-queued from the rejected store — needs a fresh drop stamp'
+  });
+  logAction(req.adminUser.id, 'story.requeue', 'story', id);
   res.json({ story });
 });
 
