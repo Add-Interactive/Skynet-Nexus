@@ -32,11 +32,29 @@
     .sky-use p a { color: #00e5ff; }
     .sky-cta { text-align: center; margin: 36px 0 10px; }
     .sky-cta a { display: inline-block; padding: 12px 32px; border-radius: 999px; background: #00e5ff; color: #0a0e17; font: 800 15px/1 Inter, sans-serif; text-decoration: none; }
+    .sky-welcome { margin: 18px 0 6px; padding: 22px 24px; border-radius: 16px; border: 1px solid rgba(0,229,255,.35); background: linear-gradient(135deg, rgba(0,229,255,.10), rgba(168,85,247,.08)); }
+    .sky-welcome h2 { margin: 0 0 8px; font: 800 22px/1.3 Inter, sans-serif; color: var(--text, #e6ecf3); }
+    .sky-welcome p { margin: 0 0 16px; font: 500 15px/1.65 Inter, sans-serif; color: var(--muted, #9aa7bd); }
+    .sky-welcome p em { color: var(--text, #e6ecf3); }
+    .sky-welcome-actions { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+    .sky-welcome-actions button { padding: 11px 26px; border-radius: 999px; border: none; background: #00e5ff; color: #0a0e17; font: 800 14px/1 Inter, sans-serif; cursor: pointer; }
+    .sky-welcome-actions button:hover { filter: brightness(1.08); }
+    .sky-welcome-actions a { color: #00e5ff; font: 700 14px/1 Inter, sans-serif; text-decoration: none; }
+    .sky-welcome-actions a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
   <div class="sky-g-wrap">
     <a href="/" class="sky-back">← Back to feed</a>
+    <section class="sky-welcome" id="guide-welcome" hidden>
+      <h2>👋 Welcome to Skynet Nexus</h2>
+      <p>Skynet Nexus is a family news platform where parents, kids, and teachers read the day&rsquo;s biggest stories <em>together</em> — with kid-friendly explainers, discussion prompts, and XP for learning. This guide shows you exactly how to use it, whoever you are.</p>
+      <div class="sky-welcome-actions">
+        <button id="guide-welcome-start">Start the guide ↓</button>
+        <a href="/pages/whats-new.html">See what&rsquo;s new</a>
+      </div>
+    </section>
+
     <div class="sky-g-head">
       <h1>📖 How to use Skynet Nexus</h1>
       <p>Skynet Nexus is a news platform for the whole family — parents, kids, and teachers. Not doomscrolling: every story is built for reading <i>together</i>, understanding it, and talking about it. Here's how each of you uses it.</p>
@@ -125,5 +143,27 @@
       <div class="footer-legal"><span>© 2026 Skynet Nexus News</span></div>
     </div>
   </footer>
+
+  <script>
+    (function () {
+      var panel = document.getElementById('guide-welcome');
+      if (!panel) return;
+      var seen = false;
+      try { seen = !!localStorage.getItem('sky_guide_seen'); } catch (e) {}
+      function decide(signedIn) {
+        // Show the welcome intro for first-time visitors and for signed-out users.
+        if (!(signedIn && seen)) panel.hidden = false;
+      }
+      fetch('/api/auth/me').then(function (r) { return r.json(); }).then(function (d) {
+        decide(!!(d && d.user));
+      }).catch(function () { if (!seen) panel.hidden = false; });
+      document.getElementById('guide-welcome-start').addEventListener('click', function () {
+        try { localStorage.setItem('sky_guide_seen', '1'); } catch (e) {}
+        panel.hidden = true;
+        var head = document.querySelector('.sky-g-head');
+        if (head) head.scrollIntoView({ behavior: 'smooth' });
+      });
+    })();
+  </script>
 </body>
 </html>

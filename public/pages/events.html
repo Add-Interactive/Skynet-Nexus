@@ -9,6 +9,12 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
   <link rel="stylesheet" href="../assets/css/style.css"/>
   <link rel="stylesheet" href="/assets/css/auth.css"/>
+  <style>
+    .cal-dateline { margin: 0 0 10px; font: 600 13px/1.5 Inter, sans-serif; color: var(--text-mute, #8b98ad); }
+    .cal-dateline::before { content: "📅 "; }
+    .evt-detail-name a { color: inherit; text-decoration: none; }
+    .evt-detail-name a:hover { color: #00e5ff; text-decoration: underline; }
+  </style>
 
   <!-- Open Graph + link discovery (added by polish pass) -->
   <meta property="og:type" content="website"/>
@@ -57,6 +63,7 @@
 
       <div class="top-actions">
         <button class="icon-btn only-mobile" id="menu-toggle" aria-label="Menu"><span id="ic-menu"></span></button>
+        <a class="icon-btn" href="guide.html" aria-label="How to use Skynet Nexus" title="How to use Skynet Nexus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.6 2.6 0 1 1 3.7 2.4c-.8.4-1.3.9-1.3 1.9"/><circle cx="12" cy="17" r="1.1" fill="currentColor" stroke="none"/></svg></a>
         <button class="icon-btn" id="theme-toggle" aria-label="Toggle theme"></button>
         
         
@@ -107,9 +114,9 @@
 
     <main class="main">
       <section class="hero">
-        <span class="kicker">Summer 2026 · US & Global</span>
+        <span class="kicker">Fall 2026 · US &amp; Global</span>
         <h1>The STEM Events Calendar</h1>
-        <p>Robotics championships, rocket launches, air shows, AI conferences, and hackathons — mapped across the summer. Tap any highlighted day to see what's on.</p>
+        <p>Robotics championships, rocket launches, air shows, AI conferences, and hackathons — mapped across October through December. Tap any highlighted day to see what's on.</p>
       </section>
 
       <div class="cal-filters" id="cal-filters" role="tablist" aria-label="Filter events by category"></div>
@@ -121,9 +128,10 @@
             <h2 class="cal-month" id="cal-month">—</h2>
             <button class="cal-navbtn" id="cal-next" aria-label="Next month">›</button>
           </div>
-          <button class="cal-today" id="cal-today">Jump to summer</button>
+          <button class="cal-today" id="cal-today">Today</button>
         </div>
 
+        <p class="cal-dateline" id="cal-dateline"></p>
         <div class="cal-weekdays" aria-hidden="true">
           <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
         </div>
@@ -255,7 +263,7 @@
     (function () {
       const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
       const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-      const state = { data: null, cat: 'all', view: new Date(2026, 6, 1) };
+      const state = { data: null, cat: 'all', view: new Date() };
       let catMap = {};
 
       const $ = id => document.getElementById(id);
@@ -306,11 +314,13 @@
       function renderCalendar() {
         const y = state.view.getFullYear(), m = state.view.getMonth();
         monthEl.textContent = MONTHS[m] + ' ' + y;
+        const _now = new Date();
+        $('cal-dateline').textContent = 'Today is ' + ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][_now.getDay()] + ', ' + MONTHS[_now.getMonth()] + ' ' + _now.getDate() + ', ' + _now.getFullYear() + ' — the calendar always opens on the current month.';
         agendaLabel.textContent = 'What\'s on in ' + MONTHS[m];
         const map = eventsByDay();
         const first = new Date(y, m, 1), startDow = first.getDay();
         const daysInMonth = new Date(y, m + 1, 0).getDate();
-        const todayKey = iso(new Date(2026, 6, 2));
+        const todayKey = iso(new Date());
         let cells = '';
 
         for (let i = 0; i < startDow; i++) cells += '<div class="cal-cell cal-cell-empty"></div>';
@@ -350,7 +360,8 @@
         return '<article class="evt-detail" style="--cc:' + esc(c.color) + '">' +
           '<div class="evt-detail-cat"><span class="cal-ev-dot"></span>' + esc(c.icon) + ' ' + esc(c.label) +
             ' <span class="evt-region">' + esc(e.region || '') + '</span></div>' +
-          '<h4 class="evt-detail-name">' + esc(e.name) + '</h4>' +
+          '<h4 class="evt-detail-name">' +
+            (e.url ? '<a href="' + esc(e.url) + '" target="_blank" rel="noopener">' + esc(e.name) + '</a>' : esc(e.name)) + '</h4>' +
           (showDate ? '<div class="evt-detail-when">🗓️ ' + esc(fmtRange(e)) + '</div>' : '') +
           '<div class="evt-detail-facts">' +
             '<span>📍 ' + esc(e.location) + '</span>' +
@@ -360,7 +371,7 @@
           '</div>' +
           '<p class="evt-detail-summary">' + esc(e.summary) + '</p>' +
           (e.org ? '<div class="evt-detail-org">Hosted by ' + esc(e.org) + '</div>' : '') +
-          '<a class="evt-detail-link" href="' + esc(e.url) + '" target="_blank" rel="noopener">Official event site ↗</a>' +
+          (e.url ? '<a class="evt-detail-link" href="' + esc(e.url) + '" target="_blank" rel="noopener">Official event site ↗</a>' : '') +
         '</article>';
       }
 
@@ -388,7 +399,7 @@
 
       $('cal-prev').addEventListener('click', () => { state.view.setMonth(state.view.getMonth() - 1); renderCalendar(); });
       $('cal-next').addEventListener('click', () => { state.view.setMonth(state.view.getMonth() + 1); renderCalendar(); });
-      $('cal-today').addEventListener('click', () => { state.view = new Date(2026, 6, 1); renderCalendar(); });
+      $('cal-today').addEventListener('click', () => { state.view = new Date(); renderCalendar(); });
       $('evt-modal-close').addEventListener('click', closeModal);
       modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
       document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });

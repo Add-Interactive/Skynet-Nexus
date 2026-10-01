@@ -1,14 +1,57 @@
 {
-  "updated": "2026-07-02",
-  "title": "Summer STEM Events — US & Global",
-  "intro": "An interactive calendar of the biggest summer STEM happenings — robotics championships, rocket launches, air shows, AI conferences, and hackathons — across the United States and around the world. Click any highlighted day to see what's on.",
+  "updated": "2026-10-01",
+  "title": "STEM Events Calendar — Fall 2026",
+  "intro": "An interactive calendar of the biggest fall STEM happenings — space weeks, meteor showers, robotics qualifiers, AI conferences, coding weeks, and gaming's biggest night — across the United States and around the world. Click any highlighted day to see what's on.",
   "disclaimer": "Dates, venues, and eligibility change every year. This calendar is for discovery only — always confirm details on each event's official website before making plans or traveling.",
   "categories": [
-    { "id": "robotics",  "label": "Robotics",   "icon": "🤖", "color": "#a855f7" },
-    { "id": "space",     "label": "Space",      "icon": "🚀", "color": "#00e5ff" },
-    { "id": "aerospace", "label": "Aerospace",  "icon": "✈️", "color": "#38bdf8" },
-    { "id": "ai",        "label": "AI & Data",  "icon": "🧠", "color": "#ff2e63" },
-    { "id": "hackathon", "label": "Hackathons", "icon": "💻", "color": "#ffb800" }
+    {
+      "id": "robotics",
+      "label": "Robotics",
+      "icon": "🤖",
+      "color": "#a855f7"
+    },
+    {
+      "id": "space",
+      "label": "Space",
+      "icon": "🚀",
+      "color": "#00e5ff"
+    },
+    {
+      "id": "aerospace",
+      "label": "Aerospace",
+      "icon": "✈️",
+      "color": "#38bdf8"
+    },
+    {
+      "id": "ai",
+      "label": "AI & Data",
+      "icon": "🧠",
+      "color": "#ff2e63"
+    },
+    {
+      "id": "hackathon",
+      "label": "Hackathons",
+      "icon": "💻",
+      "color": "#ffb800"
+    },
+    {
+      "id": "science",
+      "label": "Science",
+      "icon": "🔬",
+      "color": "#34d399"
+    },
+    {
+      "id": "stem",
+      "label": "STEM Days",
+      "icon": "🎓",
+      "color": "#fb7185"
+    },
+    {
+      "id": "gaming",
+      "label": "Gaming",
+      "icon": "🎮",
+      "color": "#f472b6"
+    }
   ],
   "events": [
     {
@@ -340,6 +383,167 @@
       "org": "HackMIT",
       "url": "https://blueprint.hackmit.org/",
       "summary": "A weekend hackathon and learn-a-thon built specifically for high-school students taking their first steps into coding."
+    },
+    {
+      "id": "wsw-2026",
+      "name": "World Space Week 2026",
+      "category": "space",
+      "start": "2026-10-04",
+      "end": "2026-10-10",
+      "location": "Worldwide",
+      "region": "Global",
+      "format": "Hybrid",
+      "cost": "Free",
+      "audience": "Families & schools",
+      "org": "World Space Week Association",
+      "url": "https://earthsky.org/space/world-space-week-october-4-to-10/",
+      "summary": "The UN-declared global celebration of space science — 2026's theme is 'Rocket Revolution.' Schools and families can join rocket-building challenges, stargazing nights, and virtual events around the world."
+    },
+    {
+      "id": "nobel-2026",
+      "name": "Nobel Prize Announcements 2026",
+      "category": "science",
+      "start": "2026-10-05",
+      "end": "2026-10-12",
+      "location": "Online",
+      "region": "Global",
+      "format": "Virtual",
+      "cost": "Free",
+      "audience": "Everyone",
+      "org": "Nobel Prize",
+      "url": "https://www.nobelprize.org/prizes/about/prize-announcement-dates/?sm_guid=Mjk3MzM1fDI0MDExMjE4fC0xfHJzaGFsZXR0QHJlc2VhcmNoYW1lcmljYS5vcmd8MjM3MTYzMXx8MHwwfDkxNDYwMzU0fDk1M3wwfDB8fDI2MjY0NA2",
+      "summary": "Watch science history made live: Medicine (Oct 5), Physics (Oct 6), Chemistry (Oct 7), Literature (Oct 8), Peace (Oct 9), and Economic Sciences (Oct 12) — all announced and streamed online."
+    },
+    {
+      "id": "ada-lovelace-2026",
+      "name": "Ada Lovelace Day",
+      "category": "stem",
+      "start": "2026-10-13",
+      "location": "Worldwide",
+      "region": "Global",
+      "format": "Hybrid",
+      "cost": "Free",
+      "audience": "Everyone",
+      "org": "Ada Lovelace Day (founded 2009)",
+      "url": "https://nationaltoday.com/ada-lovelace-day/",
+      "summary": "Celebrating women in STEM on the second Tuesday of October — honoring Ada Lovelace, the 19th-century mathematician often called the first computer programmer. Schools host talks, workshops, and coding activities."
+    },
+    {
+      "id": "national-stem-day-2026",
+      "name": "National STEM Day",
+      "category": "stem",
+      "start": "2026-11-08",
+      "location": "Nationwide, USA",
+      "region": "US",
+      "format": "Hybrid",
+      "cost": "Free",
+      "audience": "Families & schools",
+      "org": "STEM.org",
+      "url": "https://stem.org/stem-day/",
+      "summary": "A day to spark curiosity in science, technology, engineering, and math — try a hands-on challenge, visit a science museum, or kick off a week of discovery with your family or classroom."
+    },
+    {
+      "id": "fll-bioglow-2026",
+      "name": "FIRST LEGO League — BIOGLOW Qualifier Season",
+      "category": "robotics",
+      "start": "2026-11-14",
+      "end": "2026-12-19",
+      "location": "Regional tournaments, USA",
+      "region": "US",
+      "format": "In-person",
+      "cost": "Varies",
+      "audience": "Ages 4–16 (teams)",
+      "org": "FIRST",
+      "url": "https://www.firstinspires.org/programs/fll/",
+      "summary": "The 2026–27 BIOGLOW season explores biodiversity through LEGO robotics. Qualifier tournaments run November through December — find your local event and cheer on the teams."
+    },
+    {
+      "id": "leonids-2026",
+      "name": "Leonid Meteor Shower — Peak Night",
+      "category": "space",
+      "start": "2026-11-16",
+      "end": "2026-11-17",
+      "location": "Dark skies everywhere",
+      "region": "Global",
+      "format": "Outdoor",
+      "cost": "Free",
+      "audience": "Families",
+      "org": "NASA",
+      "url": "https://www.theweathernetwork.com/en/news/weather/seasonal/autumn-the-season-of-meteor-showers-is-about-to-begin-for-2026",
+      "summary": "Debris from Comet Tempel-Tuttle streaks across the sky on the peak night of November 16–17. Best viewing after midnight — bundle up, find dark skies, and count the shooting stars together."
+    },
+    {
+      "id": "neurips-2026",
+      "name": "NeurIPS 2026 — AI's Biggest Conference",
+      "category": "ai",
+      "start": "2026-12-06",
+      "end": "2026-12-12",
+      "location": "Sydney, Australia (+ Atlanta & Paris satellites)",
+      "region": "Global",
+      "format": "Hybrid",
+      "cost": "Paid · student rates",
+      "audience": "Students & researchers",
+      "org": "NeurIPS",
+      "url": "https://blog.neurips.cc/2026/07/31/neurips-newsletter-july-2026/",
+      "summary": "The fortieth Conference on Neural Information Processing Systems — where the year's biggest AI breakthroughs debut. Main event in Sydney, December 6–12, with official satellites in Atlanta and Paris."
+    },
+    {
+      "id": "csedweek-2026",
+      "name": "Computer Science Education Week — Hour of Code",
+      "category": "stem",
+      "start": "2026-12-07",
+      "end": "2026-12-13",
+      "location": "Worldwide",
+      "region": "Global",
+      "format": "Hybrid",
+      "cost": "Free",
+      "audience": "Students & classrooms",
+      "org": "Code.org",
+      "url": "https://paulhaberstroh.com/computer-science-education-week-and-the-hour-of-code/",
+      "summary": "A week honoring Grace Hopper's birthday (Dec 9) with the Hour of Code — one-hour coding tutorials designed for every age. Classrooms and families everywhere join in."
+    },
+    {
+      "id": "game-awards-2026",
+      "name": "The Game Awards 2026",
+      "category": "gaming",
+      "start": "2026-12-10",
+      "location": "Peacock Theater, Los Angeles (streamed)",
+      "region": "US & Global",
+      "format": "Hybrid",
+      "cost": "Free to stream",
+      "audience": "Everyone",
+      "org": "The Game Awards",
+      "url": "https://screenrant.com/the-game-awards-2026-date-time-confirmed/",
+      "summary": "Gaming's biggest night — Game of the Year, world-premiere trailers, and live performances, streaming free worldwide from Los Angeles on December 10."
+    },
+    {
+      "id": "geminids-2026",
+      "name": "Geminid Meteor Shower — Peak Night",
+      "category": "space",
+      "start": "2026-12-13",
+      "end": "2026-12-14",
+      "location": "Dark skies everywhere",
+      "region": "Global",
+      "format": "Outdoor",
+      "cost": "Free",
+      "audience": "Families",
+      "org": "NASA",
+      "url": "https://science.nasa.gov/solar-system/meteors-meteorites/geminids/",
+      "summary": "The year's best meteor shower peaks the night of December 13–14. NASA rates the Geminids one of the most reliable showers — start watching around 9–10 PM."
+    },
+    {
+      "id": "winter-solstice-2026",
+      "name": "Winter Solstice — Shortest Day of the Year",
+      "category": "science",
+      "start": "2026-12-21",
+      "location": "Northern Hemisphere",
+      "region": "Global",
+      "format": "Outdoor",
+      "cost": "Free",
+      "audience": "Everyone",
+      "org": "",
+      "url": "https://www.theweathernetwork.com/en/news/weather/seasonal/autumn-the-season-of-meteor-showers-is-about-to-begin-for-2026",
+      "summary": "The December solstice marks the shortest day and longest night of the year in the Northern Hemisphere — and the slow return of the light. A perfect moment to talk about Earth's tilt."
     }
   ]
 }
