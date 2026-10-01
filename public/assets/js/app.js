@@ -696,6 +696,7 @@ function renderEditionPackages() {
   if (!editionsActive()) { host.innerHTML = ''; host.style.display = 'none'; return; }
   const groups = {};
   ARTICLES.forEach(a => {
+    if (a.pinned) return; // pinned intros get their own banner, not an edition slot
     const e = editionOf(a);
     if (!e.day) return;
     const k = e.day + '|' + e.edition;
@@ -1471,8 +1472,7 @@ function renderNextDrop() {
     
     const dateEl = document.getElementById('drop-date');
     if (dateEl) {
-      const now = new Date();
-      dateEl.textContent = now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      dateEl.textContent = target.toLocaleDateString(undefined, { timeZone: 'America/New_York', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     }
   };
 
@@ -1791,7 +1791,7 @@ function renderStats() {
   const el = document.getElementById('stat-tiles');
   if (!el) return;
   // Compute honest numbers from the live manifest.
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }); // ET, YYYY-MM-DD
   const storiesToday = ARTICLES.filter(a => String(a.date || '').slice(0, 10) === today).length;
   const authors = new Set(ARTICLES.map(a => a.author).filter(Boolean));
   STATS.storiesToday = storiesToday;
@@ -1843,7 +1843,7 @@ function renderTicker() {
   if (!items.length) items = TICKER_FALLBACK;
   
   // Prepend the latest network update message!
-  items.unshift({ label: 'UPDATE', text: 'Skynet Nexus goes live with three daily drops at 10:15 AM, 2:15 PM, and 6:15 PM ET!' });
+  items.unshift({ label: 'UPDATE', text: 'Skynet Nexus goes live with three daily drops at 7:15 AM, 2:15 PM, and 6:15 PM ET!' });
 
   // duplicate for seamless scroll
   const html = items.concat(items).map(t =>
