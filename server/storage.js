@@ -102,6 +102,22 @@ function ensureStorage() {
       } catch (e) {
         console.warn('[storage] Persistent volume merge failed:', e.message);
       }
+
+      // Sync the What's New changelog from the bundle (git is the source of truth).
+      try {
+        const seedWhatsNew = path.join(SEED_DATA_DIR, 'whats-new.json');
+        const whatsNewPath = path.join(DATA_DIR, 'whats-new.json');
+        if (fs.existsSync(seedWhatsNew)) {
+          const seedContent = fs.readFileSync(seedWhatsNew, 'utf8');
+          const curContent = fs.existsSync(whatsNewPath) ? fs.readFileSync(whatsNewPath, 'utf8') : null;
+          if (seedContent !== curContent) {
+            fs.writeFileSync(whatsNewPath, seedContent);
+            console.log('[storage] Synced whats-new.json from bundle to persistent volume');
+          }
+        }
+      } catch (e) {
+        console.warn('[storage] whats-new.json sync failed:', e.message);
+      }
     }
   }
 
