@@ -255,6 +255,14 @@ _addColumnIfMissing('users', 'admin_notes', 'TEXT');
 // Cadence engine: queued stories can be scheduled for a timed edition release.
 _addColumnIfMissing('queued_stories', 'publish_at', 'TEXT');
 _addColumnIfMissing('queued_stories', 'edition', 'TEXT');
+// Correspondents dashboard: kid-facing bio/fun-fact/portraits on staff.
+_addColumnIfMissing('staff', 'kid_bio', 'TEXT');
+_addColumnIfMissing('staff', 'fun_fact', 'TEXT');
+_addColumnIfMissing('staff', 'portrait_human', 'TEXT');
+_addColumnIfMissing('staff', 'portrait_animal', 'TEXT');
+_addColumnIfMissing('staff', 'portrait_skynet', 'TEXT');
+// Kids pick a correspondent portrait style: human|animal|skynet.
+_addColumnIfMissing('kid_profiles', 'correspondent_style', "TEXT NOT NULL DEFAULT 'human'");
 
 
 // ---------- Prepared statements ----------
@@ -275,17 +283,18 @@ const stmts = {
   changePassword: db.prepare(`UPDATE users SET password_hash = ? WHERE id = ?`),
 
   createKid: db.prepare(`
-    INSERT INTO kid_profiles (user_id, name, birth_year, avatar_color, avatar_emoji)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO kid_profiles (user_id, name, birth_year, avatar_color, avatar_emoji, correspondent_style)
+    VALUES (?, ?, ?, ?, ?, ?)
   `),
   listKids: db.prepare(`SELECT * FROM kid_profiles WHERE user_id = ? ORDER BY id ASC`),
   findKid: db.prepare(`SELECT * FROM kid_profiles WHERE id = ? AND user_id = ?`),
   updateKid: db.prepare(`
     UPDATE kid_profiles
-       SET name         = COALESCE(?, name),
-           birth_year   = COALESCE(?, birth_year),
-           avatar_color = COALESCE(?, avatar_color),
-           avatar_emoji = COALESCE(?, avatar_emoji)
+       SET name               = COALESCE(?, name),
+           birth_year         = COALESCE(?, birth_year),
+           avatar_color       = COALESCE(?, avatar_color),
+           avatar_emoji       = COALESCE(?, avatar_emoji),
+           correspondent_style = COALESCE(?, correspondent_style)
      WHERE id = ? AND user_id = ?
   `),
   deleteKid: db.prepare(`DELETE FROM kid_profiles WHERE id = ? AND user_id = ?`),
@@ -302,8 +311,8 @@ const stmts = {
 
   // ---------- Admin / newsroom ----------
   createStaff: db.prepare(`
-    INSERT INTO staff (slug, kind, display_name, role, channel, byline, avatar_emoji, accent_color, status, bio, prompt_path, linked_user_id)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO staff (slug, kind, display_name, role, channel, byline, avatar_emoji, accent_color, status, bio, prompt_path, linked_user_id, kid_bio, fun_fact, portrait_human, portrait_animal, portrait_skynet)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `),
   updateStaff: db.prepare(`
     UPDATE staff SET
@@ -315,6 +324,11 @@ const stmts = {
       status       = COALESCE(?, status),
       bio          = COALESCE(?, bio),
       prompt_path  = COALESCE(?, prompt_path),
+      kid_bio      = COALESCE(?, kid_bio),
+      fun_fact     = COALESCE(?, fun_fact),
+      portrait_human = COALESCE(?, portrait_human),
+      portrait_animal = COALESCE(?, portrait_animal),
+      portrait_skynet = COALESCE(?, portrait_skynet),
       updated_at   = datetime('now')
     WHERE id = ?
   `),
@@ -490,6 +504,13 @@ function toPublicStaff(row) {
     bio: row.bio,
     promptPath: row.prompt_path,
     linkedUserId: row.linked_user_id,
+    kidBio: row.kid_bio,
+    funFact: row.fun_fact,
+    portraits: {
+      human: row.portrait_human,
+      animal: row.portrait_animal,
+      skynet: row.portrait_skynet
+    },
     createdAt: row.created_at,
     updatedAt: row.updated_at
   };
@@ -635,6 +656,7 @@ function toPublicKid(row) {
     birthYear: row.birth_year,
     avatarColor: row.avatar_color,
     avatarEmoji: row.avatar_emoji,
+    correspondentStyle: row.correspondent_style || 'human',
     createdAt: row.created_at
   };
 }
@@ -674,14 +696,14 @@ module.exports = {
   },
   changePassword(id, hash) { stmts.changePassword.run(hash, id); },
 
-  createKid({ userId, name, birthYear, avatarColor, avatarEmoji }) {
-    const info = stmts.createKid.run(userId, name, birthYear, avatarColor, avatarEmoji);
+  createKid({ userId, name, birthYear, avatarColor, avatarEmoji, correspondentStyle }) {
+    const info = stmts.createKid.run(userId, name, birthYear, avatarColor, avatarEmoji, correspondentStyle ?? 'human');
     return toPublicKid(stmts.findKid.get(info.lastInsertRowid, userId));
   },
   listKids(userId) { return stmts.listKids.all(userId).map(toPublicKid); },
   findKid(id, userId) { return toPublicKid(stmts.findKid.get(id, userId)); },
-  updateKid({ id, userId, name, birthYear, avatarColor, avatarEmoji }) {
-    stmts.updateKid.run(name ?? null, birthYear ?? null, avatarColor ?? null, avatarEmoji ?? null, id, userId);
+  updateKid({ id, userId, name, birthYear, avatarColor, avatarEmoji, correspondentStyle }) {
+    stmts.updateKid.run(name ?? null, birthYear ?? null, avatarColor ?? null, avatarEmoji ?? null, correspondentStyle ?? null, id, userId);
     return toPublicKid(stmts.findKid.get(id, userId));
   },
   deleteKid(id, userId) { return stmts.deleteKid.run(id, userId).changes > 0; },
@@ -713,14 +735,19 @@ module.exports = {
     const info = stmts.createStaff.run(
       input.slug, input.kind, input.displayName, input.role, input.channel ?? null,
       input.byline ?? null, input.avatarEmoji ?? '🛰️', input.accentColor ?? '#00e5ff',
-      input.status ?? 'active', input.bio ?? null, input.promptPath ?? null, input.linkedUserId ?? null
+      input.status ?? 'active', input.bio ?? null, input.promptPath ?? null, input.linkedUserId ?? null,
+      input.kidBio ?? null, input.funFact ?? null,
+      input.portraitHuman ?? null, input.portraitAnimal ?? null, input.portraitSkynet ?? null
     );
     return toPublicStaff(stmts.findStaffById.get(info.lastInsertRowid));
   },
-  updateStaff({ id, displayName, role, byline, avatarEmoji, accentColor, status, bio, promptPath }) {
+  updateStaff({ id, displayName, role, byline, avatarEmoji, accentColor, status, bio, promptPath, kidBio, funFact, portraitHuman, portraitAnimal, portraitSkynet }) {
     stmts.updateStaff.run(
       displayName ?? null, role ?? null, byline ?? null, avatarEmoji ?? null,
-      accentColor ?? null, status ?? null, bio ?? null, promptPath ?? null, id
+      accentColor ?? null, status ?? null, bio ?? null, promptPath ?? null,
+      kidBio ?? null, funFact ?? null,
+      portraitHuman ?? null, portraitAnimal ?? null, portraitSkynet ?? null,
+      id
     );
     return toPublicStaff(stmts.findStaffById.get(id));
   },
@@ -936,7 +963,8 @@ for (const seed of CORRESPONDENT_SEEDS) {
     stmts.createStaff.run(
       seed.slug, seed.kind, seed.displayName, seed.role, seed.channel,
       seed.byline, seed.avatarEmoji, seed.accentColor, 'active',
-      seed.bio, seed.promptPath, null
+      seed.bio, seed.promptPath, null,
+      null, null, null, null, null
     );
   }
 }
