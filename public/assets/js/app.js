@@ -919,7 +919,14 @@ function renderEditionPackages() {
     const k = e.day + '|' + e.edition;
     (groups[k] = groups[k] || []).push(a);
   });
-  const keys = Object.keys(groups).sort().reverse().slice(0, 4);
+  // Newest day first, then newest edition first (evening > midday > morning).
+  // (Plain string sort put morning before evening within a day.)
+  const EDITION_RANK = { morning: 0, midday: 1, evening: 2 };
+  const keys = Object.keys(groups).sort((ka, kb) => {
+    const pa = ka.split('|'), pb = kb.split('|');
+    if (pa[0] !== pb[0]) return pb[0].localeCompare(pa[0]);
+    return (EDITION_RANK[pb[1]] || 0) - (EDITION_RANK[pa[1]] || 0);
+  }).slice(0, 4);
   if (!keys.length) { host.innerHTML = ''; host.style.display = 'none'; return; }
   host.style.display = '';
   host.innerHTML = keys.map(k => {
