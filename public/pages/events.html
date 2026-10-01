@@ -12,6 +12,8 @@
   <style>
     .cal-dateline { margin: 0 0 10px; font: 600 13px/1.5 Inter, sans-serif; color: var(--text-mute, #8b98ad); }
     .cal-dateline::before { content: "📅 "; }
+    .evt-detail-name a { color: inherit; text-decoration: none; }
+    .evt-detail-name a:hover { color: #00e5ff; text-decoration: underline; }
   </style>
 
   <!-- Open Graph + link discovery (added by polish pass) -->
@@ -358,7 +360,8 @@
         return '<article class="evt-detail" style="--cc:' + esc(c.color) + '">' +
           '<div class="evt-detail-cat"><span class="cal-ev-dot"></span>' + esc(c.icon) + ' ' + esc(c.label) +
             ' <span class="evt-region">' + esc(e.region || '') + '</span></div>' +
-          '<h4 class="evt-detail-name">' + esc(e.name) + '</h4>' +
+          '<h4 class="evt-detail-name">' +
+            (e.url ? '<a href="' + esc(e.url) + '" target="_blank" rel="noopener">' + esc(e.name) + '</a>' : esc(e.name)) + '</h4>' +
           (showDate ? '<div class="evt-detail-when">🗓️ ' + esc(fmtRange(e)) + '</div>' : '') +
           '<div class="evt-detail-facts">' +
             '<span>📍 ' + esc(e.location) + '</span>' +
