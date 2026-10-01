@@ -204,6 +204,7 @@
       setBadge('nav-badge-submissions', o.submissions && o.submissions.pending);
       setBadge('nav-badge-queue', o.queue && o.queue.draft);
       setBadge('nav-badge-social', o.social && o.social.draft);
+      setBadge('nav-badge-rejected', o.queue && o.queue.rejected);
     }).catch(function () {});
   }
   function setBadge(id, n) {
@@ -706,18 +707,21 @@
   }
 
   // ===== Story queue =====
+  var emojiByCat = { skynet:'🛰️', ai:'🧠', space:'🚀', robotics:'🤖', biotech:'🧬', quantum:'⚛️', climate:'🌍', engineering:'🔧', math:'📐', cyber:'🔐', gaming:'🎮', music:'🎧', stem:'🧬', play:'🎨', network:'🛰️' };
+  var colorByCat = { skynet:'#00e5ff', ai:'#00e5ff', space:'#7c5cff', robotics:'#a855f7', biotech:'#2dd4bf', quantum:'#22d3ee', climate:'#34d399', engineering:'#ffb800', math:'#f472b6', cyber:'#38bdf8', gaming:'#39ff14', music:'#ff2e63', stem:'#00e5ff', play:'#39ff14', network:'#00e5ff' };
+
   Views.queue = function () {
     api('/admin/stories/queue?limit=100').then(function (r) {
-      var stories = r.stories || [];
+      // The queue holds only actionable drafts: after each drop, published
+      // stories move to Published Articles and rejected ones to the Rejected store.
+      var stories = (r.stories || []).filter(function (st) { return st.status === 'draft' || st.status === 'approved'; });
       main.innerHTML = '';
-      main.appendChild(h('<div class="admin-view-head"><h1>Story Queue</h1><p>Drafts filed by correspondents. Review, approve, and publish. Publishing runs the kid-safe guardrail pipeline and posts to the live site.</p></div>'));
+      main.appendChild(h('<div class="admin-view-head"><h1>Story Queue</h1><p>Drafts filed by correspondents. Review, approve, and publish. Publishing runs the kid-safe guardrail pipeline and posts to the live site. After each drop the queue clears itself: published stories move to Published Articles, rejected ones to the Rejected store.</p></div>'));
       main.appendChild(h('<div class="admin-inline-note">Auto-post: an approved draft can be published in one click — it is validated by the newsroom guardrails, written to <code>data/articles</code>, and added to the live manifest instantly.</div>'));
-      if (!stories.length) { main.appendChild(h('<div class="admin-empty">No drafts in the queue. Assign a correspondent a task, or use “Write / Publish”.</div>')); return; }
+      if (!stories.length) { main.appendChild(h('<div class="admin-empty">Queue is clear — no drafts awaiting review. Assign a correspondent a task, or use “Write / Publish”.</div>')); return; }
       
       var grid = h('<div class="admin-queue-grid"></div>');
       
-      var emojiByCat = { skynet:'🛰️', ai:'🧠', space:'🚀', robotics:'🤖', biotech:'🧬', quantum:'⚛️', climate:'🌍', engineering:'🔧', math:'📐', cyber:'🔐', gaming:'🎮', music:'🎧', stem:'🧬', play:'🎨', network:'🛰️' };
-      var colorByCat = { skynet:'#00e5ff', ai:'#00e5ff', space:'#7c5cff', robotics:'#a855f7', biotech:'#2dd4bf', quantum:'#22d3ee', climate:'#34d399', engineering:'#ffb800', math:'#f472b6', cyber:'#38bdf8', gaming:'#39ff14', music:'#ff2e63', stem:'#00e5ff', play:'#39ff14', network:'#00e5ff' };
 
       ensureStaff().then(function () {
         stories.forEach(function (st) {
@@ -854,7 +858,29 @@
     }
 
     var actions = h('<div class="row-actions" style="margin-top:18px; justify-content: flex-end; gap: 8px;"></div>');
-    if (st.status !== 'published') {
+    if (st.status === 'rejected') {
+      // Rejected store actions: re-queue for a later edition, or delete for good.
+      var rq = h('<button class="admin-btn admin-btn-primary admin-btn-sm">\u21A9 Re-queue as draft</button>');
+      rq.addEventListener('click', function () {
+        rq.disabled = true; rq.textContent = 'Re-queuing\u2026';
+        api('/admin/stories/queue/' + st.id + '/requeue', { method: 'POST' })
+          .then(function () {
+            toast('Back in the story queue as a draft \u2014 give it a fresh drop');
+            closeModal(modal);
+            Views.rejected(); refreshBadges();
+          })
+          .catch(function (e) { toast(e.message, true); rq.disabled = false; rq.textContent = '\u21A9 Re-queue as draft'; });
+      });
+      actions.appendChild(rq);
+      var rdel = h('<button class="admin-btn admin-btn-sm admin-btn-danger">Delete permanently</button>');
+      rdel.addEventListener('click', function () {
+        if (!window.confirm('Delete this rejected story permanently? This cannot be undone.')) return;
+        api('/admin/stories/queue/' + st.id, { method: 'DELETE' })
+          .then(function () { toast('Rejected story deleted'); closeModal(modal); Views.rejected(); refreshBadges(); })
+          .catch(function (e) { toast(e.message, true); });
+      });
+      actions.appendChild(rdel);
+    } else if (st.status !== 'published') {
       if (st.status !== 'approved') {
         var approve = h('<button class="admin-btn admin-btn-sm" style="background:rgba(57,255,20,0.1); border-color:var(--accent-4); color:var(--accent-4);">Approve</button>');
         approve.addEventListener('click', function () { 
@@ -917,7 +943,68 @@
   }
 
 
-  // ===== Social =====
+  // ===== Rejected store =====
+  // Rejected stories wait here — never auto-published, never in the queue —
+  // so a good angle can be re-queued as a draft for a later edition.
+  Views.rejected = function () {
+    api('/admin/stories/queue?status=rejected&limit=100').then(function (r) {
+      var stories = r.stories || [];
+      main.innerHTML = '';
+      main.appendChild(h('<div class="admin-view-head"><h1>Rejected Stories</h1><p>Stories rejected instead of published. They are kept here — never auto-published — so a good angle can be re-queued as a draft for a later edition.</p></div>'));
+      if (!stories.length) { main.appendChild(h('<div class="admin-empty">Nothing rejected. Stories you reject will wait here for a second chance.</div>')); return; }
+
+      var grid = h('<div class="admin-queue-grid"></div>');
+
+      ensureStaff().then(function () {
+        stories.forEach(function (st) {
+          var pl = st.payload || {};
+          var author = staffName(st.staffId);
+          var chanColor = colorByCat[st.channel] || '#00e5ff';
+          var chanEmoji = emojiByCat[st.channel] || '📝';
+
+          var heroHtml = '';
+          if (pl.heroImage) {
+            heroHtml = '<img src="' + esc(pl.heroImage) + '" class="admin-queue-card-hero" alt="Cover">';
+          } else {
+            heroHtml = '<div class="admin-queue-card-placeholder" style="border-bottom: 3px solid ' + chanColor + '">' + chanEmoji + '</div>';
+          }
+
+          var card = h(
+            '<div class="admin-queue-card">' +
+              heroHtml +
+              '<div class="admin-queue-card-content">' +
+                '<div class="admin-queue-card-meta">' +
+                  '<span class="admin-queue-card-channel" style="color:' + chanColor + '">' + esc(st.channel) + '</span>' +
+                  '<span class="pill ' + esc(st.status) + '">' + esc(st.status) + '</span>' +
+                '</div>' +
+                '<h3 class="admin-queue-card-title">' + esc(pl.title || '(untitled)') + '</h3>' +
+                '<div class="admin-queue-card-author">\u270D\uFE0F ' + esc(author) + '</div>' +
+                '<div class="admin-queue-card-time">' + fmtDate(st.createdAt) + '</div>' +
+              '</div>' +
+              '<div class="admin-queue-card-actions">' +
+                '<button class="admin-btn admin-btn-sm admin-btn-primary" data-act="review" style="width:100%;margin-bottom:6px;">Review</button>' +
+                '<button class="admin-btn admin-btn-sm" data-act="requeue" style="width:100%;">\u21A9 Re-queue as draft</button>' +
+              '</div>' +
+            '</div>'
+          );
+
+          card.querySelector('[data-act="review"]').addEventListener('click', function () { openStory(st); });
+          card.querySelector('[data-act="requeue"]').addEventListener('click', function (e) {
+            var btn = e.currentTarget;
+            btn.disabled = true; btn.textContent = 'Re-queuing\u2026';
+            api('/admin/stories/queue/' + st.id + '/requeue', { method: 'POST' })
+              .then(function () { toast('Back in the story queue as a draft \u2014 give it a fresh drop'); Views.rejected(); refreshBadges(); })
+              .catch(function (err) { toast(err.message, true); btn.disabled = false; btn.textContent = '\u21A9 Re-queue as draft'; });
+          });
+
+          grid.appendChild(card);
+        });
+      });
+      main.appendChild(grid);
+    }).catch(errView);
+  };
+
+  // ===== Social ===
   var SOCIAL_META = {
     youtube_shorts: { label: 'YouTube Shorts', emoji: '\u25b6\uFE0F', color: '#ff0033' },
     tiktok: { label: 'TikTok', emoji: '\uD83C\uDFB5', color: '#25f4ee' },
