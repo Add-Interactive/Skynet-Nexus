@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>What's New · Skynet Nexus News</title>
+  <meta name="description" content="The latest updates and new features on Skynet Nexus News."/>
+  <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
+  <link rel="stylesheet" href="/assets/css/style.css"/>
+  <link rel="canonical" href="https://skynet-nexus-production.up.railway.app/pages/whats-new.html"/>
+  <style>
+    .sky-wn-wrap { max-width: 760px; margin: 40px auto; padding: 0 20px; }
+    .sky-back { color: #00e5ff; text-decoration: none; font: 600 13px/1 Inter, sans-serif; }
+    .sky-back:hover { text-decoration: underline; }
+    .sky-wn-head { margin: 18px 0 28px; }
+    .sky-wn-head h1 { margin: 0; font: 800 26px/1.2 Inter, sans-serif; color: var(--text, #e6ecf3); }
+    .sky-wn-head p { margin: 6px 0 0; color: var(--muted, #7c8898); font: 500 14px/1.5 Inter, sans-serif; }
+    .sky-wn-item { position: relative; padding: 0 0 26px 26px; border-left: 2px solid rgba(0,229,255,.25); margin-left: 8px; }
+    .sky-wn-item:last-child { padding-bottom: 0; }
+    .sky-wn-item::before { content: ''; position: absolute; left: -7px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: #0B1026; border: 2px solid #00e5ff; }
+    .sky-wn-item:first-child::before { background: #00e5ff; box-shadow: 0 0 12px rgba(0,229,255,.7); }
+    .sky-wn-date { font: 700 12px/1 Inter, sans-serif; color: #7c8898; text-transform: uppercase; letter-spacing: .05em; }
+    .sky-wn-tag { display: inline-block; font: 700 11px/1 Inter, sans-serif; padding: 4px 10px; border-radius: 999px; margin-left: 8px; vertical-align: 1px; }
+    .sky-wn-tag.New { background: rgba(57,255,20,.12); color: #39ff14; border: 1px solid rgba(57,255,20,.4); }
+    .sky-wn-tag.Improved { background: rgba(0,229,255,.12); color: #00e5ff; border: 1px solid rgba(0,229,255,.4); }
+    .sky-wn-tag.Teachers { background: rgba(255,176,32,.12); color: #ffb020; border: 1px solid rgba(255,176,32,.4); }
+    .sky-wn-item h2 { margin: 8px 0 6px; font: 800 18px/1.35 Inter, sans-serif; color: var(--text, #e6ecf3); }
+    .sky-wn-item p { margin: 0; font: 500 14px/1.65 Inter, sans-serif; color: var(--muted, #9aa7bd); }
+  </style>
+</head>
+<body>
+  <div class="sky-wn-wrap">
+    <a href="/" class="sky-back">← Back to feed</a>
+    <div class="sky-wn-head">
+      <h1>✨ What's New</h1>
+      <p>Every update to Skynet Nexus, newest first. This page is your update history — check back whenever you see the <b style="color:#00e5ff">●</b> dot.</p>
+    </div>
+    <div id="sky-wn-list"><p style="color:#7c8898">Loading updates…</p></div>
+  </div>
+
+  <script>
+    (function () {
+      function escape(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[ch])); }
+      function fmtDate(iso) {
+        try { return new Date(iso + 'T12:00:00').toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }); }
+        catch (e) { return iso; }
+      }
+      fetch('/data/whats-new.json', { credentials: 'same-origin' })
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(items => {
+          const list = document.getElementById('sky-wn-list');
+          if (!items.length) { list.innerHTML = '<p style="color:#7c8898">No updates yet.</p>'; return; }
+          // Newest first.
+          items.sort((a, b) => (a.date < b.date ? 1 : -1));
+          list.innerHTML = items.map(it => `
+            <div class="sky-wn-item">
+              <span class="sky-wn-date">${escape(fmtDate(it.date))}</span><span class="sky-wn-tag ${escape(it.tag || 'New')}">${escape(it.tag || 'New')}</span>
+              <h2>${escape(it.title)}</h2>
+              <p>${escape(it.body)}</p>
+            </div>`).join('');
+          // Mark as seen — clears the "new updates" dot everywhere.
+          try { localStorage.setItem('sky_whatsnew_seen', items[0].date); } catch (e) {}
+        })
+        .catch(() => {
+          document.getElementById('sky-wn-list').innerHTML = '<p style="color:#ff2e63">Could not load updates.</p>';
+        });
+    })();
+  </script>
+
+  <footer class="footer footer-compact">
+    <div class="footer-bottom">
+      <div class="footer-legal"><span>© 2026 Skynet Nexus News</span></div>
+    </div>
+  </footer>
+</body>
+</html>
