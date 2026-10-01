@@ -198,6 +198,10 @@ api.post('/auth/register', rateLimit({ windowMs: 15 * 60_000, max: 8, key: 'regi
     const password = String(req.body.password || '');
     const displayName = String(req.body.displayName || '').trim();
     const avatarColor = isValidHexColor(req.body.avatarColor, '#00e5ff');
+    // Self-serve signup is for parents and teachers only — editor/admin
+    // accounts are granted by an existing admin from the admin panel.
+    const requestedRole = String(req.body.role || 'parent').trim().toLowerCase();
+    const role = requestedRole === 'teacher' ? 'teacher' : 'parent';
 
     if (!isValidEmail(email))       return res.status(400).json({ error: 'Enter a valid email.' });
     if (!isValidPassword(password)) return res.status(400).json({ error: 'Password must be at least 8 characters.' });
@@ -206,7 +210,7 @@ api.post('/auth/register', rateLimit({ windowMs: 15 * 60_000, max: 8, key: 'regi
     if (findUserByEmail(email)) return res.status(409).json({ error: 'That email is already registered.' });
 
     const passwordHash = await hashPassword(password);
-    const user = createUser({ email, displayName, passwordHash, avatarColor });
+    const user = createUser({ email, displayName, passwordHash, avatarColor, role });
     updateLastLogin(user.id);
 
     req.session.regenerate(err => {
