@@ -1187,7 +1187,7 @@
   }
 
   function rolePill(role) {
-    return role === 'admin' ? 'published' : role === 'editor' ? 'assigned' : 'paused';
+    return role === 'admin' ? 'published' : role === 'editor' ? 'assigned' : role === 'teacher' ? 'approved' : 'paused';
   }
 
   function openUserModal(id) {
@@ -1209,7 +1209,7 @@
         '<input id="um-name" class="admin-input" value="' + esc(u.displayName) + '" maxlength="40"/>' +
 
         '<label class="admin-label">Role</label>' +
-        '<select id="um-role" class="admin-input"><option value="parent">parent</option><option value="editor">editor</option><option value="admin">admin</option></select>' +
+        '<select id="um-role" class="admin-input"><option value="parent">parent</option><option value="teacher">teacher</option><option value="editor">editor</option><option value="admin">admin</option></select>' +
 
         '<label class="admin-label">Admin notes <span class="admin-hint">(private, staff-only)</span></label>' +
         '<textarea id="um-notes" class="admin-input" rows="3" maxlength="2000" placeholder="Notes about this account…">' + esc(u.adminNotes || '') + '</textarea>' +
