@@ -40,6 +40,16 @@
     .corr-funfact strong { color: #00e5ff; }
     .corr-state { grid-column: 1 / -1; text-align: center; padding: 48px 20px; color: var(--muted, #9aa7bd); }
     .corr-state h3 { color: var(--text, #e6ecf3); margin: 0 0 8px; }
+    .corr-stories-link {
+      font: 700 13px/1 Inter, sans-serif; color: var(--pc, #00e5ff); text-decoration: none;
+      padding: 8px 14px; border: 1px solid var(--pc, #00e5ff); border-radius: 999px; margin-top: 4px;
+    }
+    .corr-stories-link:hover { background: var(--pc, #00e5ff); color: #0a0e17; }
+    .corr-card:target, .corr-card.hash-flash {
+      outline: 2px solid var(--pc, #00e5ff); outline-offset: 4px;
+      animation: corrFlash 1.6s ease;
+    }
+    @keyframes corrFlash { 0% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--pc, #00e5ff) 55%, transparent); } 100% { box-shadow: none; } }
   </style>
 
   <meta property="og:type" content="website"/>
@@ -231,17 +241,20 @@
         const color = esc(c.accentColor || '#00e5ff');
         const name = esc(c.displayName || c.slug || 'Correspondent');
         const chan = esc(c.channel || '');
+        const anchor = 'corr-' + esc(c.slug || '');
         const src = esc(portraitUrl(c, state.style));
         const alt = esc('Portrait of ' + (c.displayName || c.slug || 'a correspondent') + ' in the ' + STYLE_LABEL[state.style] + ' style');
         const img = src
           ? '<img class="corr-portrait" data-portrait="' + esc(c.slug) + '" src="' + src + '" alt="' + alt + '" loading="lazy"/>'
           : '';
-        return '<article class="corr-card" style="--pc:' + color + '">' +
+        const storiesHref = c.channel ? '/pages/channel.html?c=' + encodeURIComponent(c.channel) : '';
+        return '<article class="corr-card" id="' + anchor + '" style="--pc:' + color + '">' +
           img +
           '<h3 class="corr-name">' + name + '</h3>' +
           (chan ? '<span class="corr-channel">' + chan + '</span>' : '') +
           (c.kidBio ? '<p class="corr-bio">' + esc(c.kidBio) + '</p>' : '') +
           (c.funFact ? '<p class="corr-funfact"><strong>🎉 Fun fact:</strong> ' + esc(c.funFact) + '</p>' : '') +
+          (storiesHref ? '<a class="corr-stories-link" href="' + storiesHref + '">All ' + chan + ' stories →</a>' : '') +
         '</article>';
       }
 
@@ -296,6 +309,16 @@
         headingEl.textContent = state.correspondents.length + ' correspondents';
         grid.innerHTML = state.correspondents.map(card).join('');
         paintSwitcher();
+        // Deep-link support: /pages/team.html#corr-agent-ai jumps to that bio card.
+        (function jumpToHash() {
+          const h = (location.hash || '').replace(/^#/, '');
+          if (!h) return;
+          const el = document.getElementById(h);
+          if (!el) return;
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('hash-flash');
+          setTimeout(() => el.classList.remove('hash-flash'), 1800);
+        })();
       })();
     })();
   </script>
