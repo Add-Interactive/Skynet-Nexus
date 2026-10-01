@@ -1268,7 +1268,9 @@ const CORRESPONDENT_STYLES = ['human', 'animal', 'skynet'];
 const CORRESPONDENT_STATUSES = ['active', 'paused', 'offline'];
 
 router.get('/correspondents', (req, res) => {
-  const correspondents = db.listStaff().filter(s => s.kind === 'agent');
+  // Same 13-person roster as the public directory: channel correspondents only.
+  const correspondents = db.listStaff()
+    .filter(s => s.kind === 'agent' && s.slug.indexOf('agent-') === 0 && s.channel);
   res.json({ correspondents });
 });
 

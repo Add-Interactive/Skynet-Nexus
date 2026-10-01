@@ -399,9 +399,11 @@ api.delete('/kids/:id', requireAuth, (req, res) => {
 });
 
 // ---- Correspondents (kid-facing directory; no auth) ----
+// Roster = the 13 channel correspondents (agent-* slugs with a channel).
+// Legacy/infra agent rows (old Star Trek-era seeds, orchestrators) are excluded.
 api.get('/correspondents', (req, res) => {
   const correspondents = listStaff()
-    .filter(s => s.kind === 'agent')
+    .filter(s => s.kind === 'agent' && s.slug.indexOf('agent-') === 0 && s.channel)
     .map(s => ({
       slug: s.slug,
       displayName: s.displayName,
