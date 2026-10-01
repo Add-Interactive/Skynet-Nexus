@@ -42,6 +42,52 @@ function _normalizeArticle(a) {
   return a;
 }
 
+// ============================================================
+//   Correspondent byline portraits (article pages only)
+//   Each of the 13 correspondent channels ships portraits in
+//   three styles; the active kid picks a style in their profile.
+// ============================================================
+var CORR_CHANNELS = ['ai', 'space', 'robotics', 'biotech', 'quantum', 'climate', 'engineering', 'math', 'cyber', 'gaming', 'music', 'stem', 'play'];
+var CORR_STYLES = ['human', 'animal', 'skynet'];
+
+function correspondentStyle() {
+  // Active kid's chosen portrait style; falls back to 'human' when logged out or unset.
+  try {
+    if (typeof window !== 'undefined' && window.SkyAuth && typeof window.SkyAuth.getActiveKid === 'function') {
+      var kid = window.SkyAuth.getActiveKid();
+      if (kid && CORR_STYLES.indexOf(kid.correspondentStyle) !== -1) return kid.correspondentStyle;
+    }
+  } catch (e) { /* fall through to default */ }
+  return 'human';
+}
+
+function correspondentPortrait(cat) {
+  // URL of the byline portrait for a correspondent channel, or null for other cats.
+  // cat is allowlisted before being interpolated into the URL.
+  if (CORR_CHANNELS.indexOf(cat) === -1) return null;
+  return '/assets/img/channels/' + cat + '/portrait-' + correspondentStyle() + '.png';
+}
+
+function bylineAvatar(a) {
+  // Article byline avatar: style portrait <img> for correspondent channels,
+  // original initials span otherwise (or if the image fails to load).
+  var initials = '<span class="author-avatar">' + rssEsc(a && a.authorInitials) + '</span>';
+  var url = correspondentPortrait(a && a.cat);
+  if (!url) return initials;
+  // Attribute-encode the fallback span so it survives inside the onerror attribute.
+  var fallback = initials
+    .replace(/\\/g, '\\\\')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+  return '<img class="author-avatar author-avatar-img" src="' + url + '"' +
+    ' alt="' + rssEsc(a.author) + ' portrait"' +
+    ' style="width:36px;height:36px;border-radius:50%;object-fit:cover;background:#0B1026"' +
+    ' onerror="this.outerHTML=\'' + fallback + '\'"/>';
+}
+
 function loadManifest(baseUrl) {
   if (_manifestPromise) return _manifestPromise;
   const url = _resolveDataUrl(baseUrl, 'data/manifest.json');
@@ -1992,7 +2038,7 @@ function initArticlePage() {
           '<span class="article-cat" data-cat="' + a.cat + '">' + categoryLabel(a.cat) + '</span>' +
           '<h1 class="article-title">' + a.title + '</h1>' +
           '<div class="article-meta">' +
-            '<span class="author-avatar">' + a.authorInitials + '</span>' +
+            bylineAvatar(a) +
             '<span><strong>' + a.author + '</strong></span>' +
             '<span>•</span>' +
             '<span>' + friendlyDate(a.date) + '</span>' +
