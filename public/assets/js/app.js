@@ -57,6 +57,11 @@ function correspondentStyle() {
       var kid = window.SkyAuth.getActiveKid();
       if (kid && CORR_STYLES.indexOf(kid.correspondentStyle) !== -1) return kid.correspondentStyle;
     }
+    // No kid active: fall back to the account-level style (set on the profile page).
+    if (typeof window !== 'undefined' && window.SkyAuth && window.SkyAuth.state && window.SkyAuth.state.user) {
+      var acct = window.SkyAuth.state.user.correspondentStyle;
+      if (acct && CORR_STYLES.indexOf(acct) !== -1) return acct;
+    }
   } catch (e) { /* fall through to default */ }
   return 'human';
 }
@@ -71,9 +76,12 @@ function correspondentPortrait(cat) {
 function bylineAvatar(a) {
   // Article byline avatar: style portrait <img> for correspondent channels,
   // original initials span otherwise (or if the image fails to load).
+  // The portrait links to the correspondent's bio card on the Meet the Correspondents page.
   var initials = '<span class="author-avatar">' + rssEsc(a && a.authorInitials) + '</span>';
   var url = correspondentPortrait(a && a.cat);
   if (!url) return initials;
+  var bioHref = (a && a.cat && CORR_CHANNELS.indexOf(a.cat) !== -1)
+    ? '/pages/team.html#corr-agent-' + a.cat : null;
   // Attribute-encode the fallback span so it survives inside the onerror attribute.
   var fallback = initials
     .replace(/\\/g, '\\\\')
@@ -82,10 +90,26 @@ function bylineAvatar(a) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
-  return '<img class="author-avatar author-avatar-img" src="' + url + '"' +
+  var img = '<img class="author-avatar author-avatar-img" src="' + url + '"' +
     ' alt="' + rssEsc(a.author) + ' portrait"' +
     ' style="width:36px;height:36px;border-radius:50%;object-fit:cover;background:#0B1026"' +
     ' onerror="this.outerHTML=\'' + fallback + '\'"/>';
+  if (bioHref) {
+    return '<a href="' + bioHref + '" class="byline-portrait-link" title="Meet ' +
+      rssEsc(a.author) + ' — view bio and all their stories">' + img + '</a>';
+  }
+  return img;
+}
+
+function correspondentNameLink(a) {
+  // Article byline name: links to the correspondent's bio card for channel cats.
+  var name = '<span><strong>' + rssEsc(a && a.author) + '</strong></span>';
+  if (a && a.cat && CORR_CHANNELS.indexOf(a.cat) !== -1) {
+    return '<a href="/pages/team.html#corr-agent-' + a.cat + '" class="byline-name-link" ' +
+      'style="color:inherit;text-decoration:none" title="Meet ' + rssEsc(a.author) +
+      ' — view bio and all their stories">' + name + '</a>';
+  }
+  return name;
 }
 
 function loadManifest(baseUrl) {
@@ -608,7 +632,7 @@ function renderPost(a, featured, base) {
         '<h3 class="post-title">' + a.title + '</h3>' +
         '<p class="post-excerpt">' + a.excerpt + '</p>' +
         '<div class="post-meta">' +
-          '<div class="post-author"><span class="author-avatar">' + a.authorInitials + '</span><span>' + a.author + '</span></div>' +
+          '<div class="post-author">' + bylineAvatar(a) + correspondentNameLink(a) + '</div>' +
           '<span class="dot">•</span><span>' + friendlyDate(a.date) + '</span>' +
           '<span class="dot">•</span><span>' + a.readTime + ' min</span>' +
           '<div class="post-actions">' +
@@ -2039,7 +2063,7 @@ function initArticlePage() {
           '<h1 class="article-title">' + a.title + '</h1>' +
           '<div class="article-meta">' +
             bylineAvatar(a) +
-            '<span><strong>' + a.author + '</strong></span>' +
+            correspondentNameLink(a) +
             '<span>•</span>' +
             '<span>' + friendlyDate(a.date) + '</span>' +
             '<span>•</span>' +

@@ -263,6 +263,8 @@ _addColumnIfMissing('staff', 'portrait_animal', 'TEXT');
 _addColumnIfMissing('staff', 'portrait_skynet', 'TEXT');
 // Kids pick a correspondent portrait style: human|animal|skynet.
 _addColumnIfMissing('kid_profiles', 'correspondent_style', "TEXT NOT NULL DEFAULT 'human'");
+// Account-level default style (used when no kid profile is active).
+_addColumnIfMissing('users', 'correspondent_style', "TEXT NOT NULL DEFAULT 'human'");
 
 
 // ---------- Prepared statements ----------
@@ -276,8 +278,9 @@ const stmts = {
   updateLastLogin: db.prepare(`UPDATE users SET last_login_at = datetime('now') WHERE id = ?`),
   updateUser: db.prepare(`
     UPDATE users
-       SET display_name  = COALESCE(?, display_name),
-           avatar_color  = COALESCE(?, avatar_color)
+       SET display_name       = COALESCE(?, display_name),
+           avatar_color       = COALESCE(?, avatar_color),
+           correspondent_style = COALESCE(?, correspondent_style)
      WHERE id = ?
   `),
   changePassword: db.prepare(`UPDATE users SET password_hash = ? WHERE id = ?`),
@@ -642,6 +645,7 @@ function toPublicUser(row) {
     displayName: row.display_name,
     avatarColor: row.avatar_color,
     role: row.role,
+    correspondentStyle: row.correspondent_style || 'human',
     createdAt: row.created_at,
     lastLoginAt: row.last_login_at
   };
@@ -690,8 +694,8 @@ module.exports = {
   findUserById(id) { return toPublicUser(stmts.findUserById.get(id)); },
   findUserRawById(id) { return stmts.findUserById.get(id); },
   updateLastLogin(id) { stmts.updateLastLogin.run(id); },
-  updateUser({ id, displayName, avatarColor }) {
-    stmts.updateUser.run(displayName ?? null, avatarColor ?? null, id);
+  updateUser({ id, displayName, avatarColor, correspondentStyle }) {
+    stmts.updateUser.run(displayName ?? null, avatarColor ?? null, correspondentStyle ?? null, id);
     return toPublicUser(stmts.findUserById.get(id));
   },
   changePassword(id, hash) { stmts.changePassword.run(hash, id); },

@@ -135,14 +135,25 @@
 
           <div class="sky-profile-section">
             <h2>Your account</h2>
-            <p class="sub">Change your display name or password.</p>
+            <p class="sub">Change your display name, password, or the correspondent art style used when no kid profile is active.</p>
             <div class="sky-auth-card" style="max-width:none">
               <form id="sky-account-form">
                 <div class="sky-field">
                   <label for="acc-name">Display name</label>
                   <input id="acc-name" type="text" minlength="2" maxlength="40" value="${escape(state.user.displayName)}"/>
                 </div>
-                <button type="submit" class="sky-btn-block">Save changes</button>
+                <div class="sky-field" style="margin-top:14px">
+                  <label>Correspondent style</label>
+                  <p class="sub" style="margin:0 0 8px">Pick how the correspondents look when you're reading without an active kid profile.</p>
+                  <div class="sky-style-options" id="acc-style-options" style="display:flex;gap:10px;flex-wrap:wrap">
+                    ${['human','animal','skynet'].map(s => `
+                      <button type="button" class="sky-style-option ${((state.user.correspondentStyle || 'human') === s) ? 'active' : ''}" data-s="${s}">
+                        <span class="so-emoji">${s === 'human' ? '🧑' : s === 'animal' ? '🐾' : '🤖'}</span>
+                        <span class="so-title">${s === 'human' ? 'Humans' : s === 'animal' ? 'Animals' : 'Skynet Agents'}</span>
+                      </button>`).join('')}
+                  </div>
+                </div>
+                <button type="submit" class="sky-btn-block" style="margin-top:14px">Save changes</button>
                 <p class="sky-auth-alt" id="sky-account-status"></p>
               </form>
             </div>
@@ -191,10 +202,12 @@
           e.preventDefault();
           const name = document.getElementById('acc-name').value.trim();
           const status = document.getElementById('sky-account-status');
+          const styleBtn = document.querySelector('#acc-style-options .sky-style-option.active');
+          const style = styleBtn ? styleBtn.getAttribute('data-s') : 'human';
           const res = await fetch('/api/auth/profile', {
             method: 'PATCH', credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ displayName: name })
+            body: JSON.stringify({ displayName: name, correspondentStyle: style })
           });
           const d = await res.json();
           if (!res.ok) { status.innerHTML = `<span style="color:#ff2e63">${d.error||'Save failed'}</span>`; return; }
@@ -202,6 +215,13 @@
           await SkyAuth.refresh(); render(SkyAuth.state);
         });
         document.getElementById('sky-logout-btn').addEventListener('click', () => SkyAuth.logout());
+
+        // Account-level correspondent style picker (instant toggle, saved with the form)
+        document.getElementById('acc-style-options')?.addEventListener('click', (e) => {
+          const btn = e.target.closest('.sky-style-option'); if (!btn) return;
+          document.querySelectorAll('#acc-style-options .sky-style-option').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        });
 
         // Delete-account handler
         const delForm = document.getElementById('sky-delete-form');
