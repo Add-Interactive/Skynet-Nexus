@@ -1876,6 +1876,178 @@
     refreshImages();
   };
 
+  // ===== Correspondents =====
+  Views.correspondents = function () {
+    var PORTRAIT_STYLES = [
+      ['human', 'Humans', '🧑'],
+      ['animal', 'Animals', '🐾'],
+      ['skynet', 'Skynet Agents', '🤖']
+    ];
+
+    function styleLabel(style) {
+      for (var i = 0; i < PORTRAIT_STYLES.length; i++) {
+        if (PORTRAIT_STYLES[i][0] === style) return PORTRAIT_STYLES[i][1];
+      }
+      return style;
+    }
+
+    function load() {
+      api('/admin/correspondents').then(render).catch(errView);
+    }
+
+    function portraitUrl(c, style) {
+      return (c.portraits && c.portraits[style]) || '';
+    }
+
+    function render(r) {
+      var list = r.correspondents || [];
+      main.innerHTML = '';
+      main.appendChild(h(
+        '<div class="admin-view-head"><h1>Meet the Correspondents</h1>' +
+        '<p>These are the 13 public-facing characters who write for Skynet Nexus. ' +
+        'Each one comes in three portrait styles — Humans, Animals, and Skynet Agents — ' +
+        'and kids pick their favorite style in their kid profile.</p></div>'
+      ));
+      if (!list.length) {
+        main.appendChild(h('<div class="admin-empty">No correspondents configured yet.</div>'));
+        return;
+      }
+      var grid = h('<div class="admin-queue-grid" id="corr-grid"></div>');
+      main.appendChild(grid);
+      list.forEach(function (c) {
+        if (c.kind && c.kind !== 'agent') return;
+        grid.appendChild(correspondentCard(c));
+      });
+    }
+
+    function correspondentCard(c) {
+      var accent = c.accentColor || '#00e5ff';
+      var curStyle = 'human';
+      var img = null;
+
+      function paintSwitch() {
+        Array.prototype.forEach.call(card.querySelectorAll('[data-style-btn]'), function (b) {
+          b.classList.toggle('admin-btn-primary', b.getAttribute('data-style-btn') === curStyle);
+        });
+        if (img) {
+          var u = portraitUrl(c, curStyle);
+          if (u) img.src = u;
+        }
+      }
+
+      var name = esc(c.displayName || c.slug || 'Correspondent');
+      var card = h(
+        '<div class="admin-queue-card">' +
+          '<div class="admin-queue-card-content">' +
+            '<div style="text-align:center;margin-bottom:10px;">' +
+              '<img data-portrait alt="' + name + ' portrait" style="width:120px;height:120px;border-radius:16px;object-fit:cover;border:2px solid ' + esc(accent) + ';"/>' +
+            '</div>' +
+            '<div class="row-actions" data-style-switch style="justify-content:center;margin-bottom:10px;"></div>' +
+            '<div class="admin-queue-card-meta" style="margin-bottom:10px;">' +
+              '<span class="admin-queue-card-channel" style="color:' + esc(accent) + '">' +
+                (c.avatarEmoji ? esc(c.avatarEmoji) + ' ' : '') + esc(c.channel || '') +
+              '</span>' +
+              '<span class="pill ' + esc(c.status || 'active') + '">' + esc(c.status || 'active') + '</span>' +
+            '</div>' +
+            '<label style="display:block;margin:0 0 10px 0;"><span style="font-weight:700;font-size:0.85rem;">Name</span>' +
+              '<input type="text" data-f="displayName" value="' + name + '" style="width:100%;margin-top:4px;"/></label>' +
+            '<label style="display:block;margin:0 0 10px 0;"><span style="font-weight:700;font-size:0.85rem;">Kid bio</span>' +
+              '<textarea data-f="kidBio" rows="3" style="width:100%;margin-top:4px;">' + esc(c.kidBio || '') + '</textarea></label>' +
+            '<label style="display:block;margin:0 0 10px 0;"><span style="font-weight:700;font-size:0.85rem;">Fun fact</span>' +
+              '<input type="text" data-f="funFact" value="' + esc(c.funFact || '') + '" style="width:100%;margin-top:4px;"/></label>' +
+            '<div data-uploads style="border-top:1px solid var(--border);padding-top:10px;"></div>' +
+          '</div>' +
+          '<div class="admin-queue-card-actions">' +
+            '<button class="admin-btn admin-btn-sm admin-btn-primary" data-save style="width:100%">Save changes</button>' +
+          '</div>' +
+        '</div>'
+      );
+
+      img = card.querySelector('[data-portrait]');
+
+      // Style preview switcher: swaps the img src client-side, no server call
+      var sw = card.querySelector('[data-style-switch]');
+      PORTRAIT_STYLES.forEach(function (ps) {
+        var b = h('<button class="admin-btn admin-btn-sm">' + ps[2] + ' ' + ps[1] + '</button>');
+        b.setAttribute('data-style-btn', ps[0]);
+        b.addEventListener('click', function () { curStyle = ps[0]; paintSwitch(); });
+        sw.appendChild(b);
+      });
+
+      // Per-style portrait uploads
+      var ups = card.querySelector('[data-uploads]');
+      PORTRAIT_STYLES.forEach(function (ps) {
+        var w = h(
+          '<label style="display:block;margin:0 0 8px 0;">' +
+            '<span style="font-weight:700;font-size:0.8rem;">Replace ' + ps[1] + ' portrait</span>' +
+            '<input type="file" accept="image/*" data-upload="' + ps[0] + '" style="width:100%;margin-top:4px;font-size:0.85rem;"/>' +
+          '</label>'
+        );
+        var input = w.querySelector('input');
+        input.addEventListener('change', function () {
+          var file = input.files && input.files[0];
+          if (!file) return;
+          if (file.type.indexOf('image/') !== 0) {
+            toast('Please choose an image file (PNG, JPG, …).', true);
+            input.value = '';
+            return;
+          }
+          var reader = new FileReader();
+          reader.onload = function () {
+            api('/admin/correspondents/' + encodeURIComponent(c.slug) + '/portrait', {
+              method: 'POST',
+              body: { style: ps[0], base64: reader.result }
+            }).then(function (res) {
+              var url = (res && res.url) || portraitUrl(c, ps[0]);
+              c.portraits = c.portraits || {};
+              c.portraits[ps[0]] = url;
+              if (url && ps[0] === curStyle && img) {
+                img.src = url + (url.indexOf('?') > -1 ? '&' : '?') + 't=' + Date.now();
+              }
+              input.value = '';
+              toast(ps[1] + ' portrait updated');
+            }).catch(function (e) {
+              input.value = '';
+              toast(e.message, true);
+            });
+          };
+          reader.onerror = function () {
+            input.value = '';
+            toast('Could not read that file.', true);
+          };
+          reader.readAsDataURL(file);
+        });
+        ups.appendChild(w);
+      });
+
+      // Save
+      card.querySelector('[data-save]').addEventListener('click', function () {
+        var body = {};
+        card.querySelectorAll('[data-f]').forEach(function (el) {
+          body[el.getAttribute('data-f')] = el.value;
+        });
+        if (!body.displayName || !body.displayName.trim()) {
+          toast('Name cannot be empty.', true);
+          return;
+        }
+        api('/admin/correspondents/' + encodeURIComponent(c.slug), {
+          method: 'PATCH',
+          body: body
+        }).then(function () {
+          c.displayName = body.displayName;
+          c.kidBio = body.kidBio;
+          c.funFact = body.funFact;
+          toast('Correspondent updated');
+        }).catch(function (e) { toast(e.message, true); });
+      });
+
+      paintSwitch();
+      return card;
+    }
+
+    load();
+  };
+
   // ---------- Shared helpers ----------
   function ensureStaff() {
     if (State.staff && State.staff.length) return Promise.resolve(State.staff);
