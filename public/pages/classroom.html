@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Classroom · Skynet Nexus News</title>
+  <meta name="description" content="Teacher classrooms and article discussions on Skynet Nexus News."/>
+  <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
+  <link rel="stylesheet" href="/assets/css/style.css"/>
+  <link rel="canonical" href="https://skynet-nexus-production.up.railway.app/pages/classroom.html"/>
+  <style>
+    .sky-class-wrap { max-width: 960px; margin: 40px auto; padding: 0 20px; }
+    .sky-back { color: #00e5ff; text-decoration: none; font: 600 13px/1 Inter, sans-serif; }
+    .sky-back:hover { text-decoration: underline; }
+    .sky-class-head { display: flex; align-items: center; gap: 14px; margin: 18px 0 24px; }
+    .sky-class-head h1 { margin: 0; font: 800 24px/1.2 Inter, sans-serif; color: var(--text, #e6ecf3); }
+    .sky-class-head p { margin: 4px 0 0; color: var(--muted, #7c8898); font: 500 14px/1.4 Inter, sans-serif; }
+    .sky-sec { margin-bottom: 34px; }
+    .sky-sec h2 { font: 800 17px/1 Inter, sans-serif; color: var(--text, #e6ecf3); margin: 0 0 6px; }
+    .sky-sec p.sub { color: var(--muted, #7c8898); font: 500 14px/1.4 Inter, sans-serif; margin: 0 0 12px; }
+    .sky-card { border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 16px; background: rgba(255,255,255,.02); }
+    .sky-class-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .sky-class-pill { padding: 8px 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.03); color: var(--text, #e6ecf3); font: 700 14px/1 Inter, sans-serif; cursor: pointer; }
+    .sky-class-pill.active { border-color: #00e5ff; background: rgba(0,229,255,.12); }
+    .sky-btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 999px; border: 1px solid rgba(0,229,255,.45); background: rgba(0,229,255,.08); color: #e6ecf3; font: 700 14px/1 Inter, sans-serif; cursor: pointer; }
+    .sky-btn:hover { background: rgba(0,229,255,.18); }
+    .sky-btn.danger { border-color: rgba(255,46,99,.5); background: rgba(255,46,99,.08); }
+    .sky-btn.danger:hover { background: rgba(255,46,99,.18); }
+    .sky-btn.ghost { border-color: rgba(255,255,255,.15); background: transparent; }
+    .sky-input, .sky-textarea, .sky-select { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.04); color: var(--text, #e6ecf3); font: 500 14px/1.4 Inter, sans-serif; box-sizing: border-box; }
+    .sky-textarea { min-height: 90px; resize: vertical; }
+    .sky-form-row { margin-bottom: 12px; }
+    .sky-form-row label { display: block; font: 700 13px/1 Inter, sans-serif; color: var(--text, #e6ecf3); margin-bottom: 6px; }
+    .sky-student-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+    .sky-student-row:last-child { border-bottom: none; }
+    .sky-av { width: 34px; height: 34px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 17px; flex: none; }
+    .sky-x { margin-left: auto; background: none; border: none; color: #7c8898; font-size: 18px; cursor: pointer; padding: 4px 8px; }
+    .sky-x:hover { color: #ff2e63; }
+    .sky-prog-table { width: 100%; border-collapse: collapse; font: 500 14px/1.4 Inter, sans-serif; }
+    .sky-prog-table th { text-align: left; font: 700 12px/1 Inter, sans-serif; color: #7c8898; text-transform: uppercase; letter-spacing: .04em; padding: 8px 6px; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .sky-prog-table td { padding: 9px 6px; border-bottom: 1px solid rgba(255,255,255,.06); color: var(--text, #e6ecf3); }
+    .sky-disc { border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; background: rgba(255,255,255,.02); cursor: pointer; }
+    .sky-disc:hover { border-color: rgba(0,229,255,.4); }
+    .sky-disc h3 { margin: 0 0 4px; font: 800 16px/1.3 Inter, sans-serif; color: var(--text, #e6ecf3); }
+    .sky-disc .meta { font: 500 12px/1.4 Inter, sans-serif; color: #7c8898; }
+    .sky-disc .meta a { color: #00e5ff; }
+    .sky-reply { display: flex; gap: 10px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+    .sky-reply:last-child { border-bottom: none; }
+    .sky-reply .body { font: 500 14px/1.55 Inter, sans-serif; color: var(--text, #e6ecf3); white-space: pre-wrap; word-break: break-word; }
+    .sky-reply .who { font: 700 13px/1 Inter, sans-serif; margin-bottom: 4px; }
+    .sky-reply .who.teacher { color: #ffb020; }
+    .sky-reply .when { font: 500 11px/1 Inter, sans-serif; color: #7c8898; margin-top: 4px; }
+    .sky-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; background: #0B1026; border: 1px solid #00e5ff; color: #fff; font: 800 15px/1 Inter, sans-serif; padding: 12px 22px; border-radius: 999px; box-shadow: 0 0 24px rgba(0,229,255,.45); animation: clsPop .3s ease; }
+    @keyframes clsPop { 0% { transform: translateX(-50%) scale(.7); opacity: 0; } 100% { transform: translateX(-50%) scale(1); opacity: 1; } }
+  </style>
+</head>
+<body>
+  <div class="sky-class-wrap">
+    <a href="/" class="sky-back">← Back to feed</a>
+    <div id="sky-class-content" style="margin-top:6px">
+      <p style="color:var(--muted,#7c8898)">Loading…</p>
+    </div>
+  </div>
+
+  <script src="/assets/js/auth.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      function escape(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[ch])); }
+      const content = document.getElementById('sky-class-content');
+      let S = { classrooms: [], activeClassId: null, kids: [], discussion: null };
+
+      async function api(path, opts) {
+        opts = opts || {};
+        const res = await fetch(path, Object.assign({ credentials: 'same-origin', headers: { 'Content-Type': 'application/json' } }, opts));
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+        return data;
+      }
+      function toast(msg) {
+        const t = document.createElement('div');
+        t.className = 'sky-toast'; t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2200);
+      }
+      function fmtDate(iso) {
+        try { return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); } catch (e) { return ''; }
+      }
+      // Pull article id + channel out of a pasted article URL.
+      function parseArticleLink(url) {
+        try {
+          const u = new URL(url, window.location.origin);
+          const id = u.searchParams.get('id');
+          const cat = u.searchParams.get('cat');
+          return { article_id: id || null, article_cat: cat || null };
+        } catch (e) { return { article_id: null, article_cat: null }; }
+      }
+
+      // ---------------- Teacher dashboard ----------------
+      async function loadTeacher() {
+        const [clsData, kidsRes] = await Promise.all([
+          api('/api/classrooms').catch(() => ({ classrooms: [] })),
+          api('/api/kids').catch(() => ({ kids: [] }))
+        ]);
+        S.classrooms = clsData.classrooms || [];
+        S.kids = kidsRes.kids || kidsRes || [];
+        if (!S.activeClassId && S.classrooms.length) S.activeClassId = S.classrooms[0].id;
+        renderTeacher();
+      }
+
+      function renderTeacher() {
+        const pills = S.classrooms.map(c =>
+          `<button class="sky-class-pill${c.id === S.activeClassId ? ' active' : ''}" data-cls="${c.id}">${escape(c.name)}</button>`
+        ).join('');
+        content.innerHTML = `
+          <div class="sky-class-head">
+            <div><h1>🏫 Classroom</h1><p>Group students into classes, track their reading, and run article discussions.</p></div>
+          </div>
+          <div class="sky-class-pills">${pills}<button class="sky-class-pill" id="cls-new" style="border-style:dashed">＋ New class</button></div>
+          <div id="cls-detail"></div>`;
+        content.querySelectorAll('[data-cls]').forEach(b => b.addEventListener('click', () => { S.activeClassId = Number(b.getAttribute('data-cls')); renderTeacher(); }));
+        document.getElementById('cls-new').addEventListener('click', newClassroomForm);
+        renderClassDetail();
+      }
+
+      function newClassroomForm() {
+        const name = prompt('Name your classroom (e.g. "Ms. Rivera\'s 4th Grade"):');
+        if (name == null) return;
+        api('/api/classrooms', { method: 'POST', body: JSON.stringify({ name }) })
+          .then(d => { S.activeClassId = d.id; return loadTeacher(); })
+          .then(() => toast('Classroom created'))
+          .catch(e => toast('Error: ' + e.message));
+      }
+
+      async function renderClassDetail() {
+        const el = document.getElementById('cls-detail');
+        const c = S.classrooms.find(x => x.id === S.activeClassId);
+        if (!c) { el.innerHTML = '<p style="color:#7c8898">Create your first classroom to get started.</p>'; return; }
+        el.innerHTML = '<p style="color:#7c8898">Loading…</p>';
+        try {
+          const [students, progress, discussions] = await Promise.all([
+            api('/api/classrooms/' + c.id + '/students'),
+            api('/api/classrooms/' + c.id + '/progress'),
+            api('/api/discussions?classroom_id=' + c.id).catch(() => ({ discussions: [] }))
+          ]);
+          const inClass = new Set((students.students || []).map(k => k.id));
+          const addable = S.kids.filter(k => !inClass.has(k.id));
+          const progRows = (progress.students || []).slice().sort((a, b) => b.xp - a.xp).map(s => `
+            <tr>
+              <td><span class="sky-av" style="background:${escape(s.avatarColor || '#00e5ff')}">${escape(s.avatarEmoji || s.name.slice(0, 1))}</span> <b>${escape(s.name)}</b></td>
+              <td>${escape(s.level.emoji)} ${escape(s.level.name)}</td>
+              <td>${s.xp.toLocaleString()}</td>
+              <td>${s.streak > 0 ? '🔥 ' + s.streak : '—'}</td>
+              <td>${s.stories}</td>
+              <td>${s.badgeCount}</td>
+            </tr>`).join('');
+          const discList = (discussions.discussions || []).map(d => `
+            <div class="sky-disc" data-disc="${d.id}">
+              <h3>${escape(d.title)}</h3>
+              <div class="meta">${d.article_id ? `<a href="/pages/article.html?id=${encodeURIComponent(d.article_id)}${d.article_cat ? '&cat=' + encodeURIComponent(d.article_cat) : ''}" onclick="event.stopPropagation()">View article</a> · ` : ''}${d.replyCount} ${d.replyCount === 1 ? 'reply' : 'replies'} · ${fmtDate(d.created_at)}</div>
+            </div>`).join('');
+          el.innerHTML = `
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+              <h2 style="margin:0;font:800 20px/1 Inter,sans-serif">${escape(c.name)}</h2>
+              <button class="sky-btn ghost" id="cls-rename" style="padding:6px 14px;font-size:13px">Rename</button>
+              <button class="sky-btn danger" id="cls-delete" style="padding:6px 14px;font-size:13px">Delete</button>
+            </div>
+            <div class="sky-sec">
+              <h2>👥 Students</h2>
+              <p class="sub">${(students.students || []).length} student${(students.students || []).length === 1 ? '' : 's'} in this class.</p>
+              <div class="sky-card" style="margin-bottom:10px">
+                ${(students.students || []).map(k => `
+                  <div class="sky-student-row">
+                    <span class="sky-av" style="background:${escape(k.avatarColor || '#00e5ff')}">${escape(k.avatarEmoji || k.name.slice(0, 1))}</span>
+                    <b>${escape(k.name)}</b>
+                    <button class="sky-x" data-rm="${k.id}" title="Remove from class">×</button>
+                  </div>`).join('') || '<p class="sub" style="margin:0">No students yet — add them below.</p>'}
+              </div>
+              ${addable.length ? `
+              <div style="display:flex;gap:8px">
+                <select class="sky-select" id="cls-add-sel" style="max-width:260px">
+                  ${addable.map(k => `<option value="${k.id}">${escape(k.name)}</option>`).join('')}
+                </select>
+                <button class="sky-btn" id="cls-add-btn">Add student</button>
+              </div>` : '<p class="sub">All your student profiles are in this class. Add more from your <a href="/pages/profile.html" style="color:#00e5ff">profile page</a>.</p>'}
+            </div>
+            <div class="sky-sec">
+              <h2>📊 Reading progress</h2>
+              <p class="sub">Live XP, levels, streaks, and badges for every student.</p>
+              <div class="sky-card" style="overflow-x:auto">
+                <table class="sky-prog-table">
+                  <thead><tr><th>Student</th><th>Level</th><th>XP</th><th>Streak</th><th>Stories</th><th>Badges</th></tr></thead>
+                  <tbody>${progRows || '<tr><td colspan="6" style="color:#7c8898">No reading activity yet.</td></tr>'}</tbody>
+                </table>
+              </div>
+            </div>
+            <div class="sky-sec">
+              <h2>💬 Discussions</h2>
+              <p class="sub">Start a threaded chat about an article or a topic. Students reply, you moderate.</p>
+              <button class="sky-btn" id="disc-new" style="margin-bottom:12px">＋ New discussion</button>
+              <div id="disc-form-slot"></div>
+              ${discList || '<p class="sub">No discussions yet.</p>'}
+            </div>`;
+          document.getElementById('cls-rename').addEventListener('click', () => {
+            const name = prompt('Rename classroom:', c.name);
+            if (name == null) return;
+            api('/api/classrooms/' + c.id, { method: 'PATCH', body: JSON.stringify({ name }) })
+              .then(() => loadTeacher()).catch(e => toast('Error: ' + e.message));
+          });
+          document.getElementById('cls-delete').addEventListener('click', () => {
+            if (!confirm('Delete "' + c.name + '" and all its discussions? Students keep their profiles and XP.')) return;
+            api('/api/classrooms/' + c.id, { method: 'DELETE' })
+              .then(() => { S.activeClassId = null; return loadTeacher(); })
+              .then(() => toast('Classroom deleted')).catch(e => toast('Error: ' + e.message));
+          });
+          el.querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', () => {
+            api('/api/classrooms/' + c.id + '/students/' + b.getAttribute('data-rm'), { method: 'DELETE' })
+              .then(() => renderClassDetail()).catch(e => toast('Error: ' + e.message));
+          }));
+          const addBtn = document.getElementById('cls-add-btn');
+          if (addBtn) addBtn.addEventListener('click', () => {
+            const kidId = document.getElementById('cls-add-sel').value;
+            api('/api/classrooms/' + c.id + '/students', { method: 'POST', body: JSON.stringify({ kid_id: Number(kidId) }) })
+              .then(() => renderClassDetail()).then(() => toast('Student added')).catch(e => toast('Error: ' + e.message));
+          });
+          document.getElementById('disc-new').addEventListener('click', () => newDiscussionForm(c.id));
+          el.querySelectorAll('[data-disc]').forEach(dEl => dEl.addEventListener('click', () => openDiscussion(Number(dEl.getAttribute('data-disc')), null)));
+        } catch (e) {
+          el.innerHTML = '<p style="color:#ff2e63">Could not load classroom: ' + escape(e.message) + '</p>';
+        }
+      }
+
+      function newDiscussionForm(classroomId) {
+        const slot = document.getElementById('disc-form-slot');
+        slot.innerHTML = `
+          <div class="sky-card" style="margin-bottom:14px">
+            <div class="sky-form-row"><label>Title</label><input class="sky-input" id="nd-title" placeholder="e.g. What did the Mars rover find?"/></div>
+            <div class="sky-form-row"><label>Article link (optional)</label><input class="sky-input" id="nd-article" placeholder="Paste a Skynet Nexus article URL"/></div>
+            <div class="sky-form-row"><label>Topic / prompt (optional)</label><textarea class="sky-textarea" id="nd-topic" placeholder="Ask a question to kick off the chat…"></textarea></div>
+            <div style="display:flex;gap:8px">
+              <button class="sky-btn" id="nd-create">Start discussion</button>
+              <button class="sky-btn ghost" id="nd-cancel">Cancel</button>
+            </div>
+          </div>`;
+        document.getElementById('nd-cancel').addEventListener('click', () => { slot.innerHTML = ''; });
+        document.getElementById('nd-create').addEventListener('click', () => {
+          const title = document.getElementById('nd-title').value.trim();
+          if (!title) { toast('Give the discussion a title'); return; }
+          const link = parseArticleLink(document.getElementById('nd-article').value.trim());
+          const topic = document.getElementById('nd-topic').value.trim();
+          api('/api/discussions', { method: 'POST', body: JSON.stringify({
+            classroom_id: classroomId, title,
+            article_id: link.article_id, article_cat: link.article_cat,
+            topic: topic || null
+          }) })
+            .then(d => {
+              if (d.grownUp && !d.grownUp.alreadyEarned) toast('👨‍🏫 +' + d.grownUp.xpEarned + ' XP for hosting!');
+              renderClassDetail();
+            })
+            .catch(e => toast('Error: ' + e.message));
+        });
+      }
+
+      // ---------------- Discussion thread (teacher or student) ----------------
+      async function openDiscussion(discussionId, kid) {
+        content.innerHTML = '<p style="color:#7c8898">Loading discussion…</p>';
+        try {
+          const qs = kid ? '?kid_id=' + kid.id : '';
+          const d = await api('/api/discussions/' + discussionId + qs);
+          S.discussion = { data: d, kid };
+          renderDiscussion();
+        } catch (e) {
+          content.innerHTML = '<p style="color:#ff2e63">Could not load discussion: ' + escape(e.message) + '</p>';
+        }
+      }
+
+      function renderDiscussion() {
+        const { data, kid } = S.discussion;
+        const disc = data.discussion;
+        const isTeacher = !kid;
+        const replies = (data.replies || []).map(r => {
+          const who = r.author.author_kid_id !== undefined && r.author.type === 'student'
+            ? `<span class="sky-av" style="background:${escape(r.author.color || '#00e5ff')};width:30px;height:30px;font-size:15px">${escape(r.author.emoji || r.author.name.slice(0, 1))}</span>`
+            : `<span class="sky-av" style="background:#ffb020;width:30px;height:30px;font-size:15px">🍎</span>`;
+          const name = r.author.type === 'student' ? escape(r.author.name) : 'Teacher';
+          return `
+            <div class="sky-reply">
+              ${who}
+              <div style="flex:1">
+                <div class="who${r.author.type === 'teacher' ? ' teacher' : ''}">${name}</div>
+                <div class="body">${escape(r.body)}</div>
+                <div class="when">${fmtDate(r.created_at)}${isTeacher ? ` · <a href="#" data-del-reply="${r.id}" style="color:#ff2e63">delete</a>` : ''}</div>
+              </div>
+            </div>`;
+        }).join('');
+        content.innerHTML = `
+          <div class="sky-class-head">
+            <div style="flex:1">
+              <a href="#" id="disc-back" class="sky-back">← ${kid ? 'All discussions' : 'Back to classroom'}</a>
+              <h1 style="margin-top:8px">💬 ${escape(disc.title)}</h1>
+              <p>${escape(data.classroom.name)}${disc.article_id ? ` · <a href="/pages/article.html?id=${encodeURIComponent(disc.article_id)}${disc.article_cat ? '&cat=' + encodeURIComponent(disc.article_cat) : ''}" style="color:#00e5ff">View article</a>` : ''}</p>
+            </div>
+            ${isTeacher ? '<button class="sky-btn danger" id="disc-delete">Delete discussion</button>' : ''}
+          </div>
+          ${disc.topic ? `<div class="sky-card" style="margin-bottom:16px"><div style="font:500 14px/1.6 Inter,sans-serif;white-space:pre-wrap">${escape(disc.topic)}</div></div>` : ''}
+          <div class="sky-sec">
+            <h2>${(data.replies || []).length} ${(data.replies || []).length === 1 ? 'reply' : 'replies'}</h2>
+            <div class="sky-card">${replies || '<p class="sub" style="margin:0">No replies yet — start the conversation!</p>'}</div>
+          </div>
+          <div class="sky-sec">
+            <h2>${isTeacher ? 'Reply as teacher' : 'Join the chat' + (kid ? ' — +' + '10 XP' : '')}</h2>
+            <div class="sky-form-row"><textarea class="sky-textarea" id="reply-body" placeholder="${isTeacher ? 'Write a reply…' : 'Share what you think…'}"></textarea></div>
+            <button class="sky-btn" id="reply-send">Post reply</button>
+          </div>`;
+        document.getElementById('disc-back').addEventListener('click', (e) => { e.preventDefault(); kid ? loadStudent(kid) : renderTeacher(); });
+        if (isTeacher) {
+          document.getElementById('disc-delete').addEventListener('click', () => {
+            if (!confirm('Delete this discussion and all its replies?')) return;
+            api('/api/discussions/' + disc.id, { method: 'DELETE' })
+              .then(() => { S.discussion = null; renderTeacher(); }).then(() => toast('Discussion deleted'))
+              .catch(e => toast('Error: ' + e.message));
+          });
+          content.querySelectorAll('[data-del-reply]').forEach(a => a.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!confirm('Delete this reply?')) return;
+            api('/api/replies/' + a.getAttribute('data-del-reply'), { method: 'DELETE' })
+              .then(() => openDiscussion(disc.id, null)).catch(err => toast('Error: ' + err.message));
+          }));
+        }
+        document.getElementById('reply-send').addEventListener('click', () => {
+          const body = document.getElementById('reply-body').value.trim();
+          if (!body) { toast('Write something first'); return; }
+          api('/api/discussions/' + disc.id + '/replies', {
+            method: 'POST',
+            body: JSON.stringify(kid ? { kid_id: kid.id, body } : { body })
+          })
+            .then(r => {
+              if (r.xp && r.xp.xpEarned) toast('+' + r.xp.xpEarned + ' XP for joining in!');
+              else toast('Reply posted');
+              openDiscussion(disc.id, kid);
+            })
+            .catch(e => toast('Error: ' + e.message));
+        });
+      }
+
+      // ---------------- Student view ----------------
+      async function loadStudent(kid) {
+        content.innerHTML = `
+          <div class="sky-class-head">
+            <span class="sky-av" style="background:${escape(kid.avatarColor || '#00e5ff')};width:52px;height:52px;font-size:26px">${escape(kid.avatarEmoji || kid.name.slice(0, 1))}</span>
+            <div><h1>💬 Class discussions</h1><p>Chats your teacher started for ${escape(kid.name)}.</p></div>
+          </div>
+          <div id="stu-disc-list"><p style="color:#7c8898">Loading…</p></div>`;
+        try {
+          const d = await api('/api/discussions?mine=1&kid_id=' + kid.id);
+          const list = document.getElementById('stu-disc-list');
+          list.innerHTML = (d.discussions || []).map(x => `
+            <div class="sky-disc" data-disc="${x.id}">
+              <h3>${escape(x.title)}</h3>
+              <div class="meta">${escape(x.classroomName)}${x.article_id ? ` · <a href="/pages/article.html?id=${encodeURIComponent(x.article_id)}${x.article_cat ? '&cat=' + encodeURIComponent(x.article_cat) : ''}" onclick="event.stopPropagation()">View article</a>` : ''} · ${x.replyCount} ${x.replyCount === 1 ? 'reply' : 'replies'}</div>
+            </div>`).join('') || '<p style="color:#7c8898">No discussions yet — check back soon!</p>';
+          list.querySelectorAll('[data-disc]').forEach(el => el.addEventListener('click', () => openDiscussion(Number(el.getAttribute('data-disc')), kid)));
+        } catch (e) {
+          document.getElementById('stu-disc-list').innerHTML = '<p style="color:#ff2e63">Could not load discussions: ' + escape(e.message) + '</p>';
+        }
+      }
+
+      // ---------------- Entry ----------------
+      function render(state) {
+        if (!state.user) {
+          content.innerHTML = `
+            <div class="sky-class-head"><div><h1>🏫 Classroom</h1><p>Please sign in to use classrooms.</p></div></div>
+            <a class="sky-btn" href="/pages/login.html">Sign in</a>`;
+          return;
+        }
+        const role = state.user.role;
+        const kid = (typeof SkyAuth.getActiveKid === 'function') ? SkyAuth.getActiveKid() : null;
+        if (kid) { loadStudent(kid); return; }
+        if (role === 'teacher' || role === 'admin') { loadTeacher(); return; }
+        content.innerHTML = `
+          <div class="sky-class-head"><div><h1>🏫 Classroom</h1>
+          <p>Classrooms are for teachers. Switch to a kid profile to join class discussions, or manage profiles on your <a href="/pages/profile.html" style="color:#00e5ff">profile page</a>.</p></div></div>`;
+      }
+
+      const stopSub = SkyAuth.subscribe((s) => render(s));
+      SkyAuth.refresh().then(s => render(s)).catch(() => {
+        content.innerHTML = '<p style="color:#ff2e63">Could not load. Please refresh.</p>';
+      });
+    });
+  </script>
+
+  <footer class="footer footer-compact">
+    <div class="footer-bottom">
+      <div class="footer-legal">
+        <span>© 2026 Skynet Nexus News</span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
