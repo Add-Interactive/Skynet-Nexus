@@ -40,7 +40,7 @@ const {
   deleteUser,
   createPasswordReset, findPasswordReset, markPasswordResetUsed, purgeExpiredResets,
   addNewsletter, listNewsletter, countNewsletter,
-  createSubmission, findStaffBySlug, setUserRole, countAdmins, createQueuedStory,
+  createSubmission, findStaffBySlug, listStaff, setUserRole, countAdmins, createQueuedStory,
   listPendingAgentTasks, findAgentTask, updateAgentTask,
   listQueuedStories, deleteQueuedStory,
   listSourcesByStaff, createSource, countSourcesByStaff,
@@ -350,18 +350,22 @@ api.get('/kids', requireAuth, (req, res) => {
   res.json({ kids: listKids(req.session.userId) });
 });
 
+const VALID_CORRESPONDENT_STYLES = ['human', 'animal', 'skynet'];
+
 api.post('/kids', requireAuth, (req, res) => {
   const name = String(req.body.name || '').trim();
   const birthYear = Number(req.body.birthYear);
   const avatarColor = isValidHexColor(req.body.avatarColor, '#39ff14');
   const avatarEmoji = typeof req.body.avatarEmoji === 'string' && req.body.avatarEmoji.length <= 4
     ? req.body.avatarEmoji : '🚀';
+  const correspondentStyle = req.body.correspondentStyle != null ? String(req.body.correspondentStyle).trim().toLowerCase() : 'human';
   if (name.length < 1 || name.length > 40) return res.status(400).json({ error: "Kid's name must be 1–40 characters." });
   if (!isValidBirthYear(birthYear)) return res.status(400).json({ error: 'Birth year must be a realistic year for a kid.' });
+  if (!VALID_CORRESPONDENT_STYLES.includes(correspondentStyle)) return res.status(400).json({ error: 'correspondentStyle must be human, animal, or skynet.' });
   const kids = listKids(req.session.userId);
   if (kids.length >= 6) return res.status(400).json({ error: 'Up to 6 kid profiles per account.' });
 
-  const kid = createKid({ userId: req.session.userId, name, birthYear, avatarColor, avatarEmoji });
+  const kid = createKid({ userId: req.session.userId, name, birthYear, avatarColor, avatarEmoji, correspondentStyle });
   res.status(201).json({ kid });
 });
 
@@ -375,12 +379,14 @@ api.patch('/kids/:id', requireAuth, (req, res) => {
   const birthYear = req.body.birthYear != null ? Number(req.body.birthYear) : null;
   const avatarColor = req.body.avatarColor != null ? isValidHexColor(req.body.avatarColor, null) : null;
   const avatarEmoji = req.body.avatarEmoji != null ? String(req.body.avatarEmoji).slice(0, 4) : null;
+  const correspondentStyle = req.body.correspondentStyle != null ? String(req.body.correspondentStyle).trim().toLowerCase() : null;
 
   if (name != null && (name.length < 1 || name.length > 40)) return res.status(400).json({ error: "Kid's name must be 1–40 characters." });
   if (birthYear != null && !isValidBirthYear(birthYear)) return res.status(400).json({ error: 'Birth year must be realistic.' });
   if (req.body.avatarColor && !avatarColor) return res.status(400).json({ error: 'Avatar color must be hex like #39ff14.' });
+  if (correspondentStyle != null && !VALID_CORRESPONDENT_STYLES.includes(correspondentStyle)) return res.status(400).json({ error: 'correspondentStyle must be human, animal, or skynet.' });
 
-  const kid = updateKid({ id, userId: req.session.userId, name, birthYear, avatarColor, avatarEmoji });
+  const kid = updateKid({ id, userId: req.session.userId, name, birthYear, avatarColor, avatarEmoji, correspondentStyle });
   res.json({ kid });
 });
 
@@ -390,6 +396,23 @@ api.delete('/kids/:id', requireAuth, (req, res) => {
   const deleted = deleteKid(id, req.session.userId);
   if (!deleted) return res.status(404).json({ error: 'Not found.' });
   res.json({ ok: true });
+});
+
+// ---- Correspondents (kid-facing directory; no auth) ----
+api.get('/correspondents', (req, res) => {
+  const correspondents = listStaff()
+    .filter(s => s.kind === 'agent')
+    .map(s => ({
+      slug: s.slug,
+      displayName: s.displayName,
+      channel: s.channel,
+      accentColor: s.accentColor,
+      avatarEmoji: s.avatarEmoji,
+      kidBio: s.kidBio,
+      funFact: s.funFact,
+      portraits: s.portraits
+    }));
+  res.json({ correspondents });
 });
 
 // DELETE /api/auth/account — nukes the parent + all kid profiles (COPPA right-to-delete)

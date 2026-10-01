@@ -1261,4 +1261,65 @@ router.post('/system/run-maintenance', (req, res) => {
   }
 });
 
+// -------------------- CORRESPONDENTS DASHBOARD --------------------
+// Kid-facing correspondent profiles (bio, fun fact, portrait styles).
+// Guarded by router.use(requireAdminRole) at the top like everything else here.
+const CORRESPONDENT_STYLES = ['human', 'animal', 'skynet'];
+const CORRESPONDENT_STATUSES = ['active', 'paused', 'offline'];
+
+router.get('/correspondents', (req, res) => {
+  const correspondents = db.listStaff().filter(s => s.kind === 'agent');
+  res.json({ correspondents });
+});
+
+router.patch('/correspondents/:slug', (req, res) => {
+  const slug = String(req.params.slug || '').trim().toLowerCase();
+  const current = db.findStaffBySlug(slug);
+  if (!current || current.kind !== 'agent') return res.status(404).json({ error: 'not found' });
+  const b = req.body || {};
+  const displayName = b.displayName != null ? String(b.displayName).trim() : null;
+  const kidBio = b.kidBio != null ? String(b.kidBio) : null;
+  const funFact = b.funFact != null ? String(b.funFact) : null;
+  const status = b.status != null ? String(b.status).trim().toLowerCase() : null;
+  if (displayName != null && (displayName.length < 1 || displayName.length > 60)) return res.status(400).json({ error: 'displayName 1–60 chars.' });
+  if (kidBio != null && kidBio.length > 600) return res.status(400).json({ error: 'kidBio max 600 chars.' });
+  if (funFact != null && funFact.length > 300) return res.status(400).json({ error: 'funFact max 300 chars.' });
+  if (status != null && !CORRESPONDENT_STATUSES.includes(status)) return res.status(400).json({ error: 'status must be active, paused, or offline.' });
+  const correspondent = db.updateStaff({ id: current.id, displayName, kidBio, funFact, status });
+  logAction(req.adminUser.id, 'correspondent.update', 'staff', current.id, { slug });
+  res.json({ correspondent });
+});
+
+router.post('/correspondents/:slug/portrait', (req, res) => {
+  try {
+    const slug = String(req.params.slug || '').trim().toLowerCase();
+    const current = db.findStaffBySlug(slug);
+    if (!current || current.kind !== 'agent') return res.status(404).json({ error: 'not found' });
+    const b = req.body || {};
+    const style = String(b.style || '').trim().toLowerCase();
+    if (!CORRESPONDENT_STYLES.includes(style)) return res.status(400).json({ error: 'style must be human, animal, or skynet.' });
+    const channel = current.channel;
+    if (!channel || !CHANNELS.has(channel)) return res.status(400).json({ error: 'correspondent has no valid channel.' });
+    const base64 = String(b.base64 || '').replace(/^data:image\/\w+;base64,/, '');
+    if (!base64) return res.status(400).json({ error: 'base64 required' });
+    if (base64.length > 4 * 1024 * 1024) return res.status(413).json({ error: 'image too large' });
+    const { USERS_DIR } = require('./storage');
+    const dir = path.join(USERS_DIR, channel);
+    fs.mkdirSync(dir, { recursive: true });
+    const filePath = path.join(dir, `portrait-${style}.png`);
+    if (path.dirname(filePath) !== dir) return res.status(400).json({ error: 'bad filename' });
+    fs.writeFileSync(filePath, Buffer.from(base64, 'base64'));
+    const publicPath = `/assets/img/channels/${channel}/portrait-${style}.png`;
+    const patch = { id: current.id };
+    if (style === 'human') patch.portraitHuman = publicPath;
+    else if (style === 'animal') patch.portraitAnimal = publicPath;
+    else patch.portraitSkynet = publicPath;
+    db.updateStaff(patch);
+    logAction(req.adminUser.id, 'correspondent.portrait', 'staff', current.id, { slug, style });
+    res.json({ ok: true, path: publicPath });
+  } catch (e) {
+    res.status(500).json({ error: 'portrait upload failed: ' + e.message });
+  }
+});
+
 module.exports = router;

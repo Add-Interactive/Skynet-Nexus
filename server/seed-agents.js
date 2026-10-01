@@ -11,7 +11,8 @@ const { AGENTS } = AGENTS_CONFIG;
 /**
  * Seed all correspondent agents.
  * Idempotent: creates agents missing by slug, and updates displayName/role/bio
- * for existing slugs so renames propagate on deploy.
+ * for existing slugs so renames propagate on deploy. Edits to kidBio, funFact,
+ * and portraits also propagate to existing rows on deploy.
  * @returns {Object} { created: number, updated: number, skipped: number, errors: [] }
  */
 function seedAgents() {
@@ -28,6 +29,11 @@ function seedAgents() {
         avatarEmoji: agent.avatarEmoji || '🛰️',
         accentColor: agent.accentColor || '#00e5ff',
         bio: agent.bio || null,
+        kidBio: agent.kidBio || null,
+        funFact: agent.funFact || null,
+        portraitHuman: (agent.portraits && agent.portraits.human) || null,
+        portraitAnimal: (agent.portraits && agent.portraits.animal) || null,
+        portraitSkynet: (agent.portraits && agent.portraits.skynet) || null,
         promptPath: agent.promptPath || null,
         status: 'active'
       };
@@ -38,7 +44,12 @@ function seedAgents() {
       } else if (
         existing.displayName !== fields.displayName ||
         existing.role !== fields.role ||
-        existing.byline !== fields.byline
+        existing.byline !== fields.byline ||
+        existing.kidBio !== fields.kidBio ||
+        existing.funFact !== fields.funFact ||
+        existing.portraitHuman !== fields.portraitHuman ||
+        existing.portraitAnimal !== fields.portraitAnimal ||
+        existing.portraitSkynet !== fields.portraitSkynet
       ) {
         updateStaff(Object.assign({ id: existing.id }, fields));
         result.updated++;
