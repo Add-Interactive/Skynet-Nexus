@@ -112,6 +112,153 @@ function correspondentNameLink(a) {
   return name;
 }
 
+// ---------- Gamification v1: Junior Correspondent Program ----------
+var SkyGam = (function () {
+  var _article = null;
+  var _cssDone = false;
+
+  function css() {
+    if (_cssDone) return; _cssDone = true;
+    var s = document.createElement('style');
+    s.textContent =
+      '.xp-btn{display:inline-flex;align-items:center;gap:8px;margin:14px 0 4px;padding:10px 18px;' +
+      'border-radius:999px;border:1px solid rgba(0,229,255,.45);background:rgba(0,229,255,.08);' +
+      'color:#e6ecf3;font:700 14px/1 Inter,sans-serif;cursor:pointer;transition:all .15s}' +
+      '.xp-btn:hover:not(:disabled){background:rgba(0,229,255,.18);transform:translateY(-1px)}' +
+      '.xp-btn:disabled{opacity:.75;cursor:default;border-color:rgba(57,255,20,.5);background:rgba(57,255,20,.08)}' +
+      '.xp-btn b{color:#00e5ff}.xp-btn:disabled b{color:#39ff14}' +
+      '.xp-lock{font:500 13px/1.5 Inter,sans-serif;color:#7c8898;margin:14px 0 4px}' +
+      '.xp-lock a{color:#00e5ff}' +
+      '#xp-toast-wrap{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;' +
+      'display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}' +
+      '.xp-toast{background:#0B1026;border:1px solid #00e5ff;color:#fff;font:800 16px/1 Inter,sans-serif;' +
+      'padding:12px 22px;border-radius:999px;box-shadow:0 0 24px rgba(0,229,255,.45);' +
+      'animation:xpPop .35s ease, xpFade .4s ease 1.6s forwards;white-space:nowrap}' +
+      '@keyframes xpPop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}' +
+      '@keyframes xpFade{to{opacity:0;transform:translateY(10px)}}' +
+      '#xp-level-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;' +
+      'background:rgba(4,8,20,.8);backdrop-filter:blur(4px)}' +
+      '.xp-level-card{background:#0B1026;border:2px solid #00e5ff;border-radius:20px;padding:36px 44px;' +
+      'text-align:center;box-shadow:0 0 60px rgba(0,229,255,.35);animation:xpPop .4s ease;max-width:88vw}' +
+      '.xp-level-card .lvl-emoji{font-size:56px}' +
+      '.xp-level-card h2{color:#fff;font:800 24px/1.3 Inter,sans-serif;margin:12px 0 6px}' +
+      '.xp-level-card p{color:#9aa7bd;font:500 15px/1.5 Inter,sans-serif;margin:0 0 18px}' +
+      '.xp-level-card button{padding:10px 28px;border-radius:999px;border:none;background:#00e5ff;' +
+      'color:#0a0e17;font:800 15px/1 Inter,sans-serif;cursor:pointer}';
+    document.head.appendChild(s);
+  }
+
+  function kid() {
+    try {
+      if (window.SkyAuth && typeof window.SkyAuth.getActiveKid === 'function') return window.SkyAuth.getActiveKid();
+    } catch (e) {}
+    return null;
+  }
+
+  function toast(html) {
+    css();
+    var wrap = document.getElementById('xp-toast-wrap');
+    if (!wrap) { wrap = document.createElement('div'); wrap.id = 'xp-toast-wrap'; document.body.appendChild(wrap); }
+    var t = document.createElement('div');
+    t.className = 'xp-toast'; t.innerHTML = html;
+    wrap.appendChild(t);
+    setTimeout(function () { t.remove(); }, 2100);
+  }
+
+  function levelUpModal(level, who) {
+    css();
+    if (document.getElementById('xp-level-modal')) return;
+    var m = document.createElement('div');
+    m.id = 'xp-level-modal';
+    m.innerHTML = '<div class="xp-level-card"><div class="lvl-emoji">' + level.emoji + '</div>' +
+      '<h2>Level up! ' + (who ? rssEsc(who) + ' is' : 'You&rsquo;re') + ' now ' +
+      (who ? 'a ' : '') + rssEsc(level.name) + '</h2>' +
+      '<p>Keep reading to climb the newsroom ranks.</p>' +
+      '<button id="xp-level-ok">Awesome!</button></div>';
+    document.body.appendChild(m);
+    document.getElementById('xp-level-ok').addEventListener('click', function () { m.remove(); });
+    m.addEventListener('click', function (e) { if (e.target === m) m.remove(); });
+  }
+
+  function markEarned(btn) {
+    btn.disabled = true;
+    btn.innerHTML = '✓ Earned';
+  }
+
+  async function award(eventType, btn) {
+    var k = kid();
+    if (!k) { window.location.href = '/pages/profile.html'; return; }
+    if (!_article) return;
+    btn.disabled = true;
+    try {
+      var res = await fetch('/api/gamification/event', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kid_id: k.id, event_type: eventType,
+          article_id: _article.id, article_cat: _article.cat
+        })
+      });
+      var d = await res.json();
+      if (!res.ok) throw new Error(d.error || 'failed');
+      markEarned(btn);
+      if (d.alreadyEarned) return;
+      toast('+' + d.xpEarned + ' XP');
+      (d.newBadges || []).forEach(function (b, i) {
+        setTimeout(function () { toast(b.emoji + ' Badge earned: ' + rssEsc(b.name)); }, 700 * (i + 1));
+      });
+      var delay = 700 * ((d.newBadges || []).length + 1);
+      if (d.leveledUp) setTimeout(function () { levelUpModal(d.level); }, delay);
+      // Grown-up co-read XP (parent/teacher earns alongside the kid on "talk together").
+      if (d.grownUp && !d.grownUp.alreadyEarned) {
+        setTimeout(function () { toast('👨‍👩‍👧 Grown-up +' + d.grownUp.xpEarned + ' XP'); }, delay + 700);
+        if (d.grownUp.leveledUp) setTimeout(function () { levelUpModal(d.grownUp.level, 'Your grown-up'); }, delay + 1400);
+      }
+    } catch (e) {
+      btn.disabled = false;
+    }
+  }
+
+  // Button HTML for a journey step. Shown only to logged-in readers; without an
+  // active kid it links to the profile page to pick one.
+  function stepButton(eventType, label, xp) {
+    var k = kid();
+    if (!k) {
+      return '<p class="xp-lock">🔒 <a href="/pages/profile.html">Pick a kid profile</a> to earn XP for reading.</p>';
+    }
+    return '<button class="xp-btn" data-xp-event="' + eventType + '">✓ ' + rssEsc(label) +
+      ' <b>+' + xp + ' XP</b></button>';
+  }
+
+  function wireButtons(article) {
+    _article = article;
+    var k = kid();
+    document.querySelectorAll('.xp-btn[data-xp-event]').forEach(function (btn) {
+      btn.addEventListener('click', function () { award(btn.getAttribute('data-xp-event'), btn); });
+    });
+    if (!k || !article) return;
+    // Pre-mark steps already earned on this article.
+    fetch('/api/gamification/status?kid_id=' + k.id + '&article_id=' + encodeURIComponent(article.id),
+      { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (st) {
+        if (!st || !st.earnedSteps) return;
+        st.earnedSteps.forEach(function (et) {
+          var b = document.querySelector('.xp-btn[data-xp-event="' + et + '"]');
+          if (b) markEarned(b);
+        });
+      })
+      .catch(function () {});
+  }
+
+  return {
+    stepButton: stepButton,
+    wireButtons: wireButtons,
+    toast: toast,
+    activeKid: kid
+  };
+})();
+
 function loadManifest(baseUrl) {
   if (_manifestPromise) return _manifestPromise;
   const url = _resolveDataUrl(baseUrl, 'data/manifest.json');
@@ -1965,6 +2112,7 @@ function initArticlePage() {
       '<div class="kid-take-header"><span class="kid-take-badge">Kid Take</span>' +
       (a.ageBand ? '<span class="age-band">Ages ' + a.ageBand + '</span>' : '') + '</div>' +
       '<p>' + a.kidTake + '</p>' +
+      SkyGam.stepButton('kidtake', 'Got the Kid Take', 5) +
     '</div>'
   ) : '';
 
@@ -1974,6 +2122,7 @@ function initArticlePage() {
       '<dl>' + a.glossary.map(g =>
         '<dt>' + g.term + '</dt><dd>' + g.meaning + '</dd>'
       ).join('') + '</dl>' +
+      SkyGam.stepButton('glossary', 'Learned these words', 5) +
     '</div>'
   ) : '';
 
@@ -1981,6 +2130,7 @@ function initArticlePage() {
     '<div class="family-discussion" id="sec-discuss">' +
       '<div class="family-discussion-title"><span class="fd-emoji">💬</span> Talk about it together</div>' +
       '<ol>' + a.familyDiscussion.map(q => '<li>' + q + '</li>').join('') + '</ol>' +
+      SkyGam.stepButton('discuss', 'We talked about it', 15) +
     '</div>'
   ) : '';
 
@@ -2073,7 +2223,8 @@ function initArticlePage() {
         '<a class="art-dl" href="' + (a.heroImage || makeThumb(a.cat, a.id)) + '" download="skynet-nexus-art-' + a.id + '.jpg" title="Free download \u2014 use it for wallpapers or school projects">\u2B07 <span>Free art</span></a>' +
       '</div>' +
       journeyHtml +
-      '<div class="article-body" id="sec-story">' + bodyHtml + '</div>' +
+      '<div class="article-body" id="sec-story">' + bodyHtml +
+        SkyGam.stepButton('story', 'Finished the story', 10) + '</div>' +
       kidTakeHtml +
       discussionHtml +
       glossaryHtml +
@@ -2210,6 +2361,9 @@ function initArticlePage() {
     }, { rootMargin: '-35% 0px -55% 0px' });
     journeySteps.forEach(st => { const el = document.getElementById(st.id); if (el) spy.observe(el); });
   }
+
+  // Gamification: wire the XP step buttons for this article.
+  SkyGam.wireButtons(a);
 }
 
 // ---------- Contact form ----------

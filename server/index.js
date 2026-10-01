@@ -408,6 +408,154 @@ api.delete('/kids/:id', requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
+// ---- Gamification v1: Junior Correspondent Program ----
+api.get('/gamification/status', requireAuth, (req, res) => {
+  const { gamStatus } = require('./db');
+  const kidId = Number(req.query.kid_id);
+  if (!Number.isInteger(kidId)) return res.status(400).json({ error: 'kid_id is required.' });
+  const out = gamStatus({ kidId, userId: req.session.userId, articleId: req.query.article_id ?? null });
+  if (out.error) return res.status(404).json({ error: out.error });
+  res.json(out.status);
+});
+api.post('/gamification/event', requireAuth, (req, res) => {
+  const { gamAward } = require('./db');
+  const kidId = Number(req.body.kid_id);
+  if (!Number.isInteger(kidId)) return res.status(400).json({ error: 'kid_id is required.' });
+  const out = gamAward({
+    kidId,
+    userId: req.session.userId,
+    eventType: String(req.body.event_type || ''),
+    articleId: req.body.article_id ?? null,
+    articleCat: req.body.article_cat ?? null,
+  });
+  if (out.error) return res.status(400).json({ error: out.error });
+  res.json(out);
+});
+api.get('/gamification/grownup', requireAuth, (req, res) => {
+  const { gamUserStatus } = require('./db');
+  res.json(gamUserStatus(req.session.userId).status);
+});
+
+// ---- Classrooms (teachers; admins can also manage) ----
+function requireTeacher(req, res, next) {
+  const { findUserById } = require('./db');
+  const u = findUserById(req.session.userId);
+  if (!u || (u.role !== 'teacher' && u.role !== 'admin')) {
+    return res.status(403).json({ error: 'Teacher access required.' });
+  }
+  next();
+}
+api.get('/classrooms', requireAuth, requireTeacher, (req, res) => {
+  const { listClassrooms } = require('./db');
+  res.json({ classrooms: listClassrooms(req.session.userId) });
+});
+api.post('/classrooms', requireAuth, requireTeacher, (req, res) => {
+  const { createClassroom } = require('./db');
+  res.json(createClassroom({ userId: req.session.userId, name: req.body.name }));
+});
+api.get('/classrooms/:id', requireAuth, requireTeacher, (req, res) => {
+  const { findClassroom } = require('./db');
+  const c = findClassroom({ id: Number(req.params.id), userId: req.session.userId });
+  if (!c) return res.status(404).json({ error: 'Classroom not found.' });
+  res.json({ classroom: c });
+});
+api.patch('/classrooms/:id', requireAuth, requireTeacher, (req, res) => {
+  const { renameClassroom } = require('./db');
+  const c = renameClassroom({ id: Number(req.params.id), userId: req.session.userId, name: req.body.name });
+  if (!c) return res.status(404).json({ error: 'Classroom not found.' });
+  res.json({ classroom: c });
+});
+api.delete('/classrooms/:id', requireAuth, requireTeacher, (req, res) => {
+  const { deleteClassroom } = require('./db');
+  if (!deleteClassroom({ id: Number(req.params.id), userId: req.session.userId })) {
+    return res.status(404).json({ error: 'Classroom not found.' });
+  }
+  res.json({ ok: true });
+});
+api.get('/classrooms/:id/students', requireAuth, requireTeacher, (req, res) => {
+  const { classroomStudents } = require('./db');
+  const out = classroomStudents({ classroomId: Number(req.params.id), userId: req.session.userId });
+  if (out.error) return res.status(404).json({ error: out.error });
+  res.json(out);
+});
+api.post('/classrooms/:id/students', requireAuth, requireTeacher, (req, res) => {
+  const { addClassStudent } = require('./db');
+  const out = addClassStudent({ classroomId: Number(req.params.id), userId: req.session.userId, kidId: Number(req.body.kid_id) });
+  if (out.error) return res.status(400).json({ error: out.error });
+  res.json(out);
+});
+api.delete('/classrooms/:id/students/:kidId', requireAuth, requireTeacher, (req, res) => {
+  const { removeClassStudent } = require('./db');
+  const out = removeClassStudent({ classroomId: Number(req.params.id), userId: req.session.userId, kidId: Number(req.params.kidId) });
+  if (out.error) return res.status(404).json({ error: out.error });
+  res.json(out);
+});
+api.get('/classrooms/:id/progress', requireAuth, requireTeacher, (req, res) => {
+  const { classroomProgress } = require('./db');
+  const out = classroomProgress({ classroomId: Number(req.params.id), userId: req.session.userId });
+  if (out.error) return res.status(404).json({ error: out.error });
+  res.json(out);
+});
+
+// ---- Discussions (teacher-led, classroom-style threads) ----
+api.get('/discussions', requireAuth, (req, res) => {
+  const db = require('./db');
+  const q = req.query;
+  if (q.mine === '1' && q.kid_id) {
+    const out = db.discussionsForKid({ userId: req.session.userId, kidId: Number(q.kid_id) });
+    if (out.error) return res.status(404).json({ error: out.error });
+    return res.json(out);
+  }
+  if (!q.classroom_id) return res.status(400).json({ error: 'classroom_id is required.' });
+  // Teachers see their own classrooms; students see classes they belong to.
+  const u = db.findUserById(req.session.userId);
+  if (u && (u.role === 'teacher' || u.role === 'admin')) {
+    const out = db.listDiscussions({ userId: req.session.userId, classroomId: Number(q.classroom_id) });
+    if (out.error) return res.status(404).json({ error: out.error });
+    return res.json(out);
+  }
+  return res.status(403).json({ error: 'Teacher access required.' });
+});
+api.post('/discussions', requireAuth, requireTeacher, (req, res) => {
+  const { createDiscussion } = require('./db');
+  const out = createDiscussion({
+    userId: req.session.userId,
+    classroomId: Number(req.body.classroom_id),
+    title: req.body.title, articleId: req.body.article_id ?? null,
+    articleCat: req.body.article_cat ?? null, topic: req.body.topic ?? null,
+  });
+  if (out.error) return res.status(400).json({ error: out.error });
+  res.json(out);
+});
+api.get('/discussions/:id', requireAuth, (req, res) => {
+  const db = require('./db');
+  const kidId = req.query.kid_id != null ? Number(req.query.kid_id) : null;
+  const out = db.getDiscussion({ userId: req.session.userId, kidId, discussionId: Number(req.params.id) });
+  if (out.error) return res.status(404).json({ error: out.error });
+  res.json(out);
+});
+api.delete('/discussions/:id', requireAuth, requireTeacher, (req, res) => {
+  const { deleteDiscussion } = require('./db');
+  if (!deleteDiscussion({ userId: req.session.userId, discussionId: Number(req.params.id) })) {
+    return res.status(404).json({ error: 'Discussion not found.' });
+  }
+  res.json({ ok: true });
+});
+api.post('/discussions/:id/replies', requireAuth, (req, res) => {
+  const { createReply } = require('./db');
+  const kidId = req.body.kid_id != null ? Number(req.body.kid_id) : null;
+  const out = createReply({ userId: req.session.userId, kidId, discussionId: Number(req.params.id), body: req.body.body });
+  if (out.error) return res.status(400).json({ error: out.error });
+  res.json(out);
+});
+api.delete('/replies/:id', requireAuth, requireTeacher, (req, res) => {
+  const { deleteReply } = require('./db');
+  if (!deleteReply({ userId: req.session.userId, replyId: Number(req.params.id) })) {
+    return res.status(404).json({ error: 'Reply not found.' });
+  }
+  res.json({ ok: true });
+});
+
 // ---- Correspondents (kid-facing directory; no auth) ----
 // Roster = the 13 channel correspondents (agent-* slugs with a channel).
 // Legacy/infra agent rows (old Star Trek-era seeds, orchestrators) are excluded.

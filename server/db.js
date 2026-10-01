@@ -265,6 +265,76 @@ _addColumnIfMissing('staff', 'portrait_skynet', 'TEXT');
 _addColumnIfMissing('kid_profiles', 'correspondent_style', "TEXT NOT NULL DEFAULT 'human'");
 // Account-level default style (used when no kid profile is active).
 _addColumnIfMissing('users', 'correspondent_style', "TEXT NOT NULL DEFAULT 'human'");
+// Gamification v1 (Junior Correspondent Program): XP events + badges per kid.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS kid_xp_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    kid_id INTEGER NOT NULL REFERENCES kid_profiles(id) ON DELETE CASCADE,
+    event_type TEXT NOT NULL,
+    article_id TEXT,
+    article_cat TEXT,
+    xp INTEGER NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  );
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_xp_once ON kid_xp_events(kid_id, event_type, article_id);
+  CREATE TABLE IF NOT EXISTS kid_badges (
+    kid_id INTEGER NOT NULL REFERENCES kid_profiles(id) ON DELETE CASCADE,
+    badge_key TEXT NOT NULL,
+    earned_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+    PRIMARY KEY (kid_id, badge_key)
+  );
+`);
+// Classroom system: teachers group student profiles into classes and run
+// threaded article/topic discussions with them.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS classrooms (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  );
+  CREATE TABLE IF NOT EXISTS classroom_students (
+    classroom_id INTEGER NOT NULL REFERENCES classrooms(id) ON DELETE CASCADE,
+    kid_id INTEGER NOT NULL REFERENCES kid_profiles(id) ON DELETE CASCADE,
+    added_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+    PRIMARY KEY (classroom_id, kid_id)
+  );
+  CREATE TABLE IF NOT EXISTS discussions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    classroom_id INTEGER NOT NULL REFERENCES classrooms(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    article_id TEXT,
+    article_cat TEXT,
+    topic TEXT,
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  );
+  CREATE TABLE IF NOT EXISTS discussion_replies (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    discussion_id INTEGER NOT NULL REFERENCES discussions(id) ON DELETE CASCADE,
+    author_kid_id INTEGER REFERENCES kid_profiles(id) ON DELETE SET NULL,
+    body TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  );
+`);
+// Grown-up XP track (parents + teachers): co-reading and hosting discussions.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS user_xp_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    event_type TEXT NOT NULL,
+    ref_id TEXT,
+    xp INTEGER NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  );
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_user_xp_once ON user_xp_events(user_id, event_type, ref_id);
+  CREATE TABLE IF NOT EXISTS user_badges (
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    badge_key TEXT NOT NULL,
+    earned_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+    PRIMARY KEY (user_id, badge_key)
+  );
+`);
 
 
 // ---------- Prepared statements ----------
@@ -291,6 +361,56 @@ const stmts = {
   `),
   listKids: db.prepare(`SELECT * FROM kid_profiles WHERE user_id = ? ORDER BY id ASC`),
   findKid: db.prepare(`SELECT * FROM kid_profiles WHERE id = ? AND user_id = ?`),
+  // Gamification v1
+  insertXp: db.prepare(`
+    INSERT OR IGNORE INTO kid_xp_events (kid_id, event_type, article_id, article_cat, xp)
+    VALUES (?, ?, ?, ?, ?)
+  `),
+  sumXp: db.prepare(`SELECT COALESCE(SUM(xp), 0) AS xp FROM kid_xp_events WHERE kid_id = ?`),
+  storyCount: db.prepare(`SELECT COUNT(*) AS n FROM kid_xp_events WHERE kid_id = ? AND event_type = 'story'`),
+  channelStoryCount: db.prepare(`SELECT COUNT(*) AS n FROM kid_xp_events WHERE kid_id = ? AND event_type = 'story' AND article_cat = ?`),
+  articleSteps: db.prepare(`SELECT COUNT(DISTINCT event_type) AS n FROM kid_xp_events WHERE kid_id = ? AND article_id = ?`),
+  kidArticleEvents: db.prepare(`SELECT event_type FROM kid_xp_events WHERE kid_id = ? AND article_id = ?`),
+  storyDays: db.prepare(`SELECT DISTINCT date(created_at) AS d FROM kid_xp_events WHERE kid_id = ? AND event_type = 'story' ORDER BY d DESC`),
+  kidBadges: db.prepare(`SELECT badge_key FROM kid_badges WHERE kid_id = ?`),
+  insertBadge: db.prepare(`INSERT OR IGNORE INTO kid_badges (kid_id, badge_key) VALUES (?, ?)`),
+  // Classrooms
+  createClassroom: db.prepare(`INSERT INTO classrooms (user_id, name) VALUES (?, ?)`),
+  listClassrooms: db.prepare(`SELECT * FROM classrooms WHERE user_id = ? ORDER BY created_at DESC`),
+  findClassroom: db.prepare(`SELECT * FROM classrooms WHERE id = ? AND user_id = ?`),
+  renameClassroom: db.prepare(`UPDATE classrooms SET name = ? WHERE id = ? AND user_id = ?`),
+  deleteClassroom: db.prepare(`DELETE FROM classrooms WHERE id = ? AND user_id = ?`),
+  addClassStudent: db.prepare(`INSERT OR IGNORE INTO classroom_students (classroom_id, kid_id) VALUES (?, ?)`),
+  removeClassStudent: db.prepare(`DELETE FROM classroom_students WHERE classroom_id = ? AND kid_id = ?`),
+  listClassStudents: db.prepare(`
+    SELECT k.* FROM kid_profiles k
+    JOIN classroom_students cs ON cs.kid_id = k.id
+    WHERE cs.classroom_id = ? ORDER BY k.id ASC`),
+  kidClassrooms: db.prepare(`
+    SELECT c.* FROM classrooms c
+    JOIN classroom_students cs ON cs.classroom_id = c.id
+    WHERE cs.kid_id = ? ORDER BY c.created_at DESC`),
+  studentInClassroom: db.prepare(`SELECT 1 FROM classroom_students WHERE classroom_id = ? AND kid_id = ?`),
+  // Discussions
+  createDiscussion: db.prepare(`
+    INSERT INTO discussions (classroom_id, user_id, title, article_id, article_cat, topic)
+    VALUES (?, ?, ?, ?, ?, ?)`),
+  listDiscussions: db.prepare(`SELECT * FROM discussions WHERE classroom_id = ? ORDER BY created_at DESC`),
+  findDiscussion: db.prepare(`SELECT * FROM discussions WHERE id = ?`),
+  deleteDiscussion: db.prepare(`DELETE FROM discussions WHERE id = ? AND user_id = ?`),
+  createReply: db.prepare(`INSERT INTO discussion_replies (discussion_id, author_kid_id, body) VALUES (?, ?, ?)`),
+  listReplies: db.prepare(`
+    SELECT r.*, k.name AS kid_name, k.avatar_emoji AS kid_emoji, k.avatar_color AS kid_color
+    FROM discussion_replies r LEFT JOIN kid_profiles k ON k.id = r.author_kid_id
+    WHERE r.discussion_id = ? ORDER BY r.created_at ASC`),
+  findReply: db.prepare(`SELECT * FROM discussion_replies WHERE id = ?`),
+  deleteReply: db.prepare(`DELETE FROM discussion_replies WHERE id = ?`),
+  countReplies: db.prepare(`SELECT COUNT(*) AS n FROM discussion_replies WHERE discussion_id = ?`),
+  // Grown-up XP
+  insertUserXp: db.prepare(`INSERT OR IGNORE INTO user_xp_events (user_id, event_type, ref_id, xp) VALUES (?, ?, ?, ?)`),
+  sumUserXp: db.prepare(`SELECT COALESCE(SUM(xp), 0) AS xp FROM user_xp_events WHERE user_id = ?`),
+  userBadges: db.prepare(`SELECT badge_key FROM user_badges WHERE user_id = ?`),
+  insertUserBadge: db.prepare(`INSERT OR IGNORE INTO user_badges (user_id, badge_key) VALUES (?, ?)`),
   updateKid: db.prepare(`
     UPDATE kid_profiles
        SET name               = COALESCE(?, name),
@@ -681,6 +801,163 @@ function toAdminUser(row) {
   };
 }
 
+// ---------- Gamification v1: Junior Correspondent Program ----------
+const GAM_LEVELS = [
+  { xp: 0,    name: 'Rookie Reader',       emoji: '🌱' },
+  { xp: 100,  name: 'Cub Reporter',        emoji: '📰' },
+  { xp: 250,  name: 'Beat Reporter',       emoji: '🎤' },
+  { xp: 500,  name: 'Correspondent',       emoji: '🛰️' },
+  { xp: 1000, name: 'Senior Correspondent', emoji: '⭐' },
+  { xp: 2000, name: 'Editor',              emoji: '✏️' },
+  { xp: 4000, name: 'Editor-in-Chief',     emoji: '🏆' },
+];
+const GAM_XP = { story: 10, kidtake: 5, discuss: 15, glossary: 5, reply: 10 };
+const GAM_EVENT_TYPES = Object.keys(GAM_XP);
+// Grown-up track: parents earn for co-reading, teachers for hosting discussions.
+const GAM_USER_XP = { coread: 10, host_discussion: 20 };
+const GAM_USER_BADGES = [
+  { key: 'first-coread', name: 'Reading Buddy', emoji: '📖', desc: 'Co-read your first story together' },
+  { key: 'ten-coreads', name: 'Story Guide', emoji: '📚', desc: 'Co-read 10 stories together' },
+  { key: 'discussion-host', name: 'Discussion Leader', emoji: '💬', desc: 'Host your first class discussion' },
+];
+const GAM_CHANNEL_META = {
+  ai:         { label: 'AI',          emoji: '🤖' },
+  space:      { label: 'Space',       emoji: '🚀' },
+  robotics:   { label: 'Robotics',    emoji: '🦾' },
+  biotech:    { label: 'Biotech',     emoji: '🧬' },
+  quantum:    { label: 'Quantum',     emoji: '⚛️' },
+  climate:    { label: 'Climate',     emoji: '🌍' },
+  engineering:{ label: 'Engineering', emoji: '⚙️' },
+  math:       { label: 'Math',        emoji: '🔢' },
+  cyber:      { label: 'Cyber',       emoji: '🛡️' },
+  gaming:     { label: 'Gaming',      emoji: '🎮' },
+  music:      { label: 'Music',       emoji: '🎵' },
+  stem:       { label: 'STEM',        emoji: '🔬' },
+  play:       { label: 'Play',        emoji: '🧸' },
+};
+function gamBadgeDefs() {
+  const defs = [
+    { key: 'first-story',       name: 'First Story',  emoji: '📖', desc: 'Finish your first story' },
+    { key: 'ten-stories',       name: 'Bookworm',     emoji: '📚', desc: 'Finish 10 stories' },
+    { key: 'twentyfive-stories',name: 'News Hound',   emoji: '🗞️', desc: 'Finish 25 stories' },
+    { key: 'deep-diver',        name: 'Deep Diver',   emoji: '🤿', desc: 'Do all 4 steps on one story' },
+    { key: 'streak-3',          name: 'On a Roll',    emoji: '🔥', desc: 'Read 3 days in a row' },
+    { key: 'streak-7',          name: 'Week Warrior', emoji: '🔥', desc: 'Read 7 days in a row' },
+    { key: 'streak-30',         name: 'Month Master', emoji: '🏆', desc: 'Read 30 days in a row' },
+  ];
+  for (const [ch, meta] of Object.entries(GAM_CHANNEL_META)) {
+    defs.push({ key: 'explorer-' + ch, name: meta.label + ' Explorer', emoji: meta.emoji, desc: 'Finish 3 ' + meta.label + ' stories' });
+  }
+  return defs;
+}
+function gamLevelFor(xp) {
+  let idx = 0;
+  for (let i = 0; i < GAM_LEVELS.length; i++) if (xp >= GAM_LEVELS[i].xp) idx = i;
+  const cur = GAM_LEVELS[idx];
+  const next = GAM_LEVELS[idx + 1] || null;
+  return {
+    index: idx, name: cur.name, emoji: cur.emoji,
+    xpForLevel: cur.xp, xpForNext: next ? next.xp : null,
+    progress: next ? Math.min(1, (xp - cur.xp) / (next.xp - cur.xp)) : 1,
+  };
+}
+function gamStreak(kidId) {
+  const days = stmts.storyDays.all(kidId).map(r => r.d);
+  if (!days.length) return 0;
+  const today = new Date().toISOString().slice(0, 10);
+  const daySet = new Set(days);
+  let cursor = daySet.has(today) ? today : null;
+  if (!cursor) {
+    // Allow yesterday: streak stays alive if the last read was yesterday.
+    const y = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
+    if (!daySet.has(y)) return 0;
+    cursor = y;
+  }
+  let streak = 0;
+  while (daySet.has(cursor)) {
+    streak++;
+    cursor = new Date(new Date(cursor + 'T12:00:00Z').getTime() - 864e5).toISOString().slice(0, 10);
+  }
+  return streak;
+}
+function gamCheckBadges(kidId, ctx) {
+  // ctx: { stories, streak, articleSteps, articleCat }
+  const earned = new Set(stmts.kidBadges.all(kidId).map(r => r.badge_key));
+  const newly = [];
+  const grant = (key) => {
+    if (earned.has(key)) return;
+    const info = stmts.insertBadge.run(kidId, key);
+    if (info.changes > 0) { earned.add(key); newly.push(key); }
+  };
+  if (ctx.stories >= 1) grant('first-story');
+  if (ctx.stories >= 10) grant('ten-stories');
+  if (ctx.stories >= 25) grant('twentyfive-stories');
+  if (ctx.articleSteps >= 4) grant('deep-diver');
+  if (ctx.streak >= 3) grant('streak-3');
+  if (ctx.streak >= 7) grant('streak-7');
+  if (ctx.streak >= 30) grant('streak-30');
+  if (ctx.articleCat && GAM_CHANNEL_META[ctx.articleCat]) {
+    const n = stmts.channelStoryCount.get(kidId, ctx.articleCat).n;
+    if (n >= 3) grant('explorer-' + ctx.articleCat);
+  }
+  return newly;
+}
+function gamStatusFor(kidId, articleId) {
+  const xp = stmts.sumXp.get(kidId).xp;
+  const stories = stmts.storyCount.get(kidId).n;
+  const streak = gamStreak(kidId);
+  const level = gamLevelFor(xp);
+  const badges = stmts.kidBadges.all(kidId).map(r => r.badge_key);
+  const defs = gamBadgeDefs();
+  const earned = articleId ? stmts.kidArticleEvents.all(kidId, String(articleId)).map(r => r.event_type) : [];
+  return {
+    xp, level, streak, stories,
+    badges: defs.map(d => ({ ...d, earned: badges.includes(d.key) })),
+    badgeCount: badges.length, badgeTotal: defs.length,
+    earnedSteps: earned,
+  };
+}
+// Grown-up track: award XP to the account owner (parent co-reading / teacher hosting).
+function gamAwardUser({ userId, eventType, refId }) {
+  if (!GAM_USER_XP[eventType]) return { error: 'Unknown event type.' };
+  const ref = refId != null ? String(refId) : null;
+  const before = stmts.sumUserXp.get(userId).xp;
+  const beforeLevel = gamLevelFor(before).index;
+  const info = stmts.insertUserXp.run(userId, eventType, ref, GAM_USER_XP[eventType]);
+  const after = stmts.sumUserXp.get(userId).xp;
+  const afterLevel = gamLevelFor(after).index;
+  const newBadges = [];
+  if (info.changes > 0) {
+    const earned = new Set(stmts.userBadges.all(userId).map(r => r.badge_key));
+    const grant = (key) => {
+      if (earned.has(key)) return;
+      const i2 = stmts.insertUserBadge.run(userId, key);
+      if (i2.changes > 0) { earned.add(key); newBadges.push(GAM_USER_BADGES.find(b => b.key === key)); }
+    };
+    const coreads = db.prepare(`SELECT COUNT(*) AS n FROM user_xp_events WHERE user_id = ? AND event_type = 'coread'`).get(userId).n;
+    if (eventType === 'coread' && coreads >= 1) grant('first-coread');
+    if (eventType === 'coread' && coreads >= 10) grant('ten-coreads');
+    if (eventType === 'host_discussion') grant('discussion-host');
+  }
+  return {
+    alreadyEarned: info.changes === 0,
+    xpEarned: info.changes > 0 ? GAM_USER_XP[eventType] : 0,
+    totalXp: after,
+    level: gamLevelFor(after),
+    leveledUp: afterLevel > beforeLevel,
+    newBadges,
+  };
+}
+function gamUserStatus(userId) {
+  const xp = stmts.sumUserXp.get(userId).xp;
+  const badges = stmts.userBadges.all(userId).map(r => r.badge_key);
+  return {
+    xp, level: gamLevelFor(xp),
+    badges: GAM_USER_BADGES.map(d => ({ ...d, earned: badges.includes(d.key) })),
+    badgeCount: badges.length, badgeTotal: GAM_USER_BADGES.length,
+  };
+}
+
 // ---------- Exports ----------
 module.exports = {
   db,
@@ -710,7 +987,190 @@ module.exports = {
     stmts.updateKid.run(name ?? null, birthYear ?? null, avatarColor ?? null, avatarEmoji ?? null, correspondentStyle ?? null, id, userId);
     return toPublicKid(stmts.findKid.get(id, userId));
   },
+
   deleteKid(id, userId) { return stmts.deleteKid.run(id, userId).changes > 0; },
+
+  // ---------- Gamification v1 ----------
+  gamLevels: GAM_LEVELS,
+  gamXpValues: GAM_XP,
+  gamBadgeDefs,
+  gamLevelFor,
+  gamAward({ kidId, userId, eventType, articleId, articleCat }) {
+    if (!GAM_EVENT_TYPES.includes(eventType)) return { error: 'Unknown event type.' };
+    const kid = stmts.findKid.get(kidId, userId);
+    if (!kid) return { error: 'Kid profile not found.' };
+    const artId = articleId != null ? String(articleId) : null;
+    const cat = articleCat && GAM_CHANNEL_META[articleCat] ? articleCat : null;
+    const before = stmts.sumXp.get(kidId).xp;
+    const beforeLevel = gamLevelFor(before).index;
+    const info = stmts.insertXp.run(kidId, eventType, artId, cat, GAM_XP[eventType]);
+    const after = stmts.sumXp.get(kidId).xp;
+    const afterLevel = gamLevelFor(after).index;
+    let newBadges = [];
+    let grownUp = null;
+    if (info.changes > 0) {
+      const stories = stmts.storyCount.get(kidId).n;
+      const streak = gamStreak(kidId);
+      const articleSteps = artId ? stmts.articleSteps.get(kidId, artId).n : 0;
+      newBadges = gamCheckBadges(kidId, { stories, streak, articleSteps, articleCat: cat });
+      // Parent co-read: the grown-up earns too when a kid completes "talk together".
+      if (eventType === 'discuss' && artId) {
+        grownUp = gamAwardUser({ userId, eventType: 'coread', refId: 'kid:' + kidId + ':article:' + artId });
+      }
+    }
+    const defs = gamBadgeDefs();
+    return {
+      alreadyEarned: info.changes === 0,
+      xpEarned: info.changes > 0 ? GAM_XP[eventType] : 0,
+      totalXp: after,
+      level: gamLevelFor(after),
+      leveledUp: afterLevel > beforeLevel,
+      newBadges: newBadges.map(k => defs.find(d => d.key === k)),
+      grownUp,
+      status: gamStatusFor(kidId, artId),
+    };
+  },
+  gamStatus({ kidId, userId, articleId }) {
+    const kid = stmts.findKid.get(kidId, userId);
+    if (!kid) return { error: 'Kid profile not found.' };
+    return { status: gamStatusFor(kidId, articleId != null ? String(articleId) : null) };
+  },
+  gamAwardUser,
+  gamUserStatus(userId) { return { status: gamUserStatus(userId) }; },
+
+  // ---------- Classrooms (teachers) ----------
+  createClassroom({ userId, name }) {
+    const info = stmts.createClassroom.run(userId, String(name || '').slice(0, 80) || 'My Classroom');
+    return { id: info.lastInsertRowid, user_id: userId, name: String(name || '').slice(0, 80) || 'My Classroom' };
+  },
+  listClassrooms(userId) {
+    return stmts.listClassrooms.all(userId).map(c => ({
+      ...c,
+      studentCount: stmts.listClassStudents.all(c.id).length,
+      discussionCount: stmts.listDiscussions.all(c.id).length,
+    }));
+  },
+  findClassroom({ id, userId }) { return stmts.findClassroom.get(id, userId) || null; },
+  renameClassroom({ id, userId, name }) {
+    stmts.renameClassroom.run(String(name || '').slice(0, 80), id, userId);
+    return stmts.findClassroom.get(id, userId) || null;
+  },
+  deleteClassroom({ id, userId }) { return stmts.deleteClassroom.run(id, userId).changes > 0; },
+  addClassStudent({ classroomId, userId, kidId }) {
+    const cls = stmts.findClassroom.get(classroomId, userId);
+    if (!cls) return { error: 'Classroom not found.' };
+    const kid = stmts.findKid.get(kidId, userId);
+    if (!kid) return { error: 'Student profile not found.' };
+    stmts.addClassStudent.run(classroomId, kidId);
+    return { ok: true };
+  },
+  removeClassStudent({ classroomId, userId, kidId }) {
+    const cls = stmts.findClassroom.get(classroomId, userId);
+    if (!cls) return { error: 'Classroom not found.' };
+    stmts.removeClassStudent.run(classroomId, kidId);
+    return { ok: true };
+  },
+  classroomStudents({ classroomId, userId }) {
+    const cls = stmts.findClassroom.get(classroomId, userId);
+    if (!cls) return { error: 'Classroom not found.' };
+    return { students: stmts.listClassStudents.all(classroomId).map(toPublicKid) };
+  },
+  classroomProgress({ classroomId, userId }) {
+    const cls = stmts.findClassroom.get(classroomId, userId);
+    if (!cls) return { error: 'Classroom not found.' };
+    const students = stmts.listClassStudents.all(classroomId).map(k => {
+      const st = gamStatusFor(k.id, null);
+      return { id: k.id, name: k.name, avatarEmoji: k.avatar_emoji, avatarColor: k.avatar_color,
+               xp: st.xp, level: st.level, streak: st.streak, stories: st.stories, badgeCount: st.badgeCount };
+    });
+    return { classroom: cls, students };
+  },
+
+  // ---------- Discussions (teacher-led, classroom-style) ----------
+  createDiscussion({ userId, classroomId, title, articleId, articleCat, topic }) {
+    const cls = stmts.findClassroom.get(classroomId, userId);
+    if (!cls) return { error: 'Classroom not found.' };
+    const t = String(title || '').slice(0, 140) || 'Class discussion';
+    const info = stmts.createDiscussion.run(
+      classroomId, userId, t,
+      articleId != null ? String(articleId) : null,
+      articleCat && GAM_CHANNEL_META[articleCat] ? articleCat : null,
+      topic != null ? String(topic).slice(0, 2000) : null);
+    const grownUp = gamAwardUser({ userId, eventType: 'host_discussion', refId: 'discussion:' + info.lastInsertRowid });
+    return { id: info.lastInsertRowid, grownUp };
+  },
+  listDiscussions({ userId, classroomId }) {
+    const cls = stmts.findClassroom.get(classroomId, userId);
+    if (!cls) return { error: 'Classroom not found.' };
+    return { discussions: stmts.listDiscussions.all(classroomId).map(d => ({
+      ...d, replyCount: stmts.countReplies.get(d.id).n })) };
+  },
+  discussionsForKid({ userId, kidId }) {
+    const kid = stmts.findKid.get(kidId, userId);
+    if (!kid) return { error: 'Student profile not found.' };
+    const classes = stmts.kidClassrooms.all(kidId);
+    const out = [];
+    for (const c of classes) {
+      for (const d of stmts.listDiscussions.all(c.id)) {
+        out.push({ ...d, classroomName: c.name, replyCount: stmts.countReplies.get(d.id).n });
+      }
+    }
+    out.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+    return { discussions: out };
+  },
+  getDiscussion({ userId, kidId, discussionId }) {
+    const d = stmts.findDiscussion.get(discussionId);
+    if (!d) return { error: 'Discussion not found.' };
+    const cls = stmts.findClassroom.get(d.classroom_id, userId);
+    if (!cls) return { error: 'Discussion not found.' };
+    if (kidId != null) {
+      const inClass = stmts.studentInClassroom.get(d.classroom_id, kidId);
+      if (!inClass) return { error: 'Discussion not found.' };
+    }
+    const replies = stmts.listReplies.all(discussionId).map(r => ({
+      id: r.id, body: r.body, created_at: r.created_at,
+      author: r.author_kid_id
+        ? { type: 'student', name: r.kid_name, emoji: r.kid_emoji, color: r.kid_color }
+        : { type: 'teacher' },
+    }));
+    return { discussion: d, classroom: cls, replies };
+  },
+  deleteDiscussion({ userId, discussionId }) {
+    return stmts.deleteDiscussion.run(discussionId, userId).changes > 0;
+  },
+  createReply({ userId, kidId, discussionId, body }) {
+    const d = stmts.findDiscussion.get(discussionId);
+    if (!d) return { error: 'Discussion not found.' };
+    const cls = stmts.findClassroom.get(d.classroom_id, userId);
+    if (!cls) return { error: 'Discussion not found.' };
+    const text = String(body || '').trim().slice(0, 2000);
+    if (!text) return { error: 'Reply cannot be empty.' };
+    let authorKidId = null;
+    if (kidId != null) {
+      const kid = stmts.findKid.get(kidId, userId);
+      if (!kid) return { error: 'Student profile not found.' };
+      const inClass = stmts.studentInClassroom.get(d.classroom_id, kidId);
+      if (!inClass) return { error: 'Student is not in this classroom.' };
+      authorKidId = kidId;
+    }
+    const info = stmts.createReply.run(discussionId, authorKidId, text);
+    // Students earn XP for joining the discussion (once per discussion).
+    let xp = null;
+    if (authorKidId != null) {
+      const r = stmts.insertXp.run(authorKidId, 'reply', 'discussion:' + discussionId, d.article_cat, GAM_XP.reply);
+      if (r.changes > 0) xp = { xpEarned: GAM_XP.reply, totalXp: stmts.sumXp.get(authorKidId).xp, level: gamLevelFor(stmts.sumXp.get(authorKidId).xp) };
+    }
+    return { id: info.lastInsertRowid, xp };
+  },
+  deleteReply({ userId, replyId }) {
+    const r = stmts.findReply.get(replyId);
+    if (!r) return false;
+    const d = stmts.findDiscussion.get(r.discussion_id);
+    if (!d) return false;
+    const cls = stmts.findClassroom.get(d.classroom_id, userId);
+    if (!cls) return false;
+    return stmts.deleteReply.run(replyId).changes > 0;
+  },
 
   deleteUser(id) { return stmts.deleteUser.run(id).changes > 0; },
 
