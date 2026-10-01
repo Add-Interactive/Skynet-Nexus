@@ -268,8 +268,8 @@ _addColumnIfMissing('kid_profiles', 'correspondent_style', "TEXT NOT NULL DEFAUL
 // ---------- Prepared statements ----------
 const stmts = {
   createUser: db.prepare(`
-    INSERT INTO users (email, display_name, password_hash, avatar_color)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO users (email, display_name, password_hash, avatar_color, role)
+    VALUES (?, ?, ?, ?, ?)
   `),
   findUserByEmail: db.prepare(`SELECT * FROM users WHERE lower(email) = lower(?)`),
   findUserById: db.prepare(`SELECT * FROM users WHERE id = ?`),
@@ -682,8 +682,8 @@ module.exports = {
   db,
   DB_PATH,
 
-  createUser({ email, displayName, passwordHash, avatarColor }) {
-    const info = stmts.createUser.run(email, displayName, passwordHash, avatarColor);
+  createUser({ email, displayName, passwordHash, avatarColor, role }) {
+    const info = stmts.createUser.run(email, displayName, passwordHash, avatarColor, role || 'parent');
     return toPublicUser(stmts.findUserById.get(info.lastInsertRowid));
   },
   findUserByEmail(email) { return stmts.findUserByEmail.get(email); },
