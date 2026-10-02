@@ -626,6 +626,48 @@ api.get('/classrooms/:id/progress', requireAuth, requireTeacher, (req, res) => {
   res.json(out);
 });
 
+// ---- Teacher assignments ----
+// Teachers assign an article to a classroom; the article page records reads
+// per kid so teachers see who completed it.
+api.post('/assignments', requireAuth, requireTeacher, (req, res) => {
+  const { createAssignment } = require('./db');
+  const out = createAssignment({
+    teacherUserId: req.session.userId,
+    classroomId: Number(req.body.classroom_id),
+    articleId: req.body.article_id,
+    articleTitle: req.body.article_title,
+    dueAt: req.body.due_at || null,
+    note: req.body.note || null,
+  });
+  if (out.error) return res.status(404).json({ error: out.error });
+  res.json(out);
+});
+api.get('/assignments', requireAuth, requireTeacher, (req, res) => {
+  const { listAssignments } = require('./db');
+  const classroomId = Number(req.query.classroom_id);
+  if (!Number.isInteger(classroomId)) return res.status(400).json({ error: 'classroom_id is required.' });
+  const out = listAssignments({ teacherUserId: req.session.userId, classroomId });
+  if (out.error) return res.status(404).json({ error: out.error });
+  res.json(out);
+});
+api.delete('/assignments/:id', requireAuth, requireTeacher, (req, res) => {
+  const { deleteAssignment } = require('./db');
+  const out = deleteAssignment({ teacherUserId: req.session.userId, id: req.params.id });
+  if (out.error) return res.status(404).json({ error: out.error });
+  res.json(out);
+});
+// Called by the article page when a signed-in kid opens a story: marks any
+// matching assignments (kid's classrooms × this article) as read.
+api.post('/assignments/track-read', requireAuth, (req, res) => {
+  const { trackAssignmentRead } = require('./db');
+  const kidId = Number(req.body.kid_id);
+  const articleId = String(req.body.article_id || '');
+  if (!Number.isInteger(kidId) || !articleId) return res.status(400).json({ error: 'kid_id and article_id are required.' });
+  const out = trackAssignmentRead({ userId: req.session.userId, kidId, articleId });
+  if (out.error) return res.status(404).json({ error: out.error });
+  res.json(out);
+});
+
 // ---- Discussions (teacher-led, classroom-style threads) ----
 api.get('/discussions', requireAuth, (req, res) => {
   const db = require('./db');
@@ -797,6 +839,31 @@ const scheduler = require('./scheduler');
 // GET /api/schedule — public cadence info for the submit page + homepage countdown.
 api.get('/schedule', (req, res) => {
   res.json(scheduler.scheduleInfo());
+});
+
+// ---- Web push: edition drop alerts ----
+// The VAPID public key is public by design (browsers need it to subscribe).
+api.get('/push/vapid-key', (req, res) => {
+  const { publicKey, isEnabled } = require('./push');
+  res.json({ publicKey: publicKey(), enabled: isEnabled() });
+});
+api.post('/push/subscribe', requireAuth, (req, res) => {
+  const { savePushSubscription, } = require('./db');
+  const sub = req.body.subscription || req.body;
+  const endpoint = sub && sub.endpoint;
+  const p256dh = sub && sub.keys && sub.keys.p256dh;
+  const auth = sub && sub.keys && sub.keys.auth;
+  if (!endpoint || !p256dh || !auth) return res.status(400).json({ error: 'Invalid push subscription.' });
+  if (String(endpoint).length > 2000) return res.status(400).json({ error: 'Endpoint too long.' });
+  savePushSubscription({ userId: req.session.userId, endpoint: String(endpoint), p256dh: String(p256dh), auth: String(auth) });
+  res.json({ ok: true });
+});
+api.post('/push/unsubscribe', requireAuth, (req, res) => {
+  const { removePushSubscription } = require('./db');
+  const endpoint = String((req.body && req.body.endpoint) || '');
+  if (!endpoint) return res.status(400).json({ error: 'endpoint is required.' });
+  removePushSubscription({ userId: req.session.userId, endpoint });
+  res.json({ ok: true });
 });
 
 // GET /api/channels — public channel registry (id/label/icon/color).
