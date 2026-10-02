@@ -2246,6 +2246,7 @@ function initArticlePage() {
           '<button class="react-btn ' + (saved ? 'active' : '') + '" id="btn-save">' + ICONS.bookmark + '</button>' +
         '</div>' +
         '<button class="share-btn" id="btn-share">' + ICONS.share + '<span>Share</span></button>' +
+        '<button class="share-btn" id="btn-listen"><span aria-hidden="true">\uD83D\uDD0A</span><span>Listen</span></button>' +
       '</div>' +
       '<div class="comments">' +
         '<div class="comments-title">' + ICONS.comment + '<span>Comments</span><span class="count">' + a.comments + '</span></div>' +
@@ -2355,6 +2356,69 @@ function initArticlePage() {
       else { await navigator.clipboard.writeText(location.href); toast('Link copied!'); }
     } catch { toast('Share cancelled'); }
   });
+
+  // Read-aloud: browser text-to-speech for the whole article (title + Kid Take + story).
+  // Chunked into sentence groups so long articles don't get cut off on mobile browsers.
+  const listenBtn = document.getElementById('btn-listen');
+  if (!('speechSynthesis' in window)) {
+    listenBtn.style.display = 'none';
+  } else {
+    const synth = window.speechSynthesis;
+    const primeVoices = () => { try { synth.getVoices(); } catch {} };
+    primeVoices();
+    if ('onvoiceschanged' in synth) synth.onvoiceschanged = primeVoices;
+    const pickVoice = () => {
+      const vs = synth.getVoices().filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+      return vs.find(v => /google us english/i.test(v.name)) ||
+             vs.find(v => /samantha|zira|aria|jenny/i.test(v.name)) ||
+             vs.find(v => v.lang.toLowerCase() === 'en-us') || vs[0] || null;
+    };
+    const listenText = () => {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = a.body || '';
+      const bodyText = (tmp.textContent || '').replace(/\s+/g, ' ').trim();
+      return [a.title, a.kidTake, bodyText].filter(Boolean).join('. ');
+    };
+    const chunkText = (text) => {
+      const sentences = text.match(/[^.!?]+[.!?]+["']?|\S[^.!?]*$/g) || [text];
+      const chunks = [];
+      let cur = '';
+      for (const s of sentences) {
+        if ((cur + ' ' + s).length > 220) { if (cur) chunks.push(cur.trim()); cur = s; }
+        else cur += ' ' + s;
+      }
+      if (cur.trim()) chunks.push(cur.trim());
+      return chunks;
+    };
+    const setListenUI = (playing) => {
+      listenBtn.innerHTML = playing
+        ? '<span aria-hidden="true">⏹</span><span>Stop</span>'
+        : '<span aria-hidden="true">\uD83D\uDD0A</span><span>Listen</span>';
+      listenBtn.classList.toggle('listening', playing);
+      listenBtn.setAttribute('aria-pressed', playing ? 'true' : 'false');
+    };
+    let speaking = false;
+    listenBtn.addEventListener('click', () => {
+      if (speaking) { synth.cancel(); speaking = false; setListenUI(false); return; }
+      const text = listenText();
+      if (!text) { toast('Nothing to read yet.'); return; }
+      synth.cancel();
+      const voice = pickVoice();
+      const chunks = chunkText(text);
+      speaking = true;
+      setListenUI(true);
+      chunks.forEach((chunk, i) => {
+        const u = new SpeechSynthesisUtterance(chunk);
+        if (voice) u.voice = voice;
+        u.rate = 1; u.pitch = 1;
+        const done = () => { speaking = false; setListenUI(false); };
+        u.onerror = done;
+        if (i === chunks.length - 1) u.onend = done;
+        synth.speak(u);
+      });
+    });
+    document.addEventListener('pagehide', () => { try { synth.cancel(); } catch {} });
+  }
 
   // Journey scroll-spy: highlight the step the reader is on.
   if ('IntersectionObserver' in window && journeySteps.length > 1) {
