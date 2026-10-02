@@ -50,6 +50,47 @@
       animation: corrFlash 1.6s ease;
     }
     @keyframes corrFlash { 0% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--pc, #00e5ff) 55%, transparent); } 100% { box-shadow: none; } }
+    .corr-ask-btn {
+      font: 700 13px/1 Inter, sans-serif; color: #0a0e17; background: linear-gradient(90deg, var(--pc, #00e5ff), #a855f7);
+      border: 0; border-radius: 999px; padding: 10px 18px; cursor: pointer; margin-top: 4px;
+    }
+    .corr-ask-btn:hover { transform: translateY(-2px); }
+    .corr-qa { width: 100%; margin-top: 8px; text-align: left; }
+    .corr-qa-toggle {
+      width: 100%; font: 700 13px/1 Inter, sans-serif; color: var(--pc, #00e5ff); background: none;
+      border: 1px solid var(--pc, #00e5ff); border-radius: 999px; padding: 8px 14px; cursor: pointer;
+    }
+    .corr-qa-list { display: none; margin-top: 10px; }
+    .corr-qa.open .corr-qa-list { display: block; }
+    .corr-qa-item { padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.03); border: 1px solid var(--border, rgba(255,255,255,.08)); margin-bottom: 8px; }
+    .corr-qa-q { font: 700 13px/1.5 Inter, sans-serif; color: var(--text, #e6ecf3); margin: 0 0 6px; }
+    .corr-qa-a { font: 500 13px/1.55 Inter, sans-serif; color: var(--muted, #9aa7bd); margin: 0; }
+    .corr-qa-a strong { color: var(--pc, #00e5ff); }
+    .corr-qa-empty { font: 500 13px/1.5 Inter, sans-serif; color: var(--muted, #9aa7bd); text-align: center; padding: 8px; }
+    .qa-modal-backdrop {
+      position: fixed; inset: 0; background: rgba(4,8,16,.7); backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px;
+    }
+    .qa-modal-backdrop.open { display: flex; }
+    .qa-modal {
+      background: #0d1424; border: 1px solid var(--border, rgba(255,255,255,.12)); border-radius: 18px;
+      padding: 26px; max-width: 480px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    }
+    .qa-modal h3 { margin: 0 0 6px; font: 800 18px/1.3 Inter, sans-serif; color: var(--text, #e6ecf3); }
+    .qa-modal p { margin: 0 0 14px; font: 500 13px/1.55 Inter, sans-serif; color: var(--muted, #9aa7bd); }
+    .qa-modal textarea {
+      width: 100%; min-height: 110px; box-sizing: border-box; resize: vertical;
+      font: 500 14px/1.55 Inter, sans-serif; color: var(--text, #e6ecf3);
+      background: rgba(255,255,255,.04); border: 1px solid var(--border, rgba(255,255,255,.15));
+      border-radius: 12px; padding: 12px;
+    }
+    .qa-modal textarea:focus { outline: none; border-color: #00e5ff; }
+    .qa-modal-actions { display: flex; gap: 10px; margin-top: 14px; justify-content: flex-end; }
+    .qa-modal-actions button { font: 700 14px/1 Inter, sans-serif; padding: 11px 20px; border-radius: 999px; cursor: pointer; border: 0; }
+    .qa-cancel { background: rgba(255,255,255,.08); color: var(--text, #e6ecf3); }
+    .qa-send { background: linear-gradient(90deg, #00e5ff, #a855f7); color: #0a0e17; }
+    .qa-send:disabled { opacity: .5; cursor: default; }
+    .qa-note { font: 500 12px/1.5 Inter, sans-serif; color: var(--muted, #9aa7bd); margin-top: 10px; }
   </style>
 
   <meta property="og:type" content="website"/>
@@ -171,6 +212,20 @@
 
   </div>
 
+  <!-- Ask the Correspondent modal -->
+  <div class="qa-modal-backdrop" id="qa-modal" role="dialog" aria-modal="true" aria-labelledby="qa-modal-title">
+    <div class="qa-modal">
+      <h3 id="qa-modal-title">💬 Ask <span id="qa-modal-name">the correspondent</span></h3>
+      <p>What do you want to know? A grown-up reviews every question before it appears on the site.</p>
+      <textarea id="qa-text" maxlength="500" placeholder="Type your question here…"></textarea>
+      <div class="qa-modal-actions">
+        <button class="qa-cancel" id="qa-cancel">Cancel</button>
+        <button class="qa-send" id="qa-send">Send question</button>
+      </div>
+      <p class="qa-note">Be kind and curious — great questions get featured with their answers!</p>
+    </div>
+  </div>
+
   <footer class="footer">
     <div class="footer-inner">
       <div class="footer-brand">
@@ -239,6 +294,7 @@
   </footer>
 
   <script src="../assets/js/app.js"></script>
+  <script src="/assets/js/auth.js" defer></script>
   <script>
     const NAV = {
       'nav-home': ICONS.home, 'nav-flame': ICONS.flame, 'nav-events': ICONS.events,
@@ -287,6 +343,11 @@
           (c.kidBio ? '<p class="corr-bio">' + esc(c.kidBio) + '</p>' : '') +
           (c.funFact ? '<p class="corr-funfact"><strong>🎉 Fun fact:</strong> ' + esc(c.funFact) + '</p>' : '') +
           (storiesHref ? '<a class="corr-stories-link" href="' + storiesHref + '">All ' + chan + ' stories →</a>' : '') +
+          (c.channel ? '<button class="corr-ask-btn" data-ask="' + esc(c.channel) + '" data-name="' + name + '">💬 Ask ' + name.split(' ')[0] + '</button>' : '') +
+          (c.channel ? '<div class="corr-qa" data-qa="' + esc(c.channel) + '">' +
+            '<button class="corr-qa-toggle">❓ Questions & answers</button>' +
+            '<div class="corr-qa-list"><div class="corr-qa-empty">Loading…</div></div>' +
+          '</div>' : '') +
         '</article>';
       }
 
@@ -341,6 +402,7 @@
         headingEl.textContent = state.correspondents.length + ' correspondents';
         grid.innerHTML = state.correspondents.map(card).join('');
         paintSwitcher();
+        wireQa();
         // Deep-link support: /pages/team.html#corr-agent-ai jumps to that bio card.
         (function jumpToHash() {
           const h = (location.hash || '').replace(/^#/, '');
@@ -351,6 +413,86 @@
           el.classList.add('hash-flash');
           setTimeout(() => el.classList.remove('hash-flash'), 1800);
         })();
+
+        // ---- Ask the Correspondent ----
+        function wireQa() {
+          // Toggle answered Q&A per card (lazy-load on first open).
+          grid.querySelectorAll('[data-qa]').forEach(box => {
+            const toggle = box.querySelector('.corr-qa-toggle');
+            const list = box.querySelector('.corr-qa-list');
+            toggle.addEventListener('click', async () => {
+              box.classList.toggle('open');
+              if (!box.classList.contains('open') || box.dataset.loaded) return;
+              box.dataset.loaded = '1';
+              try {
+                const res = await fetch('/api/questions?channel=' + encodeURIComponent(box.dataset.qa));
+                const data = await res.json();
+                const qs = data.questions || [];
+                if (!qs.length) {
+                  list.innerHTML = '<div class="corr-qa-empty">No questions answered yet — ask the first one!</div>';
+                  return;
+                }
+                list.innerHTML = qs.map(q =>
+                  '<div class="corr-qa-item"><p class="corr-qa-q">❓ ' + esc(q.question) +
+                  (q.kid_name ? ' <span style="opacity:.6">— ' + esc(q.kid_name) + '</span>' : '') + '</p>' +
+                  '<p class="corr-qa-a"><strong>💬 Answer:</strong> ' + esc(q.answer) + '</p></div>'
+                ).join('');
+              } catch (e) {
+                list.innerHTML = '<div class="corr-qa-empty">Couldn\'t load Q&A right now.</div>';
+              }
+            });
+          });
+          // Ask-a-question modal.
+          grid.querySelectorAll('[data-ask]').forEach(btn => {
+            btn.addEventListener('click', () => openQaModal(btn.dataset.ask, btn.dataset.name));
+          });
+        }
+
+        let qaChannel = null;
+        function openQaModal(channel, name) {
+          qaChannel = channel;
+          document.getElementById('qa-modal-name').textContent = name;
+          document.getElementById('qa-text').value = '';
+          document.getElementById('qa-modal').classList.add('open');
+          setTimeout(() => document.getElementById('qa-text').focus(), 50);
+        }
+        function closeQaModal() {
+          document.getElementById('qa-modal').classList.remove('open');
+          qaChannel = null;
+        }
+        document.getElementById('qa-cancel').addEventListener('click', closeQaModal);
+        document.getElementById('qa-modal').addEventListener('click', e => {
+          if (e.target.id === 'qa-modal') closeQaModal();
+        });
+        document.getElementById('qa-send').addEventListener('click', async () => {
+          const text = document.getElementById('qa-text').value.trim();
+          if (text.length < 3) { toast('Write your question first!'); return; }
+          await window.SkyAuth.refresh().catch(() => {});
+          if (!window.SkyAuth.isSignedIn()) {
+            toast('Sign in to ask a question.');
+            location.href = 'login.html';
+            return;
+          }
+          const kids = window.SkyAuth.state.kids || [];
+          if (!kids.length) { toast('Add a kid profile first (Family profile).'); return; }
+          const kid = window.SkyAuth.getActiveKid() || kids[0];
+          const btn = document.getElementById('qa-send');
+          btn.disabled = true;
+          try {
+            const res = await fetch('/api/questions', {
+              method: 'POST', credentials: 'same-origin',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ kid_id: kid.id, channel: qaChannel, question: text })
+            });
+            const out = await res.json();
+            if (!res.ok) throw new Error(out.error || 'Could not send.');
+            closeQaModal();
+            toast('Question sent! It will appear here after review. ✅');
+          } catch (err) {
+            toast(err.message || 'Could not send.');
+          }
+          btn.disabled = false;
+        });
       })();
     })();
   </script>

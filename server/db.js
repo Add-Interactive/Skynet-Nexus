@@ -352,6 +352,19 @@ db.exec(`
     created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
     UNIQUE (quiz_id, kid_id)
   );
+  -- Ask the Correspondent: moderated kid questions + answers
+  CREATE TABLE IF NOT EXISTS correspondent_questions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    kid_id INTEGER REFERENCES kid_profiles(id) ON DELETE SET NULL,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    channel TEXT NOT NULL,
+    question TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',  -- pending|approved|rejected|answered
+    answer TEXT,
+    answered_at TEXT,
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_questions_status ON correspondent_questions(status, channel);
 `);
 
 
@@ -427,6 +440,32 @@ const stmts = {
     LEFT JOIN quiz_attempts qa ON qa.kid_id = k.id AND qa.quiz_id = ?
     WHERE cs.classroom_id = ?
     ORDER BY qa.score DESC NULLS LAST, k.name ASC`),
+  // Ask the Correspondent
+  insertQuestion: db.prepare(`
+    INSERT INTO correspondent_questions (kid_id, user_id, channel, question)
+    VALUES (?, ?, ?, ?)`),
+  countPendingQuestions: db.prepare(`
+    SELECT COUNT(*) AS n FROM correspondent_questions
+    WHERE kid_id = ? AND status IN ('pending','approved')`),
+  listQuestionsByStatus: db.prepare(`
+    SELECT q.*, k.name AS kid_name FROM correspondent_questions q
+    LEFT JOIN kid_profiles k ON k.id = q.kid_id
+    WHERE (? IS NULL OR q.status = ?) AND (? IS NULL OR q.channel = ?)
+    ORDER BY q.created_at DESC LIMIT 200`),
+  listAnsweredByChannel: db.prepare(`
+    SELECT q.id, q.channel, q.question, q.answer, q.answered_at, q.created_at, k.name AS kid_name
+    FROM correspondent_questions q
+    LEFT JOIN kid_profiles k ON k.id = q.kid_id
+    WHERE q.channel = ? AND q.status = 'answered'
+    ORDER BY q.answered_at DESC LIMIT 50`),
+  pendingAnswerQuestions: db.prepare(`
+    SELECT q.*, k.name AS kid_name FROM correspondent_questions q
+    LEFT JOIN kid_profiles k ON k.id = q.kid_id
+    WHERE q.status = 'approved' AND q.answer IS NULL
+    ORDER BY q.created_at ASC LIMIT 50`),
+  updateQuestionStatus: db.prepare(`UPDATE correspondent_questions SET status = ? WHERE id = ?`),
+  answerQuestion: db.prepare(`
+    UPDATE correspondent_questions SET answer = ?, answered_at = strftime('%Y-%m-%dT%H:%M:%fZ','now'), status = 'answered' WHERE id = ?`),
   // Discussions
   createDiscussion: db.prepare(`
     INSERT INTO discussions (classroom_id, user_id, title, article_id, article_cat, topic)
@@ -1113,6 +1152,47 @@ module.exports = {
     if (!cls) return { error: 'Classroom not found.' };
     const rows = stmts.quizClassBoard.all(quizId, classroomId);
     return { classroom: { id: cls.id, name: cls.name }, board: rows };
+  },
+
+  // ---------- Ask the Correspondent ----------
+  askQuestion({ userId, kidId, channel, question }) {
+    const ch = String(channel || '').toLowerCase().trim();
+    if (!Object.keys(GAM_CHANNEL_META).includes(ch)) return { error: 'Unknown channel.' };
+    const kid = stmts.findKid.get(kidId, userId);
+    if (!kid) return { error: 'Kid profile not found.' };
+    const q = String(question || '').trim().slice(0, 500);
+    if (q.length < 3) return { error: 'Question is too short.' };
+    const open = stmts.countPendingQuestions.get(kidId).n;
+    if (open >= 5) return { error: 'You already have 5 questions waiting. Please wait for answers first.' };
+    const info = stmts.insertQuestion.run(kidId, userId, ch, q);
+    return { ok: true, id: info.lastInsertRowid };
+  },
+  listQuestions({ status, channel }) {
+    const s = status ? String(status) : null;
+    const c = channel ? String(channel).toLowerCase() : null;
+    if (s && !['pending', 'approved', 'rejected', 'answered'].includes(s)) return { error: 'Bad status.' };
+    return { questions: stmts.listQuestionsByStatus.all(s, s, c, c) };
+  },
+  answeredQuestions(channel) {
+    const ch = String(channel || '').toLowerCase().trim();
+    if (!Object.keys(GAM_CHANNEL_META).includes(ch)) return { error: 'Unknown channel.' };
+    return { questions: stmts.listAnsweredByChannel.all(ch) };
+  },
+  setQuestionStatus({ id, status }) {
+    if (!['approved', 'rejected'].includes(status)) return { error: 'Bad status.' };
+    const info = stmts.updateQuestionStatus.run(status, Number(id));
+    if (!info.changes) return { error: 'Question not found.' };
+    return { ok: true };
+  },
+  answerQuestion({ id, answer }) {
+    const a = String(answer || '').trim().slice(0, 2000);
+    if (a.length < 3) return { error: 'Answer is too short.' };
+    const info = stmts.answerQuestion.run(a, Number(id));
+    if (!info.changes) return { error: 'Question not found.' };
+    return { ok: true };
+  },
+  pendingAnswerQuestions() {
+    return { questions: stmts.pendingAnswerQuestions.all() };
   },
 
   // ---------- Classrooms (teachers) ----------

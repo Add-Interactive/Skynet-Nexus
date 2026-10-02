@@ -205,6 +205,7 @@
       setBadge('nav-badge-queue', o.queue && o.queue.draft);
       setBadge('nav-badge-social', o.social && o.social.draft);
       setBadge('nav-badge-rejected', o.queue && o.queue.rejected);
+      setBadge('nav-badge-qa', o.questions && o.questions.pending);
     }).catch(function () {});
   }
   function setBadge(id, n) {
@@ -1134,6 +1135,81 @@
   }
 
   // ===== Compose / publish =====
+  Views.qa = function () {
+    var status = State.qaStatus || 'pending';
+    api('/admin/questions?status=' + status).then(function (r) {
+      var qs = r.questions || [];
+      main.innerHTML = '';
+      main.appendChild(h('<div class="admin-view-head"><h1>💬 Ask the Correspondent</h1><p>Kid questions for the correspondents. Approve the good ones (the nightly job answers them), reject the rest, or answer directly.</p></div>'));
+      var tabs = h('<div class="admin-tabs">' +
+        ['pending', 'approved', 'answered', 'rejected'].map(function (s) {
+          return '<button class="admin-tab' + (s === status ? ' active' : '') + '" data-s="' + s + '">' +
+            s.charAt(0).toUpperCase() + s.slice(1) + '</button>';
+        }).join('') + '</div>');
+      tabs.querySelectorAll('.admin-tab').forEach(function (b) {
+        b.addEventListener('click', function () { State.qaStatus = b.dataset.s; Views.qa(); });
+      });
+      main.appendChild(tabs);
+      if (!qs.length) { main.appendChild(h('<div class="admin-empty">No ' + esc(status) + ' questions.</div>')); return; }
+      var panel = h('<div class="admin-panel"><table class="admin-table"><thead><tr><th>Question</th><th>Channel</th><th>From</th><th>When</th><th></th></tr></thead><tbody></tbody></table></div>');
+      var tb = panel.querySelector('tbody');
+      qs.forEach(function (q) {
+        var tr = h(
+          '<tr><td><strong>' + esc(q.question) + '</strong>' +
+          (q.answer ? '<br/><span style="opacity:.75">💬 ' + esc(q.answer.slice(0, 140)) + (q.answer.length > 140 ? '…' : '') + '</span>' : '') + '</td>' +
+          '<td>' + esc(q.channel) + '</td>' +
+          '<td>' + esc(q.kid_name || '—') + '</td>' +
+          '<td class="num">' + fmtDate(q.created_at) + '</td>' +
+          '<td class="row-actions"></td></tr>'
+        );
+        var actions = tr.querySelector('.row-actions');
+        function act(label, fn, primary) {
+          var b = h('<button class="admin-btn admin-btn-sm' + (primary ? ' admin-btn-primary' : '') + '">' + label + '</button>');
+          b.addEventListener('click', function () { fn(q); });
+          actions.appendChild(b);
+        }
+        if (q.status === 'pending') {
+          act('Approve', function (q) {
+            api('/admin/questions/' + q.id + '/approve', { method: 'POST' })
+              .then(function () { toast('Approved — the nightly job will answer it.'); Views.qa(); refreshBadges(); })
+              .catch(function (e) { toast(e.message, true); });
+          }, true);
+          act('Reject', function (q) {
+            api('/admin/questions/' + q.id + '/reject', { method: 'POST' })
+              .then(function () { toast('Rejected.'); Views.qa(); refreshBadges(); })
+              .catch(function (e) { toast(e.message, true); });
+          });
+        }
+        if (q.status === 'approved' || q.status === 'pending') {
+          act('Answer', function (q) { openQaAnswer(q); });
+        }
+        tb.appendChild(tr);
+      });
+      main.appendChild(panel);
+    }).catch(errView);
+  };
+
+  function openQaAnswer(q) {
+    var modal = openModal('💬 Answer this question');
+    var wrap = h('<div><p style="margin-top:0"><strong>Q:</strong> ' + esc(q.question) + '</p>' +
+      '<textarea id="qa-admin-answer" rows="6" style="width:100%;box-sizing:border-box" placeholder="Write the answer in the correspondent\'s voice…">' +
+      esc(q.answer || '') + '</textarea></div>');
+    modal.body.appendChild(wrap);
+    var save = h('<button class="admin-btn admin-btn-primary">Publish answer</button>');
+    save.addEventListener('click', function () {
+      var a = modal.body.querySelector('#qa-admin-answer').value.trim();
+      if (a.length < 3) { toast('Write the answer first.', true); return; }
+      api('/admin/questions/' + q.id + '/answer', { method: 'POST', body: JSON.stringify({ answer: a }) })
+        .then(function () { toast('Answer published.'); closeModal(modal); Views.qa(); refreshBadges(); })
+        .catch(function (e) { toast(e.message, true); });
+    });
+    var cancel = h('<button class="admin-btn">Cancel</button>');
+    cancel.addEventListener('click', function () { closeModal(modal); });
+    var row = h('<div class="row-actions" style="margin-top:12px"></div>');
+    row.appendChild(save); row.appendChild(cancel);
+    modal.body.appendChild(row);
+  }
+
   Views.compose = function () {
     main.innerHTML = '';
     main.appendChild(h('<div class="admin-view-head"><h1>Write &amp; Publish</h1><p>Compose a story and file it to the queue as a draft, or publish it live immediately.</p></div>'));
