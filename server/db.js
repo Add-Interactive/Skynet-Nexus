@@ -334,6 +334,24 @@ db.exec(`
     earned_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
     PRIMARY KEY (user_id, badge_key)
   );
+  -- Daily news quiz (feature: 5 questions from the day's editions)
+  CREATE TABLE IF NOT EXISTS quizzes (
+    id TEXT PRIMARY KEY,             -- 'quiz:2026-10-02'
+    quiz_date TEXT NOT NULL,          -- '2026-10-02'
+    questions TEXT NOT NULL,          -- JSON [{q, choices[4], answer, article_id, channel}]
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  );
+  CREATE TABLE IF NOT EXISTS quiz_attempts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    quiz_id TEXT NOT NULL REFERENCES quizzes(id) ON DELETE CASCADE,
+    kid_id INTEGER NOT NULL REFERENCES kid_profiles(id) ON DELETE CASCADE,
+    score INTEGER NOT NULL,
+    total INTEGER NOT NULL,
+    answers TEXT NOT NULL,            -- JSON [chosenIdx...]
+    xp_awarded INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+    UNIQUE (quiz_id, kid_id)
+  );
 `);
 
 
@@ -391,6 +409,24 @@ const stmts = {
     JOIN classroom_students cs ON cs.classroom_id = c.id
     WHERE cs.kid_id = ? ORDER BY c.created_at DESC`),
   studentInClassroom: db.prepare(`SELECT 1 FROM classroom_students WHERE classroom_id = ? AND kid_id = ?`),
+  // Daily quiz
+  upsertQuiz: db.prepare(`
+    INSERT INTO quizzes (id, quiz_date, questions) VALUES (?, ?, ?)
+    ON CONFLICT(id) DO UPDATE SET quiz_date = excluded.quiz_date, questions = excluded.questions`),
+  findQuizById: db.prepare(`SELECT * FROM quizzes WHERE id = ?`),
+  latestQuiz: db.prepare(`SELECT * FROM quizzes ORDER BY quiz_date DESC LIMIT 1`),
+  findQuizAttempt: db.prepare(`SELECT * FROM quiz_attempts WHERE quiz_id = ? AND kid_id = ?`),
+  insertQuizAttempt: db.prepare(`
+    INSERT INTO quiz_attempts (quiz_id, kid_id, score, total, answers, xp_awarded)
+    VALUES (?, ?, ?, ?, ?, ?)`),
+  quizClassBoard: db.prepare(`
+    SELECT k.id AS kid_id, k.name, k.avatar_emoji, k.avatar_color,
+           qa.score, qa.total, qa.xp_awarded, qa.created_at AS attempted_at
+    FROM kid_profiles k
+    JOIN classroom_students cs ON cs.kid_id = k.id
+    LEFT JOIN quiz_attempts qa ON qa.kid_id = k.id AND qa.quiz_id = ?
+    WHERE cs.classroom_id = ?
+    ORDER BY qa.score DESC NULLS LAST, k.name ASC`),
   // Discussions
   createDiscussion: db.prepare(`
     INSERT INTO discussions (classroom_id, user_id, title, article_id, article_cat, topic)
@@ -811,7 +847,11 @@ const GAM_LEVELS = [
   { xp: 2000, name: 'Editor',              emoji: '✏️' },
   { xp: 4000, name: 'Editor-in-Chief',     emoji: '🏆' },
 ];
-const GAM_XP = { story: 10, kidtake: 5, discuss: 15, glossary: 5, reply: 10 };
+const GAM_XP = { story: 10, kidtake: 5, discuss: 15, glossary: 5, reply: 10, quiz: 25 };
+// NOTE: 'quiz' XP is only awarded through POST /api/quiz/attempt with a
+// score-scaled xpOverride (5 XP per correct answer, max 25). The generic
+// /api/gamification/event endpoint rejects event_type 'quiz' so the value
+// cannot be farmed directly.
 const GAM_EVENT_TYPES = Object.keys(GAM_XP);
 // Grown-up track: parents earn for co-reading, teachers for hosting discussions.
 const GAM_USER_XP = { coread: 10, host_discussion: 20 };
@@ -995,15 +1035,19 @@ module.exports = {
   gamXpValues: GAM_XP,
   gamBadgeDefs,
   gamLevelFor,
-  gamAward({ kidId, userId, eventType, articleId, articleCat }) {
+  gamAward({ kidId, userId, eventType, articleId, articleCat, xpOverride }) {
     if (!GAM_EVENT_TYPES.includes(eventType)) return { error: 'Unknown event type.' };
     const kid = stmts.findKid.get(kidId, userId);
     if (!kid) return { error: 'Kid profile not found.' };
     const artId = articleId != null ? String(articleId) : null;
     const cat = articleCat && GAM_CHANNEL_META[articleCat] ? articleCat : null;
+    // xpOverride lets callers (e.g. the quiz grader) scale XP; clamped to the event's max.
+    const xp = (typeof xpOverride === 'number' && xpOverride >= 0)
+      ? Math.min(Math.floor(xpOverride), GAM_XP[eventType])
+      : GAM_XP[eventType];
     const before = stmts.sumXp.get(kidId).xp;
     const beforeLevel = gamLevelFor(before).index;
-    const info = stmts.insertXp.run(kidId, eventType, artId, cat, GAM_XP[eventType]);
+    const info = stmts.insertXp.run(kidId, eventType, artId, cat, xp);
     const after = stmts.sumXp.get(kidId).xp;
     const afterLevel = gamLevelFor(after).index;
     let newBadges = [];
@@ -1021,7 +1065,7 @@ module.exports = {
     const defs = gamBadgeDefs();
     return {
       alreadyEarned: info.changes === 0,
-      xpEarned: info.changes > 0 ? GAM_XP[eventType] : 0,
+      xpEarned: info.changes > 0 ? xp : 0,
       totalXp: after,
       level: gamLevelFor(after),
       leveledUp: afterLevel > beforeLevel,
@@ -1037,6 +1081,39 @@ module.exports = {
   },
   gamAwardUser,
   gamUserStatus(userId) { return { status: gamUserStatus(userId) }; },
+
+  // ---------- Daily news quiz ----------
+  saveQuiz(date, questions) {
+    const id = 'quiz:' + date;
+    stmts.upsertQuiz.run(id, date, JSON.stringify(questions));
+    return { id, date, count: questions.length };
+  },
+  getQuizById(quizId) {
+    const row = stmts.findQuizById.get(quizId);
+    if (!row) return null;
+    return { id: row.id, date: row.quiz_date, questions: JSON.parse(row.questions), createdAt: row.created_at };
+  },
+  latestQuiz() {
+    const row = stmts.latestQuiz.get();
+    if (!row) return null;
+    return { id: row.id, date: row.quiz_date, questions: JSON.parse(row.questions), createdAt: row.created_at };
+  },
+  getQuizAttempt(quizId, kidId) {
+    return stmts.findQuizAttempt.get(quizId, kidId) || null;
+  },
+  recordQuizAttempt({ quizId, kidId, userId, score, total, answers, xp }) {
+    const kid = stmts.findKid.get(kidId, userId);
+    if (!kid) return { error: 'Kid profile not found.' };
+    if (stmts.findQuizAttempt.get(quizId, kidId)) return { error: 'Quiz already attempted.' };
+    stmts.insertQuizAttempt.run(quizId, kidId, score, total, JSON.stringify(answers), xp);
+    return { ok: true };
+  },
+  quizClassroomBoard({ classroomId, userId, quizId }) {
+    const cls = stmts.findClassroom.get(classroomId, userId);
+    if (!cls) return { error: 'Classroom not found.' };
+    const rows = stmts.quizClassBoard.all(quizId, classroomId);
+    return { classroom: { id: cls.id, name: cls.name }, board: rows };
+  },
 
   // ---------- Classrooms (teachers) ----------
   createClassroom({ userId, name }) {

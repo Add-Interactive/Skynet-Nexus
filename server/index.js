@@ -421,6 +421,10 @@ api.post('/gamification/event', requireAuth, (req, res) => {
   const { gamAward } = require('./db');
   const kidId = Number(req.body.kid_id);
   if (!Number.isInteger(kidId)) return res.status(400).json({ error: 'kid_id is required.' });
+  // 'quiz' XP is only awarded through the score-scaled quiz grader (/api/quiz/attempt).
+  if (String(req.body.event_type || '') === 'quiz') {
+    return res.status(400).json({ error: 'Quiz XP is awarded through /api/quiz/attempt.' });
+  }
   const out = gamAward({
     kidId,
     userId: req.session.userId,
@@ -434,6 +438,89 @@ api.post('/gamification/event', requireAuth, (req, res) => {
 api.get('/gamification/grownup', requireAuth, (req, res) => {
   const { gamUserStatus } = require('./db');
   res.json(gamUserStatus(req.session.userId).status);
+});
+
+// ---- Daily news quiz ----
+function etToday() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(new Date());
+  const g = t => parts.find(p => p.type === t).value;
+  return `${g('year')}-${g('month')}-${g('day')}`;
+}
+// Latest quiz (published daily by the newsroom pipeline after the evening drop).
+// Answers are stripped — grading happens server-side on submit.
+api.get('/quiz/today', requireAuth, (req, res) => {
+  const { latestQuiz, getQuizAttempt } = require('./db');
+  const quiz = latestQuiz();
+  if (!quiz) return res.json({ quiz: null });
+  const pub = {
+    id: quiz.id, date: quiz.date,
+    questions: quiz.questions.map(q => ({
+      q: q.q, choices: q.choices, article_id: q.article_id, channel: q.channel,
+    })),
+  };
+  let attempt = null;
+  const kidId = Number(req.query.kid_id);
+  if (Number.isInteger(kidId)) {
+    const a = getQuizAttempt(quiz.id, kidId);
+    if (a) {
+      attempt = {
+        score: a.score, total: a.total,
+        answers: JSON.parse(a.answers), xp_awarded: a.xp_awarded, created_at: a.created_at,
+        // correct answers are only revealed after the one attempt is used
+        correct: quiz.questions.map((q, i) => Number(JSON.parse(a.answers)[i]) === q.answer),
+        correctIndex: quiz.questions.map(q => q.answer),
+      };
+    }
+  }
+  res.json({ quiz: pub, attempt, today: etToday() });
+});
+api.post('/quiz/attempt', requireAuth, (req, res) => {
+  const { getQuizById, recordQuizAttempt, gamAward } = require('./db');
+  const kidId = Number(req.body.kid_id);
+  const quizId = String(req.body.quiz_id || '');
+  const answers = req.body.answers;
+  if (!Number.isInteger(kidId)) return res.status(400).json({ error: 'kid_id is required.' });
+  const quiz = getQuizById(quizId);
+  if (!quiz) return res.status(404).json({ error: 'Quiz not found.' });
+  const qs = quiz.questions;
+  if (!Array.isArray(answers) || answers.length !== qs.length ||
+      !answers.every(x => Number.isInteger(Number(x)) && Number(x) >= 0 && Number(x) <= 3)) {
+    return res.status(400).json({ error: 'answers must be one choice index per question.' });
+  }
+  const picked = answers.map(Number);
+  let score = 0;
+  const graded = qs.map((q, i) => { const ok = picked[i] === q.answer; if (ok) score++; return ok; });
+  const xp = Math.min(25, score * 5); // 5 XP per correct answer
+  const rec = recordQuizAttempt({
+    quizId, kidId, userId: req.session.userId, score, total: qs.length, answers: picked, xp,
+  });
+  if (rec.error) return res.status(rec.error === 'Quiz already attempted.' ? 409 : 404).json({ error: rec.error });
+  const award = gamAward({
+    kidId, userId: req.session.userId, eventType: 'quiz',
+    articleId: quizId, articleCat: null, xpOverride: xp,
+  });
+  res.json({
+    score, total: qs.length, graded,
+    xpEarned: award.xpEarned || 0, totalXp: award.totalXp,
+    level: award.level, leveledUp: award.leveledUp, newBadges: award.newBadges,
+  });
+});
+// Classroom leaderboard for a quiz (teacher of the class, or admin).
+api.get('/quiz/leaderboard', requireAuth, (req, res) => {
+  const { quizClassroomBoard, findUserById } = require('./db');
+  const quizId = String(req.query.quiz_id || '');
+  const classroomId = Number(req.query.classroom_id);
+  if (!quizId) return res.status(400).json({ error: 'quiz_id is required.' });
+  if (!Number.isInteger(classroomId)) return res.status(400).json({ error: 'classroom_id is required.' });
+  const me = findUserById(req.session.userId);
+  if (!me || (me.role !== 'teacher' && me.role !== 'admin')) {
+    return res.status(403).json({ error: 'Teacher access required.' });
+  }
+  const out = quizClassroomBoard({ classroomId, userId: req.session.userId, quizId });
+  if (out.error) return res.status(404).json({ error: out.error });
+  res.json(out);
 });
 
 // ---- Classrooms (teachers; admins can also manage) ----
@@ -801,11 +888,46 @@ api.post('/newsroom/drafts', (req, res) => {
 // Body: { platform, storyId?, storyTitle?, hook, script, caption?, hashtags?,
 //         artPick?, cta?, dropKey?, edition? }
 const SOCIAL_PLATFORMS = new Set(['youtube_shorts', 'tiktok', 'instagram_reels']);
+  // Daily news quiz filing (key-guarded, filed by the newsroom pipeline after
+  // the evening drop). Body: { date: 'YYYY-MM-DD', questions: [{q, choices[4], answer: 0-3, article_id?, channel?}] }
+api.post('/newsroom/quiz', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  const got = String(req.headers['x-newsroom-key'] || '');
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+
+  const b = req.body || {};
+  const date = String(b.date || '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'date must be YYYY-MM-DD' });
+  const qs = Array.isArray(b.questions) ? b.questions : [];
+  if (qs.length < 5 || qs.length > 10) return res.status(400).json({ error: 'questions must have 5-10 items' });
+  const clean = [];
+  for (const q of qs) {
+    if (!q || typeof q.q !== 'string' || !q.q.trim()) return res.status(400).json({ error: 'each question needs q' });
+    if (!Array.isArray(q.choices) || q.choices.length !== 4 || q.choices.some(c => typeof c !== 'string' || !c.trim())) {
+      return res.status(400).json({ error: 'each question needs exactly 4 choices' });
+    }
+    const ans = Number(q.answer);
+    if (!Number.isInteger(ans) || ans < 0 || ans > 3) return res.status(400).json({ error: 'answer must be 0-3' });
+    clean.push({
+      q: q.q.trim().slice(0, 500),
+      choices: q.choices.map(c => c.trim().slice(0, 200)),
+      answer: ans,
+      article_id: q.article_id ? String(q.article_id).slice(0, 80) : null,
+      channel: q.channel ? String(q.channel).slice(0, 40) : null,
+    });
+  }
+  const { saveQuiz } = require('./db');
+  res.json({ ok: true, ...saveQuiz(date, clean) });
+});
+
 api.post('/newsroom/social-drafts', (req, res) => {
   const expected = process.env.NEWSROOM_API_KEY;
   if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
   const got = String(req.headers['x-newsroom-key'] || '');
   if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+
+
 
   const b = req.body || {};
   const platform = String(b.platform || '').trim();
