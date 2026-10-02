@@ -365,6 +365,32 @@ db.exec(`
     created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
   );
   CREATE INDEX IF NOT EXISTS idx_questions_status ON correspondent_questions(status, channel);
+  -- Web push subscriptions for edition drop alerts
+  CREATE TABLE IF NOT EXISTS push_subscriptions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    endpoint TEXT NOT NULL UNIQUE,
+    p256dh TEXT NOT NULL,
+    auth TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  );
+  -- Teacher assignments: articles assigned to classrooms + read tracking
+  CREATE TABLE IF NOT EXISTS assignments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    teacher_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    classroom_id INTEGER NOT NULL REFERENCES classrooms(id) ON DELETE CASCADE,
+    article_id TEXT NOT NULL,
+    article_title TEXT NOT NULL,
+    due_at TEXT,
+    note TEXT,
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  );
+  CREATE TABLE IF NOT EXISTS assignment_reads (
+    assignment_id INTEGER NOT NULL REFERENCES assignments(id) ON DELETE CASCADE,
+    kid_id INTEGER NOT NULL REFERENCES kid_profiles(id) ON DELETE CASCADE,
+    read_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+    PRIMARY KEY (assignment_id, kid_id)
+  );
 `);
 
 
@@ -466,6 +492,27 @@ const stmts = {
   updateQuestionStatus: db.prepare(`UPDATE correspondent_questions SET status = ? WHERE id = ?`),
   answerQuestion: db.prepare(`
     UPDATE correspondent_questions SET answer = ?, answered_at = strftime('%Y-%m-%dT%H:%M:%fZ','now'), status = 'answered' WHERE id = ?`),
+  // Web push
+  upsertPushSub: db.prepare(`
+    INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth) VALUES (?, ?, ?, ?)
+    ON CONFLICT(endpoint) DO UPDATE SET user_id = excluded.user_id, p256dh = excluded.p256dh, auth = excluded.auth`),
+  deletePushSub: db.prepare(`DELETE FROM push_subscriptions WHERE user_id = ? AND endpoint = ?`),
+  deletePushSubByEndpoint: db.prepare(`DELETE FROM push_subscriptions WHERE endpoint = ?`),
+  listPushSubs: db.prepare(`SELECT endpoint, p256dh, auth FROM push_subscriptions`),
+  // Teacher assignments
+  insertAssignment: db.prepare(`
+    INSERT INTO assignments (teacher_user_id, classroom_id, article_id, article_title, due_at, note)
+    VALUES (?, ?, ?, ?, ?, ?)`),
+  findAssignment: db.prepare(`SELECT * FROM assignments WHERE id = ?`),
+  deleteAssignment: db.prepare(`DELETE FROM assignments WHERE id = ?`),
+  listAssignments: db.prepare(`SELECT * FROM assignments WHERE classroom_id = ? ORDER BY created_at DESC`),
+  assignmentReads: db.prepare(`SELECT kid_id FROM assignment_reads WHERE assignment_id = ?`),
+  assignmentsForKid: db.prepare(`
+    SELECT a.id FROM assignments a
+    JOIN classroom_students cs ON cs.classroom_id = a.classroom_id
+    WHERE cs.kid_id = ? AND a.article_id = ?`),
+  insertAssignmentRead: db.prepare(`
+    INSERT OR IGNORE INTO assignment_reads (assignment_id, kid_id) VALUES (?, ?)`),
   // Discussions
   createDiscussion: db.prepare(`
     INSERT INTO discussions (classroom_id, user_id, title, article_id, article_cat, topic)
@@ -1193,6 +1240,73 @@ module.exports = {
   },
   pendingAnswerQuestions() {
     return { questions: stmts.pendingAnswerQuestions.all() };
+  },
+
+  // ---------- Web push ----------
+  savePushSubscription({ userId, endpoint, p256dh, auth }) {
+    stmts.upsertPushSub.run(userId, endpoint, p256dh, auth);
+    return { ok: true };
+  },
+  removePushSubscription({ userId, endpoint }) {
+    stmts.deletePushSub.run(userId, endpoint);
+    return { ok: true };
+  },
+  removePushSubscriptionByEndpoint(endpoint) {
+    stmts.deletePushSubByEndpoint.run(endpoint);
+    return { ok: true };
+  },
+  listPushSubscriptions() {
+    return stmts.listPushSubs.all();
+  },
+
+  // ---------- Teacher assignments ----------
+  createAssignment({ teacherUserId, classroomId, articleId, articleTitle, dueAt, note }) {
+    const cls = stmts.findClassroom.get(classroomId, teacherUserId);
+    if (!cls) return { error: 'Classroom not found.' };
+    const info = stmts.insertAssignment.run(
+      teacherUserId, classroomId, String(articleId).slice(0, 80),
+      String(articleTitle || 'Untitled').slice(0, 200),
+      dueAt || null, note ? String(note).slice(0, 500) : null);
+    return { ok: true, id: info.lastInsertRowid };
+  },
+  listAssignments({ teacherUserId, classroomId }) {
+    const cls = stmts.findClassroom.get(classroomId, teacherUserId);
+    if (!cls) return { error: 'Classroom not found.' };
+    const rows = stmts.listAssignments.all(classroomId);
+    const students = stmts.listClassStudents.all(classroomId);
+    return {
+      classroom: { id: cls.id, name: cls.name },
+      assignments: rows.map(a => {
+        const reads = stmts.assignmentReads.all(a.id).map(r => r.kid_id);
+        return {
+          id: a.id, article_id: a.article_id, article_title: a.article_title,
+          due_at: a.due_at, note: a.note, created_at: a.created_at,
+          studentCount: students.length, readCount: reads.length,
+          reads: students.map(s => ({
+            kid_id: s.id, name: s.name,
+            avatar_emoji: s.avatar_emoji, avatar_color: s.avatar_color,
+            read: reads.includes(s.id),
+          })),
+        };
+      }),
+    };
+  },
+  deleteAssignment({ teacherUserId, id }) {
+    const a = stmts.findAssignment.get(Number(id));
+    if (!a || a.teacher_user_id !== teacherUserId) return { error: 'Assignment not found.' };
+    stmts.deleteAssignment.run(Number(id));
+    return { ok: true };
+  },
+  trackAssignmentRead({ userId, kidId, articleId }) {
+    const kid = stmts.findKid.get(kidId, userId);
+    if (!kid) return { error: 'Kid profile not found.' };
+    const assigns = stmts.assignmentsForKid.all(kidId, String(articleId));
+    let marked = 0;
+    for (const a of assigns) {
+      const info = stmts.insertAssignmentRead.run(a.id, kidId);
+      if (info.changes > 0) marked++;
+    }
+    return { ok: true, marked };
   },
 
   // ---------- Classrooms (teachers) ----------
