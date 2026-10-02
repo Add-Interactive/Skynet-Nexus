@@ -110,7 +110,11 @@ router.get('/overview', (req, res) => {
       published: db.listQueuedStories({ status: 'published', limit: 1000 }).length,
       rejected: db.listQueuedStories({ status: 'rejected', limit: 1000 }).length
     },
-    social: db.countSocialDraftsByStatus()
+    social: db.countSocialDraftsByStatus(),
+    questions: {
+      pending: db.listQuestions({ status: 'pending' }).questions.length,
+      approved: db.listQuestions({ status: 'approved' }).questions.length
+    }
   });
 });
 
@@ -319,6 +323,31 @@ router.get('/submissions/:id', (req, res) => {
   const sub = db.findSubmission(id);
   if (!sub) return res.status(404).json({ error: 'not found' });
   res.json({ submission: sub });
+});
+
+// -------------------- Ask the Correspondent: moderation --------------------
+router.get('/questions', (req, res) => {
+  const out = db.listQuestions({ status: req.query.status, channel: req.query.channel });
+  if (out.error) return res.status(400).json({ error: out.error });
+  res.json(out);
+});
+router.post('/questions/:id/approve', (req, res) => {
+  const out = db.setQuestionStatus({ id: req.params.id, status: 'approved' });
+  if (out.error) return res.status(404).json({ error: out.error });
+  logAction(req.adminUser.id, 'question.approve', 'question', Number(req.params.id), null);
+  res.json(out);
+});
+router.post('/questions/:id/reject', (req, res) => {
+  const out = db.setQuestionStatus({ id: req.params.id, status: 'rejected' });
+  if (out.error) return res.status(404).json({ error: out.error });
+  logAction(req.adminUser.id, 'question.reject', 'question', Number(req.params.id), null);
+  res.json(out);
+});
+router.post('/questions/:id/answer', (req, res) => {
+  const out = db.answerQuestion({ id: req.params.id, answer: req.body.answer });
+  if (out.error) return res.status(400).json({ error: out.error });
+  logAction(req.adminUser.id, 'question.answer', 'question', Number(req.params.id), null);
+  res.json(out);
 });
 
 router.patch('/submissions/:id', (req, res) => {
