@@ -523,6 +523,48 @@ api.get('/quiz/leaderboard', requireAuth, (req, res) => {
   res.json(out);
 });
 
+// ---- Ask the Correspondent ----
+// Kids (via their grown-up's account) submit questions to a channel's correspondent.
+// Questions are moderated before appearing publicly; answers come from the
+// newsroom pipeline (nightly) or an admin answering directly.
+api.post('/questions', requireAuth, (req, res) => {
+  const { askQuestion } = require('./db');
+  const out = askQuestion({
+    userId: req.session.userId,
+    kidId: Number(req.body.kid_id),
+    channel: req.body.channel,
+    question: req.body.question,
+  });
+  if (out.error) return res.status(400).json({ error: out.error });
+  res.json(out);
+});
+// Public: answered Q&A for one channel (shown on the team page).
+api.get('/questions', (req, res) => {
+  const { answeredQuestions } = require('./db');
+  const out = answeredQuestions(req.query.channel);
+  if (out.error) return res.status(400).json({ error: out.error });
+  res.json(out);
+});
+// Newsroom (key-guarded): fetch approved-but-unanswered questions, file answers.
+api.get('/newsroom/questions/pending-answer', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  const got = String(req.headers['x-newsroom-key'] || '');
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+  const { pendingAnswerQuestions } = require('./db');
+  res.json(pendingAnswerQuestions());
+});
+api.post('/newsroom/questions/:id/answer', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  const got = String(req.headers['x-newsroom-key'] || '');
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+  const { answerQuestion } = require('./db');
+  const out = answerQuestion({ id: req.params.id, answer: req.body.answer });
+  if (out.error) return res.status(400).json({ error: out.error });
+  res.json(out);
+});
+
 // ---- Classrooms (teachers; admins can also manage) ----
 function requireTeacher(req, res, next) {
   const { findUserById } = require('./db');
