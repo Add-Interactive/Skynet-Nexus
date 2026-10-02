@@ -367,6 +367,8 @@ body::before{
 .article-toolbar .share-btn{padding:8px 16px;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#001820;font-weight:700;border-radius:999px;display:flex;align-items:center;gap:6px}
 .article-toolbar .share-btn:hover{transform:translateY(-2px)}
 .article-toolbar .share-btn svg{width:16px;height:16px}
+.article-toolbar .share-btn.listening{background:linear-gradient(90deg,#ff9d5c,#ff5c7a);color:#1a0b00;animation:listen-pulse 1.6s ease-in-out infinite}
+@keyframes listen-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,157,92,.45)}50%{box-shadow:0 0 0 8px rgba(255,157,92,0)}}
 
 /* Comments */
 .comments{margin-top:32px}
