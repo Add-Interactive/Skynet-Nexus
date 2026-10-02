@@ -17,6 +17,7 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "express": "^4.21.0",
-    "express-session": "^1.18.0"
+    "express-session": "^1.18.0",
+    "web-push": "^3.6.7"
   }
 }

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Assignments — Skynet Nexus News</title>
+  <meta name="description" content="Assign Skynet Nexus stories to your classroom and see which students have read them."/>
+  <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261001-2"/>
+  <link rel="stylesheet" href="/assets/css/auth.css"/>
+  <style>
+    #assign-root { max-width: 780px; }
+    .asg-card { background: var(--card, rgba(255,255,255,.03)); border: 1px solid var(--border, rgba(255,255,255,.08)); border-radius: 16px; padding: 20px; margin: 0 0 16px; }
+    .asg-card h3 { margin: 0 0 4px; font: 700 16px/1.4 Inter, sans-serif; color: var(--text, #e6ecf3); }
+    .asg-meta { font: 500 12px/1.5 Inter, sans-serif; color: var(--muted, #9aa7bd); margin: 0 0 12px; }
+    .asg-bar { height: 10px; border-radius: 999px; background: rgba(255,255,255,.07); overflow: hidden; margin: 8px 0 12px; }
+    .asg-bar > div { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #00e5ff, #a855f7); transition: width .4s; }
+    .asg-students { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .asg-student { display: flex; align-items: center; gap: 6px; font: 600 12px/1 Inter, sans-serif; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--border, rgba(255,255,255,.12)); color: var(--muted, #9aa7bd); }
+    .asg-student.read { border-color: #34d399; color: #34d399; background: rgba(52,211,153,.08); }
+    .asg-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .asg-btn { font: 700 12px/1 Inter, sans-serif; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border, rgba(255,255,255,.15)); background: rgba(255,255,255,.05); color: var(--text, #e6ecf3); cursor: pointer; text-decoration: none; display: inline-block; }
+    .asg-btn.danger { border-color: rgba(255,92,122,.4); color: #ff5c7a; }
+    .asg-classpick { display: flex; align-items: center; gap: 10px; margin: 0 0 18px; font: 600 13px/1 Inter, sans-serif; color: var(--muted, #9aa7bd); }
+    .asg-classpick select { font: 600 14px Inter, sans-serif; padding: 9px 12px; border-radius: 10px; background: #0a0e17; color: var(--text, #e6ecf3); border: 1px solid var(--border, rgba(255,255,255,.15)); }
+    .asg-state { text-align: center; padding: 48px 20px; color: var(--muted, #9aa7bd); }
+    .asg-state h3 { color: var(--text, #e6ecf3); margin: 0 0 8px; }
+    .asg-how { font: 500 13px/1.6 Inter, sans-serif; color: var(--muted, #9aa7bd); }
+    .asg-how strong { color: var(--text, #e6ecf3); }
+  </style>
+  <meta name="theme-color" content="#0a0e17" media="(prefers-color-scheme: dark)"/>
+  <meta name="theme-color" content="#f0f4ff" media="(prefers-color-scheme: light)"/>
+  <link rel="canonical" href="https://skynet-nexus-production.up.railway.app/pages/assignments.html"/>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="../index.html" class="brand" aria-label="Skynet Nexus News">
+        <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00e5ff"/><stop offset="100%" stop-color="#a855f7"/></linearGradient></defs>
+          <path d="M20 3l14 8v18l-14 8L6 29V11z" fill="none" stroke="url(#lg1)" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M20 12l7 4v8l-7 4-7-4v-8z" fill="url(#lg1)" opacity=".95"/>
+          <circle cx="20" cy="20" r="2.5" fill="#0a0e17"/>
+        </svg>
+        <div>
+          <div class="brand-name">SKYNET NEXUS</div>
+          <div class="brand-tag">Family Signal</div>
+        </div>
+      </a>
+      <div class="search-wrap">
+        <span id="ic-search"></span>
+        <input id="global-search" type="search" placeholder="Search stories, artists, teams, tags..."/>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn only-mobile" id="menu-toggle" aria-label="Menu"><span id="ic-menu"></span></button>
+        <button class="icon-btn" id="theme-toggle" aria-label="Toggle theme"></button>
+        <div class="sky-user-slot"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="ticker"><div id="ticker-inner" class="ticker-inner"></div></div>
+
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="side-section">
+        <div class="side-title">Feed</div>
+        <ul class="nav-list">
+          <li><a href="../index.html"><span class="icon" id="nav-home"></span><span>Home</span></a></li>
+          <li><a href="../index.html#trending"><span class="icon" id="nav-flame"></span><span>Trending</span></a></li>
+          <li><a href="events.html"><span class="icon" id="nav-events"></span><span>Events</span></a></li>
+          <li><a href="leaderboard.html"><span class="icon" id="nav-trophy"></span><span>Leaderboard</span></a></li>
+          <li><a href="quiz.html"><span class="icon">🧠</span><span>Daily Quiz</span></a></li>
+          <li><a href="team.html"><span class="icon" id="nav-team"></span><span>Meet the Team</span></a></li>
+        </ul>
+      </div>
+      <div class="side-section">
+        <div class="side-title">Channels</div>
+        <ul class="nav-list"></ul>
+      </div>
+      <div class="side-section"><div class="sky-intro-slot"></div></div>
+      <div class="side-section"><div class="sky-user-card-slot"></div></div>
+    </aside>
+
+    <main class="main">
+      <section class="hero">
+        <span class="kicker">📚 For Teachers</span>
+        <h1>Assignments</h1>
+        <p>Assign stories to a classroom and see who has read them. Assign from any article page with the <strong>📚 Assign to class</strong> button.</p>
+      </section>
+
+      <div class="asg-classpick" id="asg-classpick" hidden>
+        <label for="asg-class">Classroom</label>
+        <select id="asg-class"></select>
+      </div>
+      <div id="assign-root" aria-live="polite"></div>
+    </main>
+
+    <aside class="right-rail">
+      <div class="widget">
+        <div class="widget-title">How assignments work</div>
+        <div class="asg-how">
+          <p><strong>1.</strong> Open any story and tap <strong>📚 Assign to class</strong>.</p>
+          <p><strong>2.</strong> Pick the classroom, set a due date, add a note.</p>
+          <p><strong>3.</strong> When a student opens the story, it counts as read — watch the progress bars fill up here.</p>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="footer-brand">SKYNET NEXUS</div>
+          <p class="footer-tag">Family-first news, three editions daily.</p>
+        </div>
+        <div class="footer-col">
+          <div class="footer-title">Explore</div>
+          <a href="../index.html">Home</a>
+          <a href="quiz.html">Daily Quiz</a>
+          <a href="team.html">Meet the Team</a>
+          <a href="events.html">Events</a>
+          <a href="leaderboard.html">Leaderboard</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-title">About</div>
+          <a href="about.html">About</a>
+          <a href="contact.html">Contact</a>
+          <a href="whats-new.html">What's New</a>
+          <a href="guide.html">How to Use</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Skynet Nexus News</span>
+        <a href="https://addinteractive-production.up.railway.app/">Add Interactive Studio</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/app.js?v=20261001-6"></script>
+  <script src="assets/js/engage.js?v=20261001-1"></script>
+  <script src="/assets/js/auth.js" defer></script>
+  <script src="/assets/js/whatsnew-badge.js"></script>
+  <script>
+    const NAV = {
+      'nav-home': ICONS.home, 'nav-flame': ICONS.flame, 'nav-events': ICONS.events,
+      'nav-trophy': ICONS.trophy, 'nav-team': ICONS.users
+    };
+    Object.keys(NAV).forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = NAV[id]; });
+    initSimplePage('../');
+    renderStats(); renderTicker(); renderNewsletter();
+
+    (function () {
+      const root = document.getElementById('assign-root');
+      const pickWrap = document.getElementById('asg-classpick');
+      const sel = document.getElementById('asg-class');
+      const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      const api = (path, opts) => fetch('/api' + path, Object.assign({ credentials: 'same-origin', headers: { 'Content-Type': 'application/json' } }, opts || {}));
+
+      async function boot() {
+        await window.SkyAuth.refresh().catch(() => {});
+        const u = window.SkyAuth.state.user;
+        if (!u || (u.role !== 'teacher' && u.role !== 'admin')) {
+          root.innerHTML = '<div class="asg-card"><div class="asg-state"><h3>Teachers only</h3>' +
+            '<p>Assignments are for teacher accounts. ' +
+            (!u ? '<a href="login.html">Sign in</a> with a teacher account.' : 'Ask an admin to set your role to teacher.') + '</p></div></div>';
+          return;
+        }
+        let classrooms = [];
+        try {
+          const r = await api('/classrooms');
+          classrooms = (await r.json()).classrooms || [];
+        } catch (e) {}
+        if (!classrooms.length) {
+          root.innerHTML = '<div class="asg-card"><div class="asg-state"><h3>No classrooms yet</h3>' +
+            '<p>Create a classroom from your <a href="profile.html">family profile</a>, add students, then assign stories from any article page.</p></div></div>';
+          return;
+        }
+        pickWrap.hidden = false;
+        sel.innerHTML = classrooms.map(c => '<option value="' + c.id + '">' + esc(c.name) + '</option>').join('');
+        sel.addEventListener('change', load);
+        load();
+      }
+
+      async function load() {
+        const cid = sel.value;
+        root.innerHTML = '<div class="asg-card"><div class="asg-state"><h3>Loading assignments…</h3></div></div>';
+        try {
+          const r = await api('/assignments?classroom_id=' + cid);
+          const d = await r.json();
+          if (!r.ok) throw new Error(d.error || 'Load failed');
+          render(d);
+        } catch (e) {
+          root.innerHTML = '<div class="asg-card"><div class="asg-state"><h3>Couldn\'t load</h3><p>' + esc(e.message) + '</p></div></div>';
+        }
+      }
+
+      function render(d) {
+        const list = d.assignments || [];
+        if (!list.length) {
+          root.innerHTML = '<div class="asg-card"><div class="asg-state"><h3>No assignments yet</h3>' +
+            '<p>Open any story and tap <strong>📚 Assign to class</strong> to give it to <strong>' + esc(d.classroom.name) + '</strong>.</p></div></div>';
+          return;
+        }
+        root.innerHTML = list.map(a => {
+          const pct = a.studentCount ? Math.round(a.readCount / a.studentCount * 100) : 0;
+          return '<div class="asg-card">' +
+            '<h3>' + esc(a.article_title) + '</h3>' +
+            '<p class="asg-meta">' + a.readCount + ' of ' + a.studentCount + ' read' +
+            (a.due_at ? ' · due ' + esc(a.due_at) : '') +
+            (a.note ? ' · “' + esc(a.note) + '”' : '') + '</p>' +
+            '<div class="asg-bar"><div style="width:' + pct + '%"></div></div>' +
+            '<div class="asg-students">' +
+            a.reads.map(s =>
+              '<span class="asg-student' + (s.read ? ' read' : '') + '">' +
+              (s.read ? '✅ ' : '⭕ ') + esc(s.name) + '</span>'
+            ).join('') +
+            '</div>' +
+            '<div class="asg-actions">' +
+            '<a class="asg-btn" href="article.html?id=' + encodeURIComponent(a.article_id) + '">Read story →</a>' +
+            '<button class="asg-btn danger" data-del="' + a.id + '">Remove</button>' +
+            '</div></div>';
+        }).join('');
+        root.querySelectorAll('[data-del]').forEach(b => {
+          b.addEventListener('click', async () => {
+            if (!confirm('Remove this assignment? Read records go with it.')) return;
+            try {
+              const r = await api('/assignments/' + b.dataset.del, { method: 'DELETE' });
+              if (!r.ok) throw new Error((await r.json()).error || 'Delete failed');
+              toast('Assignment removed.');
+              load();
+            } catch (e) { toast(e.message); }
+          });
+        });
+      }
+
+      boot();
+    })();
+  </script>
+</body>
+</html>

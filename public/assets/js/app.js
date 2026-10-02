@@ -674,6 +674,7 @@ function renderNotificationsList() {
     <span>Unread Stories</span>
     ${unseen.length > 0 ? '<button class="notif-clear" id="btn-clear-notifs">Mark all read</button>' : ''}
   </div>`;
+
   
   if (unseen.length === 0) {
     html += `<div class="notif-empty">🎉 All caught up! No unread stories.</div>`;
@@ -727,9 +728,10 @@ function renderNotificationsList() {
 }
 
 // ---------- Theme ----------
-function initTheme() {
-  const saved = LS.get('theme', 'dark');
+function initTheme() {  const saved = LS.get('theme', 'dark');
   document.documentElement.setAttribute('data-theme', saved);
+  // Register the service worker for edition drop alerts (silent if unsupported).
+  if (typeof SkyPush !== 'undefined' && SkyPush.init) SkyPush.init();
   const btn = document.getElementById('theme-toggle');
   if (btn) {
     btn.innerHTML = saved === 'light' ? ICONS.moon : ICONS.sun;
@@ -2419,6 +2421,12 @@ function initArticlePage() {
     });
     document.addEventListener('pagehide', () => { try { synth.cancel(); } catch {} });
   }
+
+  // Teacher assignments: "Assign to class" button (teachers/admins only).
+  // Injected once SkyAuth is ready, since auth.js loads deferred.
+  injectAssignButton(a);
+  // Assignment read tracking: if a kid is viewing, mark matching assignments read.
+  trackAssignmentRead(a);
 
   // Journey scroll-spy: highlight the step the reader is on.
   if ('IntersectionObserver' in window && journeySteps.length > 1) {
