@@ -94,6 +94,7 @@ function scheduleInfo() {
 }
 
 // Publish one queued story payload through the publish pipeline.
+// Returns { articleId, edition } on success, null otherwise.
 async function releaseStory(story, via) {
   try {
     // Stamp the edition and the true drop time onto the payload so the
@@ -116,6 +117,7 @@ async function releaseStory(story, via) {
         });
       }
       console.log(`[scheduler] released queued story #${story.id} -> ${result.articleId || '(unknown id)'} (${via})`);
+      return { articleId: result.articleId, edition: payload.edition || null };
     } else {
       db.updateQueuedStory({ id: story.id, status: 'draft', clearDrop: true, editorNotes: '[scheduler] publish failed, drop stamp cleared — awaiting director: ' + (result.stderr || '').slice(0, 300) });
       console.warn(`[scheduler] publish failed for #${story.id} (code ${result.code}); returned to drafts`);
@@ -123,6 +125,7 @@ async function releaseStory(story, via) {
   } catch (e) {
     console.warn(`[scheduler] release error for #${story.id}:`, e.message);
   }
+  return null;
 }
 
 // Release any scheduled stories that are now due, then auto-publish any
@@ -131,14 +134,32 @@ async function releaseStory(story, via) {
 // auto-publish.
 async function releaseDue() {
   const nowIso = new Date().toISOString();
+  const released = [];
   let due = [];
   try { due = db.listDueScheduledStories(nowIso); }
   catch (e) { console.warn('[scheduler] query failed:', e.message); return; }
-  for (const story of due) { await releaseStory(story, 'scheduled'); }
+  for (const story of due) { const r = await releaseStory(story, 'scheduled'); if (r) released.push(r); }
   let drafts = [];
   try { drafts = db.listDueDraftStories(nowIso); }
   catch (e) { console.warn('[scheduler] draft query failed:', e.message); return; }
-  for (const story of drafts) { await releaseStory(story, 'auto'); }
+  for (const story of drafts) { const r = await releaseStory(story, 'auto'); if (r) released.push(r); }
+
+  // Edition drop alerts: if anything published, push "X Edition is live" to subscribers.
+  if (released.length) {
+    const byEdition = {};
+    for (const r of released) {
+      const ed = r.edition || 'morning';
+      byEdition[ed] = (byEdition[ed] || 0) + 1;
+    }
+    const p = etParts();
+    const date = `${p.year}-${String(p.month).padStart(2, '0')}-${String(p.day).padStart(2, '0')}`;
+    try {
+      const push = require('./push');
+      for (const [edition, count] of Object.entries(byEdition)) {
+        push.sendEditionAlert({ edition, count, date }).catch(e => console.warn('[scheduler] push alert failed:', e.message));
+      }
+    } catch (e) { console.warn('[scheduler] push module failed:', e.message); }
+  }
 
   // The queue clears after each drop: published stories live on as published
   // articles, so they leave the queue. Rejected stories are kept in the
