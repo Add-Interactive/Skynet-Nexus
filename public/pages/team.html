@@ -435,7 +435,7 @@
                 }
                 list.innerHTML = qs.map(q =>
                   '<div class="corr-qa-item"><p class="corr-qa-q">❓ ' + esc(q.question) +
-                  (q.kid_name ? ' <span style="opacity:.6">— ' + esc(q.kid_name) + '</span>' : '') + '</p>' +
+                  ((q.reader_label || 'a young reader') ? ' <span style="opacity:.6">— ' + esc(q.reader_label || 'a young reader') + '</span>' : '') + '</p>' +
                   '<p class="corr-qa-a"><strong>💬 Answer:</strong> ' + esc(q.answer) + '</p></div>'
                 ).join('');
               } catch (e) {

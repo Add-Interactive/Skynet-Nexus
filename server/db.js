@@ -479,7 +479,7 @@ const stmts = {
     WHERE (? IS NULL OR q.status = ?) AND (? IS NULL OR q.channel = ?)
     ORDER BY q.created_at DESC LIMIT 200`),
   listAnsweredByChannel: db.prepare(`
-    SELECT q.id, q.channel, q.question, q.answer, q.answered_at, q.created_at, k.name AS kid_name
+    SELECT q.id, q.channel, q.question, q.answer, q.answered_at, q.created_at, q.kid_id, k.name AS kid_name
     FROM correspondent_questions q
     LEFT JOIN kid_profiles k ON k.id = q.kid_id
     WHERE q.channel = ? AND q.status = 'answered'
@@ -1223,7 +1223,21 @@ module.exports = {
   answeredQuestions(channel) {
     const ch = String(channel || '').toLowerCase().trim();
     if (!Object.keys(GAM_CHANNEL_META).includes(ch)) return { error: 'Unknown channel.' };
-    return { questions: stmts.listAnsweredByChannel.all(ch) };
+    const rows = stmts.listAnsweredByChannel.all(ch);
+    // Public Q&A must never expose a child's name. Show their reader tier instead.
+    const questions = rows.map(r => {
+      let label = 'a young reader';
+      try {
+        if (r.kid_id) {
+          const xp = stmts.sumXp.get(r.kid_id).xp || 0;
+          const lvl = gamLevelFor(xp);
+          label = `${lvl.emoji} ${lvl.name}`;
+        }
+      } catch {}
+      const { kid_name, kid_id, ...rest } = r;
+      return { ...rest, reader_label: label };
+    });
+    return { questions };
   },
   setQuestionStatus({ id, status }) {
     if (!['approved', 'rejected'].includes(status)) return { error: 'Bad status.' };
