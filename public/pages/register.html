@@ -9,6 +9,96 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
   <link rel="stylesheet" href="/assets/css/style.css"/>
   <link rel="stylesheet" href="/assets/css/auth.css"/>
+  <style>
+    /* ---- Register: info + live-preview split layout ---- */
+    .sky-auth-page--split { flex-direction: column; }
+    .sky-reg-wrap {
+      display: flex; gap: 56px; align-items: center; justify-content: center;
+      width: 100%; max-width: 1120px;
+    }
+    .sky-reg-info { flex: 1 1 0; min-width: 0; max-width: 540px; }
+    .sky-reg-eyebrow {
+      display: inline-block; font: 700 12px/1 Inter, sans-serif; letter-spacing: .14em;
+      text-transform: uppercase; color: #00e5ff; margin-bottom: 12px;
+    }
+    .sky-reg-info h1 {
+      font: 800 clamp(28px, 4vw, 40px)/1.15 Inter, sans-serif;
+      color: var(--text, #e6ecf3); margin: 0 0 12px;
+    }
+    .sky-reg-info h1 .grad {
+      background: linear-gradient(135deg, #00e5ff, #a855f7);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .sky-reg-lede { font: 400 16px/1.55 Inter, sans-serif; color: var(--muted, #9fb0c3); margin: 0 0 24px; }
+
+    /* live preview browser window */
+    .sky-prev {
+      border: 1px solid rgba(0,229,255,.22); border-radius: 14px; overflow: hidden;
+      background: rgba(10,14,23,.9); box-shadow: 0 20px 60px rgba(0,0,0,.5);
+      margin-bottom: 24px;
+    }
+    .sky-prev-chrome {
+      display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+      background: rgba(255,255,255,.04); border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .sky-prev-dots { display: flex; gap: 6px; }
+    .sky-prev-dots i { width: 10px; height: 10px; border-radius: 50%; background: #28c840; }
+    .sky-prev-dots i:first-child { background: #ff5f57; }
+    .sky-prev-dots i:nth-child(2) { background: #febc2e; }
+    .sky-prev-url {
+      flex: 1; font: 500 12px/1 Inter, sans-serif; color: var(--muted, #9fb0c3);
+      background: rgba(255,255,255,.05); border-radius: 999px; padding: 7px 14px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .sky-prev-live {
+      display: flex; align-items: center; gap: 8px; padding: 12px 16px 0;
+      font: 700 12px/1 Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase;
+      color: #39ff14;
+    }
+    .sky-prev-live .dot { width: 8px; height: 8px; border-radius: 50%; background: #39ff14; animation: skyPulse 1.6s infinite; }
+    @keyframes skyPulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+    .sky-prev-cards { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px 16px; }
+    .sky-prev-card {
+      display: flex; gap: 12px; align-items: center; text-decoration: none;
+      background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06);
+      border-radius: 10px; padding: 10px; transition: border-color 120ms, transform 120ms;
+    }
+    .sky-prev-card:hover { border-color: rgba(0,229,255,.4); transform: translateY(-1px); }
+    .sky-prev-thumb {
+      width: 88px; height: 56px; border-radius: 8px; flex: none;
+      background-size: cover; background-position: center; background-color: #141b2e;
+    }
+    .sky-prev-body { min-width: 0; }
+    .sky-prev-chan {
+      display: inline-block; font: 700 10px/1 Inter, sans-serif; letter-spacing: .08em;
+      text-transform: uppercase; margin-bottom: 5px;
+    }
+    .sky-prev-title {
+      font: 600 14px/1.35 Inter, sans-serif; color: var(--text, #e6ecf3);
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .sky-prev-empty { padding: 24px 16px; text-align: center; color: var(--muted, #9fb0c3); font: 400 14px/1.5 Inter, sans-serif; }
+
+    /* feature list + trust box */
+    .sky-reg-feats { list-style: none; margin: 0 0 20px; padding: 0; display: grid; gap: 10px; }
+    .sky-reg-feats li { display: flex; gap: 10px; align-items: flex-start; font: 400 14px/1.5 Inter, sans-serif; color: var(--text, #e6ecf3); }
+    .sky-reg-feats .fi { font-size: 16px; line-height: 1.4; }
+    .sky-reg-trust {
+      border: 1px solid rgba(57,255,20,.25); background: rgba(57,255,20,.06);
+      border-radius: 12px; padding: 14px 16px;
+      font: 400 13px/1.55 Inter, sans-serif; color: var(--muted, #9fb0c3);
+    }
+    .sky-reg-trust b { color: var(--text, #e6ecf3); }
+
+    .sky-reg-wrap .sky-auth-card { flex: none; }
+    .sky-auth-page--split .footer { width: 100%; }
+
+    @media (max-width: 940px) {
+      .sky-reg-wrap { flex-direction: column; gap: 36px; align-items: stretch; }
+      .sky-reg-info { max-width: none; }
+      .sky-reg-wrap .sky-auth-card { max-width: 560px; margin: 0 auto; width: 100%; }
+    }
+  </style>
 
   <!-- Open Graph + link discovery (added by polish pass) -->
   <meta property="og:type" content="website"/>
@@ -32,8 +122,35 @@
   <meta name="apple-mobile-web-app-title" content="Skynet Nexus"/>
   <meta name="application-name" content="Skynet Nexus"/>
 </head>
-<body class="sky-auth-page">
-  <main class="sky-auth-card">
+<body class="sky-auth-page sky-auth-page--split">
+  <div class="sky-reg-wrap">
+    <aside class="sky-reg-info">
+      <span class="sky-reg-eyebrow">What is Skynet Nexus?</span>
+      <h1>Daily news your kids will <span class="grad">actually want to read.</span></h1>
+      <p class="sky-reg-lede">Three kid-safe editions every day &mdash; morning, midday, evening &mdash; written for ages 5&ndash;50 to read together. Free forever, no ads, no doomscrolling.</p>
+
+      <div class="sky-prev" aria-label="Live preview of today's front page">
+        <div class="sky-prev-chrome">
+          <div class="sky-prev-dots"><i></i><i></i><i></i></div>
+          <div class="sky-prev-url">skynet-nexus-production.up.railway.app</div>
+        </div>
+        <div class="sky-prev-live"><span class="dot"></span> Live from today's front page</div>
+        <div class="sky-prev-cards" id="sky-prev-cards">
+          <div class="sky-prev-empty">Loading today's stories&hellip;</div>
+        </div>
+      </div>
+
+      <ul class="sky-reg-feats">
+        <li><span class="fi">&#129504;</span><span><b>Daily Quiz</b> &mdash; kids earn XP and climb reader levels, from Rookie Reader to Editor-in-Chief.</span></li>
+        <li><span class="fi">&#128172;</span><span><b>Ask a Correspondent</b> &mdash; kids ask questions, real correspondents answer. Public answers show reader levels, never names.</span></li>
+        <li><span class="fi">&#128266;</span><span><b>Listen button</b> &mdash; every story reads aloud, perfect for young readers.</span></li>
+        <li><span class="fi">&#127891;</span><span><b>Teachers welcome</b> &mdash; assign stories to your class and track reading progress.</span></li>
+      </ul>
+
+      <div class="sky-reg-trust">&#128737; <b>Parent-controlled.</b> You create the account and add kid profiles under it. Kids never see ads, and kid data stays inside your family account.</div>
+    </aside>
+
+    <main class="sky-auth-card">
     <a class="sky-auth-brand" href="/">
       <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -103,6 +220,7 @@
 
     <p class="sky-auth-alt">Already have an account? <a href="/pages/login.html">Sign in</a></p>
   </main>
+  </div>
 
   <script src="/assets/js/auth.js" defer></script>
   <script>
@@ -197,6 +315,51 @@
       </div>
     </div>
   </footer>
+  <!-- Live front-page preview for the signup info panel -->
+  <script>
+    (function () {
+      var box = document.getElementById('sky-prev-cards');
+      if (!box) return;
+      var CH = {
+        ai:          { s: 'AI',          c: '#00e5ff' },
+        space:       { s: 'Space',       c: '#7c5cff' },
+        robotics:    { s: 'Robotics',    c: '#a855f7' },
+        biotech:     { s: 'Biotech',     c: '#2dd4bf' },
+        quantum:     { s: 'Quantum',     c: '#22d3ee' },
+        climate:     { s: 'Climate',     c: '#34d399' },
+        engineering: { s: 'Engineering', c: '#ffb800' },
+        math:        { s: 'Math',        c: '#f472b6' },
+        cyber:       { s: 'Cyber',       c: '#38bdf8' },
+        gaming:      { s: 'Gaming',      c: '#39ff14' },
+        music:       { s: 'Music',       c: '#ff2e63' },
+        stem:        { s: 'STEM',        c: '#00e5ff' },
+        play:        { s: 'Play',        c: '#ff9500' }
+      };
+      function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+      function fallback(msg) { box.innerHTML = '<div class="sky-prev-empty">' + esc(msg) + '</div>'; }
+      fetch('/data/manifest.json', { cache: 'no-store' })
+        .then(function (r) { if (!r.ok) throw new Error('manifest ' + r.status); return r.json(); })
+        .then(function (m) {
+          var arts = (m && m.articles || []).slice(0, 3);
+          if (!arts.length) { fallback('Today\u2019s stories are on their way \u2014 check back at the next edition.'); return; }
+          box.innerHTML = arts.map(function (a) {
+            var ch = CH[a.cat] || { s: a.cat || 'News', c: '#00e5ff' };
+            var href = '/pages/article.html?id=' + encodeURIComponent(a.id);
+            var thumb = a.heroImage
+              ? '<div class="sky-prev-thumb" style="background-image:url(' + esc(a.heroImage) + ')"></div>'
+              : '';
+            return '<a class="sky-prev-card" href="' + esc(href) + '">' + thumb +
+              '<div class="sky-prev-body"><span class="sky-prev-chan" style="color:' + ch.c + '">' + esc(ch.s) + '</span>' +
+              '<div class="sky-prev-title">' + esc(a.title) + '</div></div></a>';
+          }).join('');
+        })
+        .catch(function () { fallback('Today\u2019s stories are on their way \u2014 check back at the next edition.'); });
+    })();
+  </script>
 
 </body>
 </html>
