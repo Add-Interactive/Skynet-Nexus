@@ -334,6 +334,31 @@ db.exec(`
     earned_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
     PRIMARY KEY (user_id, badge_key)
   );
+`);
+
+// Beta tester program: reader bug reports + feature ideas (private: submitter + admin only).
+// Runs every boot; IF NOT EXISTS keeps it safe on the persistent Railway volume.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS beta_feedback (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type TEXT NOT NULL,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL,
+    page_url TEXT,
+    status TEXT NOT NULL DEFAULT 'new',
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_beta_feedback_user ON beta_feedback(user_id);
+  CREATE INDEX IF NOT EXISTS idx_beta_feedback_status ON beta_feedback(status);
+`);
+// Beta tester flag: everyone is a beta tester while the site is in beta.
+// DEFAULT 1 backfills existing rows on ALTER; new signups get it automatically.
+_addColumnIfMissing('users', 'is_beta_tester', "INTEGER NOT NULL DEFAULT 1");
+// Founding Tester badge state: 'pending' until the official launch, then 'awarded'.
+_addColumnIfMissing('users', 'founding_badge', "TEXT NOT NULL DEFAULT 'pending'");
+
+db.exec(`
   -- Daily news quiz (feature: 5 questions from the day's editions)
   CREATE TABLE IF NOT EXISTS quizzes (
     id TEXT PRIMARY KEY,             -- 'quiz:2026-10-02'
@@ -533,6 +558,27 @@ const stmts = {
   sumUserXp: db.prepare(`SELECT COALESCE(SUM(xp), 0) AS xp FROM user_xp_events WHERE user_id = ?`),
   userBadges: db.prepare(`SELECT badge_key FROM user_badges WHERE user_id = ?`),
   insertUserBadge: db.prepare(`INSERT OR IGNORE INTO user_badges (user_id, badge_key) VALUES (?, ?)`),
+  // Beta feedback
+  createFeedback: db.prepare(`
+    INSERT INTO beta_feedback (user_id, type, title, body, page_url)
+    VALUES (?, ?, ?, ?, ?)`),
+  listFeedbackByUser: db.prepare(`
+    SELECT * FROM beta_feedback WHERE user_id = ? ORDER BY id DESC`),
+  findFeedbackById: db.prepare(`SELECT * FROM beta_feedback WHERE id = ?`),
+  listFeedbackAll: db.prepare(`
+    SELECT f.*, u.display_name AS submitter_name, u.email AS submitter_email
+    FROM beta_feedback f LEFT JOIN users u ON u.id = f.user_id
+    ORDER BY f.id DESC LIMIT ? OFFSET ?`),
+  listFeedbackFiltered: db.prepare(`
+    SELECT f.*, u.display_name AS submitter_name, u.email AS submitter_email
+    FROM beta_feedback f LEFT JOIN users u ON u.id = f.user_id
+    WHERE (? IS NULL OR f.type = ?) AND (? IS NULL OR f.status = ?)
+    ORDER BY f.id DESC LIMIT ? OFFSET ?`),
+  countFeedbackFiltered: db.prepare(`
+    SELECT COUNT(*) AS n FROM beta_feedback f
+    WHERE (? IS NULL OR f.type = ?) AND (? IS NULL OR f.status = ?)`),
+  countFeedbackNew: db.prepare(`SELECT COUNT(*) AS n FROM beta_feedback WHERE status = 'new'`),
+  updateFeedbackStatus: db.prepare(`UPDATE beta_feedback SET status = ? WHERE id = ?`),
   updateKid: db.prepare(`
     UPDATE kid_profiles
        SET name               = COALESCE(?, name),
@@ -889,7 +935,9 @@ function toPublicUser(row) {
     role: row.role,
     correspondentStyle: row.correspondent_style || 'human',
     createdAt: row.created_at,
-    lastLoginAt: row.last_login_at
+    lastLoginAt: row.last_login_at,
+    isBetaTester: row.is_beta_tester == null ? true : row.is_beta_tester == 1,
+    foundingBadge: row.founding_badge || 'pending'
   };
 }
 
@@ -940,7 +988,7 @@ const GAM_XP = { story: 10, kidtake: 5, discuss: 15, glossary: 5, reply: 10, qui
 // cannot be farmed directly.
 const GAM_EVENT_TYPES = Object.keys(GAM_XP);
 // Grown-up track: parents earn for co-reading, teachers for hosting discussions.
-const GAM_USER_XP = { coread: 10, host_discussion: 20 };
+const GAM_USER_XP = { coread: 10, host_discussion: 20, feedback_reviewed: 10 };
 const GAM_USER_BADGES = [
   { key: 'first-coread', name: 'Reading Buddy', emoji: '📖', desc: 'Co-read your first story together' },
   { key: 'ten-coreads', name: 'Story Guide', emoji: '📚', desc: 'Co-read 10 stories together' },
@@ -1167,6 +1215,43 @@ module.exports = {
   },
   gamAwardUser,
   gamUserStatus(userId) { return { status: gamUserStatus(userId) }; },
+  // ---------- Beta feedback ----------
+  submitFeedback({ userId, type, title, body, pageUrl }) {
+    const t = type === 'idea' ? 'idea' : 'bug';
+    const info = stmts.createFeedback.run(
+      userId, t,
+      String(title).trim().slice(0, 120),
+      String(body).trim().slice(0, 4000),
+      pageUrl ? String(pageUrl).slice(0, 500) : null
+    );
+    return stmts.findFeedbackById.get(info.lastInsertRowid);
+  },
+  getMyFeedback(userId) {
+    return stmts.listFeedbackByUser.all(userId);
+  },
+  listFeedbackAdmin({ type = null, status = null, limit = 100, offset = 0 } = {}) {
+    const t = (type === 'bug' || type === 'idea') ? type : null;
+    const s = (status === 'new' || status === 'reviewed' || status === 'resolved') ? status : null;
+    return {
+      items: stmts.listFeedbackFiltered.all(t, t, s, s, limit, offset),
+      total: stmts.countFeedbackFiltered.get(t, t, s, s).n,
+      newCount: stmts.countFeedbackNew.get().n,
+    };
+  },
+  setFeedbackStatus(id, status) {
+    const s = (status === 'reviewed' || status === 'resolved') ? status : 'new';
+    const fb = stmts.findFeedbackById.get(id);
+    if (!fb) return null;
+    const was = fb.status;
+    stmts.updateFeedbackStatus.run(s, id);
+    let xpAward = null;
+    // +10 XP when an admin first marks it reviewed (deduped per feedback id).
+    if (s === 'reviewed' && was !== 'reviewed') {
+      xpAward = gamAwardUser({ userId: fb.user_id, eventType: 'feedback_reviewed', refId: 'feedback:' + id });
+    }
+    return { feedback: stmts.findFeedbackById.get(id), xpAward };
+  },
+  countNewFeedback() { return stmts.countFeedbackNew.get().n; },
 
   // ---------- Daily news quiz ----------
   saveQuiz(date, questions) {
