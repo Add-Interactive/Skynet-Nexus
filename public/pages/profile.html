@@ -67,12 +67,14 @@
 <body>
   <div class="sky-profile-wrap">
     <a href="/" class="sky-back">← Back to feed</a>
+  <div id="beta-welcome-mount"></div>
     <div id="sky-profile-content" style="margin-top:20px">
       <p style="color:var(--muted,#7c8898)">Loading…</p>
     </div>
   </div>
 
   <script src="/assets/js/auth.js" defer></script>
+  <script src="/assets/js/beta.js?v=20261004-1"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const EMOJIS = ['🚀','🦖','🦄','🐉','🐙','🦊','🐼','🐧','🐝','🐳','⚡','🌟','🎨','🎮','🎧','🔬','🤖','🌈','🌙','🍕','🎸','⚽','🏀','🚂'];
@@ -169,6 +171,43 @@
             </div>
           </div>
 
+          ${state.user.isBetaTester ? `
+          <div class="sky-profile-section" id="beta-section" style="border:1px solid rgba(0,229,255,.25);border-radius:16px;padding:20px;background:linear-gradient(135deg,rgba(0,229,255,.06),rgba(168,85,247,.06))">
+            <h2>🧪 Beta Tester</h2>
+            <p class="sub">Welcome, founding tester! You're one of the very first people trying Skynet Nexus — what you tell us now shapes what this becomes for every family. Found a glitch? Dreamed up a feature? We read every single report.</p>
+            <div style="display:flex;align-items:center;gap:14px;margin:0 0 16px;padding:14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px dashed rgba(0,229,255,.35)">
+              <span style="font-size:38px;${state.user.foundingBadge === 'awarded' ? '' : 'filter:grayscale(1);opacity:.55'}">🏅</span>
+              <div>
+                <div style="font-weight:800">Founding Tester badge</div>
+                <div style="font-size:13px;color:#9aa7bd">${state.user.foundingBadge === 'awarded' ? 'Awarded! Thanks for helping us launch. 🎉' : 'Locked — unlocks for you at the official launch.'}</div>
+              </div>
+            </div>
+            <form id="beta-feedback-form">
+              <div style="display:flex;gap:8px;margin-bottom:12px" role="tablist" aria-label="Feedback type">
+                <button type="button" class="sky-btn beta-type-btn active" data-t="bug" style="flex:1">🐞 Report an issue</button>
+                <button type="button" class="sky-btn beta-type-btn" data-t="idea" style="flex:1">💡 Suggest an idea</button>
+              </div>
+              <div class="sky-field" style="margin-bottom:10px">
+                <label for="beta-title">Title</label>
+                <input id="beta-title" type="text" maxlength="120" required placeholder="e.g. Quiz froze on question 3"/>
+              </div>
+              <div class="sky-field" style="margin-bottom:10px">
+                <label for="beta-body">Details</label>
+                <textarea id="beta-body" rows="4" maxlength="4000" required placeholder="What happened? What did you expect? Steps to see it again help a lot."></textarea>
+              </div>
+              <div class="sky-field" style="margin-bottom:12px">
+                <label for="beta-page">Page where it happened <span style="opacity:.6">(optional)</span></label>
+                <input id="beta-page" type="text" maxlength="500" placeholder="/pages/quiz.html"/>
+              </div>
+              <button type="submit" class="sky-btn-block" id="beta-submit">Send feedback</button>
+              <p class="sky-auth-alt" id="beta-status"></p>
+            </form>
+            <div id="beta-history" style="margin-top:8px">
+              <h3 style="font-size:15px;margin:0 0 8px">Your reports</h3>
+              <div id="beta-history-list"><p class="sub">Loading…</p></div>
+            </div>
+          </div>` : ''}
+
           <div class="sky-profile-section">
             <h2>Your account</h2>
             <p class="sub">Change your display name, password, or the correspondent art style used when no kid profile is active.</p>
@@ -251,6 +290,64 @@
           await SkyAuth.refresh(); render(SkyAuth.state);
         });
         document.getElementById('sky-logout-btn').addEventListener('click', () => SkyAuth.logout());
+
+        // ---- Beta tester feedback ----
+        (function wireBeta() {
+          const form = document.getElementById('beta-feedback-form');
+          if (!form) return;
+          let fbType = 'bug';
+          form.querySelectorAll('.beta-type-btn').forEach(b => b.addEventListener('click', () => {
+            fbType = b.getAttribute('data-t');
+            form.querySelectorAll('.beta-type-btn').forEach(x => x.classList.toggle('active', x === b));
+          }));
+          const pageInput = document.getElementById('beta-page');
+          if (pageInput && !pageInput.value) {
+            try {
+              const ref = document.referrer ? new URL(document.referrer) : null;
+              pageInput.value = (ref && ref.origin === location.origin ? ref.pathname : location.pathname) || '';
+            } catch (e) { pageInput.value = location.pathname || ''; }
+          }
+          const statusEl = document.getElementById('beta-status');
+          const listEl = document.getElementById('beta-history-list');
+          const pill = (s) => {
+            const colors = { new: '#00e5ff', reviewed: '#ffdc00', resolved: '#39ff14' };
+            const labels = { new: 'Received', reviewed: 'Reviewed', resolved: 'Resolved' };
+            return `<span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:${colors[s] || '#888'}22;color:${colors[s] || '#888'};border:1px solid ${colors[s] || '#888'}55">${labels[s] || s}</span>`;
+          };
+          async function loadHistory() {
+            try {
+              const res = await fetch('/api/feedback/mine', { credentials: 'same-origin' });
+              const d = await res.json();
+              const items = (d && d.items) || [];
+              if (!items.length) { listEl.innerHTML = '<p class="sub">Nothing yet — your reports will show up here.</p>'; return; }
+              listEl.innerHTML = items.map(f =>
+                `<div style="border:1px solid var(--border,rgba(255,255,255,.1));border-radius:10px;padding:10px 12px;margin-bottom:8px">` +
+                `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span>${f.type === 'idea' ? '💡' : '🐞'}</span>` +
+                `<strong style="font-size:14px">${escape(f.title)}</strong><span style="margin-left:auto">${pill(f.status)}</span></div>` +
+                `<div style="font-size:12px;color:#7c8898">${new Date(f.created_at.replace(' ', 'T') + 'Z').toLocaleDateString()}</div></div>`
+              ).join('');
+            } catch (e) { listEl.innerHTML = '<p class="sub">Could not load your reports.</p>'; }
+          }
+          form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('beta-title').value.trim();
+            const body = document.getElementById('beta-body').value.trim();
+            const pageUrl = pageInput.value.trim();
+            statusEl.innerHTML = '';
+            const res = await fetch('/api/feedback', {
+              method: 'POST', credentials: 'same-origin',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ type: fbType, title, body, pageUrl })
+            });
+            const d = await res.json().catch(() => ({}));
+            if (!res.ok) { statusEl.innerHTML = `<span style="color:#ff2e63">${escape(d.error || 'Send failed')}</span>`; return; }
+            statusEl.innerHTML = '<span style="color:#39ff14">Sent! Thank you — a human reads every report. ✓</span>';
+            document.getElementById('beta-title').value = '';
+            document.getElementById('beta-body').value = '';
+            loadHistory();
+          });
+          loadHistory();
+        })();
 
         // Account-level correspondent style picker (instant toggle, saved with the form)
         // Junior Correspondent progress cards — one per kid.
