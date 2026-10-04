@@ -1617,7 +1617,7 @@ function renderLeaderboard() {
       '<div class="lb-rank">' + u.rank + '</div>' +
       '<div class="lb-avatar">' + u.av + '</div>' +
       '<div class="lb-body">' +
-        '<div class="lb-name">' + u.name + '</div>' +
+        '<div class="lb-name">' + u.name + (u.isBeta ? ' <span title="Beta tester" style="font-size:.85em">🧪</span>' : '') + '</div>' +
         '<div class="lb-crew">' + u.crew + '</div>' +
       '</div>' +
       '<div class="lb-score">' + formatCount(u.score) + '</div>' +
