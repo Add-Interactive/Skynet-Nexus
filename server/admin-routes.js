@@ -325,6 +325,23 @@ router.get('/submissions/:id', (req, res) => {
   res.json({ submission: sub });
 });
 
+// -------------------- Beta feedback: tester reports & ideas --------------------
+router.get('/feedback', (req, res) => {
+  const out = db.listFeedbackAdmin({
+    type: req.query.type,
+    status: req.query.status,
+    limit: Math.min(Number(req.query.limit) || 100, 500),
+    offset: Math.max(Number(req.query.offset) || 0, 0),
+  });
+  res.json(out);
+});
+router.patch('/feedback/:id', (req, res) => {
+  const out = db.setFeedbackStatus(Number(req.params.id), req.body.status);
+  if (!out) return res.status(404).json({ error: 'Feedback not found.' });
+  logAction(req.adminUser.id, 'feedback.status', 'beta_feedback', Number(req.params.id), { status: req.body.status });
+  res.json(out);
+});
+
 // -------------------- Ask the Correspondent: moderation --------------------
 router.get('/questions', (req, res) => {
   const out = db.listQuestions({ status: req.query.status, channel: req.query.channel });
