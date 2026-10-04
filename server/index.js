@@ -44,7 +44,8 @@ const {
   listPendingAgentTasks, findAgentTask, updateAgentTask,
   listQueuedStories, deleteQueuedStory,
   listSourcesByStaff, createSource, countSourcesByStaff,
-  createSocialDraft
+  createSocialDraft,
+  submitFeedback, getMyFeedback
 } = require('./db');
 const {
   hashPassword, verifyPassword,
@@ -438,6 +439,31 @@ api.post('/gamification/event', requireAuth, (req, res) => {
 api.get('/gamification/grownup', requireAuth, (req, res) => {
   const { gamUserStatus } = require('./db');
   res.json(gamUserStatus(req.session.userId).status);
+});
+
+// ---- Beta tester feedback (private: submitter + admin only) ----
+api.post('/feedback', requireAuth, rateLimit({ windowMs: 15 * 60_000, max: 20, key: 'feedback' }), (req, res) => {
+  const type = req.body.type === 'idea' ? 'idea' : 'bug';
+  const title = String(req.body.title || '').trim();
+  const body = String(req.body.body || '').trim();
+  const pageUrl = String(req.body.pageUrl || req.body.page_url || '').trim();
+  if (!title) return res.status(400).json({ error: 'Give your report a short title.' });
+  if (title.length > 120) return res.status(400).json({ error: 'Title must be 120 characters or fewer.' });
+  if (!body) return res.status(400).json({ error: 'Tell us a little more in the details.' });
+  if (body.length > 4000) return res.status(400).json({ error: 'Details must be 4000 characters or fewer.' });
+  try {
+    const fb = submitFeedback({
+      userId: req.session.userId, type, title, body,
+      pageUrl: pageUrl ? pageUrl.slice(0, 500) : null,
+    });
+    res.status(201).json({ feedback: fb });
+  } catch (err) {
+    console.error('[feedback] submit failed:', err.message);
+    res.status(500).json({ error: 'Could not save your feedback. Try again in a bit.' });
+  }
+});
+api.get('/feedback/mine', requireAuth, (req, res) => {
+  res.json({ items: getMyFeedback(req.session.userId) });
 });
 
 // ---- Daily news quiz ----
