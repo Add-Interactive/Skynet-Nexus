@@ -206,6 +206,9 @@
       setBadge('nav-badge-social', o.social && o.social.draft);
       setBadge('nav-badge-rejected', o.queue && o.queue.rejected);
       setBadge('nav-badge-qa', o.questions && o.questions.pending);
+    api('/admin/feedback?status=new&limit=1').then(function (r) {
+      setBadge('nav-badge-feedback', r && r.newCount);
+    }).catch(function () {});
     }).catch(function () {});
   }
   function setBadge(id, n) {
@@ -1209,6 +1212,76 @@
     row.appendChild(save); row.appendChild(cancel);
     modal.body.appendChild(row);
   }
+
+  // ===== Beta feedback =====
+  Views.feedback = function () {
+    var type = State.feedbackType || '';
+    var status = State.feedbackStatus || 'new';
+    var qs = '/admin/feedback?limit=100' +
+      (type ? '&type=' + encodeURIComponent(type) : '') +
+      (status ? '&status=' + encodeURIComponent(status) : '');
+    api(qs).then(function (r) {
+      var items = r.items || [];
+      main.innerHTML = '';
+      main.appendChild(h('<div class="admin-view-head"><h1>🧪 Beta Feedback</h1><p>Bug reports and ideas from beta testers. Marking one <strong>Reviewed</strong> awards the tester +10 XP.</p></div>'));
+      var filters = h('<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"></div>');
+      function sel(label, opts, cur, set) {
+        var s = h('<label style="font-size:13px;opacity:.8">' + label + ' <select class="admin-select"></select></label>');
+        var dd = s.querySelector('select');
+        opts.forEach(function (o) {
+          var op = document.createElement('option');
+          op.value = o[0]; op.textContent = o[1];
+          if (o[0] === cur) op.selected = true;
+          dd.appendChild(op);
+        });
+        dd.addEventListener('change', function () { set(dd.value); Views.feedback(); });
+        filters.appendChild(s);
+      }
+      sel('Type ', [['', 'All'], ['bug', '🐞 Bugs'], ['idea', '💡 Ideas']], type, function (v) { State.feedbackType = v; });
+      sel('Status ', [['', 'All'], ['new', 'New'], ['reviewed', 'Reviewed'], ['resolved', 'Resolved']], status, function (v) { State.feedbackStatus = v; });
+      main.appendChild(filters);
+      if (!items.length) { main.appendChild(h('<div class="admin-empty">No feedback here yet.</div>')); return; }
+      var panel = h('<div class="admin-panel"><table class="admin-table"><thead><tr><th></th><th>Title</th><th>From</th><th>Status</th><th>When</th><th></th></tr></thead><tbody></tbody></table></div>');
+      var tb = panel.querySelector('tbody');
+      items.forEach(function (f) {
+        var tr = h(
+          '<tr><td style="font-size:18px">' + (f.type === 'idea' ? '💡' : '🐞') + '</td>' +
+          '<td><strong>' + esc(f.title) + '</strong>' +
+          '<div class="fb-body" hidden style="margin-top:6px;white-space:pre-wrap;opacity:.85;font-size:13px">' + esc(f.body) + '</div>' +
+          (f.page_url ? '<div style="font-size:12px;opacity:.6;margin-top:4px">📄 ' + esc(f.page_url) + '</div>' : '') + '</td>' +
+          '<td>' + esc(f.submitter_name || '—') + '<br/><span style="font-size:12px;opacity:.6">' + esc(f.submitter_email || '') + '</span></td>' +
+          '<td>' + esc(f.status) + '</td>' +
+          '<td class="num">' + fmtDate(f.created_at) + '</td>' +
+          '<td class="row-actions"></td></tr>'
+        );
+        var actions = tr.querySelector('.row-actions');
+        function act(label, fn, primary) {
+          var b = h('<button class="admin-btn admin-btn-sm' + (primary ? ' admin-btn-primary' : '') + '">' + label + '</button>');
+          b.addEventListener('click', function () { fn(f); });
+          actions.appendChild(b);
+        }
+        act(f.body && tr.querySelector('.fb-body').hidden ? 'Expand' : 'Expand', function () {
+          var bd = tr.querySelector('.fb-body'); bd.hidden = !bd.hidden;
+        });
+        if (f.status === 'new') {
+          act('Mark reviewed', function (q) {
+            api('/admin/feedback/' + q.id, { method: 'PATCH', body: JSON.stringify({ status: 'reviewed' }) })
+              .then(function (r) { toast('Marked reviewed (+10 XP to tester).'); Views.feedback(); refreshBadges(); })
+              .catch(function (e) { toast(e.message, true); });
+          }, true);
+        }
+        if (f.status !== 'resolved') {
+          act('Resolve', function (q) {
+            api('/admin/feedback/' + q.id, { method: 'PATCH', body: JSON.stringify({ status: 'resolved' }) })
+              .then(function () { toast('Resolved.'); Views.feedback(); refreshBadges(); })
+              .catch(function (e) { toast(e.message, true); });
+          });
+        }
+        tb.appendChild(tr);
+      });
+      main.appendChild(panel);
+    }).catch(errView);
+  };
 
   Views.compose = function () {
     main.innerHTML = '';
