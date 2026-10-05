@@ -3,62 +3,548 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Teacher Profile · Skynet Nexus</title>
+  <title>My Dashboard · Skynet Nexus</title>
   <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg"/>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
   <link rel="stylesheet" href="/assets/css/style.css"/>
   <style>
-    .tp-wrap { max-width: 800px; margin: 24px auto 60px; padding: 0 20px; }
-    .tp-hero { display: flex; gap: 24px; align-items: flex-start; margin: 24px 0; flex-wrap: wrap; }
-    .tp-photo { width: 140px; height: 140px; border-radius: 28px; object-fit: cover; flex: none; background: rgba(255,255,255,.06); }
-    .tp-photo.fallback { display: flex; align-items: center; justify-content: center; font: 800 48px/1 Inter, sans-serif; color: #0a0e17; }
-    .tp-name { margin: 0; font: 800 30px/1.2 Inter, sans-serif; }
-    .tp-school { margin: 6px 0 0; color: #00e5ff; font: 600 15px/1.4 Inter, sans-serif; }
-    .tp-subjects { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-    .tp-subj { font: 700 12px/1 Inter, sans-serif; padding: 6px 14px; border-radius: 999px; background: rgba(168,85,247,.12); color: #c084fc; border: 1px solid rgba(168,85,247,.4); }
-    .tp-quote { margin: 20px 0; padding: 20px 24px; border-left: 4px solid #00e5ff; background: rgba(0,229,255,.05); border-radius: 0 14px 14px 0; font: 500 17px/1.6 Georgia, serif; font-style: italic; color: var(--text, #e6ecf3); }
-    .tp-sec { margin: 28px 0; }
-    .tp-sec h2 { font: 800 20px/1.3 Inter, sans-serif; margin: 0 0 14px; }
-    .tp-bio { font: 500 15px/1.7 Inter, sans-serif; color: var(--muted, #9aa7bd); margin: 0; white-space: pre-wrap; }
-    .tp-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,.07); align-items: flex-start; }
-    .tp-item:last-child { border-bottom: none; }
-    .tp-item .ico { font-size: 24px; flex: none; }
-    .tp-item .t { font: 700 15px/1.4 Inter, sans-serif; }
-    .tp-item .s { font: 500 13px/1.5 Inter, sans-serif; color: var(--muted, #7c8898); margin-top: 2px; }
-    .tp-cta { margin-top: 32px; text-align: center; }
+    .dash-wrap { max-width: 1100px; margin: 24px auto 60px; padding: 0 20px; }
+    .dash-head { display: flex; align-items: center; gap: 16px; margin: 18px 0 20px; flex-wrap: wrap; }
+    .dash-ava { width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font: 800 24px/1 Inter, sans-serif; color: #0a0e17; flex: none; }
+    .dash-head h1 { margin: 0; font: 800 26px/1.2 Inter, sans-serif; }
+    .dash-head .sub { margin: 4px 0 0; color: var(--muted, #7c8898); font: 500 14px/1.4 Inter, sans-serif; }
+    .role-pills { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .role-pill { font: 700 11px/1 Inter, sans-serif; padding: 5px 12px; border-radius: 999px; background: rgba(0,229,255,.12); color: #00e5ff; border: 1px solid rgba(0,229,255,.4); }
+
+    /* Role switcher (multi-role users) */
+    .dash-roles { display: flex; gap: 8px; margin: 0 0 20px; }
+    .dash-roles button { padding: 10px 24px; border-radius: 12px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.03); color: inherit; font: 700 14px/1 Inter, sans-serif; cursor: pointer; }
+    .dash-roles button.active { background: #00e5ff; color: #0a0e17; border-color: #00e5ff; }
+
+    /* Win10 tile grid */
+    .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+    .tile { border-radius: 16px; padding: 20px; color: #fff; position: relative; overflow: hidden; min-height: 150px; display: flex; flex-direction: column; cursor: pointer; border: none; text-align: left; font-family: Inter, sans-serif; transition: transform .12s, box-shadow .12s; }
+    .tile:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+    .tile .t-ico { font-size: 32px; margin-bottom: 8px; }
+    .tile .t-title { font: 800 17px/1.3 Inter, sans-serif; margin: 0 0 4px; }
+    .tile .t-sub { font: 500 13px/1.5 Inter, sans-serif; opacity: .85; margin: 0; }
+    .tile .t-big { font: 800 34px/1 Inter, sans-serif; margin: 6px 0 2px; }
+    .tile .t-wide { grid-column: span 2; }
+    .tile.cyan { background: linear-gradient(135deg, #0891b2, #0e7490); }
+    .tile.blue { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+    .tile.green { background: linear-gradient(135deg, #16a34a, #15803d); }
+    .tile.gold { background: linear-gradient(135deg, #d97706, #b45309); }
+    .tile.purple { background: linear-gradient(135deg, #9333ea, #7e22ce); }
+    .tile.orange { background: linear-gradient(135deg, #ea580c, #c2410c); }
+    .tile.pink { background: linear-gradient(135deg, #db2777, #be185d); }
+    .tile.slate { background: linear-gradient(135deg, #475569, #334155); }
+    @media (max-width: 560px) { .tile .t-wide, .tile.t-wide { grid-column: span 1; } }
+
+    /* Class tabs (teacher) */
+    .class-tabs { display: flex; gap: 6px; margin: 0 0 18px; flex-wrap: wrap; border-bottom: 2px solid rgba(255,255,255,.08); padding-bottom: 10px; }
+    .class-tabs button { padding: 10px 20px; border-radius: 10px 10px 0 0; border: none; background: transparent; color: var(--muted, #7c8898); font: 700 14px/1 Inter, sans-serif; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -12px; padding-bottom: 12px; }
+    .class-tabs button.active { color: #00e5ff; border-bottom-color: #00e5ff; }
+    .class-tabs .add-class { color: #39ff14; }
+
+    /* Panels */
+    .panel { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 22px; margin-top: 14px; }
+    .panel h2 { margin: 0 0 14px; font: 800 19px/1.3 Inter, sans-serif; }
+    .panel.hidden { display: none; }
+
+    /* Kid cards */
+    .kid-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .kid-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 16px; text-align: center; }
+    .kid-card .k-av { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font: 800 22px/1 Inter, sans-serif; color: #0a0e17; }
+    .kid-card .k-name { font: 700 15px/1.3 Inter, sans-serif; }
+    .kid-card .k-meta { font: 500 12px/1.4 Inter, sans-serif; color: var(--muted, #7c8898); margin: 4px 0 10px; }
+    .kid-card .k-xp { font: 700 13px/1 Inter, sans-serif; color: #00e5ff; }
+    .kid-card button { margin: 4px 2px; padding: 7px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.05); color: inherit; font: 700 12px/1 Inter, sans-serif; cursor: pointer; }
+
+    /* Achievement board */
+    .badge-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+    .badge { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 14px 8px; text-align: center; }
+    .badge.earned { border-color: rgba(255,176,32,.5); background: rgba(255,176,32,.07); }
+    .badge.locked { opacity: .4; filter: grayscale(1); }
+    .badge .b-ico { font-size: 28px; }
+    .badge .b-name { font: 700 11px/1.3 Inter, sans-serif; margin-top: 6px; }
+
+    /* Student table (teacher) */
+    .stu-table { width: 100%; border-collapse: collapse; font: 500 14px/1.5 Inter, sans-serif; }
+    .stu-table th { text-align: left; padding: 10px 12px; color: var(--muted, #7c8898); font: 700 12px/1 Inter, sans-serif; text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .stu-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,.05); }
+    .stu-table tr:hover td { background: rgba(255,255,255,.02); }
+    .xp-bar { height: 8px; border-radius: 99px; background: rgba(255,255,255,.1); overflow: hidden; min-width: 80px; }
+    .xp-bar > div { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #00e5ff, #a855f7); }
+
+    .btn { display: inline-block; padding: 10px 22px; border-radius: 999px; border: none; background: #00e5ff; color: #0a0e17; font: 800 14px/1 Inter, sans-serif; cursor: pointer; text-decoration: none; }
+    .btn.ghost { background: rgba(255,255,255,.06); color: inherit; border: 1px solid rgba(255,255,255,.2); }
+    .btn + .btn { margin-left: 8px; }
+    .stat-row { display: flex; gap: 24px; flex-wrap: wrap; margin: 6px 0 0; }
+    .stat { min-width: 90px; }
+    .stat .s-v { font: 800 24px/1 Inter, sans-serif; color: #00e5ff; }
+    .stat .s-l { font: 500 12px/1.4 Inter, sans-serif; color: var(--muted, #7c8898); margin-top: 2px; }
   </style>
 </head>
 <body>
-  <div class="tp-wrap">
-    <a href="/" style="color:#00e5ff;text-decoration:none;font:600 13px/1 Inter,sans-serif">← Back to feed</a>
-    <div id="tp-root"><p style="color:#7c8898;margin-top:30px">Loading profile…</p></div>
+  <div class="dash-wrap">
+    <a href="/" class="sky-back" style="color:#00e5ff;text-decoration:none;font:600 13px/1 Inter,sans-serif">← Back to feed</a>
+    <div id="dash-root"><p style="color:#7c8898;margin-top:30px">Loading your dashboard…</p></div>
   </div>
+
 <script>
 (function () {
-  var root = document.getElementById('tp-root');
-  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  var id = new URLSearchParams(location.search).get('id');
-  if (!id) { root.innerHTML = '<p style="color:#ff2e63">No teacher specified.</p>'; return; }
-  fetch('/api/teachers/' + encodeURIComponent(id), { credentials: 'same-origin' })
-    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-    .then(function (t) {
-      document.title = t.name + ' · Teacher · Skynet Nexus';
-      var photo = t.profileImage
-        ? '<img class="tp-photo" src="' + esc(t.profileImage) + '" alt="' + esc(t.name) + '"/>'
-        : '<div class="tp-photo fallback" style="background:' + esc(t.avatarColor || '#00e5ff') + '">' + esc(t.name.slice(0, 2).toUpperCase()) + '</div>';
-      var html = '<div class="tp-hero">' + photo + '<div><h1 class="tp-name">' + esc(t.name) + '</h1>' +
-        (t.school ? '<p class="tp-school">🏫 ' + esc(t.school) + '</p>' : '') +
-        (t.subjects.length ? '<div class="tp-subjects">' + t.subjects.map(function (s) { return '<span class="tp-subj">' + esc(s) + '</span>'; }).join('') + '</div>' : '') + '</div></div>';
-      if (t.quote) html += '<div class="tp-quote">“' + esc(t.quote) + '”</div>';
-      if (t.bio) html += '<div class="tp-sec"><h2>About</h2><p class="tp-bio">' + esc(t.bio) + '</p></div>';
-      if (t.degrees.length) html += '<div class="tp-sec"><h2>🎓 Education</h2>' +
-        t.degrees.map(function (d) { return '<div class="tp-item"><div class="ico">🎓</div><div><div class="t">' + esc(d.degree) + '</div><div class="s">' + esc(d.school || '') + (d.year ? ' · ' + esc(d.year) : '') + '</div></div></div>'; }).join('') + '</div>';
-      if (t.awards.length) html += '<div class="tp-sec"><h2>🏆 Awards</h2>' +
-        t.awards.map(function (a) { return '<div class="tp-item"><div class="ico">🏆</div><div><div class="t">' + esc(a.title) + '</div><div class="s">' + esc(a.org || '') + (a.year ? ' · ' + esc(a.year) : '') + '</div></div></div>'; }).join('') + '</div>';
-      html += '<div class="tp-cta"><a href="/pages/register.html" style="display:inline-block;padding:12px 32px;border-radius:999px;background:#00e5ff;color:#0a0e17;font:800 15px/1 Inter,sans-serif;text-decoration:none">Join ' + esc(t.name.split(' ')[0]) + '\'s classroom</a></div>';
+  'use strict';
+  var root = document.getElementById('dash-root');
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
+  function api(path, opts) {
+    return fetch(path, Object.assign({ credentials: 'same-origin', headers: { 'Content-Type': 'application/json' } }, opts || {}))
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+  }
+
+  var AVATAR_COLORS = ['#00e5ff', '#a855f7', '#39ff14', '#ffb020', '#ff2e63', '#ff6b35'];
+  var AVATAR_EMOJI = ['🦊', '🐱', '🐶', '🦁', '🐼', '🐸', '🦄', '🐙', '🚀', '⭐', '🎨', '⚽'];
+
+  function avatarHtml(name, color, emoji, size) {
+    size = size || 64;
+    var bg = color || AVATAR_COLORS[name.length % AVATAR_COLORS.length];
+    var face = emoji || name.slice(0, 2).toUpperCase();
+    return '<div class="dash-ava" style="width:' + size + 'px;height:' + size + 'px;background:' + esc(bg) + ';font-size:' + Math.round(size / 2.6) + 'px">' + esc(face) + '</div>';
+  }
+
+  /* ============ PARENT DASHBOARD ============ */
+  function parentDash(user, kids, gam) {
+    var totalXP = kids.reduce(function (s, k) { return s + ((gam[k.id] || {}).xp || 0); }, 0);
+    var totalBadges = kids.reduce(function (s, k) { return s + ((gam[k.id] || {}).badges || []).length; }, 0);
+    var bestStreak = Math.max.apply(null, [0].concat(kids.map(function (k) { return (gam[k.id] || {}).streak || 0; })));
+
+    var html = '<div class="dash-head">' + avatarHtml(user.name || user.email, user.avatarColor, user.avatarEmoji) +
+      '<div><h1>' + esc(user.name || 'My Family') + '</h1>' +
+      '<p class="sub">Parent dashboard · ' + kids.length + ' kid' + (kids.length === 1 ? '' : 's') + '</p>' +
+      '<div class="role-pills">' + user.roles.map(function (r) { return '<span class="role-pill">' + esc(r) + '</span>'; }).join('') + '</div></div></div>';
+
+    html += '<div class="tile-grid">' +
+      tile('cyan', '👨‍👩‍👧', 'Family', '<div class="t-big">' + kids.length + '</div>', kids.length + ' kid profiles · ' + totalXP.toLocaleString() + ' total XP', 'kids') +
+      tile('gold', '🏆', 'Achievements', '<div class="t-big">' + totalBadges + '</div>', 'badges earned across the family', 'badges') +
+      tile('pink', '🌳', 'Family tree', '', 'Link spouses, grandparents & relatives', 'family') +
+      tile('green', '🔥', 'Streaks', '<div class="t-big">' + bestStreak + '🔥</div>', 'best reading streak in the family', 'streaks') +
+      tile('purple', '🧪', 'Weekend Lab', '', 'Vote Thursday · activities Saturday', null, '/pages/weekend-lab.html') +
+      tile('orange', '🧠', 'Daily Quiz', '', 'Tonight\'s 5 questions · leaderboard', null, '/pages/quiz.html') +
+      tile('slate', '⚙️', 'Settings', '', 'Profile, notifications, privacy', 'settings') +
+      '</div>';
+
+    // Panels
+    html += '<div class="panel" id="p-kids"><h2>🧒 Kid profiles</h2><div class="kid-grid">' +
+      kids.map(function (k) {
+        var g = gam[k.id] || {};
+        return '<div class="kid-card"><div class="k-av" style="background:' + esc(k.avatarColor || '#00e5ff') + '">' + esc(k.avatarEmoji || k.name.slice(0, 2).toUpperCase()) + '</div>' +
+          '<div class="k-name">' + esc(k.name) + '</div><div class="k-meta">Age ' + (new Date().getFullYear() - k.birthYear) + ' · Level ' + esc(g.level || 'Rookie Reader') + '</div>' +
+          '<div class="k-xp">' + (g.xp || 0).toLocaleString() + ' XP · ' + (g.streak || 0) + '🔥</div>' +
+          '<div style="margin-top:10px"><button data-edit-kid="' + k.id + '">Edit</button><button data-avatar-kid="' + k.id + '">Avatar</button></div></div>';
+      }).join('') +
+      (kids.length < 6 ? '<div class="kid-card" style="display:flex;align-items:center;justify-content:center;min-height:180px;cursor:pointer;border-style:dashed" id="add-kid"><span style="font-size:15px;color:#39ff14">＋ Add a kid</span></div>' : '') +
+      '</div></div>';
+
+    html += '<div class="panel hidden" id="p-family"><h2>🌳 Family tree</h2>' +
+      '<div id="fam-body"><p style="color:#7c8898">Loading family…</p></div></div>';
+
+    html += '<div class="panel" id="p-safety" style="border-color:rgba(57,255,20,.35)"><h2>🛡️ How we protect your children</h2>' +
+      '<div style="display:grid;gap:10px;font-size:14px;line-height:1.6;color:var(--muted,#9aa7bd)">' +
+      '<div><b style="color:#39ff14">1. Family-only by invite.</b> Only someone with your family invite code can join. No strangers, no open signup to your family.</div>' +
+      '<div><b style="color:#39ff14">2. You own your kids\' data.</b> Only the parent who created a kid profile can see or edit it. Grandparents and relatives see only what you choose to share.</div>' +
+      '<div><b style="color:#39ff14">3. Teachers can\'t add your child.</b> A teacher sends <i>you</i> an invite — you create the account, you link your child. Teachers never touch kid accounts directly.</div>' +
+      '<div><b style="color:#39ff14">4. Teachers see classroom stats only.</b> XP, streaks, reading progress — never personal details, never your family tree.</div>' +
+      '<div><b style="color:#39ff14">5. No kid-to-kid contact.</b> Kids cannot message each other or browse other families.</div>' +
+      '<div><b style="color:#39ff14">6. Leave anytime.</b> Remove a family member or unlink a classroom instantly — no questions, no waiting.</div>' +
+      '</div></div>';
+
+    html += '<div class="panel hidden" id="p-badges"><h2>🏆 Achievement board</h2>' +
+      '<p style="color:var(--muted,#7c8898);font-size:14px;margin:0 0 16px">Every badge the family has earned — and what\'s still to unlock.</p>' +
+      '<div class="badge-wall" id="badge-wall"><p style="color:#7c8898">Loading badges…</p></div></div>';
+
+    html += '<div class="panel hidden" id="p-settings"><h2>⚙️ Settings</h2>' +
+      '<p><a class="btn ghost" href="/pages/profile.html?legacy=1">Edit profile details</a></p>' +
+      '<p style="margin-top:14px"><button class="btn ghost" id="btn-notif">🔔 Enable drop alerts</button></p></div>';
+
+    root.innerHTML = html;
+    bindParentTiles();
+    loadBadges(kids);
+  }
+
+  function tile(color, ico, title, big, sub, panelId, href) {
+    var inner = '<div class="t-ico">' + ico + '</div><div class="t-title">' + title + '</div>' + big + '<p class="t-sub">' + sub + '</p>';
+    if (href) return '<a class="tile ' + color + '" href="' + href + '" style="text-decoration:none">' + inner + '</a>';
+    return '<button class="tile ' + color + '"' + (panelId ? ' data-panel="p-' + panelId + '"' : '') + '>' + inner + '</button>';
+  }
+
+  var REL_LABELS = { parent: 'Parent', spouse: 'Spouse', grandparent: 'Grandparent', sibling: 'Sibling', aunt_uncle: 'Aunt/Uncle', cousin: 'Cousin', guardian: 'Guardian' };
+  function loadFamily() {
+    var b = document.getElementById('fam-body');
+    api('/api/families/mine').then(function (d) {
+      if (!d.family) {
+        b.innerHTML = '<p style="color:var(--muted)">No family yet. Create one to link spouses, grandparents, and relatives.</p>' +
+          '<p style="margin-top:10px"><input id="fam-name" placeholder="Family name (e.g. The Hunt Family)" style="padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;width:260px"/>' +
+          ' <button class="btn" id="fam-create">Create family</button></p>' +
+          '<p style="margin-top:14px;color:var(--muted);font-size:13px">Have an invite code? <input id="fam-join-code" placeholder="CODE" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;width:110px;text-transform:uppercase"/>' +
+          ' <select id="fam-join-rel" style="padding:8px;border-radius:8px;background:#0b1026;color:inherit">' +
+          Object.keys(REL_LABELS).map(function (k) { return '<option value="' + k + '">' + REL_LABELS[k] + '</option>'; }).join('') + '</select>' +
+          ' <button class="btn ghost" id="fam-join">Join</button></p>';
+        document.getElementById('fam-create').addEventListener('click', function () {
+          api('/api/families', { method: 'POST', body: JSON.stringify({ name: document.getElementById('fam-name').value }) })
+            .then(function () { loadFamily(); }).catch(function () { alert('Could not create family.'); });
+        });
+        document.getElementById('fam-join').addEventListener('click', function () {
+          api('/api/families/join', { method: 'POST', body: JSON.stringify({ code: document.getElementById('fam-join-code').value, relationship: document.getElementById('fam-join-rel').value }) })
+            .then(function () { loadFamily(); }).catch(function (e) { alert('Invalid code.'); });
+        });
+        return;
+      }
+      var f = d.family;
+      b.innerHTML = '<p><b>' + esc(f.name) + '</b> <span style="color:var(--muted);font-size:13px">· invite code: <code style="background:rgba(0,229,255,.12);padding:4px 10px;border-radius:6px;font-size:15px;letter-spacing:2px">' + esc(f.inviteCode) + '</code> <button class="btn ghost" style="padding:6px 14px;font-size:12px" id="fam-copy">Copy</button></span></p>' +
+        '<p style="color:var(--muted);font-size:13px">Share this code only with true family. Anyone with the code can join as the relationship they choose.</p>' +
+        '<div class="kid-grid" style="margin-top:14px">' +
+        d.members.map(function (m) {
+          return '<div class="kid-card"><div class="k-av" style="background:' + esc(m.avatar_color || '#00e5ff') + '">' + esc((m.display_name || '?').slice(0, 2).toUpperCase()) + '</div>' +
+            '<div class="k-name">' + esc(m.display_name) + '</div><div class="k-meta">' + esc(REL_LABELS[m.relationship] || m.relationship) + '</div></div>';
+        }).join('') + '</div>' +
+        '<p style="margin-top:14px"><button class="btn ghost" style="color:#ff2e63" id="fam-leave">Leave family</button></p>';
+      document.getElementById('fam-copy').addEventListener('click', function () {
+        try { navigator.clipboard.writeText(f.inviteCode); this.textContent = 'Copied!'; } catch (e) {}
+      });
+      document.getElementById('fam-leave').addEventListener('click', function () {
+        if (confirm('Leave this family?')) api('/api/families/leave', { method: 'POST' }).then(function () { loadFamily(); });
+      });
+    }).catch(function () { b.innerHTML = '<p style="color:#7c8898">Could not load family.</p>'; });
+  }
+  function bindParentTiles() {
+    root.querySelectorAll('[data-panel]').forEach(function (t) {
+      t.addEventListener('click', function () {
+        var id = t.getAttribute('data-panel');
+        root.querySelectorAll('.panel').forEach(function (p) { p.classList.add('hidden'); });
+        var el = document.getElementById(id);
+        if (el) {
+          el.classList.remove('hidden');
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (id === 'p-family') loadFamily();
+        }
+      });
+    });
+    var nk = document.getElementById('btn-notif');
+    if (nk) nk.addEventListener('click', function () {
+      if (!('Notification' in window)) { alert('Notifications not supported in this browser.'); return; }
+      Notification.requestPermission().then(function (p) {
+        nk.textContent = p === 'granted' ? '✓ Drop alerts on' : '🔔 Enable drop alerts';
+      });
+    });
+  }
+
+  var ALL_BADGES = [
+    ['📖', 'First Story'], ['🔥', '3-Day Streak'], ['🔥🔥', '7-Day Streak'], ['🏆', '30-Day Streak'],
+    ['🚀', 'Space Explorer'], ['🤖', 'Robotics Explorer'], ['🎮', 'Gaming Explorer'], ['🎵', 'Music Explorer'],
+    ['🧪', 'STEM Explorer'], ['🌍', 'Climate Explorer'], ['🧬', 'Biotech Explorer'], ['⚛️', 'Quantum Explorer'],
+    ['➗', 'Math Explorer'], ['🔒', 'Cyber Explorer'], ['💡', 'AI Explorer'], ['🔧', 'Engineering Explorer'],
+    ['🎓', 'Scholar'], ['👑', 'Editor-in-Chief'], ['💬', 'Debater'], ['❓', 'Curious Mind'],
+  ];
+  function loadBadges(kids) {
+    var wall = document.getElementById('badge-wall');
+    if (!wall) return;
+    api('/api/gamification/status').then(function (d) {
+      var earned = {};
+      (d.kids || []).forEach(function (k) { (k.badges || []).forEach(function (b) { earned[b] = true; }); });
+      wall.innerHTML = ALL_BADGES.map(function (bd) {
+        var got = earned[bd[1]];
+        return '<div class="badge ' + (got ? 'earned' : 'locked') + '"><div class="b-ico">' + bd[0] + '</div><div class="b-name">' + esc(bd[1]) + '</div></div>';
+      }).join('');
+    }).catch(function () { wall.innerHTML = '<p style="color:#7c8898">Could not load badges.</p>'; });
+  }
+
+  /* ============ TEACHER DASHBOARD ============ */
+  function teacherDash(user, classrooms) {
+    var html = '<div class="dash-head">' + avatarHtml(user.name || user.email, user.avatarColor, user.avatarEmoji) +
+      '<div><h1>' + esc(user.name || 'Teacher') + '</h1>' +
+      '<p class="sub">Teacher dashboard · ' + classrooms.length + ' class' + (classrooms.length === 1 ? '' : 'es') + '</p>' +
+      '<div class="role-pills">' + user.roles.map(function (r) { return '<span class="role-pill">' + esc(r) + '</span>'; }).join('') + '</div></div></div>';
+
+    if (!classrooms.length) {
+      html += '<div class="panel"><h2>🏫 No classes yet</h2><p style="color:var(--muted)">Create your first class to unlock the teacher dashboard.</p>' +
+        '<p style="margin-top:12px"><button class="btn" id="btn-new-class">＋ Create a class</button></p></div>';
       root.innerHTML = html;
-    })
-    .catch(function () { root.innerHTML = '<p style="color:#7c8898">This teacher\'s profile isn\'t public yet.</p>'; });
+      bindNewClass();
+      return;
+    }
+
+    html += '<div class="class-tabs" id="class-tabs">' +
+      classrooms.map(function (c, i) { return '<button data-class="' + c.id + '" class="' + (i === 0 ? 'active' : '') + '">' + esc(c.name) + '</button>'; }).join('') +
+      '<button class="add-class" id="btn-new-class">＋ New class</button></div>';
+
+    html += '<div id="class-body"><p style="color:#7c8898">Loading class…</p></div>';
+    root.innerHTML = html;
+    bindNewClass();
+
+    var tabs = root.querySelectorAll('#class-tabs [data-class]');
+    tabs.forEach(function (t) {
+      t.addEventListener('click', function () {
+        tabs.forEach(function (x) { x.classList.remove('active'); });
+        t.classList.add('active');
+        loadClass(t.getAttribute('data-class'));
+      });
+    });
+    loadClass(classrooms[0].id);
+  }
+
+  function loadClass(classId) {
+    var body = document.getElementById('class-body');
+    body.innerHTML = '<p style="color:#7c8898">Loading class…</p>';
+    Promise.all([
+      api('/api/classrooms/' + classId + '/students').catch(function () { return { students: [] }; }),
+      api('/api/classrooms/' + classId + '/progress').catch(function () { return { progress: [] }; }),
+      api('/api/assignments?classroom=' + classId).catch(function () { return { assignments: [] }; }),
+    ]).then(function (rs) {
+      var students = rs[0].students || rs[0] || [];
+      var progress = rs[1].progress || rs[1] || [];
+      var assigns = rs[2].assignments || rs[2] || [];
+      renderClassTiles(classId, students, progress, assigns);
+    });
+  }
+
+  function renderClassTiles(classId, students, progress, assigns) {
+    var body = document.getElementById('class-body');
+    var active = assigns.filter(function (a) { return !a.completed; }).length;
+    var avgXP = students.length ? Math.round(students.reduce(function (s, x) { return s + (x.xp || 0); }, 0) / students.length) : 0;
+    var topStreak = Math.max.apply(null, [0].concat(students.map(function (x) { return x.streak || 0; })));
+
+    var html = '<div class="tile-grid">' +
+      tile('blue', '👥', 'Students', '<div class="t-big">' + students.length + '</div>', 'avg ' + avgXP.toLocaleString() + ' XP · best streak ' + topStreak + '🔥', 'students') +
+      tile('orange', '📝', 'Assignments', '<div class="t-big">' + active + '</div>', assigns.length + ' total · ' + active + ' active', 'assignments') +
+      tile('green', '📊', 'Progress', '', 'Leaderboard & reading stats', 'progress') +
+      tile('purple', '💬', 'Discussions', '', 'Class threads & Q&A', null, '/pages/classroom.html') +
+      tile('gold', '🧠', 'Quiz', '', 'Tonight\'s results & leaderboard', null, '/pages/quiz.html') +
+      tile('cyan', '⚡', 'Quick actions', '', 'New assignment · discussion · announcement', 'actions') +
+      tile('pink', '🌟', 'Public profile', '', 'Photo, bio, degrees, awards, quote', 'pubprofile') +
+      tile('slate', '✉️', 'Invite parents', '', 'Email invites to link students', 'invites') +
+      '</div>';
+
+    // Students panel
+    html += '<div class="panel" id="p-students"><h2>👥 Students</h2>' +
+      (students.length ? '<table class="stu-table"><tr><th>Student</th><th>Level</th><th>XP</th><th>Streak</th><th>Progress</th></tr>' +
+        students.map(function (s) {
+          var pct = Math.min(100, Math.round((s.xp || 0) / 100));
+          return '<tr><td>' + esc(s.name) + '</td><td>' + esc(s.level || '—') + '</td><td>' + (s.xp || 0).toLocaleString() + '</td><td>' + (s.streak || 0) + '🔥</td>' +
+            '<td><div class="xp-bar"><div style="width:' + pct + '%"></div></div></td></tr>';
+        }).join('') + '</table>'
+        : '<p style="color:var(--muted)">No students yet. Add them below.</p>') +
+      '<p style="margin-top:14px"><button class="btn ghost" id="btn-add-student">＋ Add student</button></p></div>';
+
+    // Assignments panel
+    html += '<div class="panel hidden" id="p-assignments"><h2>📝 Assignments</h2>' +
+      (assigns.length ? assigns.map(function (a) {
+        return '<div style="padding:12px;border:1px solid rgba(255,255,255,.1);border-radius:10px;margin-bottom:8px"><b>' + esc(a.title || a.articleTitle || 'Assignment') + '</b><br><span style="color:var(--muted);font-size:13px">' + esc(a.status || 'active') + '</span></div>';
+      }).join('') : '<p style="color:var(--muted)">No assignments yet.</p>') +
+      '<p style="margin-top:14px"><a class="btn" href="/pages/assignments.html">Manage assignments →</a></p></div>';
+
+    // Progress panel
+    var sorted = students.slice().sort(function (a, b) { return (b.xp || 0) - (a.xp || 0); }).slice(0, 5);
+    html += '<div class="panel hidden" id="p-progress"><h2>📊 Top readers</h2>' +
+      (sorted.length ? '<table class="stu-table"><tr><th>#</th><th>Student</th><th>XP</th><th>Streak</th></tr>' +
+        sorted.map(function (s, i) { return '<tr><td>' + (i + 1) + '</td><td>' + esc(s.name) + '</td><td>' + (s.xp || 0).toLocaleString() + '</td><td>' + (s.streak || 0) + '🔥</td></tr>'; }).join('') + '</table>'
+        : '<p style="color:var(--muted)">No data yet.</p>') + '</div>';
+
+    // Public profile panel
+    html += '<div class="panel hidden" id="p-pubprofile"><h2>🌟 Public profile</h2>' +
+      '<p style="color:var(--muted,#7c8898);font-size:14px;margin:0 0 16px">This is what families see on your public page. <a href="/pages/teacher.html?id=' + classId + '" style="color:#00e5ff" id="pp-view-link">Preview →</a></p>' +
+      '<div id="pp-form"><p style="color:#7c8898">Loading…</p></div></div>';
+
+    // Invites panel
+    html += '<div class="panel hidden" id="p-invites"><h2>✉️ Invite parents</h2>' +
+      '<p style="color:var(--muted,#7c8898);font-size:14px;margin:0 0 14px">Enter a parent\'s email. They\'ll get a link to create their account and link their child to this class. <b>You cannot add students directly</b> — parents always stay in control.</p>' +
+      '<p><input id="inv-email" type="email" placeholder="parent@example.com" style="padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;width:260px"/> <button class="btn" id="inv-send">Send invite</button></p>' +
+      '<div id="inv-result" style="margin-top:10px;font-size:14px"></div></div>';
+
+    // Safety panel (teacher)
+    html += '<div class="panel" style="border-color:rgba(57,255,20,.35)"><h2>🛡️ Child safety rules</h2>' +
+      '<div style="display:grid;gap:10px;font-size:14px;line-height:1.6;color:var(--muted,#9aa7bd)">' +
+      '<div><b style="color:#39ff14">You invite, parents decide.</b> You send an email invite — the parent creates the account and links their child. You never handle kid accounts.</div>' +
+      '<div><b style="color:#39ff14">Classroom data only.</b> You see XP, streaks, and reading progress for enrolled students — never personal details, family info, or other classes.</div>' +
+      '<div><b style="color:#39ff14">No direct kid contact.</b> All communication goes through parents. Kids cannot message you or each other.</div>' +
+      '<div><b style="color:#39ff14">Parents can unlink instantly.</b> A parent can remove their child from your class at any time, no approval needed.</div>' +
+      '</div></div>';
+
+    // Actions panel
+    html += '<div class="panel hidden" id="p-actions"><h2>⚡ Quick actions</h2>' +
+      '<p><a class="btn" href="/pages/assignments.html">📝 New assignment</a> <a class="btn ghost" href="/pages/classroom.html">💬 Start discussion</a></p></div>';
+
+    body.innerHTML = html;
+    body.querySelectorAll('[data-panel]').forEach(function (t) {
+      t.addEventListener('click', function () {
+        var id = t.getAttribute('data-panel');
+        body.querySelectorAll('.panel').forEach(function (p) { p.classList.add('hidden'); });
+        var el = document.getElementById(id);
+        if (el) {
+          el.classList.remove('hidden');
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (id === 'p-pubprofile') loadProfileForm();
+        }
+      });
+    });
+    bindInviteSender(classId);
+  }
+
+  function loadProfileForm() {
+    var f = document.getElementById('pp-form');
+    api('/api/auth/me').then(function (d) {
+      var u = d.user || {};
+      f.innerHTML =
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">Profile photo URL</label>' +
+        '<input id="pp-img" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit" value="' + esc(u.profile_image || '') + '" placeholder="/assets/img/... or https://…"/>' +
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">Bio</label>' +
+        '<textarea id="pp-bio" rows="4" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit">' + esc(u.bio || '') + '</textarea>' +
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">Teaching quote</label>' +
+        '<input id="pp-quote" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit" value="' + esc(u.quote || '') + '" placeholder="Your teaching philosophy in one line"/>' +
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">School</label>' +
+        '<input id="pp-school" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit" value="' + esc(u.school || '') + '"/>' +
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">Subjects (comma-separated)</label>' +
+        '<input id="pp-subj" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit" value="' + esc(u.subjects || '') + '" placeholder="Science, Math"/>' +
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">Degrees (one per line: Degree, School, Year)</label>' +
+        '<textarea id="pp-deg" rows="3" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit" placeholder="M.Ed. Curriculum, State University, 2018">' + esc((u.degrees || []).map(function (x) { return [x.degree, x.school, x.year].filter(Boolean).join(', '); }).join('\n')) + '</textarea>' +
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">Awards (one per line: Title, Organization, Year)</label>' +
+        '<textarea id="pp-awd" rows="3" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit" placeholder="Teacher of the Year, District, 2024">' + esc((u.awards || []).map(function (x) { return [x.title, x.org, x.year].filter(Boolean).join(', '); }).join('\n')) + '</textarea>' +
+        '<label style="display:flex;align-items:center;gap:8px;margin:16px 0;font:600 14px/1 Inter"><input type="checkbox" id="pp-pub" ' + (u.public_profile ? 'checked' : '') + '/> Make my profile public</label>' +
+        '<p><button class="btn" id="pp-save">Save profile</button> <a class="btn ghost" id="pp-preview" href="/pages/teacher.html?id=' + u.id + '" target="_blank">Preview →</a></p>';
+      document.getElementById('pp-save').addEventListener('click', function () {
+        function parseLines(txt, keys) {
+          return txt.split('\n').map(function (l) { return l.trim(); }).filter(Boolean).map(function (l) {
+            var p = l.split(',').map(function (x) { return x.trim(); });
+            var o = {}; keys.forEach(function (k, i) { o[k] = p[i] || ''; }); return o;
+          });
+        }
+        var payload = {
+          profile_image: document.getElementById('pp-img').value.trim(),
+          bio: document.getElementById('pp-bio').value.trim(),
+          quote: document.getElementById('pp-quote').value.trim(),
+          school: document.getElementById('pp-school').value.trim(),
+          subjects: document.getElementById('pp-subj').value.trim(),
+          degrees: parseLines(document.getElementById('pp-deg').value, ['degree', 'school', 'year']),
+          awards: parseLines(document.getElementById('pp-awd').value, ['title', 'org', 'year']),
+          public_profile: document.getElementById('pp-pub').checked,
+        };
+        api('/api/users/profile', { method: 'PUT', body: JSON.stringify(payload) })
+          .then(function () { alert('Profile saved!'); })
+          .catch(function () { alert('Could not save.'); });
+      });
+    });
+  }
+
+  function bindInviteSender(classId) {
+    var btn = document.getElementById('inv-send');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var email = document.getElementById('inv-email').value.trim();
+      var res = document.getElementById('inv-result');
+      if (!email || !email.includes('@')) { res.innerHTML = '<span style="color:#ff2e63">Enter a valid email.</span>'; return; }
+      res.innerHTML = '<span style="color:#7c8898">Sending…</span>';
+      api('/api/classrooms/' + classId + '/invite', { method: 'POST', body: JSON.stringify({ parentEmail: email }) })
+        .then(function (d) {
+          res.innerHTML = '<span style="color:#39ff14">✓ Invite sent!</span><br><span style="color:var(--muted);font-size:13px">Share link: <code style="word-break:break-all">' + esc(d.link) + '</code></span>';
+          document.getElementById('inv-email').value = '';
+        })
+        .catch(function () { res.innerHTML = '<span style="color:#ff2e63">Could not send invite.</span>'; });
+    });
+  }
+  function bindNewClass() {
+    var b = document.getElementById('btn-new-class');
+    if (b) b.addEventListener('click', function () {
+      var name = prompt('Class name (e.g. "Ms. Rivera\'s 4th Grade"):');
+      if (!name) return;
+      api('/api/classrooms', { method: 'POST', body: JSON.stringify({ name: name }) })
+        .then(function () { location.reload(); })
+        .catch(function () { alert('Could not create class.'); });
+    });
+  }
+
+  /* ============ BOOT ============ */
+  function checkClassInvite() {
+    var code = new URLSearchParams(location.search).get('classInvite');
+    if (!code) return;
+    api('/api/auth/me').then(function (d) {
+      var kids = d.kids || [];
+      if (!kids.length) { alert('Create a kid profile first, then open the invite link again.'); return; }
+      var kidOpts = kids.map(function (k) { return '<option value="' + k.id + '">' + esc(k.name) + '</option>'; }).join('');
+      var div = document.createElement('div');
+      div.className = 'panel';
+      div.style.borderColor = 'rgba(0,229,255,.5)';
+      div.innerHTML = '<h2>🎓 Classroom invite</h2><p style="color:var(--muted)">A teacher invited you to link your child to their class. Choose which kid to enroll:</p>' +
+        '<p><select id="ci-kid" style="padding:10px;border-radius:8px;background:#0b1026;color:inherit">' + kidOpts + '</select> ' +
+        '<button class="btn" id="ci-join">Link to classroom</button></p>';
+      document.getElementById('root').prepend(div);
+      document.getElementById('ci-join').addEventListener('click', function () {
+        api('/api/classrooms/join', { method: 'POST', body: JSON.stringify({ code: code, kidId: document.getElementById('ci-kid').value }) })
+          .then(function () { alert('Linked! Your child is now in the classroom.'); history.replaceState(null, '', location.pathname); div.remove(); })
+          .catch(function () { alert('Invalid or expired invite.'); });
+      });
+    });
+  }
+  function boot() {
+    api('/api/auth/me').then(function (d) {
+      var user = d.user;
+      if (!user) { location.href = '/pages/login.html'; return; }
+      var roles = user.roles || [user.role || 'parent'];
+      user.roles = roles;
+      var isTeacher = roles.indexOf('teacher') !== -1 || roles.indexOf('admin') !== -1;
+      var isParent = roles.indexOf('parent') !== -1 || !isTeacher;
+
+      // Multi-role: show switcher
+      if (roles.indexOf('teacher') !== -1 && roles.indexOf('parent') !== -1) {
+        showRoleSwitcher(user);
+        return;
+      }
+      if (isTeacher) loadTeacher(user);
+      else { loadParent(user); checkClassInvite(); }
+    }).catch(function () { location.href = '/pages/login.html'; });
+  }
+
+  function showRoleSwitcher(user) {
+    root.innerHTML = '<div class="dash-head">' + avatarHtml(user.name || user.email, user.avatarColor, user.avatarEmoji) +
+      '<div><h1>' + esc(user.name || 'Dashboard') + '</h1><p class="sub">Choose your view</p></div></div>' +
+      '<div class="dash-roles"><button id="sw-parent" class="active">👨‍👩‍👧 Parent</button><button id="sw-teacher">🏫 Teacher</button></div>' +
+      '<div id="role-body"></div>';
+    var body = document.getElementById('role-body');
+    var bp = document.getElementById('sw-parent'), bt = document.getElementById('sw-teacher');
+    // Temporarily swap root for sub-renders
+    var realRoot = root;
+    function showParent() {
+      bp.classList.add('active'); bt.classList.remove('active');
+      root = body; loadParent(user); root = realRoot; checkClassInvite();
+    }
+    function showTeacher() {
+      bt.classList.add('active'); bp.classList.remove('active');
+      root = body; loadTeacher(user); root = realRoot;
+    }
+    bp.addEventListener('click', showParent);
+    bt.addEventListener('click', showTeacher);
+    showParent();
+  }
+
+  function loadParent(user) {
+    Promise.all([
+      api('/api/kids').catch(function () { return { kids: [] }; }),
+      api('/api/gamification/status').catch(function () { return { kids: [] }; }),
+    ]).then(function (rs) {
+      var kids = rs[0].kids || rs[0] || [];
+      var gam = {};
+      (rs[1].kids || []).forEach(function (k) { gam[k.id] = k; });
+      parentDash(user, kids, gam);
+    });
+  }
+
+  function loadTeacher(user) {
+    api('/api/classrooms').then(function (d) {
+      teacherDash(user, d.classrooms || d || []);
+    }).catch(function () {
+      teacherDash(user, []);
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
 })();
 </script>
 </body>
