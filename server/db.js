@@ -27,6 +27,25 @@ db.exec(`
     last_login_at TEXT
   );
 
+`);
+
+// Teacher public profile fields (added 2026-10-05).
+// ALTER TABLE guards: SQLite has no IF NOT EXISTS for columns.
+for (const [col, type] of [
+  ['bio', 'TEXT'],
+  ['degrees', 'TEXT'],
+  ['awards', 'TEXT'],
+  ['quote', 'TEXT'],
+  ['profile_image', 'TEXT'],
+  ['school', 'TEXT'],
+  ['subjects', 'TEXT'],
+  ['public_profile', 'INTEGER DEFAULT 0'],
+]) {
+  try { db.exec(`ALTER TABLE users ADD COLUMN ${col} ${type}`); }
+  catch (e) { /* already exists */ }
+}
+
+db.exec(`
   CREATE TABLE IF NOT EXISTS kid_profiles (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id       INTEGER NOT NULL,
@@ -1004,7 +1023,15 @@ function toPublicUser(row) {
     createdAt: row.created_at,
     lastLoginAt: row.last_login_at,
     isBetaTester: row.is_beta_tester == null ? true : row.is_beta_tester == 1,
-    foundingBadge: row.founding_badge || 'pending'
+    foundingBadge: row.founding_badge || 'pending',
+    bio: row.bio || '',
+    degrees: JSON.parse(row.degrees || '[]'),
+    awards: JSON.parse(row.awards || '[]'),
+    quote: row.quote || '',
+    profile_image: row.profile_image || '',
+    school: row.school || '',
+    subjects: row.subjects || '',
+    public_profile: row.public_profile == 1
   };
 }
 
