@@ -151,6 +151,8 @@ app.use((req, res, next) => {
 
 // ------------- API routes -------------
 const api = express.Router();
+const { registerChat, syncChatMembers } = require('./chat');
+registerChat(api, requireAuth, requireTeacher);
 
 // Server boot time for uptime reporting.
 const BOOT_TIME = Date.now();
@@ -212,9 +214,31 @@ api.post('/auth/register', rateLimit({ windowMs: 15 * 60_000, max: 8, key: 'regi
 
     if (findUserByEmail(email)) return res.status(409).json({ error: 'That email is already registered.' });
 
+    const inviteCode = String(req.body.inviteCode || '').toUpperCase().trim();
+    let joinedFamily = null;
+    const { db: _db } = require('./db');
+    if (inviteCode) {
+      const fam = _db.prepare('SELECT * FROM families WHERE invite_code = ?').get(inviteCode);
+      if (fam) joinedFamily = fam;
+      else {
+        const ci = _db.prepare("SELECT * FROM classroom_invites WHERE invite_code = ? AND status = 'pending'").get(inviteCode);
+        if (!ci) return res.status(400).json({ error: 'Invalid invite code.' });
+        if (ci.parent_email !== email) return res.status(400).json({ error: 'Invite was sent to a different email.' });
+      }
+    }
+
     const passwordHash = await hashPassword(password);
     const user = createUser({ email, displayName, passwordHash, avatarColor, role });
     updateLastLogin(user.id);
+    try {
+      db.prepare('INSERT OR IGNORE INTO chat_spaces (type, ref_id, name) VALUES (?,?,?)').run('solo', user.id, displayName + "'s notes");
+      const ss = db.prepare("SELECT id FROM chat_spaces WHERE type = 'solo' AND ref_id = ?").get(user.id);
+      if (ss) db.prepare('INSERT OR IGNORE INTO chat_members (space_id, user_id, role) VALUES (?,?,?)').run(ss.id, user.id, 'admin');
+      if (joinedFamily) {
+        db.prepare('INSERT OR IGNORE INTO family_members (family_id, user_id, relationship) VALUES (?,?,?)').run(joinedFamily.id, user.id, String(req.body.relationship || 'parent').slice(0, 20));
+        syncChatMembers(db, 'family', joinedFamily.id);
+      }
+    } catch (e) {}
 
     req.session.regenerate(err => {
       if (err) return res.status(500).json({ error: 'Session error.' });
@@ -1431,6 +1455,7 @@ function getKidSettings(db, kidId) {
     isBlind: s.is_blind == 1, lowVision: s.low_vision == 1,
     audioGuide: s.audio_guide == 1, voiceCommands: s.voice_commands == 1,
     largeText: s.large_text == 1, highContrast: s.high_contrast == 1,
+    publicChatAllowed: s.public_chat_allowed == 1,
   };
 }
 // GET /api/kids/:id/settings — parent reads kid settings
@@ -1452,7 +1477,8 @@ api.put('/kids/:id/settings', requireAuth, (req, res) => {
     const b = req.body || {};
     const map = { listenEnabled: 'listen_enabled', commentsEnabled: 'comments_enabled',
       isBlind: 'is_blind', lowVision: 'low_vision', audioGuide: 'audio_guide',
-      voiceCommands: 'voice_commands', largeText: 'large_text', highContrast: 'high_contrast' };
+      voiceCommands: 'voice_commands', largeText: 'large_text', highContrast: 'high_contrast',
+      publicChatAllowed: 'public_chat_allowed' };
     for (const [k, col] of Object.entries(map)) {
       if (b[k] !== undefined) db.prepare(`UPDATE kid_settings SET ${col} = ? WHERE kid_id = ?`).run(b[k] ? 1 : 0, kid.id);
     }
@@ -1503,6 +1529,7 @@ api.post('/families', requireAuth, (req, res) => {
     const code = genCode(8);
     const r = db.prepare('INSERT INTO families (name, created_by, invite_code) VALUES (?,?,?)').run(name, req.user.id, code);
     db.prepare('INSERT INTO family_members (family_id, user_id, relationship, invited_by) VALUES (?,?,?,?)').run(r.lastInsertRowid, req.user.id, 'parent', req.user.id);
+    try { syncChatMembers(db, 'family', r.lastInsertRowid); } catch (e) {}
     res.json({ ok: true, id: r.lastInsertRowid, inviteCode: code });
   } catch (e) { res.status(500).json({ error: 'failed' }); }
 });
@@ -1533,6 +1560,7 @@ api.post('/families/join', requireAuth, (req, res) => {
     const existing = db.prepare('SELECT id FROM family_members WHERE family_id = ? AND user_id = ?').get(fam.id, req.user.id);
     if (existing) return res.status(400).json({ error: 'already a member' });
     db.prepare('INSERT INTO family_members (family_id, user_id, relationship, invited_by) VALUES (?,?,?,?)').run(fam.id, req.user.id, rel, null);
+    try { syncChatMembers(db, 'family', fam.id); } catch (e) {}
     res.json({ ok: true, family: { id: fam.id, name: fam.name } });
   } catch (e) { res.status(500).json({ error: 'failed' }); }
 });
@@ -1597,6 +1625,7 @@ api.post('/classrooms/join', requireAuth, (req, res) => {
     if (!kid) return res.status(403).json({ error: 'kid not found' });
     db.prepare('INSERT OR IGNORE INTO classroom_students (classroom_id, kid_id) VALUES (?,?)').run(inv.classroom_id, kidId);
     db.prepare("UPDATE classroom_invites SET status = 'accepted' WHERE id = ?").run(inv.id);
+    try { syncChatMembers(db, 'classroom', inv.classroom_id); } catch (e) {}
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: 'failed: ' + e.message }); }
 });
