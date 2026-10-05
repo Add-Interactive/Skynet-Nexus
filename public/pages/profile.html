@@ -138,6 +138,7 @@
       '<a href="/pages/chat.html" style="text-decoration:none">' + tile('cyan', '💬', 'Chats', '', 'Family & class conversations', '') + '</a>' +
       tile('gold', '📊', 'Weekly digest', '', 'What your kids read', 'digest') +
       tile('orange', '🏅', 'Family leaderboard', '', 'Sibling XP race', 'board') +
+      tile('pink', '🤝', 'Kid friends', '', 'Parent-approved friendships', 'friends') +
       tile('green', '🔥', 'Streaks', '<div class="t-big">' + bestStreak + '🔥</div>', 'best reading streak in the family', 'streaks') +
       tile('purple', '🧪', 'Weekend Lab', '', 'Vote Thursday · activities Saturday', null, '/pages/weekend-lab.html') +
       tile('orange', '🧠', 'Daily Quiz', '', 'Tonight\'s 5 questions · leaderboard', null, '/pages/quiz.html') +
@@ -165,12 +166,13 @@
       '<div><b style="color:#39ff14">2. You own your kids\' data.</b> Only the parent who created a kid profile can see or edit it. Grandparents and relatives see only what you choose to share.</div>' +
       '<div><b style="color:#39ff14">3. Teachers can\'t add your child.</b> A teacher sends <i>you</i> an invite — you create the account, you link your child. Teachers never touch kid accounts directly.</div>' +
       '<div><b style="color:#39ff14">4. Teachers see classroom stats only.</b> XP, streaks, reading progress — never personal details, never your family tree.</div>' +
-      '<div><b style="color:#39ff14">5. No kid-to-kid contact.</b> Kids cannot message each other or browse other families.</div>' +
+      '<div><b style="color:#39ff14">5. Kid friends need two parents\' approval.</b> Kids can friend other kids via friend codes — but <i>both</i> parents must approve before they can chat. Either parent can revoke anytime. No searchable kid directory exists.</div>' +
       '<div><b style="color:#39ff14">6. Leave anytime.</b> Remove a family member or unlink a classroom instantly — no questions, no waiting.</div>' +
       '</div></div>';
 
     html += '<div class="panel hidden" id="p-digest"><h2>📊 Weekly digest</h2><div id="digest-body"><p style="color:#7c8898">Loading…</p></div></div>';
     html += '<div class="panel hidden" id="p-board"><h2>🏅 Family leaderboard</h2><div id="board-body"><p style="color:#7c8898">Loading…</p></div></div>';
+    html += '<div class="panel hidden" id="p-friends"><h2>🤝 Kid friends</h2><div id="friends-body"><p style="color:#7c8898">Loading…</p></div></div>';
     html += '<div class="panel hidden" id="p-badges"><h2>🏆 Achievement board</h2>' +
       '<p style="color:var(--muted,#7c8898);font-size:14px;margin:0 0 16px">Every badge the family has earned — and what\'s still to unlock.</p>' +
       '<div class="badge-wall" id="badge-wall"><p style="color:#7c8898">Loading badges…</p></div></div>';
@@ -502,6 +504,72 @@
       }).join('') || '<p style="color:#7c8898">No family yet.</p>';
     });
   }
+  function loadFriends() {
+    var b = document.getElementById('friends-body');
+    api('/api/friends/pending').then(function (d) {
+      var h = '<p style="color:var(--muted);font-size:13px;margin-bottom:12px">Kids can friend other kids, but <b>both parents must approve</b>. Share friend codes in real life — there is no searchable kid directory.</p>';
+      // Pending requests
+      var pend = d.pending || [];
+      if (pend.length) {
+        h += '<div style="font:700 13px/1 Inter;margin:12px 0 8px">Pending requests</div>';
+        h += pend.map(function (r) {
+          var action = r.needsMyApproval
+            ? '<button class="btn" data-appr="' + r.id + '" style="padding:8px 16px;font-size:13px">Approve</button> <button class="btn ghost" data-decl="' + r.id + '" style="padding:8px 16px;font-size:13px;color:#ff2e63">Decline</button>'
+            : '<span style="font-size:13px;color:#ff9f1c">⏳ Waiting on ' + esc(r.needsMyApproval ? '' : 'other parent') + '</span>';
+          return '<div class="kid-card" style="margin-bottom:8px"><div class="k-name">' + esc(r.fromName) + ' → ' + esc(r.toName) + '</div><div class="k-meta">' + action + '</div></div>';
+        }).join('');
+      }
+      // Per-kid: show code + friends + add
+      h += '<div style="font:700 13px/1 Inter;margin:16px 0 8px">My kids</div><div id="fr-kids"><p style="color:#7c8898">Loading…</p></div>';
+      b.innerHTML = h;
+      // Wire approve/decline
+      b.querySelectorAll('[data-appr]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          api('/api/friends/requests/' + btn.getAttribute('data-appr') + '/approve', { method: 'POST' })
+            .then(function (r) { alert(r.friends ? '🎉 Friends! Chat space created.' : 'Approved! Waiting on the other parent.'); loadFriends(); });
+        });
+      });
+      b.querySelectorAll('[data-decl]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          api('/api/friends/requests/' + btn.getAttribute('data-decl') + '/decline', { method: 'POST' }).then(loadFriends);
+        });
+      });
+      // Load each kid's code + friends
+      var fk = document.getElementById('fr-kids');
+      Promise.all(_kidsCache.map(function (k) {
+        return Promise.all([
+          api('/api/kids/' + k.id + '/friend-code').catch(function () { return {}; }),
+          api('/api/kids/' + k.id + '/friends').catch(function () { return { friends: [] }; }),
+        ]).then(function (rs) { return { kid: k, code: rs[0].code, friends: rs[1].friends || [] }; });
+      })).then(function (rows) {
+        fk.innerHTML = rows.map(function (r) {
+          return '<div class="kid-card" style="margin-bottom:10px"><div class="k-name">' + esc(r.kid.name) + '</div>' +
+            '<div class="k-meta">Friend code: <code style="background:rgba(0,229,255,.12);padding:4px 10px;border-radius:6px;letter-spacing:2px">' + esc(r.code || '…') + '</code></div>' +
+            (r.friends.length ? '<div class="k-meta" style="margin-top:6px">Friends: ' + r.friends.map(function (f) {
+              return esc(f.name) + ' <button data-unfr="' + r.kid.id + ':' + f.id + '" style="background:none;border:none;color:#ff2e63;cursor:pointer;font-size:12px">✕</button>';
+            }).join(', ') + '</div>' : '<div class="k-meta">No friends yet</div>') +
+            '<div style="margin-top:8px"><input data-addcode="' + r.kid.id + '" placeholder="Friend\'s code" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;width:120px;text-transform:uppercase"/> <button class="btn ghost" data-addbtn="' + r.kid.id + '" style="padding:8px 14px;font-size:13px">Send request</button></div></div>';
+        }).join('');
+        fk.querySelectorAll('[data-addbtn]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var kidId = btn.getAttribute('data-addbtn');
+            var code = fk.querySelector('[data-addcode="' + kidId + '"]').value.trim();
+            if (!code) return;
+            api('/api/friends/request', { method: 'POST', body: JSON.stringify({ from_kid_id: kidId, to_code: code }) })
+              .then(function (r) { alert('Request sent to ' + r.toKidName + '! Both parents must approve.'); loadFriends(); })
+              .catch(function (e) { alert(e.message || 'Could not send.'); });
+          });
+        });
+        fk.querySelectorAll('[data-unfr]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            if (!confirm('Remove this friendship? The chat will be deleted.')) return;
+            var parts = btn.getAttribute('data-unfr').split(':');
+            api('/api/friends/' + parts[0] + '/' + parts[1], { method: 'DELETE' }).then(loadFriends);
+          });
+        });
+      });
+    }).catch(function () { b.innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
   function bindParentTiles() {
     root.querySelectorAll('[data-panel]').forEach(function (t) {
       t.addEventListener('click', function () {
@@ -514,6 +582,7 @@
           if (id === 'p-family') loadFamily();
           if (id === 'p-digest') loadDigest();
           if (id === 'p-board') loadBoard();
+          if (id === 'p-friends') loadFriends();
         }
       });
     });
@@ -665,7 +734,7 @@
       '<div style="display:grid;gap:10px;font-size:14px;line-height:1.6;color:var(--muted,#9aa7bd)">' +
       '<div><b style="color:#39ff14">You invite, parents decide.</b> You send an email invite — the parent creates the account and links their child. You never handle kid accounts.</div>' +
       '<div><b style="color:#39ff14">Classroom data only.</b> You see XP, streaks, and reading progress for enrolled students — never personal details, family info, or other classes.</div>' +
-      '<div><b style="color:#39ff14">No direct kid contact.</b> All communication goes through parents. Kids cannot message you or each other.</div>' +
+      '<div><b style="color:#39ff14">Kid friendships are parent-gated.</b> Kids can only chat with parent-approved friends (both parents must agree). You cannot message students privately — classroom chat only.</div>' +
       '<div><b style="color:#39ff14">Parents can unlink instantly.</b> A parent can remove their child from your class at any time, no approval needed.</div>' +
       '</div></div>';
 
