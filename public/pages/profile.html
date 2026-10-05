@@ -139,6 +139,9 @@
       tile('gold', '📊', 'Weekly digest', '', 'What your kids read', 'digest') +
       tile('orange', '🏅', 'Family leaderboard', '', 'Sibling XP race', 'board') +
       tile('pink', '🤝', 'Kid friends', '', 'Parent-approved friendships', 'friends') +
+      tile('purple', '💬', 'Teacher messages', '', 'Private parent-teacher chat', 'ptmsg') +
+      tile('yellow', '👴', 'Family feed', '', 'Cheers & achievements', 'famfeed') +
+      tile('gold', '📢', 'Class news', '', 'Teacher announcements', 'pann') +
       tile('green', '🔥', 'Streaks', '<div class="t-big">' + bestStreak + '🔥</div>', 'best reading streak in the family', 'streaks') +
       tile('purple', '🧪', 'Weekend Lab', '', 'Vote Thursday · activities Saturday', null, '/pages/weekend-lab.html') +
       tile('orange', '🧠', 'Daily Quiz', '', 'Tonight\'s 5 questions · leaderboard', null, '/pages/quiz.html') +
@@ -173,6 +176,9 @@
     html += '<div class="panel hidden" id="p-digest"><h2>📊 Weekly digest</h2><div id="digest-body"><p style="color:#7c8898">Loading…</p></div></div>';
     html += '<div class="panel hidden" id="p-board"><h2>🏅 Family leaderboard</h2><div id="board-body"><p style="color:#7c8898">Loading…</p></div></div>';
     html += '<div class="panel hidden" id="p-friends"><h2>🤝 Kid friends</h2><div id="friends-body"><p style="color:#7c8898">Loading…</p></div></div>';
+    html += '<div class="panel hidden" id="p-ptmsg"><h2>💬 Teacher messages</h2><div id="ptmsg-body"><p style="color:#7c8898">Loading…</p></div></div>';
+    html += '<div class="panel hidden" id="p-famfeed"><h2>👴 Family feed</h2><div id="famfeed-body"><p style="color:#7c8898">Loading…</p></div></div>';
+    html += '<div class="panel hidden" id="p-pann"><h2>📢 Class news</h2><div id="pann-body"><p style="color:#7c8898">Loading…</p></div></div>';
     html += '<div class="panel hidden" id="p-badges"><h2>🏆 Achievement board</h2>' +
       '<p style="color:var(--muted,#7c8898);font-size:14px;margin:0 0 16px">Every badge the family has earned — and what\'s still to unlock.</p>' +
       '<div class="badge-wall" id="badge-wall"><p style="color:#7c8898">Loading badges…</p></div></div>';
@@ -570,6 +576,93 @@
       });
     }).catch(function () { b.innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
   }
+  function loadPT() {
+    var b = document.getElementById('ptmsg-body');
+    Promise.all([api('/api/pt/threads'), api('/api/pt/teachers')]).then(function (rs) {
+      var h = '';
+      var th = rs[0].threads || [], tc = rs[1].teachers || [];
+      if (th.length) {
+        h += th.map(function (t) {
+          return '<div class="kid-card" style="margin-bottom:8px"><div class="k-name">' + esc(t.subject || 'Chat') + '</div>' +
+            '<div class="k-meta">' + esc(t.kid_name || '') + ' · ' + esc(t.teacher_name || '') + (t.last_msg ? ' — “' + esc(t.last_msg.slice(0, 60)) + '”' : ' — no messages yet') + '</div>' +
+            '<div style="margin-top:8px"><a class="btn ghost" style="padding:8px 14px;font-size:13px" href="/pages/chat.html">Open chat →</a></div></div>';
+        }).join('');
+      } else h += '<p style="color:#7c8898">No conversations yet.</p>';
+      if (tc.length) {
+        h += '<div style="font:700 13px/1 Inter;margin:16px 0 8px">Start a conversation</div>';
+        h += tc.map(function (t) {
+          return '<div class="kid-card" style="margin-bottom:8px"><div class="k-name">' + esc(t.display_name) + '</div><div class="k-meta">' + esc(t.kid_name) + '\'s teacher</div>' +
+            '<div style="margin-top:8px"><button class="btn ghost" data-newpt="' + t.kid_id + ':' + t.id + '" style="padding:8px 14px;font-size:13px">Message</button></div></div>';
+        }).join('');
+      }
+      b.innerHTML = h;
+      b.querySelectorAll('[data-newpt]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var p = btn.getAttribute('data-newpt').split(':');
+          var subj = prompt('What is this about?', 'Question about class');
+          if (subj === null) return;
+          api('/api/pt/threads', { method: 'POST', body: JSON.stringify({ kid_id: Number(p[0]), teacher_user_id: Number(p[1]), subject: subj }) })
+            .then(function (r) { window.location.href = '/pages/chat.html'; });
+        });
+      });
+    }).catch(function () { b.innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
+  function loadFamFeed() {
+    var b = document.getElementById('famfeed-body');
+    Promise.all([api('/api/family/feed'), api('/api/cheers/templates').catch(function () { return { templates: [] }; })]).then(function (rs) {
+      var d = rs[0], tmpl = rs[1].templates || [];
+      var h = '<p style="color:var(--muted);font-size:13px;margin-bottom:12px">Everyone in your family tree — achievements, badges, and cheers. Send encouragement with one tap.</p>';
+      (d.kids || []).forEach(function (k) {
+        h += '<div class="kid-card" style="margin-bottom:10px"><div class="k-name">' + (k.avatar_emoji || '🚀') + ' ' + esc(k.name) + '</div>' +
+          '<div style="margin-top:8px"><select data-cheerkid="' + k.id + '" style="padding:8px;border-radius:8px;background:rgba(255,255,255,.05);color:inherit;border:1px solid rgba(255,255,255,.2)">' +
+          tmpl.map(function (t) { return '<option>' + esc(t) + '</option>'; }).join('') + '</select> ' +
+          '<button class="btn ghost" data-cheerbtn="' + k.id + '" style="padding:8px 14px;font-size:13px">Send cheer 📣</button></div></div>';
+      });
+      var ch = d.cheers || [];
+      if (ch.length) {
+        h += '<div style="font:700 13px/1 Inter;margin:16px 0 8px">Recent cheers</div>' +
+          ch.map(function (c) { return '<div class="k-meta" style="margin-bottom:6px">' + esc(c.template) + ' <span style="opacity:.6">— ' + esc(c.from_name || 'someone') + ' → ' + esc(c.to_name || '') + '</span></div>'; }).join('');
+      }
+      b.innerHTML = h;
+      b.querySelectorAll('[data-cheerbtn]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var kidId = btn.getAttribute('data-cheerbtn');
+          var t = b.querySelector('[data-cheerkid="' + kidId + '"]').value;
+          api('/api/cheers', { method: 'POST', body: JSON.stringify({ to_kid_id: Number(kidId), template: t }) })
+            .then(function () { alert('Cheer sent! 🎉'); loadFamFeed(); });
+        });
+      });
+    }).catch(function () { b.innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
+  function loadPAnn() {
+    var b = document.getElementById('pann-body');
+    // Get my kids' classrooms via kids cache
+    var kids = _kidsCache || [];
+    Promise.all(kids.map(function (k) {
+      return api('/api/kids/' + k.id + '/classrooms').catch(function () { return { classrooms: [] }; });
+    })).then(function (rs) {
+      var classIds = [];
+      rs.forEach(function (r) { (r.classrooms || []).forEach(function (c) { if (classIds.indexOf(c.id) === -1) classIds.push({ id: c.id, name: c.name }); }); });
+      if (!classIds.length) { b.innerHTML = '<p style="color:#7c8898">Your kids are not in any classrooms yet.</p>'; return; }
+      Promise.all(classIds.map(function (c) {
+        return api('/api/classrooms/' + c.id + '/announcements').then(function (d) {
+          return { name: c.name, anns: d.announcements || [] };
+        }).catch(function () { return { name: c.name, anns: [] }; });
+      })).then(function (all) {
+        var h = '';
+        all.forEach(function (g) {
+          if (!g.anns.length) return;
+          h += '<div style="font:700 13px/1 Inter;margin:14px 0 8px">🏫 ' + esc(g.name) + '</div>';
+          h += g.anns.map(function (a) {
+            return '<div class="kid-card" style="margin-bottom:8px">' + (a.pinned ? '📌 ' : '') +
+              '<div class="k-name">' + esc(a.title) + '</div><div class="k-meta">' + esc(a.body) + '</div>' +
+              '<div class="k-meta" style="opacity:.6">' + esc(a.teacher_name || '') + ' · ' + new Date(a.created_at + 'Z').toLocaleDateString() + '</div></div>';
+          }).join('');
+        });
+        b.innerHTML = h || '<p style="color:#7c8898">No announcements yet.</p>';
+      });
+    }).catch(function () { b.innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
   function bindParentTiles() {
     root.querySelectorAll('[data-panel]').forEach(function (t) {
       t.addEventListener('click', function () {
@@ -583,6 +676,9 @@
           if (id === 'p-digest') loadDigest();
           if (id === 'p-board') loadBoard();
           if (id === 'p-friends') loadFriends();
+          if (id === 'p-ptmsg') loadPT();
+          if (id === 'p-famfeed') loadFamFeed();
+          if (id === 'p-pann') loadPAnn();
         }
       });
     });
@@ -728,6 +824,10 @@
     html += '<div class="panel hidden" id="p-matrix"><h2>📋 Completion matrix</h2><div id="matrix-body" style="overflow-x:auto"><p style="color:#7c8898">Loading…</p></div></div>';
     // Class settings panel
     html += '<div class="panel hidden" id="p-csettings"><h2>⚙️ Class settings</h2><div id="cs-body"><p style="color:#7c8898">Loading…</p></div></div>';
+    // PT messages panel (teacher)
+    html += '<div class="panel hidden" id="p-tptmsg"><h2>💬 Parent messages</h2><div id="tptmsg-body"><p style="color:#7c8898">Loading…</p></div></div>';
+    // Announcements panel (teacher)
+    html += '<div class="panel hidden" id="p-tannounce"><h2>📢 Announcements</h2><div id="tannounce-body"><p style="color:#7c8898">Loading…</p></div></div>';
 
     // Safety panel (teacher)
     html += '<div class="panel" style="border-color:rgba(57,255,20,.35)"><h2>🛡️ Child safety rules</h2>' +
@@ -755,6 +855,8 @@
           if (id === 'p-csettings') loadClassSettings(classId);
           if (id === 'p-atrisk') loadAtRisk(classId);
           if (id === 'p-matrix') loadMatrix(classId);
+          if (id === 'p-tptmsg') loadTPT();
+          if (id === 'p-tannounce') loadTAnnounce(classId);
         }
       });
     });
@@ -838,6 +940,46 @@
         api('/api/classrooms/' + classId + '/settings', { method: 'PUT', body: JSON.stringify({
           listenEnabled: document.getElementById('cs-listen').checked, channels: sel }) })
           .then(function () { alert('Class settings saved!'); }).catch(function () { alert('Could not save.'); });
+      });
+    }).catch(function () { b.innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
+  function loadTPT() {
+    var b = document.getElementById('tptmsg-body');
+    api('/api/pt/threads').then(function (d) {
+      var th = d.threads || [];
+      b.innerHTML = th.length ? th.map(function (t) {
+        return '<div class="kid-card" style="margin-bottom:8px"><div class="k-name">' + esc(t.subject || 'Chat') + '</div>' +
+          '<div class="k-meta">' + esc(t.kid_name || '') + ' · ' + esc(t.parent_name || 'parent') + (t.last_msg ? ' — “' + esc(t.last_msg.slice(0, 60)) + '”' : ' — no messages yet') + '</div>' +
+          '<div style="margin-top:8px"><a class="btn ghost" style="padding:8px 14px;font-size:13px" href="/pages/chat.html">Open chat →</a></div></div>';
+      }).join('') : '<p style="color:#7c8898">No parent conversations yet. Parents can message you from their dashboard.</p>';
+    }).catch(function () { b.innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
+  function loadTAnnounce(classId) {
+    var b = document.getElementById('tannounce-body');
+    api('/api/classrooms/' + classId + '/announcements').then(function (d) {
+      var h = '<div style="background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.25);border-radius:12px;padding:14px;margin-bottom:16px">' +
+        '<div style="font:700 13px/1 Inter;margin-bottom:10px">New announcement</div>' +
+        '<input id="ann-title" placeholder="Title (e.g. Field trip Friday!)" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;margin-bottom:8px"/>' +
+        '<textarea id="ann-body" placeholder="Details for families…" rows="3" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;margin-bottom:8px"></textarea>' +
+        '<label style="font-size:13px"><input type="checkbox" id="ann-pin"/> 📌 Pin to top</label> ' +
+        '<button class="btn" id="ann-send" style="margin-left:10px">Post 📢</button></div>';
+      h += '<div id="ann-list">' + (d.announcements || []).map(function (a) {
+        return '<div class="kid-card" style="margin-bottom:8px;position:relative">' + (a.pinned ? '<span style="position:absolute;top:10px;right:12px">📌</span>' : '') +
+          '<div class="k-name">' + esc(a.title) + '</div><div class="k-meta">' + esc(a.body) + '</div>' +
+          '<div class="k-meta" style="opacity:.6">' + new Date(a.created_at + 'Z').toLocaleDateString() + ' <button data-delann="' + a.id + '" style="background:none;border:none;color:#ff2e63;cursor:pointer">delete</button></div></div>';
+      }).join('') + '</div>';
+      b.innerHTML = h;
+      document.getElementById('ann-send').addEventListener('click', function () {
+        var t = document.getElementById('ann-title').value.trim(), bd = document.getElementById('ann-body').value.trim();
+        if (!t || !bd) { alert('Title and message needed.'); return; }
+        api('/api/classrooms/' + classId + '/announcements', { method: 'POST', body: JSON.stringify({ title: t, body: bd, pinned: document.getElementById('ann-pin').checked }) })
+          .then(function () { loadTAnnounce(classId); });
+      });
+      b.querySelectorAll('[data-delann]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          if (!confirm('Delete this announcement?')) return;
+          api('/api/announcements/' + btn.getAttribute('data-delann'), { method: 'DELETE' }).then(function () { loadTAnnounce(classId); });
+        });
       });
     }).catch(function () { b.innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
   }
