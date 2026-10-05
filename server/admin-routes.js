@@ -146,8 +146,8 @@ function buildEditionPipeline(today) {
     const filed = {};
     const counts = { draft: 0, approved: 0, published: 0 };
     stories.forEach(function (s) {
-      let payload = {};
-      try { payload = JSON.parse(s.payload || '{}'); } catch (e) {}
+      let payload = s.payload || {};
+      if (typeof payload === 'string') { try { payload = JSON.parse(payload); } catch (e) { payload = {}; } }
       const date = String(payload.date || '').slice(0, 10);
       if (s.edition !== d.key || date !== today) return;
       counts[s.status] = (counts[s.status] || 0) + 1;
