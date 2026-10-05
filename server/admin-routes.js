@@ -126,13 +126,13 @@ router.get('/overview', (req, res) => {
       pending: db.listQuestions({ status: 'pending' }).questions.length,
       approved: db.listQuestions({ status: 'approved' }).questions.length
     },
-    editions: buildEditionPipeline(today)
+    editions: buildEditionPipeline(today, articles)
   });
 });
 
 // Edition pipeline: for each daily edition, how many of the 13 channel drafts
 // are filed/approved/published today, plus the drop time.
-function buildEditionPipeline(today) {
+function buildEditionPipeline(today, manifestArticles) {
   const defs = [
     { key: 'morning', label: 'Morning Edition', drop: '7:15 AM' },
     { key: 'midday', label: 'Midday Edition', drop: '2:15 PM' },
@@ -140,26 +140,29 @@ function buildEditionPipeline(today) {
   ];
   const channels = ['ai','space','robotics','biotech','quantum','climate','engineering','math','cyber','gaming','music','stem','play'];
   return defs.map(function (d) {
-    const stories = db.listQueuedStories({ status: 'approved', limit: 1000 })
-      .concat(db.listQueuedStories({ status: 'draft', limit: 1000 }))
-      .concat(db.listQueuedStories({ status: 'published', limit: 1000 }));
     const filed = {};
-    const counts = { draft: 0, approved: 0, published: 0 };
+    // 1. Queued stories (draft/approved) for today
+    const stories = db.listQueuedStories({ status: 'approved', limit: 1000 })
+      .concat(db.listQueuedStories({ status: 'draft', limit: 1000 }));
     stories.forEach(function (s) {
       let payload = s.payload || {};
       if (typeof payload === 'string') { try { payload = JSON.parse(payload); } catch (e) { payload = {}; } }
       const date = String(payload.date || '').slice(0, 10);
       if (s.edition !== d.key || date !== today) return;
-      counts[s.status] = (counts[s.status] || 0) + 1;
       if (s.channel) filed[s.channel] = s.status;
     });
+    // 2. Published articles in the manifest for today (queue clears on publish)
+    (manifestArticles || []).forEach(function (a) {
+      if (a.edition !== d.key || String(a.date || '').slice(0, 10) !== today) return;
+      if (a.cat && !filed[a.cat]) filed[a.cat] = 'published';
+    });
     const missing = channels.filter(function (c) { return !filed[c]; });
+    const nPublished = Object.keys(filed).filter(function (c) { return filed[c] === 'published'; }).length;
     return {
       key: d.key, label: d.label, drop: d.drop,
       expected: channels.length,
       filed: Object.keys(filed).length,
-      approved: counts.approved || 0,
-      published: counts.published || 0,
+      published: nPublished,
       channels: filed,
       missing: missing
     };
