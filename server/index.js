@@ -155,6 +155,8 @@ const { registerChat, syncChatMembers } = require('./chat');
 registerChat(api, requireAuth, requireTeacher);
 const { registerPlus, isQuietNow } = require('./plus');
 registerPlus(api, requireAuth, requireTeacher);
+const { registerConnect } = require('./connect');
+registerConnect(api, requireAuth, requireTeacher);
 
 // Server boot time for uptime reporting.
 const BOOT_TIME = Date.now();
