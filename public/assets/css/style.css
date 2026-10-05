@@ -967,7 +967,7 @@ body::before{
 .kid-take[data-step]::before,.family-discussion[data-step]::before,.glossary[data-step]::before{content:"Step " attr(data-step) " \00B7 read together";display:block;font-size:.7rem;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--text-mute);margin-bottom:10px}
 
 /* Free art download on the article hero */
-.art-dl{position:absolute;top:14px;right:14px;z-index:3;display:flex;align-items:center;gap:8px;background:rgba(10,14,23,.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid var(--accent);color:var(--text);font-size:.78rem;font-weight:700;padding:9px 14px;border-radius:999px;text-decoration:none;transition:all .2s}
+.art-dl{display:inline-flex;align-items:center;gap:8px;background:rgba(10,14,23,.82);border:1px solid var(--accent);color:var(--text);font-size:.85rem;font-weight:700;padding:8px 16px;border-radius:999px;text-decoration:none;transition:all .2s;white-space:nowrap}
 .art-dl:hover{background:var(--accent);color:#06121c;box-shadow:var(--glow-cyan)}
 .art-dl span{font-weight:600}
 
@@ -983,3 +983,16 @@ body::before{
   .rj-text{display:none}
   .rj-step{padding:7px 10px}
 }
+
+/* Prev/next story pager + swipe navigation on the article page */
+.article-pager{display:flex;gap:12px;margin:32px 0 8px}
+.pager-link{flex:1;display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-card);text-decoration:none;color:var(--text);transition:all .2s;min-width:0}
+a.pager-link:hover{border-color:var(--accent);transform:translateY(-1px)}
+.pager-prev{justify-content:flex-start;text-align:left}
+.pager-next{justify-content:flex-end;text-align:right}
+.pager-empty{visibility:hidden}
+.pager-arrow{font-size:1.5rem;color:var(--accent);flex:none;line-height:1}
+.pager-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pager-label{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text-mute)}
+.pager-title{font-size:.92rem;font-weight:600;line-height:1.35;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+@media(max-width:640px){.article-toolbar{flex-wrap:wrap}.art-dl span{display:none}.art-dl{padding:8px 12px}.pager-title{-webkit-line-clamp:1}}
