@@ -21,10 +21,21 @@ const analytics = require('./analytics');
 const ADMIN_ROLES = new Set(['admin', 'editor']);
 const FULL_ADMIN_ROLES = new Set(['admin']);
 
+// Multi-role support (2026-10-05): users may hold several roles and get the
+// union of their features. db.getUserRoles falls back to the legacy role column.
+function userRoles(user) {
+  if (!user) return [];
+  if (Array.isArray(user.roles) && user.roles.length) return user.roles;
+  try { return db.getUserRoles(user.id); } catch (e) { return user.role ? [user.role] : []; }
+}
+function hasAnyRole(user, roleSet) {
+  return userRoles(user).some(r => roleSet.has(r));
+}
+
 function requireAdminRole(req, res, next) {
   if (!req.session || !req.session.userId) return res.status(401).json({ error: 'unauthorized' });
   const user = db.findUserById(req.session.userId);
-  if (!user || !ADMIN_ROLES.has(user.role)) {
+  if (!user || !hasAnyRole(user, ADMIN_ROLES)) {
     return res.status(403).json({ error: 'forbidden' });
   }
   req.adminUser = user;
@@ -32,7 +43,7 @@ function requireAdminRole(req, res, next) {
 }
 
 function requireFullAdmin(req, res, next) {
-  if (!req.adminUser || !FULL_ADMIN_ROLES.has(req.adminUser.role)) {
+  if (!req.adminUser || !hasAnyRole(req.adminUser, FULL_ADMIN_ROLES)) {
     return res.status(403).json({ error: 'admin-only action' });
   }
   next();
@@ -717,19 +728,24 @@ router.get('/users/:id', requireFullAdmin, (req, res) => {
 
 router.patch('/users/:id/role', requireFullAdmin, (req, res) => {
   const id = Number(req.params.id);
-  const role = String(req.body.role || '').trim();
-  if (!USER_ROLES.includes(role)) return res.status(400).json({ error: 'role must be parent|teacher|editor|admin' });
+  // Accept either { roles: [...] } (multi-role) or legacy { role: "..." }.
+  let roles = req.body.roles;
+  if (roles == null && req.body.role != null) roles = [req.body.role];
+  if (!Array.isArray(roles)) return res.status(400).json({ error: 'roles must be an array' });
+  roles = [...new Set(roles.map(r => String(r).trim()).filter(r => USER_ROLES.includes(r)))];
+  if (!roles.length) return res.status(400).json({ error: 'roles must be a non-empty subset of ' + USER_ROLES.join('|') });
   const target = db.findUserById(id);
   if (!target) return res.status(404).json({ error: 'not found' });
+  const targetRoles = userRoles(target);
   // Guard: never leave the site without an admin.
-  if (target.role === 'admin' && role !== 'admin' && db.countAdmins() <= 1) {
+  if (targetRoles.includes('admin') && !roles.includes('admin') && db.countAdmins() <= 1) {
     return res.status(400).json({ error: 'Cannot demote the last remaining admin.' });
   }
-  if (id === req.adminUser.id && role !== 'admin') {
+  if (id === req.adminUser.id && !roles.includes('admin')) {
     return res.status(400).json({ error: 'You cannot remove your own admin access.' });
   }
-  const user = db.setUserRole(id, role);
-  logAction(req.adminUser.id, 'user.role.set', 'user', id, { role });
+  const user = db.setUserRoles(id, roles);
+  logAction(req.adminUser.id, 'user.role.set', 'user', id, { roles });
   res.json({ user: db.findUserForAdmin(id) });
 });
 
@@ -814,7 +830,7 @@ router.delete('/users/:id', requireFullAdmin, (req, res) => {
   const target = db.findUserById(id);
   if (!target) return res.status(404).json({ error: 'not found' });
   if (id === req.adminUser.id) return res.status(400).json({ error: 'You cannot delete your own account here.' });
-  if (target.role === 'admin' && db.countAdmins() <= 1) {
+  if (userRoles(target).includes('admin') && db.countAdmins() <= 1) {
     return res.status(400).json({ error: 'Cannot delete the last remaining admin.' });
   }
   const ok = db.deleteUser(id);
@@ -1284,6 +1300,54 @@ router.patch('/stories/published/:id', (req, res) => {
     
     logAction(req.adminUser.id, 'story.publish.edit', 'story', id, { title: payload.title });
     res.json({ ok: true, story });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PATCH /admin/articles/:slug — update a published article by slug.
+// Works for auto-published stories, which are cleared from the review queue on
+// publish (so PATCH /stories/published/:id cannot reach them). Merges the given
+// fields into the article JSON file on disk and the manifest entry.
+// Body: { heroImage?: string, title?: string, ... } — id/slug/path are protected.
+router.patch('/articles/:slug', (req, res) => {
+  try {
+    const slug = String(req.params.slug || '');
+    const b = req.body || {};
+    if (!slug) return res.status(400).json({ error: 'slug required' });
+    if (!b || typeof b !== 'object' || Array.isArray(b)) return res.status(400).json({ error: 'Missing update body.' });
+
+    const manifestPath = path.join(DATA_DIR, 'manifest.json');
+    let manifest = {};
+    try { manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')); }
+    catch (e) { return res.status(500).json({ error: 'cannot read manifest' }); }
+    const articles = Array.isArray(manifest.articles) ? manifest.articles : [];
+    const index = articles.findIndex(a => a && (a.slug === slug || a.id === slug));
+    if (index === -1) return res.status(404).json({ error: 'article not found' });
+    const entry = articles[index];
+    if (!entry.path || typeof entry.path !== 'string') return res.status(500).json({ error: 'article has no file path' });
+
+    // Resolve the article JSON file; keep it inside DATA_DIR/articles.
+    const articlesDir = path.resolve(path.join(DATA_DIR, 'articles'));
+    const artPath = path.resolve(path.join(DATA_DIR, entry.path));
+    if (artPath !== articlesDir && !artPath.startsWith(articlesDir + path.sep)) {
+      return res.status(400).json({ error: 'invalid article path' });
+    }
+    let fileData = {};
+    try { fileData = JSON.parse(fs.readFileSync(artPath, 'utf8')); } catch (e) {}
+
+    // Protect identity fields from being overwritten.
+    const update = Object.assign({}, b);
+    delete update.id; delete update.slug; delete update.path;
+
+    const merged = Object.assign({}, fileData, update);
+    fs.writeFileSync(artPath, JSON.stringify(merged, null, 2), 'utf8');
+
+    articles[index] = Object.assign({}, entry, update);
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+
+    logAction(req.adminUser.id, 'article.edit', 'article', entry.id, { fields: Object.keys(update) });
+    res.json({ ok: true, id: entry.id, slug: entry.slug });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
