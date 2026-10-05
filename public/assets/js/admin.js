@@ -253,11 +253,19 @@
       main.appendChild(h(
         '<div class="admin-panel"><h2>Coverage by channel</h2>' +
         '<div class="admin-stat-grid">' +
-          stat('accent', per.stem || 0, 'STEM') +
+          stat('accent', per.ai || 0, 'AI') +
+          stat('', per.space || 0, 'Space') +
           stat('purple', per.robotics || 0, 'Robotics') +
-          stat('green', per.play || 0, 'Play & Design') +
-          stat('pink', per.music || 0, 'Music') +
-          stat('', per.network || 0, 'Network') +
+          stat('', per.biotech || 0, 'Biotech') +
+          stat('', per.quantum || 0, 'Quantum') +
+          stat('green', per.climate || 0, 'Climate') +
+          stat('', per.engineering || 0, 'Engineering') +
+          stat('', per.math || 0, 'Math') +
+          stat('', per.cyber || 0, 'Cyber') +
+          stat('pink', per.gaming || 0, 'Gaming') +
+          stat('', per.music || 0, 'Music') +
+          stat('', per.stem || 0, 'STEM') +
+          stat('', per.play || 0, 'Play & Design') +
         '</div></div>'
       ));
       var quick = h(
