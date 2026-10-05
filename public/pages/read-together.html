@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Read Together — Skynet Nexus</title>
+<link rel="stylesheet" href="/assets/css/style.css"/>
+<style>
+  body { background: #0B1026; color: #e6ecf3; font-family: Inter, sans-serif; margin: 0; }
+  .rt-wrap { max-width: 860px; margin: 0 auto; padding: 24px 18px 80px; }
+  .rt-hero { text-align: center; padding: 30px 0; }
+  .rt-hero h1 { font-size: 2rem; margin: 0 0 8px; }
+  .rt-mode { display: flex; gap: 10px; justify-content: center; margin: 18px 0; }
+  .rt-mode button { padding: 12px 24px; border-radius: 12px; border: 2px solid rgba(0,229,255,.4); background: transparent; color: #e6ecf3; cursor: pointer; font-size: 15px; font-weight: 700; }
+  .rt-mode button.on { background: rgba(0,229,255,.15); border-color: #00e5ff; }
+  .rt-sec { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 22px; margin: 16px 0; }
+  .rt-sec h2 { margin: 0 0 12px; font-size: 1.2rem; }
+  .rt-sec.done { border-color: rgba(57,255,20,.5); }
+  .rt-sec.done h2::after { content: ' ✅'; }
+  .rt-body { line-height: 1.75; font-size: 16px; }
+  .rt-kidtake { background: rgba(168,85,247,.08); border-left: 4px solid #a855f7; padding: 16px; border-radius: 0 12px 12px 0; font-size: 17px; line-height: 1.7; }
+  .rt-q { background: rgba(255,209,102,.06); border: 1px solid rgba(255,209,102,.3); border-radius: 12px; padding: 14px 16px; margin: 10px 0; cursor: pointer; }
+  .rt-q.discussed { opacity: .55; text-decoration: line-through; }
+  .rt-gloss { display: grid; gap: 8px; }
+  .rt-gloss div { background: rgba(255,255,255,.03); padding: 10px 14px; border-radius: 8px; }
+  .rt-actions { text-align: center; margin-top: 24px; }
+  .btn { padding: 14px 32px; border-radius: 12px; border: none; background: linear-gradient(135deg,#00e5ff,#a855f7); color: #0B1026; font-weight: 800; font-size: 16px; cursor: pointer; }
+  .btn.ghost { background: transparent; border: 2px solid rgba(255,255,255,.25); color: #e6ecf3; }
+  .rt-progress { display: flex; gap: 8px; justify-content: center; margin: 16px 0; }
+  .rt-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.15); }
+  .rt-dot.on { background: #39ff14; }
+</style>
+</head>
+<body>
+<div class="rt-wrap">
+  <div class="rt-hero">
+    <div style="font-size:3rem">📖👨‍👧</div>
+    <h1>Read Together</h1>
+    <p style="color:#9fb0c3" id="rt-sub">Pick who you are, then read side by side.</p>
+    <div class="rt-mode" id="rt-mode">
+      <button data-role="parent" class="on">👩‍👧 I'm the parent</button>
+      <button data-role="kid">🧒 I'm the kid</button>
+    </div>
+    <div class="rt-progress" id="rt-progress"></div>
+  </div>
+  <div id="rt-content"><p style="text-align:center;color:#7c8898">Loading story…</p></div>
+  <div class="rt-actions">
+    <button class="btn ghost" onclick="history.back()">← Back</button>
+    <button class="btn" id="rt-finish" style="margin-left:12px">Finish reading 🎉</button>
+  </div>
+</div>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var slug = q.get('slug'), kidId = q.get('kid'), sessionId = q.get('session');
+  var role = 'parent', article = null, progress = {};
+  var SECTIONS = ['story', 'kidtake', 'discuss', 'gloss'];
+
+  function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  function api(p, o) { return fetch(p, Object.assign({ credentials: 'same-origin', headers: { 'Content-Type': 'application/json' } }, o || {})).then(function (r) { if (!r.ok) throw new Error('err'); return r.json(); }); }
+
+  document.querySelectorAll('#rt-mode button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('#rt-mode button').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on'); role = b.getAttribute('data-role'); render();
+    });
+  });
+
+  function markDone(sec) {
+    progress[sec] = true;
+    if (sessionId) api('/api/coread/' + sessionId + '/progress', { method: 'POST', body: JSON.stringify({ progress: progress }) }).catch(function () {});
+    render();
+  }
+
+  function render() {
+    if (!article) return;
+    var c = document.getElementById('rt-content');
+    var h = '';
+    // Story
+    h += '<div class="rt-sec' + (progress.story ? ' done' : '') + '" id="sec-story"><h2>📰 The story</h2>';
+    if (role === 'kid') h += '<p style="color:#9fb0c3">Read this part with your parent — they can help with tricky words!</p>';
+    h += '<div class="rt-body">' + (article.body || '') + '</div>';
+    if (!progress.story) h += '<p><button class="btn ghost" data-done="story">We read it ✓</button></p></div>'; else h += '</div>';
+    // Kid Take
+    h += '<div class="rt-sec' + (progress.kidtake ? ' done' : '') + '"><h2>🧒 Kid Take</h2><div class="rt-kidtake">' + esc(article.kidTake || article.kid_take || 'No summary.') + '</div>';
+    if (!progress.kidtake) h += '<p><button class="btn ghost" data-done="kidtake">Got it ✓</button></p></div>'; else h += '</div>';
+    // Discussion (parent-led)
+    var qs = article.familyDiscussion || article.family_discussion || [];
+    h += '<div class="rt-sec' + (progress.discuss ? ' done' : '') + '"><h2>💬 Talk about it</h2>';
+    if (role === 'kid') h += '<p style="color:#9fb0c3">Your parent will ask you these — there are no wrong answers!</p>';
+    else h += '<p style="color:#9fb0c3">Tap each question after you discuss it together.</p>';
+    h += qs.map(function (qq, i) {
+      var done = (progress['q' + i]);
+      return '<div class="rt-q' + (done ? ' discussed' : '') + '" data-q="' + i + '">' + esc(qq) + '</div>';
+    }).join('');
+    if (!progress.discuss && qs.length) h += '<p><button class="btn ghost" data-done="discuss">We talked ✓</button></p>';
+    h += '</div>';
+    // Glossary
+    var g = article.glossary || [];
+    if (g.length) {
+      h += '<div class="rt-sec' + (progress.gloss ? ' done' : '') + '"><h2>📚 Words to know</h2><div class="rt-gloss">' +
+        g.map(function (x) { return '<div><b>' + esc(x.term) + '</b> — ' + esc(x.meaning || x.definition) + '</div>'; }).join('') + '</div>';
+      if (!progress.gloss) h += '<p><button class="btn ghost" data-done="gloss">Learned ✓</button></p></div>'; else h += '</div>';
+    }
+    c.innerHTML = h;
+    c.querySelectorAll('[data-done]').forEach(function (b) { b.addEventListener('click', function () { markDone(b.getAttribute('data-done')); }); });
+    c.querySelectorAll('[data-q]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        var k = 'q' + el.getAttribute('data-q');
+        progress[k] = !progress[k];
+        if (sessionId) api('/api/coread/' + sessionId + '/progress', { method: 'POST', body: JSON.stringify({ progress: progress }) }).catch(function () {});
+        render();
+      });
+    });
+    document.getElementById('rt-progress').innerHTML = SECTIONS.map(function (s) {
+      return '<div class="rt-dot' + (progress[s] ? ' on' : '') + '"></div>';
+    }).join('');
+  }
+
+  document.getElementById('rt-finish').addEventListener('click', function () {
+    if (sessionId) api('/api/coread/' + sessionId + '/progress', { method: 'POST', body: JSON.stringify({ progress: progress, completed: true }) }).catch(function () {});
+    alert('🎉 Great reading together!'); history.back();
+  });
+
+  // Load article
+  fetch('/data/articles/' + slug + '.json').then(function (r) { return r.json(); }).then(function (a) {
+    article = a;
+    document.getElementById('rt-sub').textContent = a.title || '';
+    render();
+  }).catch(function () {
+    // Try manifest lookup
+    fetch('/api/manifest').then(function (r) { return r.json(); }).then(function (m) {
+      var found = null;
+      (m.articles || []).forEach(function (x) { if ((x.slug || x.path || '').indexOf(slug) !== -1) found = x; });
+      if (found) return fetch('/data/' + (found.path || '').replace(/^data\//, '')).then(function (r) { return r.json(); });
+      throw new Error('nf');
+    }).then(function (a) { article = a; document.getElementById('rt-sub').textContent = a.title || ''; render(); })
+    .catch(function () { document.getElementById('rt-content').innerHTML = '<p style="text-align:center;color:#ff2e63">Could not load this story.</p>'; });
+  });
+})();
+</script>
+</body>
+</html>
