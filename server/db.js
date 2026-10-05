@@ -79,6 +79,37 @@ db.exec(`
   );
 `);
 
+// Safety + engagement tables (added 2026-10-05).
+db.exec(`
+  CREATE TABLE IF NOT EXISTS parental_consents (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL,
+    method     TEXT NOT NULL DEFAULT 'email_verify',
+    verified   INTEGER NOT NULL DEFAULT 0,
+    verified_at TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+  CREATE TABLE IF NOT EXISTS reading_goals (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    kid_id         INTEGER NOT NULL,
+    stories_target INTEGER NOT NULL DEFAULT 3,
+    week_start     TEXT NOT NULL,
+    created_by     INTEGER NOT NULL,
+    created_at     TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (kid_id) REFERENCES kid_profiles(id) ON DELETE CASCADE
+  );
+`);
+// quiet_hours columns on kid_settings
+for (const [col, type] of [
+  ['quiet_enabled', 'INTEGER DEFAULT 0'],
+  ['quiet_start', 'TEXT DEFAULT \'20:00\''],
+  ['quiet_end', 'TEXT DEFAULT \'07:00\''],
+]) {
+  try { db.exec(`ALTER TABLE kid_settings ADD COLUMN ${col} ${type}`); }
+  catch (e) { /* already exists */ }
+}
+
 // Safe chat system (added 2026-10-05). Invite-only spaces, kid default-deny on public.
 db.exec(`
   CREATE TABLE IF NOT EXISTS chat_spaces (
