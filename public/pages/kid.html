@@ -137,6 +137,8 @@
     html += '<div class="xp-wrap"><div class="xp-top"><span>⚡ ' + d.xp + ' XP</span><span>🔥 ' + d.streak + ' day streak</span></div>' +
       '<div class="xp-bar"><div class="xp-fill" style="width:' + xpInLvl + '%"></div></div></div>';
 
+    // Reading goal ring
+    html += '<div class="sec"><h2>🎯 This week\'s goal</h2><div id="goal-ring" style="text-align:center;padding:10px"><p style="color:#7c8898">Loading…</p></div></div>';
     // Quick nav tiles
     html += '<div class="tiles">' +
       tile('📰', 'Read', d.storiesRead + ' stories', '/') +
@@ -162,6 +164,7 @@
     } else html += '<p style="color:#7c8898">Read stories and ace quizzes to earn badges!</p>';
     html += '</div>';
 
+    if (d.badges.length) html += '<div style="text-align:center;margin-top:12px"><button id="cert-btn" style="padding:12px 28px;border-radius:999px;background:linear-gradient(90deg,#ffd166,#ff9f1c);border:none;color:#060a18;font:800 14px/1 Inter;cursor:pointer">🖨️ Print my certificates</button></div>';
     // Quiz galaxy
     if (d.quizzes.length) {
       html += '<div class="sec"><h2>🧠 Quiz galaxy</h2>' + d.quizzes.slice(0, 6).map(function (q) {
@@ -199,6 +202,17 @@
   }
 
   function bindAll(k, allInts) {
+    fetch('/api/kids/' + k.id + '/goals', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (g) {
+      var pct = g.target ? Math.min(100, Math.round((g.read / g.target) * 100)) : 0;
+      var c = pct >= 100 ? '#39ff14' : pct >= 50 ? '#ffd166' : '#00e5ff';
+      var el = document.getElementById('goal-ring');
+      if (el) el.innerHTML =
+        '<div style="width:130px;height:130px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;font:900 24px/1 Inter;background:conic-gradient(' + c + ' ' + (pct * 3.6) + 'deg, rgba(255,255,255,.08) 0deg)">' +
+        '<div style="width:100px;height:100px;border-radius:50%;background:#060a18;display:flex;align-items:center;justify-content:center;flex-direction:column"><div>' + g.read + '/' + g.target + '</div><div style="font:600 10px/1 Inter;color:#7c8898;margin-top:4px">STORIES</div></div></div>' +
+        (pct >= 100 ? '<div style="color:#39ff14;font-weight:800;margin-top:8px">🎉 Goal smashed!</div>' : '');
+    }).catch(function () {});
+    var cb = document.getElementById('cert-btn');
+    if (cb) cb.addEventListener('click', function () { printCertificates(k); });
     root.querySelectorAll('.tile').forEach(function (t) {
       t.addEventListener('click', function () {
         var h = t.getAttribute('data-href');
@@ -258,6 +272,26 @@
   }
   function tile(ic, t, s, href, n) {
     return '<div class="tile" data-href="' + esc(href) + '"><div class="n">' + (n || '') + '</div><div class="ic">' + ic + '</div><div class="t">' + esc(t) + '</div><div class="s">' + esc(s) + '</div></div>';
+  }
+  function printCertificates(k) {
+    fetch('/api/kids/' + k.id + '/dashboard', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
+      var w = window.open('', '_blank');
+      var certs = d.badges.map(function (b) {
+        return '<div style="page-break-after:always;text-align:center;padding:60px 40px;border:12px solid #ffd166;margin:20px;font-family:Georgia,serif">' +
+          '<div style="font-size:16px;color:#666;letter-spacing:3px">SKYNET NEXUS</div>' +
+          '<div style="font-size:42px;margin:20px 0">🏆</div>' +
+          '<div style="font-size:28px;font-weight:bold">Certificate of Achievement</div>' +
+          '<div style="font-size:18px;margin:20px 0">This certifies that</div>' +
+          '<div style="font-size:36px;font-weight:bold">' + esc(k.name) + '</div>' +
+          '<div style="font-size:18px;margin:20px 0">has earned the badge</div>' +
+          '<div style="font-size:28px;font-weight:bold;color:#b8860b">' + esc(b.name) + '</div>' +
+          '<div style="font-size:48px;margin:20px 0">' + esc(b.icon || '🏅') + '</div>' +
+          '<div style="font-size:14px;color:#666;margin-top:30px">' + new Date().toLocaleDateString() + '</div></div>';
+      }).join('');
+      w.document.write('<html><head><title>Certificates</title></head><body>' + certs + '</body></html>');
+      w.document.close();
+      setTimeout(function () { w.print(); }, 500);
+    });
   }
 })();
 </script>
