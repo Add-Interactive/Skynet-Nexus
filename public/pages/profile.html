@@ -176,6 +176,81 @@
     return '<button class="tile ' + color + '"' + (panelId ? ' data-panel="p-' + panelId + '"' : '') + '>' + inner + '</button>';
   }
 
+  var KID_COLORS = ['#39ff14', '#00e5ff', '#ff2e63', '#ffd166', '#a855f7', '#ff9f1c', '#06d6a0', '#ef476f'];
+  var KID_EMOJIS = ['🚀', '🦄', '🐱', '🐶', '🦖', '🌟', '🎮', '🚗', '🦋', '🐙', '🤖', '🧙'];
+  var _kidsCache = [];
+  function kidModal(kid) {
+    var isEdit = !!kid;
+    kid = kid || {};
+    var yr = new Date().getFullYear();
+    var yearOpts = '';
+    for (var y = yr - 2; y >= yr - 18; y--) yearOpts += '<option value="' + y + '"' + (kid.birthYear == y ? ' selected' : '') + '>' + y + '</option>';
+    var m = document.createElement('div');
+    m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px';
+    m.innerHTML = '<div style="background:#0f1522;border:1px solid rgba(0,229,255,.3);border-radius:16px;padding:24px;max-width:400px;width:100%">' +
+      '<h3 style="margin:0 0 16px">' + (isEdit ? 'Edit kid' : 'Add a kid') + '</h3>' +
+      '<label style="display:block;font:700 12px/1 Inter,sans-serif;margin:12px 0 6px">Name</label>' +
+      '<input id="km-name" value="' + esc(kid.name || '') + '" maxlength="40" placeholder="First name" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit"/>' +
+      '<label style="display:block;font:700 12px/1 Inter,sans-serif;margin:12px 0 6px">Birth year</label>' +
+      '<select id="km-year" style="width:100%;padding:10px;border-radius:8px;background:#0b1026;color:inherit">' + yearOpts + '</select>' +
+      '<label style="display:block;font:700 12px/1 Inter,sans-serif;margin:12px 0 6px">Avatar color</label>' +
+      '<div id="km-colors" style="display:flex;gap:8px;flex-wrap:wrap">' +
+      KID_COLORS.map(function (c) { return '<div data-c="' + c + '" style="width:36px;height:36px;border-radius:50%;background:' + c + ';cursor:pointer;border:' + ((kid.avatarColor || KID_COLORS[0]) === c ? '3px solid #fff' : '3px solid transparent') + '"></div>'; }).join('') + '</div>' +
+      '<label style="display:block;font:700 12px/1 Inter,sans-serif;margin:12px 0 6px">Avatar emoji</label>' +
+      '<div id="km-emojis" style="display:flex;gap:6px;flex-wrap:wrap;font-size:24px">' +
+      KID_EMOJIS.map(function (e) { return '<div data-e="' + e + '" style="cursor:pointer;padding:4px;border-radius:8px;background:' + ((kid.avatarEmoji || KID_EMOJIS[0]) === e ? 'rgba(0,229,255,.25)' : 'transparent') + '">' + e + '</div>'; }).join('') + '</div>' +
+      '<div style="display:flex;gap:10px;margin-top:20px">' +
+      '<button class="btn" id="km-save" style="flex:1">' + (isEdit ? 'Save' : 'Add kid') + '</button>' +
+      (isEdit ? '<button class="btn ghost" id="km-del" style="color:#ff2e63">Remove</button>' : '') +
+      '<button class="btn ghost" id="km-cancel">Cancel</button></div></div>';
+    document.body.appendChild(m);
+    var selColor = kid.avatarColor || KID_COLORS[0], selEmoji = kid.avatarEmoji || KID_EMOJIS[0];
+    m.querySelectorAll('#km-colors [data-c]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        selColor = el.getAttribute('data-c');
+        m.querySelectorAll('#km-colors [data-c]').forEach(function (x) { x.style.border = x.getAttribute('data-c') === selColor ? '3px solid #fff' : '3px solid transparent'; });
+      });
+    });
+    m.querySelectorAll('#km-emojis [data-e]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        selEmoji = el.getAttribute('data-e');
+        m.querySelectorAll('#km-emojis [data-e]').forEach(function (x) { x.style.background = x.getAttribute('data-e') === selEmoji ? 'rgba(0,229,255,.25)' : 'transparent'; });
+      });
+    });
+    document.getElementById('km-cancel').addEventListener('click', function () { m.remove(); });
+    m.addEventListener('click', function (e) { if (e.target === m) m.remove(); });
+    document.getElementById('km-save').addEventListener('click', function () {
+      var payload = { name: document.getElementById('km-name').value.trim(), birthYear: Number(document.getElementById('km-year').value), avatarColor: selColor, avatarEmoji: selEmoji };
+      if (!payload.name) { alert('Enter a name.'); return; }
+      var p = isEdit ? api('/api/kids/' + kid.id, { method: 'PATCH', body: JSON.stringify(payload) })
+                     : api('/api/kids', { method: 'POST', body: JSON.stringify(payload) });
+      p.then(function () { m.remove(); location.reload(); }).catch(function () { alert('Could not save.'); });
+    });
+    if (isEdit) document.getElementById('km-del').addEventListener('click', function () {
+      if (!confirm('Remove ' + kid.name + '?')) return;
+      api('/api/kids/' + kid.id, { method: 'DELETE' }).then(function () { m.remove(); location.reload(); }).catch(function () { alert('Could not remove.'); });
+    });
+  }
+  function bindKidButtons() {
+    var add = document.getElementById('add-kid');
+    if (add) add.addEventListener('click', function () { kidModal(null); });
+    var q = root.querySelectorAll ? root.querySelectorAll('[data-edit-kid]') : [];
+    q.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-edit-kid');
+        var kid = _kidsCache.filter(function (k) { return String(k.id) === String(id); })[0];
+        kidModal(kid || { id: id });
+      });
+    });
+    var q2 = root.querySelectorAll ? root.querySelectorAll('[data-avatar-kid]') : [];
+    q2.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-avatar-kid');
+        var kid = _kidsCache.filter(function (k) { return String(k.id) === String(id); })[0];
+        kidModal(kid || { id: id });
+      });
+    });
+  }
   var REL_LABELS = { parent: 'Parent', spouse: 'Spouse', grandparent: 'Grandparent', sibling: 'Sibling', aunt_uncle: 'Aunt/Uncle', cousin: 'Cousin', guardian: 'Guardian' };
   function loadFamily() {
     var b = document.getElementById('fam-body');
@@ -228,6 +303,7 @@
         }
       });
     });
+    bindKidButtons();
     var nk = document.getElementById('btn-notif');
     if (nk) nk.addEventListener('click', function () {
       if (!('Notification' in window)) { alert('Notifications not supported in this browser.'); return; }
@@ -529,6 +605,7 @@
       api('/api/gamification/status').catch(function () { return { kids: [] }; }),
     ]).then(function (rs) {
       var kids = rs[0].kids || rs[0] || [];
+      _kidsCache = kids;
       var gam = {};
       (rs[1].kids || []).forEach(function (k) { gam[k.id] = k; });
       parentDash(user, kids, gam);
