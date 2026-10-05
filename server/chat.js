@@ -101,6 +101,13 @@ function registerChat(api, requireAuth, requireTeacher) {
       }
       const space = getSpace(db, req.params.id, req.user.id);
       if (!canAccessSpace(db, space, req.user.id, kidId)) return res.status(403).json({ error: 'no access' });
+      // Quiet hours: kids can't send during quiet time
+      if (kidId) {
+        try {
+          const { isQuietNow } = require('./plus');
+          if (isQuietNow(db, kidId)) return res.status(403).json({ error: 'Quiet hours — chat is paused until morning. 🌙' });
+        } catch (e) {}
+      }
       const body = cleanText((req.body.body || '').trim()).slice(0, 500);
       if (!body) return res.status(400).json({ error: 'empty message' });
       const r = db.prepare('INSERT INTO chat_messages (space_id, user_id, kid_id, body) VALUES (?,?,?,?)')
