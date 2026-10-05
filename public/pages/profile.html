@@ -135,6 +135,7 @@
       tile('cyan', '👨‍👩‍👧', 'Family', '<div class="t-big">' + kids.length + '</div>', kids.length + ' kid profiles · ' + totalXP.toLocaleString() + ' total XP', 'kids') +
       tile('gold', '🏆', 'Achievements', '<div class="t-big">' + totalBadges + '</div>', 'badges earned across the family', 'badges') +
       tile('pink', '🌳', 'Family tree', '', 'Link spouses, grandparents & relatives', 'family') +
+      '<a href="/pages/chat.html" style="text-decoration:none">' + tile('cyan', '💬', 'Chats', '', 'Family & class conversations', '') + '</a>' +
       tile('green', '🔥', 'Streaks', '<div class="t-big">' + bestStreak + '🔥</div>', 'best reading streak in the family', 'streaks') +
       tile('purple', '🧪', 'Weekend Lab', '', 'Vote Thursday · activities Saturday', null, '/pages/weekend-lab.html') +
       tile('orange', '🧠', 'Daily Quiz', '', 'Tonight\'s 5 questions · leaderboard', null, '/pages/quiz.html') +
@@ -275,6 +276,8 @@
       b.innerHTML =
         '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:10px 0"><input type="checkbox" id="cm-listen" ' + (s.listenEnabled ? 'checked' : '') + '/> 🔊 Listen (read stories aloud)</label>' +
         '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:10px 0"><input type="checkbox" id="cm-comments" ' + (s.commentsEnabled ? 'checked' : '') + '/> 💬 Allow discussions & questions</label>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:10px 0"><input type="checkbox" id="cm-public" ' + (s.publicChatAllowed ? 'checked' : '') + '/> 🌍 Allow public chat (outside family/class)</label>' +
+        '<div style="font-size:12px;color:#ff9f1c;margin:4px 0 8px">⚠️ Kids stay in family & classroom chats by default. Only enable if you trust public spaces.</div>' +
         '<div style="font:700 13px/1 Inter,sans-serif;margin:16px 0 8px">📰 Channels visible to ' + esc(kid.name) + '</div>' +
         '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
         CHANNELS.map(function (c) {
@@ -305,6 +308,7 @@
           listenEnabled: document.getElementById('cm-listen').checked,
           commentsEnabled: document.getElementById('cm-comments').checked,
           channels: selChannels,
+          publicChatAllowed: document.getElementById('cm-public').checked,
           isBlind: document.getElementById('cm-blind').checked,
           audioGuide: document.getElementById('cm-audio').checked,
           voiceCommands: document.getElementById('cm-voice').checked,
@@ -536,6 +540,7 @@
       tile('pink', '🌟', 'Public profile', '', 'Photo, bio, degrees, awards, quote', 'pubprofile') +
       tile('slate', '✉️', 'Invite parents', '', 'Email invites to link students', 'invites') +
       tile('gold', '⚙️', 'Class settings', '', 'Listen toggle, channel filters', 'csettings') +
+      '<a href="/pages/chat.html" style="text-decoration:none">' + tile('cyan', '💬', 'Class chats', '', 'Talk with families', '') + '</a>' +
       '</div>';
 
     // Students panel
