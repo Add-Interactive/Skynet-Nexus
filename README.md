@@ -1,215 +1,150 @@
-# Skynet Nexus News
+# Skynet Nexus
 
 ![Skynet Nexus Newsroom Banner](public/assets/img/skynet_newsroom_banner.jpg)
 
-A **family-first daily news network** for readers ages 5–50. Real youth achievement in STEM, robotics, play & design, and music — designed so parents and kids can read together at the kitchen table.
+**The Nexus of STEM for families** — daily news, hands-on activities, and safe community for readers ages 5–50. Three kid-safe editions every weekday, a Saturday STEM lab, parent-controlled kid dashboards, teacher classrooms, and Discord-style family chats. Free forever, no ads targeted at kids.
 
-Built as a **Node.js Express app** serving a static site + JSON API + SQLite-backed accounts. Runs on Railway (or any Node 22+ host).
+Built as a **Node.js Express app** (static site + JSON API + SQLite). Runs on Railway (or any Node 22+ host).
 
-## Quick start (local development)
+## What it does
 
-Requirements: **Node.js 22 or newer** (for built-in `node:sqlite`).
+### 📰 Read — Daily STEM news
+- **Three editions daily** (7:15 AM / 2:15 PM / 6:15 PM ET), 13 channels: AI, Space, Robotics, Biotech, Quantum, Climate, Engineering, Math, Cyber, Gaming, Music, STEM Signal, Play & Design
+- Every article: full story + **Kid Take** (age-8 reading level) + **Family Discussion** questions + glossary
+- **Listen** — studio-quality narration (Piper TTS, 4 voices) on every article
+- **Daily Quiz** — 5 questions from the day's stories, XP rewards
+- **Ask the Correspondent** — moderated kid Q&A
+- **Weekend Lab** — 5 hands-on STEM activities every Saturday, picked by Thursday family vote
+- Nexus Glow hero art (house style) + media galleries + trusted sources on every story
+
+### 🚀 Kids — Cinematic dashboards
+- Personal **My Space**: animated starfield, custom banner, editable quote, interest picker
+- **100 Nexus Glow avatars** to choose from
+- Achievement wall (20 badges), XP bar, reading streak, **quiz galaxy** with score history
+- Weekly **reading goals** with animated progress ring
+- **Printable achievement certificates**
+- Full **accessibility suite**: audio guide, voice commands ("read this", "next story"), gesture navigation, large text, high contrast — enabled when parents declare blindness/low vision
+
+### 👨‍👩‍👧 Parents — Control center
+- **Family tree**: invite codes link spouses, grandparents, aunts/uncles, cousins
+- **Per-kid controls**: Listen on/off, channel allowlist (13 channels), discussions on/off, public chat access (default OFF)
+- **Quiet hours**: pause kid chat on a schedule (server-enforced)
+- **Comment & question history** with links to join the thread
+- **Weekly digest**: XP, stories, quiz average, new badges per kid
+- **Family leaderboard**: sibling XP race with medals
+- **Child safety rules** posted on the dashboard (not buried in fine print)
+- **Parental consent** verification flow
+
+### 🏫 Teachers — Enterprise classrooms
+- **Public profiles**: photo, bio, teaching quote, degrees, awards, school/subjects
+- **Email invites** to parents (teachers can never add kids directly)
+- **Class settings**: Listen toggle, channel filters (parents can further restrict)
+- **At-risk list**: flags students idle 3+/7+ days with XP/streak context
+- **Assignment completion matrix**: students × assignments grid
+- Progress dashboard, discussions, assignments, drop alerts
+
+### 💬 Safe chat (Discord-style)
+- **Four space types**: Family (private), Classroom (teacher-admin, parent-moderator), Solo notes, Public Square
+- **Invite-gated**: family/classroom codes unlock social; solo signup = reading-only
+- **Kids default-deny** on public — parent must explicitly allow
+- Profanity filter, message delete (mods/own), 🚩 reporting
+- **Moderation queue** for admins/moderators with dismiss/delete actions
+- Familiar Discord UI: server rail, channel sidebar, member list, day separators
+
+### 🛡️ Safety architecture
+- Invite-only social features; no open-door signup
+- Parents own all kid data; teachers see classroom stats only
+- No kid-to-kid direct contact outside moderated spaces
+- COPPA-aligned: verifiable parental consent, no ads, no trackers
+
+## Quick start
+
+Requirements: **Node.js 22+** (for built-in `node:sqlite`).
 
 ```bash
-# 1. Clone / cd into the folder
-cd Skynet
-
-# 2. Install deps
+git clone https://github.com/Add-Interactive/Skynet-Nexus.git
+cd Skynet-Nexus
 npm install
-
-# 3. Copy env and generate a session secret
 cp .env.example .env
-node -e "console.log('SESSION_SECRET='+require('crypto').randomBytes(32).toString('hex'))" >> .env
-
-# 4. Start the server
+# set SESSION_SECRET in .env (64-char hex)
 npm start
-# → open http://localhost:4180
+# → http://localhost:4180
 ```
 
-That's it. The server serves everything: static site from `public/`, article JSON from `data/`, and the auth API from `/api/*`. SQLite database lives at `server/skynet.db` and is created on first run.
+SQLite DB auto-creates at `server/skynet.db` (or `$DB_PATH`).
 
 ## Deploy to Railway
 
-1. Push this repo to GitHub.
-2. In Railway: **New Project → Deploy from GitHub → pick this repo**.
-3. Railway auto-detects the `Dockerfile` and builds.
-4. Set environment variables in the Railway dashboard:
-   - `SESSION_SECRET` — 64-char hex string (`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
-   - `NODE_ENV=production`
-   - `BRAVE_API_KEY` — your Brave Search key (for the newsroom)
-   - `DB_PATH=/data/skynet.db` (if you attach a Volume — see below)
-5. **Attach a Volume** so the SQLite DB persists across deploys:
-   - Railway dashboard → your service → **Volumes** → **New Volume**
-   - Mount path: `/data`
-   - Then set `DB_PATH=/data/skynet.db` env var.
-6. Deploy. Railway assigns a URL like `skynet.up.railway.app`.
-7. Add your custom domain in Railway settings if you have one.
-
-**Healthcheck:** Railway will hit `/api/auth/me` every 30s to confirm the app is alive.
+1. Push to GitHub → Railway **New Project → Deploy from GitHub**
+2. Set env vars: `SESSION_SECRET`, `NODE_ENV=production`, `NEWSROOM_API_KEY`, `DB_PATH=/data/skynet.db`
+3. Attach a **Volume** at `/data` for SQLite persistence
+4. Optional: `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_CONTACT` for push alerts, `RESEND_API_KEY` for email
 
 ## Repo layout
 
 ```
-Skynet/
-├── package.json              ← Node deps (express, express-session, bcryptjs)
-├── Dockerfile                ← Railway build target
-├── railway.json              ← Railway config
-├── .env.example              ← Copy to .env for local dev
-├── .gitignore
-├── README.md                 ← This file
-│
-├── server/                   ← Backend
-│   ├── index.js              Express app: static + API
-│   ├── db.js                 SQLite (node:sqlite) schema + queries
-│   ├── auth.js               bcrypt + validators
-│   ├── session-store.js      Custom express-session store backed by SQLite
-│   └── skynet.db             ← runtime, gitignored
-│
-├── public/                   ← Static frontend (served at /)
-│   ├── index.html            Homepage feed
-│   ├── pages/                stem/robotics/play/music/article/archive/events/leaderboard/about/contact
-│   │                         + register.html, login.html, profile.html
+├── server/
+│   ├── index.js        Express app (~120KB — keep under ~125KB for push limits)
+│   ├── chat.js         Safe chat module (spaces, moderation, quiet hours)
+│   ├── plus.js         Engagement module (goals, digest, at-risk, matrix, leaderboard)
+│   ├── db.js           SQLite schema + queries (node:sqlite)
+│   ├── auth.js         bcrypt + validators
+│   └── ...
+├── public/
+│   ├── index.html      Homepage feed
+│   ├── pages/
+│   │   ├── profile.html    Parent/teacher dashboard (Win10 tiles)
+│   │   ├── kid.html        Cinematic kid dashboard
+│   │   ├── chat.html       Discord-style chat
+│   │   ├── teacher.html    Public teacher profile
+│   │   ├── guide.html      How to Use
+│   │   ├── register.html   Signup (invite-aware)
+│   │   └── ...
 │   └── assets/
-│       ├── css/style.css     Site styles (~35KB)
-│       ├── css/auth.css      Auth UI + splash video + kid profile styles
-│       ├── js/app.js         Site behavior (~38KB, vanilla JS)
-│       ├── js/auth.js        Client auth + kid switcher + splash video
-│       ├── img/logo.svg
-│       └── video/skynet-intro.mp4
-│
-├── data/                     ← Articles (served at /data/)
-│   ├── manifest.json         Master index + network config
-│   └── articles/YYYY-MM-DD/*.json
-│
-└── newsroom/                 ← Editorial automation (server-side only)
-    ├── director.md           Daily playbook
-    ├── prompts/{stem,robotics,play,music}.md
-    ├── publish.js            node newsroom/publish.js --file article.json
-    ├── brave.js              Brave Search helper (reads BRAVE_API_KEY)
-    └── log.md
+│       ├── js/a11y.js          Accessibility (audio guide, voice, gestures)
+│       ├── js/listen-kokoro.js Piper TTS playback + voice picker
+│       └── img/avatars/        100 kid avatars (SVG, Nexus Glow) + avatars.json
+├── data/articles/YYYY-MM-DD/   Published articles
+└── newsroom/           Editorial automation (prompts, publishing, director runbook)
 ```
 
-## Backend API
+> **Push note:** keep `server/index.js` under ~125KB raw — the GitHub push tool hits arg limits above that. Split new route groups into `server/<feature>.js` modules.
 
-All endpoints return JSON. Cookies use `HttpOnly; SameSite=Lax; Secure` in production.
+## Key API routes
 
-| Method | Path                        | Auth | Purpose |
-|--------|-----------------------------|------|---------|
-| GET    | `/api/auth/me`              |      | Current user + kids (null user if not signed in) |
-| POST   | `/api/auth/register`        |      | Create account: `{email, password, displayName, avatarColor}` |
-| POST   | `/api/auth/login`           |      | Login: `{email, password}` |
-| POST   | `/api/auth/logout`          |      | End session |
-| PATCH  | `/api/auth/profile`         | ✓    | Update `{displayName, avatarColor}` |
-| POST   | `/api/auth/change-password` | ✓    | `{currentPassword, newPassword}` |
-| GET    | `/api/kids`                 | ✓    | List kid profiles |
-| POST   | `/api/kids`                 | ✓    | Add kid: `{name, birthYear, avatarColor, avatarEmoji}` (max 6) |
-| PATCH  | `/api/kids/:id`             | ✓    | Update kid |
-| DELETE | `/api/kids/:id`             | ✓    | Remove kid |
-| GET    | `/api/manifest`             |      | Article manifest passthrough |
+| Area | Examples |
+|------|----------|
+| Auth | `POST /api/auth/register` (invite-aware), `/api/auth/login`, `/api/auth/me` |
+| Kids | `GET/POST /api/kids`, `PATCH/DELETE /api/kids/:id`, `GET /api/kids/:id/dashboard`, `PUT /api/kids/:id/profile` |
+| Kid settings | `GET/PUT /api/kids/:id/settings` (listen, channels, a11y, public chat), `PUT /api/kids/:id/quiet`, `GET/POST /api/kids/:id/goals` |
+| Families | `POST /api/families`, `POST /api/families/join`, `GET /api/families/mine`, `GET /api/families/leaderboard` |
+| Classrooms | `POST /api/classrooms/:id/invite`, `POST /api/classrooms/join`, `GET /api/classrooms/:id/settings`, `GET /api/classrooms/:id/at-risk`, `GET /api/classrooms/:id/matrix` |
+| Teachers | `GET /api/teachers/:id` (public), `PUT /api/users/profile` |
+| Chat | `GET /api/chat/spaces`, `GET/POST /api/chat/spaces/:id/messages`, `DELETE /api/chat/messages/:id`, `POST /api/chat/messages/:id/report` |
+| Moderation | `GET /api/moderation/queue`, `POST /api/moderation/reports/:id/resolve` |
+| Consent | `POST /api/consent/request`, `POST /api/consent/verify`, `GET /api/consent/status` |
+| Digest | `GET /api/digest/weekly` |
+| Gamification | `GET /api/gamification/status?kid_id=`, `POST /api/gamification/event` |
+| Newsroom | `POST /api/newsroom/drafts`, `POST /api/newsroom/images`, `PUT /api/newsroom/whats-new` (key: `NEWSROOM_API_KEY`) |
 
-Sessions are 30-day rolling. Password: bcryptjs with cost=12. No email verification yet (add later if opening to the public).
+## Newsroom pipeline
 
-## Publishing articles
+13 AI correspondent sub-agents (one per channel) file drafts 1 hour before each drop via `POST /api/newsroom/drafts`. The director reviews in the Review Console; **unreviewed drafts auto-publish at drop time** — review is a courtesy, never a blocker.
 
-Correspondents produce a JSON blob and run:
-
-```bash
-node newsroom/publish.js --file path/to/article.json
-```
-
-Required fields:
-- `title`, `cat` (stem/robotics/play/music/network), `body` (HTML string), `date` (YYYY-MM-DD), `excerpt`, `author`
-- `kidTake` (2-3 sentences, ~age-8 reading level)
-- `familyDiscussion` (array of 2+ question strings)
-
-Optional: `subtitle`, `glossary` (array of `{term, meaning}`), `ageBand` (5+, 8+, 12+), `tags`, `sources`.
-
-The publish script:
-1. Validates all required fields
-2. Runs a kid-safe guardrail (blocks flagged terms: violence, weapons, war, drugs, etc.)
-3. Writes `data/articles/YYYY-MM-DD/<slug>.json`
-4. Updates `data/manifest.json`
-
-To git-commit + deploy after publishing, `git add data/ && git commit -m "publish YYYY-MM-DD" && git push`. Railway auto-redeploys on push.
-
-## Editorial Mission
-
-- **Family-first, always.** Content is written for 5-year-olds reading with 50-year-old parents.
-- **Every article has three sections designed for co-reading:**
-  1. Full story for adults + older kids.
-  2. **Kid Take** — 2-3 sentences at ~age 8 reading level.
-  3. **Family Discussion** — 2-3 questions to talk about together.
-- **No mainstream news outlets, no politics, no violence.** Primary sources only (universities, competition organizers, NASA, NSF, artist pages).
-- **Free forever.** No paywall, no ads targeted at kids, no dark patterns.
-
----
-
-## Agentic Editorial Setup (Gizmo Newsroom)
-
-Skynet Nexus News operates as an **autonomous publisher pipeline** where the News Director (Jeff) is the **human editor-in-chief**, and all correspondents are sub-agents operated by Gizmo (Add Interactive Studio).
-
-### 1. The Newsroom Core
-* **Newsroom Pipeline (Gizmo):** Spawns the correspondents, structures the daily cron routines, validates schema guardrails, and deploys updates.
-* **13 Correspondent Sub-Agents** — one per channel, filing 1 hour before each drop:
-  * **AI & Machine Learning** (Dr. Adaeze Obi) — neural networks, LLM breakthroughs, computing.
-  * **Space & Aerospace** (Stella Reyes) — cubesat launches, NASA student challenges, astrophysics.
-  * **Robotics & Automation** (Dexter Cole) — student robotics leagues (FIRST, VEX, RoboCup Jr).
-  * **Biotech & Health** (Dr. Wren Hollis) — youth science fairs, molecular biology, high-school research.
-  * **Quantum & Computing** (Dr. Quinn Adler) — quantum breakthroughs, supercomputing.
-  * **Climate & Energy** (Rowan Field) — green technology, renewables, student ecology initiatives.
-  * **Engineering & Making** (Gus Delgado) — engineering design, maker projects, builder competitions.
-  * **Math & Data Science** (Dr. Mira Solano) — math competitions, data science.
-  * **Cybersecurity & Code** (Juno Park) — privacy, open-source code, cryptography.
-  * **Gaming Tournaments** (Kai Tanaka) — esports, competitive gaming culture.
-  * **Music Festivals** (Cadence Liu) — All-State orchestras, YoungArts, young songwriters.
-  * **STEM Signal** (Dr. Lena Osei) — cross-disciplinary science, student research.
-  * **Play & Design** (Hazel Quinn) — Minecraft Education, Roblox developers, scholastic chess, game design.
-
-### 2. How a drop gets made
-1. **T-60 min** — correspondents file drafts via `POST /api/newsroom/drafts` (key: `NEWSROOM_API_KEY` env).
-2. **Review window** — the director reviews in the Review Console (`newsroom/dashboard.html`): approve, spike, or leave notes.
-3. **Drop** — the scheduler releases scheduled stories, then **auto-publishes any unreviewed drafts** stamped for that drop. Review is a courtesy, never a blocker.
+- Hero art: Nexus Glow house style (1280×720, edition-qualified filenames — `POST /api/newsroom/images` overwrites by filename)
+- Filing guardrail: drafts without `/assets/img/...` heroImage are rejected (HTTP 422)
+- Audio: Piper TTS pre-generates narration per edition (weekday crons)
 
 Full runbook: `newsroom/director.md`.
 
----
+## Values
 
-## The 3-Daily Drops Cadence & Custom Drop Manager
-
-Instead of a single daily paper, Skynet Nexus News drops **three scheduled editions every day** at the following Eastern times:
-1. **Morning Drop** (10:15 AM ET / 14:15 UTC)
-2. **Midday Drop** (2:15 PM ET / 18:15 UTC)
-3. **Evening Drop** (6:15 PM ET / 22:15 UTC)
-
-### Drop Manager
-Under the admin pages (authenticated admins), the **Review Console** manages the drops. You can:
-* Review drafts per edition — **Morning**, **Midday**, or **Evening**.
-* **Approve**, **spike**, or leave **notes** on any draft; notes are applied on the final pre-drop pass.
-* Schedule any draft for a specific drop, or publish it immediately.
-* Anything still unreviewed at drop time **publishes automatically**.
+- **Family-first, always.** Designed for co-reading, ages 5–50.
+- **Kid-safe by design.** Content guardrails, invite-gated social, parent controls, transparent safety rules.
+- **Primary sources only.** Every source labeled.
+- **Built for every kid.** Accessibility isn't a feature — it's the foundation.
+- **Free forever.** No paywalls, no dark patterns, no ads tracking kids.
 
 ---
 
-## Assets, ComfyUI Image Generation & Sync Pipeline
-
-To maintain visual uniqueness, Skynet Nexus News uses an automated text-to-image pipeline for article illustrations:
-* **Krea2 Turbo ComfyUI Pipeline:** During local drop scheduling, the server issues sequential requests to a local ComfyUI instance (port `8188`). It queries the ComfyUI API to run a **Krea2 Turbo** workflow loaded from workspace history.
-* **Vision-Language Prompt Expansion:** The workflow utilizes the Qwen 3B Vision-Language model (`qwen3vl_4b_fp8_scaled.safetensors` CLIP loader) to expand article titles into descriptive image prompts, generating cartoon-style sci-fi illustrations using the `krea2_turbo_fp8_scaled.safetensors` diffusion UNet model.
-* **Dated Subfolder Organization:** Generated illustrations are automatically organized into subfolders based on target date and edition (e.g., `/public/assets/img/channels/[channelId]/[date]-[edition]/comfy_xxxx_.png`).
-* **Windows-Safe File Lock Protection:** Relocations utilize a robust retry mechanism (up to 5 attempts, waiting 1s between attempts) with a copy-and-unlink fallback to resolve transient `EBUSY`/`EACCES` file locks on Windows environments.
-* **Recursive Repository Sync:** The `npm run sync-images` command recursively copies generated assets from ComfyUI shared output directories into the local Git directory, ensuring images are tracked and pushed to GitHub for Railway cloud deployment.
-* **Admin Portal Cover Management:** The Story Queue details panel displays custom cover previews for scheduled drafts, allowing human editors to review and swap out covers from the recursive catalog using an interactive picker modal.
-* **Auto-Healing Database Sanitizer:** An automated sanitization script (`scratch/sanitize_images_db.js`) scans SQLite `queued_stories`, `data/manifest.json`, and individual article files, automatically repairing missing placeholders by matching them with valid, existing ComfyUI images.
-
----
-
-## AGI/ASI Countdown Widget
-
-An interactive sidebar widget that counts down to artificial intelligence milestones predicted by **21 leading AI scholars, founders, and industry leaders** (e.g. Sam Altman, Elon Musk, Jensen Huang).
-* **Dynamic Hover Bio-Tooltips:** Features a fully custom dropdown interface that maps the mouse position to float a detailed background bio-card. Hovering over any predictor's name displays their credentials, company connection, and model history on top of the map layer.
-
----
-
-## License
-
-All content and code © Skynet Nexus News. Free to read, free forever.
+Built by [Add Interactive Studio](https://addinteractive-production.up.railway.app/). NEXUS = Networked Edge Xperience Uplifting Students.
