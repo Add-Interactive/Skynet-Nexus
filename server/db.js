@@ -79,6 +79,24 @@ db.exec(`
   );
 `);
 
+// Kid settings + accessibility (added 2026-10-05).
+db.exec(`
+  CREATE TABLE IF NOT EXISTS kid_settings (
+    kid_id              INTEGER PRIMARY KEY,
+    listen_enabled      INTEGER NOT NULL DEFAULT 1,
+    channels            TEXT NOT NULL DEFAULT '[]',
+    comments_enabled    INTEGER NOT NULL DEFAULT 1,
+    -- Accessibility (parent-declared in kid profile)
+    is_blind            INTEGER NOT NULL DEFAULT 0,
+    low_vision          INTEGER NOT NULL DEFAULT 0,
+    audio_guide         INTEGER NOT NULL DEFAULT 0,
+    voice_commands      INTEGER NOT NULL DEFAULT 0,
+    large_text          INTEGER NOT NULL DEFAULT 0,
+    high_contrast       INTEGER NOT NULL DEFAULT 0,
+    FOREIGN KEY (kid_id) REFERENCES kid_profiles(id) ON DELETE CASCADE
+  );
+`);
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS kid_profiles (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
