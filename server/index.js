@@ -1346,6 +1346,29 @@ api.put('/newsroom/whats-new', (req, res) => {
   }
 });
 
+// -------------- CLASSROOM SETTINGS --------------
+// GET /api/classrooms/:id/settings
+api.get('/classrooms/:id/settings', requireAuth, requireTeacher, (req, res) => {
+  try {
+    const { db } = require('./db');
+    let s = db.prepare('SELECT * FROM classroom_settings WHERE classroom_id = ?').get(req.params.id);
+    if (!s) { db.prepare('INSERT INTO classroom_settings (classroom_id) VALUES (?)').run(req.params.id);
+      s = db.prepare('SELECT * FROM classroom_settings WHERE classroom_id = ?').get(req.params.id); }
+    res.json({ settings: { listenEnabled: s.listen_enabled == 1, channels: JSON.parse(s.channels || '[]') } });
+  } catch (e) { res.status(500).json({ error: 'failed' }); }
+});
+// PUT /api/classrooms/:id/settings
+api.put('/classrooms/:id/settings', requireAuth, requireTeacher, (req, res) => {
+  try {
+    const { db } = require('./db');
+    db.prepare('INSERT OR IGNORE INTO classroom_settings (classroom_id) VALUES (?)').run(req.params.id);
+    const b = req.body || {};
+    if (b.listenEnabled !== undefined) db.prepare('UPDATE classroom_settings SET listen_enabled = ? WHERE classroom_id = ?').run(b.listenEnabled ? 1 : 0, req.params.id);
+    if (b.channels !== undefined) db.prepare('UPDATE classroom_settings SET channels = ? WHERE classroom_id = ?').run(JSON.stringify(b.channels || []), req.params.id);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: 'failed' }); }
+});
+
 // -------------- KID DASHBOARD --------------
 // GET /api/kids/:id/dashboard — full kid dashboard data (parent must own kid)
 api.get('/kids/:id/dashboard', requireAuth, (req, res) => {
