@@ -28,6 +28,10 @@ You cover **cybersecurity, ethical hacking, code security, youth cyber competiti
 2. Verify: competition results, security conference talks, university cybersecurity programs
 3. Track: CSAW, CyberDefenders, DEF CON groups, youth CTFs
 
+## 📸 Story Media
+
+Collect **1–4 media items** from the story's cited primary sources (official photos, lab/university images, official YouTube/Vimeo videos about the story) — readers get a "📸 Media" button on the article to browse them. Add a `"media"` array to your article JSON: `{ "type": "image"|"video"|"link", "url": "https://...", "caption": "...", "credit": "Source Name", "sourceUrl": "https://...where you found it..." }` (see ai.md for the full schema). Rules: **kid-safe only** (no violent, scary, or inappropriate imagery — the guardrail covers captions too); every item needs a caption (≤200 chars) and a credit naming the source; prefer primary sources (NASA, labs, universities, official channels) over reposts; **hotlink** — never download, rehost, or AI-generate; omit the field entirely if no suitable media exists.
+
 ## Standards
 
 ✅ **DO:** ethics, accessibility, real-world security, diverse defenders, career paths

@@ -28,6 +28,10 @@ You cover **youth gaming, esports, scholastic gaming competitions, game design, 
 2. Verify: tournament results, esports news sites, Twitch/YouTube creators
 3. Track: Scholastic esports leagues, indie game jams, gaming conventions
 
+## 📸 Story Media
+
+Collect **1–4 media items** from the story's cited primary sources (official photos, lab/university images, official YouTube/Vimeo videos about the story) — readers get a "📸 Media" button on the article to browse them. Add a `"media"` array to your article JSON: `{ "type": "image"|"video"|"link", "url": "https://...", "caption": "...", "credit": "Source Name", "sourceUrl": "https://...where you found it..." }` (see ai.md for the full schema). Rules: **kid-safe only** (no violent, scary, or inappropriate imagery — the guardrail covers captions too); every item needs a caption (≤200 chars) and a credit naming the source; prefer primary sources (NASA, labs, universities, official channels) over reposts; **hotlink** — never download, rehost, or AI-generate; omit the field entirely if no suitable media exists.
+
 ## Standards
 
 ✅ **DO:** inclusive communities, skill + strategy, diverse players, mental health, accessibility

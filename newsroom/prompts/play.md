@@ -43,6 +43,24 @@ Fall back to `web_fetch` on:
 
 **Length:** 400-650 words. Clean HTML.
 
+## 📸 Story Media
+
+Alongside your article, collect **1–4 media items** from the story's cited primary sources — official photos, lab/university images, or official YouTube/Vimeo videos about the story. Readers get a "📸 Media" button on the article to browse them. Add a `"media"` array to your article JSON:
+
+```json
+"media": [
+  { "type": "image", "url": "https://...", "caption": "What the image shows (≤200 chars)", "credit": "Source Name", "sourceUrl": "https://...page where you found it..." },
+  { "type": "video", "url": "https://www.youtube.com/watch?v=...", "caption": "What the video covers", "credit": "Source Name", "sourceUrl": "https://..." }
+]
+```
+
+Rules:
+- `type` is `image`, `video`, or `link`. Aim for 1–4 items (hard max 6).
+- **Kid-safe only.** No violent, scary, or inappropriate imagery — the content guardrail covers captions too.
+- **Every item needs a caption (≤200 chars) and a credit naming the source.** `sourceUrl` is strongly preferred.
+- Prefer **primary sources** over random reposts. **Hotlink** — do NOT download, rehost, or AI-generate these.
+- If no suitable media exists, **omit the `"media"` field entirely** rather than forcing it.
+
 ## 🎨 Featured Image (NEW — OPTIONAL)
 
 After writing, if you want a generated featured image, include:
@@ -77,7 +95,8 @@ Director will generate and add. Format: `![Featured Image](data/articles/YYYY-MM
   "author": "Consistent byline — use 'Amara Okafor' unless you have reason to change",
   "date": "TODAY_ISO_DATE",
   "tags": ["scratch", "minecraft-education", "chess", "or-similar", "3-6"],
-  "sources": [{ "label": "...", "url": "https://..." }]
+  "sources": [{ "label": "...", "url": "https://..." }],
+  "media": [{ "type": "image", "url": "https://...", "caption": "...", "credit": "...", "sourceUrl": "..." }]
 }
 ```
 

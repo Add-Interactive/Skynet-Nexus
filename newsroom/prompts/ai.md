@@ -45,9 +45,28 @@ You cover **artificial intelligence, machine learning, neural networks, LLMs, ro
   "glossary": [{ "term": "neural network", "meaning": "..." }],
   "ageBand": "8+",
   "sources": [{ "label": "ICML Youth Awards", "url": "..." }],
-  "images": [{ "src": "...", "alt": "...", "credit": "..." }]
+  "media": [{ "type": "image", "url": "...", "caption": "...", "credit": "...", "sourceUrl": "..." }]
 }
 ```
+
+## 📸 Story Media
+
+Alongside your article, collect **1–4 media items** from the story's cited primary sources — official photos, lab/university images, or official YouTube/Vimeo videos about the story. Readers get a "📸 Media" button on the article to browse them. Add a `"media"` array to your article JSON:
+
+```json
+"media": [
+  { "type": "image", "url": "https://www.nasa.gov/.../photo.jpg", "caption": "The student team's rover crossing the test field", "credit": "NASA/JPL", "sourceUrl": "https://www.nasa.gov/.../article" },
+  { "type": "video", "url": "https://www.youtube.com/watch?v=...", "caption": "The team explains how their filter works (2 min)", "credit": "University X", "sourceUrl": "https://..." }
+]
+```
+
+Rules:
+- `type` is `image`, `video`, or `link`. Aim for 1–4 items (hard max 6).
+- **Kid-safe only.** No violent, scary, or inappropriate imagery — the content guardrail covers captions too.
+- **Every item needs a caption (≤200 chars) and a credit naming the source** (e.g. "NASA", "MIT News"). `sourceUrl` (the page where you found it) is strongly preferred.
+- Prefer **primary sources** — NASA, labs, universities, official channels — over random reposts.
+- **Hotlink the source URL.** Do NOT download, rehost, or AI-generate these.
+- If no suitable media exists, **omit the `"media"` field entirely** rather than forcing it.
 
 ## Standards
 

@@ -64,6 +64,18 @@
   .gloss b { color: var(--accent); }
   .sources { font-size: 12px; }
   .sources a { color: var(--accent); }
+  .media-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+  .media-item { position: relative; width: 150px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel2); }
+  .media-item .mi-thumb { width: 100%; height: 84px; object-fit: cover; display: block; background: var(--bg); }
+  .media-item .mi-icon { width: 100%; height: 84px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+  .media-item .mi-body { padding: 8px; font-size: 11px; }
+  .media-item .mi-type { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+    background: var(--line); border-radius: 6px; padding: 1px 7px; margin-bottom: 4px; }
+  .media-item .mi-cap { color: var(--ink); line-height: 1.35; margin-bottom: 3px; word-break: break-word; }
+  .media-item .mi-credit { color: var(--muted); }
+  .media-item .mi-remove { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%;
+    border: 1px solid var(--line); background: rgba(11,14,20,.85); color: var(--red); font-size: 13px; cursor: pointer; line-height: 1; }
+  .media-item .mi-remove:hover { background: var(--red); color: #fff; border-color: var(--red); }
 
   .actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
   .btn { border: 1px solid var(--line); background: var(--panel2); color: var(--ink); border-radius: 8px;
@@ -192,6 +204,16 @@ function storyCard(s) {
       <ul class="discuss">${(p.familyDiscussion || []).map(q => '<li>' + esc(q) + '</li>').join('')}</ul>
       ${(p.glossary && p.glossary.length) ? '<div class="sec-label">Glossary</div>' + p.glossary.map(g => '<div class="gloss"><b>' + esc(g.term) + '</b> — ' + esc(g.meaning) + '</div>').join('') : ''}
       ${(p.sources && p.sources.length) ? '<div class="sec-label">Sources</div><div class="sources">' + p.sources.map(x => '<div><a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.label || x.url) + '</a></div>').join('') + '</div>' : ''}
+      ${(p.media && p.media.length) ? '<div class="sec-label">📸 Story media (' + p.media.length + ')</div><div class="media-list">' + p.media.map((m, i) => {
+        const thumb = m.type === 'image'
+          ? '<img class="mi-thumb" src="' + esc(m.url) + '" alt="" loading="lazy" onerror="this.outerHTML=\'<div class=\\\'mi-icon\\\'>🖼️</div>\'"/>'
+          : '<div class="mi-icon">' + (m.type === 'video' ? '▶️' : '🔗') + '</div>';
+        return '<div class="media-item">' + thumb +
+          '<button class="mi-remove" title="Remove this media item" onclick="event.stopPropagation();removeMedia(' + s.id + ',' + i + ')">✕</button>' +
+          '<div class="mi-body"><span class="mi-type">' + esc(m.type || '?') + '</span>' +
+          '<div class="mi-cap">' + esc(m.caption || '') + '</div>' +
+          '<div class="mi-credit">Credit: ' + esc(m.credit || '?') + '</div></div></div>';
+      }).join('') + '</div>' : ''}
       <div class="sec-label">Director notes (seen by the newsroom on the final pass)</div>
       <div class="notes">
         <textarea id="notes-${s.id}" placeholder="Leave feedback for the correspondent…">${esc(s.editorNotes || '')}</textarea>
@@ -220,6 +242,18 @@ async function saveNote(id) {
   await api('/stories/queue/' + id, { method: 'PATCH', body: JSON.stringify({ editorNotes: v }) });
   toast('Note saved 💾');
   refresh(false);
+}
+
+async function removeMedia(storyId, mediaIdx) {
+  const story = [...drafts, ...scheduled, ...published].find(x => x.id === storyId);
+  if (!story || !story.payload || !Array.isArray(story.payload.media)) { toast('Media not found'); return; }
+  if (!confirm('Remove this media item from the draft?')) return;
+  const payload = JSON.parse(JSON.stringify(story.payload));
+  payload.media.splice(mediaIdx, 1);
+  await api('/stories/queue/' + storyId, { method: 'PATCH', body: JSON.stringify({ payload }) });
+  story.payload = payload;
+  toast('Media removed 🗑️');
+  render();
 }
 
 async function publishNow(id) {
