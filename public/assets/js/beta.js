@@ -26,7 +26,7 @@
           '<div style="font-weight:800;font-size:15px">Welcome, founding tester!</div>' +
           '<div style="font-size:13px;opacity:.85">You\'re one of the first people trying Skynet Nexus. ' +
           'Found a bug or have an idea? <a href="/pages/profile.html#beta-section" style="color:#00e5ff;font-weight:700">Tell us from your profile</a> ' +
-          '— and you\'ll earn the <strong>🏅 Founding Tester badge</strong> at launch.</div>' +
+          '— and you\'ll earn the <strong>🏅 Beta Tester badge</strong> at launch.</div>' +
           '</div>' +
           '<button type="button" id="beta-welcome-x" aria-label="Dismiss" ' +
           'style="background:none;border:1px solid rgba(255,255,255,.25);border-radius:8px;color:inherit;font-size:16px;padding:4px 10px;cursor:pointer">✕</button>' +
