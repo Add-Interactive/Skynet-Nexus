@@ -421,3 +421,4 @@
 .role-check { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid rgba(255,255,255,.15); border-radius: 20px; cursor: pointer; font-size: 13px; }
 .role-check input { accent-color: #00e5ff; }
 .role-check:has(input:checked) { border-color: #00e5ff; background: rgba(0,229,255,.08); }
+.user-roles { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 2px; }
