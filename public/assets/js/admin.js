@@ -1447,6 +1447,7 @@
         '<div class="user-detail">' +
         '<div class="user-detail-head"><span class="user-dot lg" style="background:' + esc(u.avatarColor || '#00e5ff') + '"></span>' +
         '<div><div class="user-detail-email">' + esc(u.email) + '</div>' +
+        '<div class="user-roles">' + userRoles(u).map(function (r) { return '<span class="pill ' + rolePill(r) + '">' + esc(r) + '</span>'; }).join(' ') + '</div>' +
         '<div class="user-detail-meta">Joined ' + fmtDate(u.createdAt) + ' · Last login ' + fmtDate(u.lastLoginAt) + '</div></div></div>' +
 
         '<label class="admin-label">Display name</label>' +
