@@ -5,90 +5,181 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Chats · Skynet Nexus</title>
 <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg"/>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"/>
-<link rel="stylesheet" href="/assets/css/style.css"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
 <style>
-  body { margin: 0; font-family: Inter, sans-serif; background: #060a18; color: #e6ecf3; }
-  .chat-wrap { display: flex; height: 100vh; max-width: 1100px; margin: 0 auto; }
-  .spaces { width: 300px; flex: none; border-right: 1px solid rgba(255,255,255,.08); overflow-y: auto; background: rgba(255,255,255,.02); }
-  .spaces h2 { padding: 16px; margin: 0; font-size: 18px; }
-  .space { padding: 14px 16px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,.05); }
-  .space:hover { background: rgba(0,229,255,.06); }
-  .space.active { background: rgba(0,229,255,.1); border-left: 3px solid #00e5ff; }
-  .space .sn { font: 700 14px/1.3 Inter; }
-  .space .sp { font: 500 12px/1.4 Inter; color: #7c8898; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .space .st { font: 700 10px/1 Inter; padding: 3px 8px; border-radius: 999px; background: rgba(57,255,20,.12); color: #39ff14; margin-left: 6px; }
-  .msgs { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-  .msgs-head { padding: 16px; border-bottom: 1px solid rgba(255,255,255,.08); font: 800 16px/1 Inter; }
-  .msgs-head .safe { font: 600 11px/1 Inter; color: #39ff14; margin-top: 4px; }
-  .msg-list { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
-  .msg { max-width: 75%; padding: 10px 14px; border-radius: 16px; background: rgba(255,255,255,.06); }
-  .msg.mine { align-self: flex-end; background: rgba(0,229,255,.15); }
-  .msg .ma { font: 700 11px/1 Inter; color: #00e5ff; margin-bottom: 4px; }
-  .msg .mb { font: 500 14px/1.5 Inter; word-wrap: break-word; }
-  .msg .mt { font: 500 10px/1 Inter; color: #7c8898; margin-top: 6px; }
-  .msg .acts { margin-top: 6px; display: flex; gap: 8px; }
-  .msg .acts button { background: none; border: none; color: #7c8898; font-size: 11px; cursor: pointer; padding: 2px 4px; }
-  .msg .acts button:hover { color: #ff2e63; }
-  .composer { padding: 14px 16px; border-top: 1px solid rgba(255,255,255,.08); display: flex; gap: 10px; }
-  .composer input { flex: 1; padding: 12px 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.05); color: inherit; font: 500 14px/1 Inter; }
-  .composer button { padding: 12px 24px; border-radius: 999px; border: none; background: #00e5ff; color: #060a18; font: 800 14px/1 Inter; cursor: pointer; }
-  .kid-pick { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.08); font-size: 13px; }
-  .kid-pick select { padding: 8px; border-radius: 8px; background: #0b1026; color: inherit; margin-left: 8px; }
-  .empty { text-align: center; padding: 60px 20px; color: #7c8898; }
-  @media (max-width: 700px) { .spaces { width: 110px; } .space .sp, .spaces h2 { display: none; } .space .sn { font-size: 12px; } }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #060a18; color: #e6ecf3; height: 100vh; overflow: hidden; }
+  .discord { display: flex; height: 100vh; }
+  /* Server rail (leftmost) */
+  .rail { width: 72px; flex: none; background: #04060f; display: flex; flex-direction: column; align-items: center; padding: 12px 0; gap: 8px; overflow-y: auto; }
+  .srv { width: 48px; height: 48px; border-radius: 50%; background: #1a2340; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: border-radius .15s, background .15s; position: relative; flex: none; }
+  .srv:hover { border-radius: 16px; background: #00e5ff; }
+  .srv.active { border-radius: 16px; background: #00e5ff; }
+  .srv.active::before { content: ''; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 4px; border-radius: 0 4px 4px 0; background: #fff; }
+  .srv .tip { position: absolute; left: 60px; background: #0f1522; padding: 8px 12px; border-radius: 8px; font: 600 13px/1 Inter; white-space: nowrap; display: none; z-index: 10; border: 1px solid rgba(255,255,255,.1); }
+  .srv:hover .tip { display: block; }
+  .rail-sep { width: 32px; height: 2px; background: rgba(255,255,255,.1); border-radius: 2px; flex: none; }
+  /* Channel sidebar */
+  .chan-side { width: 240px; flex: none; background: #0a0e1c; display: flex; flex-direction: column; }
+  .chan-head { padding: 16px; border-bottom: 1px solid rgba(255,255,255,.06); }
+  .chan-head .cn { font: 800 15px/1.3 Inter; }
+  .chan-head .ct { font: 600 11px/1 Inter; margin-top: 6px; }
+  .chan-head .safe { font: 600 11px/1.4 Inter; color: #39ff14; margin-top: 8px; }
+  .chan-list { flex: 1; overflow-y: auto; padding: 12px 8px; }
+  .chan-cat { font: 700 11px/1 Inter; color: #7c8898; text-transform: uppercase; letter-spacing: .5px; padding: 12px 8px 6px; }
+  .chan { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; cursor: pointer; font: 500 14px/1 Inter; color: #9aa7bd; }
+  .chan:hover { background: rgba(255,255,255,.04); color: #e6ecf3; }
+  .chan.active { background: rgba(0,229,255,.1); color: #fff; }
+  .chan .hash { color: #7c8898; font-weight: 700; }
+  .kid-switch { padding: 12px; border-top: 1px solid rgba(255,255,255,.06); }
+  .kid-switch select { width: 100%; padding: 8px; border-radius: 8px; background: #1a2340; color: inherit; border: 1px solid rgba(255,255,255,.1); font: 600 13px/1 Inter; }
+  /* Main chat */
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; background: #060a18; }
+  .main-head { padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; gap: 10px; }
+  .main-head .hash { font: 800 20px/1 Inter; color: #7c8898; }
+  .main-head .mn { font: 800 15px/1 Inter; }
+  .main-head .md { font: 500 12px/1 Inter; color: #7c8898; margin-left: 8px; }
+  .msg-area { flex: 1; overflow-y: auto; padding: 16px 20px; }
+  .msg { display: flex; gap: 14px; padding: 8px 0; border-radius: 8px; }
+  .msg:hover { background: rgba(255,255,255,.02); }
+  .msg .av { width: 40px; height: 40px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; font: 700 16px/1 Inter; color: #060a18; }
+  .msg .body { min-width: 0; flex: 1; }
+  .msg .meta { display: flex; align-items: baseline; gap: 8px; }
+  .msg .who { font: 700 14px/1 Inter; }
+  .msg .when { font: 500 11px/1 Inter; color: #7c8898; }
+  .msg .text { font: 400 14px/1.55 Inter; margin-top: 4px; word-wrap: break-word; color: #dbe4f0; }
+  .msg .ops { margin-top: 6px; display: flex; gap: 6px; opacity: 0; transition: opacity .15s; }
+  .msg:hover .ops { opacity: 1; }
+  .msg .ops button { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: #9aa7bd; border-radius: 6px; padding: 4px 10px; font: 600 11px/1 Inter; cursor: pointer; }
+  .msg .ops button:hover { color: #ff2e63; border-color: #ff2e63; }
+  .day-sep { text-align: center; margin: 16px 0; }
+  .day-sep span { font: 700 11px/1 Inter; color: #7c8898; background: rgba(255,255,255,.05); padding: 6px 16px; border-radius: 999px; }
+  /* Composer */
+  .composer-wrap { padding: 0 20px 20px; }
+  .composer { display: flex; gap: 10px; background: #1a2340; border-radius: 12px; padding: 6px 6px 6px 18px; align-items: center; }
+  .composer input { flex: 1; background: none; border: none; outline: none; color: inherit; font: 400 14px/1 Inter; padding: 12px 0; }
+  .composer input::placeholder { color: #7c8898; }
+  .composer button { background: #00e5ff; border: none; border-radius: 8px; padding: 10px 20px; font: 800 13px/1 Inter; color: #060a18; cursor: pointer; }
+  .composer button:hover { background: #4de8ff; }
+  .typing-hint { font: 500 11px/1 Inter; color: #7c8898; padding: 8px 20px 0; }
+  /* Members */
+  .members { width: 220px; flex: none; background: #0a0e1c; overflow-y: auto; padding: 16px 12px; }
+  .members h3 { font: 700 11px/1 Inter; color: #7c8898; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+  .mem { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 8px; }
+  .mem .mav { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font: 700 13px/1 Inter; color: #060a18; flex: none; }
+  .mem .mnm { font: 600 13px/1 Inter; }
+  .mem .mrl { font: 500 10px/1 Inter; color: #7c8898; margin-top: 2px; }
+  .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #7c8898; text-align: center; padding: 40px; }
+  .empty-state .big { font-size: 64px; margin-bottom: 16px; }
+  @media (max-width: 900px) { .members { display: none; } .chan-side { width: 200px; } }
+  @media (max-width: 640px) { .chan-side { display: none; } .rail { width: 60px; } }
 </style>
 </head>
 <body>
-<div class="chat-wrap">
-  <div class="spaces"><h2>💬 Chats</h2><div id="space-list"></div></div>
-  <div class="msgs">
-    <div class="kid-pick" id="kid-pick" style="display:none">Chatting as: <select id="kid-sel"></select></div>
-    <div class="msgs-head" id="msgs-head"><span style="color:#7c8898">Select a chat</span></div>
-    <div class="msg-list" id="msg-list"><div class="empty">👈 Pick a chat to start.<br><br><span style="font-size:13px">🛡️ Family & classroom chats are private.<br>Kids stay in their groups unless a parent allows public.</span></div></div>
-    <div class="composer" id="composer" style="display:none">
-      <input id="msg-in" placeholder="Type a message…" maxlength="500"/>
-      <button id="msg-send">Send</button>
+<div class="discord">
+  <div class="rail" id="rail"></div>
+  <div class="chan-side">
+    <div class="chan-head" id="chan-head"><div class="cn">💬 Chats</div></div>
+    <div class="chan-list" id="chan-list"></div>
+    <div class="kid-switch" id="kid-switch" style="display:none">
+      <select id="kid-sel"><option value="">Me (adult)</option></select>
+    </div>
+    <div style="padding:12px;border-top:1px solid rgba(255,255,255,.06)">
+      <button id="mod-btn" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,46,99,.12);border:1px solid rgba(255,46,99,.4);color:#ff2e63;font:700 13px/1 Inter;cursor:pointer;display:none">🛡️ Mod Queue <span id="mod-count"></span></button>
     </div>
   </div>
+  <div class="main">
+    <div class="main-head" id="main-head" style="display:none"></div>
+    <div class="msg-area" id="msg-area">
+      <div class="empty-state"><div class="big">💬</div><div style="font:700 18px/1.4 Inter">Pick a space to start chatting</div><div style="font:500 13px/1.6 Inter;margin-top:10px;max-width:340px">🛡️ Family & classroom chats are private.<br>Kids stay in their groups unless a parent allows public.<br>Be kind. Flag anything weird with 🚩.</div></div>
+    </div>
+    <div class="typing-hint" id="typing-hint"></div>
+    <div class="composer-wrap" id="composer-wrap" style="display:none">
+      <div class="composer"><input id="msg-in" placeholder="Message…" maxlength="500"/><button id="msg-send">Send</button></div>
+    </div>
+  </div>
+  <div class="members" id="members" style="display:none"><h3>Members</h3><div id="mem-list"></div></div>
 </div>
 <script>
 (function () {
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  var spaceList = document.getElementById('space-list');
-  var msgList = document.getElementById('msg-list');
-  var head = document.getElementById('msgs-head');
-  var composer = document.getElementById('composer');
-  var activeSpace = null, activeKid = null, myRole = 'member', pollTimer = null;
+  var rail = document.getElementById('rail');
+  var chanHead = document.getElementById('chan-head');
+  var chanList = document.getElementById('chan-list');
+  var mainHead = document.getElementById('main-head');
+  var msgArea = document.getElementById('msg-area');
+  var composerWrap = document.getElementById('composer-wrap');
+  var membersPanel = document.getElementById('members');
+  var memList = document.getElementById('mem-list');
 
-  // Kid picker (parent can chat as their kid's context)
+  var spaces = [], activeSpace = null, activeKid = null, myRole = 'member', pollTimer = null;
+  var SPACE_ICONS = { family: '🏠', classroom: '🏫', solo: '📝', public: '🌍' };
+  var SPACE_NAMES = { family: 'Family', classroom: 'Class', solo: 'Notes', public: 'Public' };
+
+  // Kid switcher
   fetch('/api/kids', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
     var kids = d.kids || d || [];
     if (kids.length) {
-      var kp = document.getElementById('kid-pick'); kp.style.display = 'block';
+      document.getElementById('kid-switch').style.display = 'block';
       var sel = document.getElementById('kid-sel');
-      sel.innerHTML = '<option value="">Me (adult)</option>' + kids.map(function (k) { return '<option value="' + k.id + '">' + esc(k.name) + '</option>'; }).join('');
-      sel.addEventListener('change', function () { activeKid = sel.value || null; loadSpaces(); });
+      kids.forEach(function (k) {
+        var o = document.createElement('option'); o.value = k.id; o.textContent = k.name; sel.appendChild(o);
+      });
+      sel.addEventListener('change', function () { activeKid = sel.value || null; activeSpace = null; loadSpaces(); });
     }
   }).catch(function () {});
 
   function loadSpaces() {
     var url = '/api/chat/spaces' + (activeKid ? '?kid_id=' + activeKid : '');
     fetch(url, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
-      var spaces = d.spaces || [];
-      spaceList.innerHTML = spaces.map(function (s) {
-        var tag = s.type === 'family' ? '<span class="st">FAMILY</span>' : s.type === 'classroom' ? '<span class="st" style="background:rgba(0,229,255,.12);color:#00e5ff">CLASS</span>' : s.type === 'public' ? '<span class="st" style="background:rgba(255,209,102,.12);color:#ffd166">PUBLIC</span>' : '';
-        return '<div class="space' + (activeSpace === s.id ? ' active' : '') + '" data-sp="' + s.id + '"><div class="sn">' + esc(s.name) + tag + '</div><div class="sp">' + esc(s.preview || 'No messages yet') + '</div></div>';
-      }).join('') || '<div class="empty" style="padding:20px">No chats yet.</div>';
-      spaceList.querySelectorAll('.space').forEach(function (el) {
+      spaces = d.spaces || [];
+      // Rail icons
+      rail.innerHTML = '<div class="srv" data-home="1" title="Home">🏠<span class="tip">Skynet Nexus</span></div><div class="rail-sep"></div>' +
+        spaces.map(function (s) {
+          return '<div class="srv' + (activeSpace === s.id ? ' active' : '') + '" data-sp="' + s.id + '">' + (SPACE_ICONS[s.type] || '💬') + '<span class="tip">' + esc(s.name) + '</span></div>';
+        }).join('');
+      rail.querySelectorAll('.srv[data-sp]').forEach(function (el) {
         el.addEventListener('click', function () { openSpace(Number(el.getAttribute('data-sp'))); });
       });
+      var home = rail.querySelector('[data-home]');
+      if (home) home.addEventListener('click', function () { location.href = '/'; });
+      // Channel list (show current space context or all)
+      renderChanList();
+    });
+  }
+
+  function renderChanList() {
+    var groups = {};
+    spaces.forEach(function (s) { (groups[s.type] = groups[s.type] || []).push(s); });
+    var order = ['family', 'classroom', 'solo', 'public'];
+    var html = '';
+    order.forEach(function (t) {
+      if (!groups[t]) return;
+      html += '<div class="chan-cat">' + SPACE_NAMES[t] + '</div>';
+      groups[t].forEach(function (s) {
+        html += '<div class="chan' + (activeSpace === s.id ? ' active' : '') + '" data-sp="' + s.id + '"><span class="hash">#</span> ' + esc(s.name.replace(/ [💬🏫🌍📝]/g, '')) + '</div>';
+      });
+    });
+    chanList.innerHTML = html || '<div style="padding:12px;color:#7c8898;font-size:13px">No chats yet.</div>';
+    chanList.querySelectorAll('.chan').forEach(function (el) {
+      el.addEventListener('click', function () { openSpace(Number(el.getAttribute('data-sp'))); });
     });
   }
 
   function openSpace(id) {
     activeSpace = id;
-    spaceList.querySelectorAll('.space').forEach(function (el) { el.classList.toggle('active', Number(el.getAttribute('data-sp')) === id); });
+    var sp = spaces.find(function (s) { return s.id === id; });
+    rail.querySelectorAll('.srv').forEach(function (el) { el.classList.toggle('active', Number(el.getAttribute('data-sp')) === id); });
+    renderChanList();
+    if (sp) {
+      var tag = sp.type === 'family' ? '<span style="color:#39ff14">FAMILY · private</span>' : sp.type === 'classroom' ? '<span style="color:#00e5ff">CLASS · moderated</span>' : sp.type === 'public' ? '<span style="color:#ffd166">PUBLIC</span>' : '<span style="color:#7c8898">PRIVATE NOTES</span>';
+      chanHead.innerHTML = '<div class="cn">' + esc(sp.name) + '</div><div class="ct">' + tag + '</div><div class="safe">🛡️ Be kind · 🚩 flags abuse</div>';
+      mainHead.style.display = 'flex';
+      mainHead.innerHTML = '<span class="hash">#</span><span class="mn">' + esc(sp.name.replace(/ [💬🏫🌍📝]/g, '')) + '</span><span class="md">' + esc(sp.preview || 'Say hi!') + '</span>';
+      document.getElementById('msg-in').placeholder = 'Message #' + sp.name.replace(/ [💬🏫🌍📝]/g, '') + '…';
+      composerWrap.style.display = 'block';
+      membersPanel.style.display = 'block';
+    }
     loadMessages();
     clearInterval(pollTimer);
     pollTimer = setInterval(loadMessages, 5000);
@@ -100,26 +191,42 @@
     fetch(url, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
       myRole = d.myRole || 'member';
       var msgs = d.messages || [];
-      // Find space name
-      var spEl = spaceList.querySelector('[data-sp="' + activeSpace + '"] .sn');
-      head.innerHTML = esc(spEl ? spEl.textContent : 'Chat') + '<div class="safe">🛡️ Private space · Be kind · <span style="color:#7c8898">Report abuse via 🚩 on any message</span></div>';
-      composer.style.display = 'flex';
-      msgList.innerHTML = msgs.map(function (m) {
-        var name = m.kid_name ? esc(m.kid_name) + ' 🧒' : esc(m.user_name || 'Unknown');
+      var lastDay = '';
+      var html = '';
+      msgs.forEach(function (m) {
+        var day = (m.created_at || '').slice(0, 10);
+        if (day && day !== lastDay) { html += '<div class="day-sep"><span>' + esc(day) + '</span></div>'; lastDay = day; }
+        var name = m.kid_name ? esc(m.kid_name) : esc(m.user_name || 'Unknown');
+        var isKid = !!m.kid_name;
+        var avColor = isKid ? '#39ff14' : '#00e5ff';
+        var initials = name.slice(0, 2).toUpperCase();
         var mine = (!activeKid && m.user_id) || (activeKid && String(m.kid_id) === String(activeKid));
         var canDel = myRole === 'admin' || myRole === 'moderator' || mine;
-        return '<div class="msg' + (mine ? ' mine' : '') + '"><div class="ma">' + name + '</div><div class="mb">' + esc(m.body) + '</div>' +
-          '<div class="mt">' + esc((m.created_at || '').slice(5, 16).replace('T', ' ')) + '</div>' +
-          '<div class="acts">' + (canDel ? '<button data-del="' + m.id + '">🗑️</button>' : '') + '<button data-rep="' + m.id + '">🚩</button></div></div>';
-      }).join('') || '<div class="empty">No messages yet. Say hi! 👋</div>';
-      msgList.scrollTop = msgList.scrollHeight;
-      msgList.querySelectorAll('[data-del]').forEach(function (b) {
+        var time = (m.created_at || '').slice(11, 16);
+        html += '<div class="msg"><div class="av" style="background:' + avColor + '">' + esc(initials) + '</div>' +
+          '<div class="body"><div class="meta"><span class="who" style="color:' + avColor + '">' + name + (isKid ? ' 🧒' : '') + '</span><span class="when">' + esc(time) + '</span></div>' +
+          '<div class="text">' + esc(m.body) + '</div>' +
+          '<div class="ops">' + (canDel ? '<button data-del="' + m.id + '">🗑️ Delete</button>' : '') + '<button data-rep="' + m.id + '">🚩 Report</button></div>' +
+          '</div></div>';
+      });
+      msgArea.innerHTML = html || '<div class="empty-state"><div class="big">👋</div><div>No messages yet. Say hi!</div></div>';
+      msgArea.scrollTop = msgArea.scrollHeight;
+      // Members (from messages + space info)
+      var seen = {};
+      msgs.forEach(function (m) {
+        var n = m.kid_name || m.user_name;
+        if (n && !seen[n]) seen[n] = { name: n, kid: !!m.kid_name };
+      });
+      memList.innerHTML = Object.values(seen).map(function (p) {
+        return '<div class="mem"><div class="mav" style="background:' + (p.kid ? '#39ff14' : '#00e5ff') + '">' + esc(p.name.slice(0, 2).toUpperCase()) + '</div><div><div class="mnm">' + esc(p.name) + '</div><div class="mrl">' + (p.kid ? 'kid' : 'adult') + '</div></div></div>';
+      }).join('') || '<div style="color:#7c8898;font-size:12px">No members yet</div>';
+      msgArea.querySelectorAll('[data-del]').forEach(function (b) {
         b.addEventListener('click', function () {
           if (!confirm('Delete this message?')) return;
           fetch('/api/chat/messages/' + b.getAttribute('data-del'), { method: 'DELETE', credentials: 'same-origin' }).then(loadMessages);
         });
       });
-      msgList.querySelectorAll('[data-rep]').forEach(function (b) {
+      msgArea.querySelectorAll('[data-rep]').forEach(function (b) {
         b.addEventListener('click', function () {
           var r = prompt('Why are you reporting this?', 'inappropriate');
           if (r === null) return;
@@ -137,12 +244,43 @@
     if (!body || !activeSpace) return;
     fetch('/api/chat/spaces/' + activeSpace + '/messages', { method: 'POST', credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ body: body, kid_id: activeKid }) })
-      .then(function () { inp.value = ''; loadMessages(); });
+      .then(function () { inp.value = ''; loadMessages(); loadSpaces(); });
   }
   document.getElementById('msg-send').addEventListener('click', send);
   document.getElementById('msg-in').addEventListener('keypress', function (e) { if (e.key === 'Enter') send(); });
 
+  // Moderation queue
+  function loadModQueue() {
+    fetch('/api/moderation/queue', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
+      var reports = d.reports || [];
+      var btn = document.getElementById('mod-btn');
+      if (reports.length) { btn.style.display = 'block'; document.getElementById('mod-count').textContent = '(' + reports.length + ')'; }
+      btn.addEventListener('click', function () {
+        mainHead.style.display = 'flex';
+        mainHead.innerHTML = '<span class="mn">🛡️ Moderation Queue</span><span class="md">' + reports.length + ' flagged</span>';
+        composerWrap.style.display = 'none';
+        membersPanel.style.display = 'none';
+        clearInterval(pollTimer);
+        msgArea.innerHTML = reports.map(function (r) {
+          return '<div class="msg"><div class="av" style="background:#ff2e63">🚩</div><div class="body">' +
+            '<div class="meta"><span class="who">Flagged in #' + esc(r.space_name || '') + '</span><span class="when">' + esc((r.created_at || '').slice(0, 16)) + '</span></div>' +
+            '<div class="text">"' + esc(r.body) + '"</div>' +
+            '<div class="text" style="color:#7c8898;font-size:12px;margin-top:4px">Reported by ' + esc(r.reporter || 'someone') + ': ' + esc(r.reason) + '</div>' +
+            '<div class="ops" style="opacity:1"><button data-res="' + r.id + '" data-act="dismiss">✅ Dismiss</button><button data-res="' + r.id + '" data-act="delete">🗑️ Delete message</button></div>' +
+            '</div></div>';
+        }).join('') || '<div class="empty-state"><div class="big">✅</div><div>All clear! No flagged messages.</div></div>';
+        msgArea.querySelectorAll('[data-res]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            fetch('/api/moderation/reports/' + b.getAttribute('data-res') + '/resolve', { method: 'POST', credentials: 'same-origin',
+              headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: b.getAttribute('data-act') }) })
+              .then(function () { loadModQueue(); });
+          });
+        });
+      });
+    }).catch(function () {});
+  }
   loadSpaces();
+  setTimeout(loadModQueue, 1500);
 })();
 </script>
 </body>
