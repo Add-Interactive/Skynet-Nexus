@@ -157,6 +157,13 @@ function validateDraft(article) {
   const hits = flagged.filter(w => haystack.includes(w));
   if (hits.length) errors.push('KID-SAFE VIOLATION: flagged terms: ' + hits.join(', '));
 
+  // Hero-image gate (2026-10-05): a draft without real artwork used to slip through
+  // and publish with an SVG placeholder. Reject it at filing time instead.
+  const hero = String(article.heroImage || '');
+  if (!hero.startsWith('/assets/img/')) {
+    errors.push('heroImage required: must be an uploaded /assets/img/... path (no missing or data: URIs)');
+  }
+
   errors.push(...validateMediaArray(article.media));
   errors.push(...validateSourcesArray(article.sources));
   errors.push(...validateTryIt(article.tryIt));
