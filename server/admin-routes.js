@@ -91,7 +91,7 @@ router.use(requireAdminRole);
 router.get('/overview', (req, res) => {
   const manifest = readManifest();
   const articles = manifest.articles || [];
-  const perChannel = { stem: 0, robotics: 0, play: 0, music: 0, network: 0 };
+  const perChannel = { ai: 0, space: 0, robotics: 0, biotech: 0, quantum: 0, climate: 0, engineering: 0, math: 0, cyber: 0, gaming: 0, music: 0, stem: 0, play: 0 };
   const today = new Date().toISOString().slice(0, 10);
   let todayCount = 0;
   for (const a of articles) {
