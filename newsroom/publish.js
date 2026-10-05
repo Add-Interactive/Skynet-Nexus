@@ -41,6 +41,35 @@ function readStdin() {
   });
 }
 
+
+// Validate the optional `media` array:
+// [{type:'image'|'video'|'link', url, caption, credit, sourceUrl?}]
+// (mirrors newsroom/agent-orchestrator.js validateMediaArray)
+function validateMediaArray(media) {
+  const errors = [];
+  if (media == null) return errors;
+  if (!Array.isArray(media)) return ['media must be an array'];
+  if (media.length > 6) errors.push('media: max 6 items (got ' + media.length + ')');
+  const okUrl = u => typeof u === 'string' && /^https?:\/\//i.test(u.trim());
+  const flagged = ['killed', 'murder', 'suicide', 'terrorist', 'assault', 'rape', 'overdose', 'nazi', 'slavery', 'gun ', 'shooting', 'weapon', 'combat'];
+  media.forEach((m, i) => {
+    const tag = 'media[' + i + ']';
+    if (!m || typeof m !== 'object') { errors.push(tag + ': must be an object'); return; }
+    if (!['image', 'video', 'link'].includes(m.type)) errors.push(tag + ': type must be image|video|link');
+    if (!okUrl(m.url)) errors.push(tag + ': url must be an http(s) URL');
+    if (m.sourceUrl && !okUrl(m.sourceUrl)) errors.push(tag + ': sourceUrl must be an http(s) URL');
+    const cap = String(m.caption || '').trim();
+    if (!cap) errors.push(tag + ': caption required');
+    else if (cap.length > 200) errors.push(tag + ': caption max 200 chars');
+    const cred = String(m.credit || '').trim();
+    if (!cred) errors.push(tag + ': credit required (name the source)');
+    else if (cred.length > 120) errors.push(tag + ': credit max 120 chars');
+    const hits = flagged.filter(w => cap.toLowerCase().includes(w));
+    if (hits.length) errors.push(tag + ': KID-SAFE VIOLATION in caption: ' + hits.join(', '));
+  });
+  return errors;
+}
+
 async function main() {
   const args = readArgs();
   let raw;
@@ -71,6 +100,7 @@ async function main() {
   const titleLower = String(article.title || '').toLowerCase();
   const hits = flagged.filter(w => titleLower.includes(w) || bodyLower.includes(w));
   if (hits.length) errors.push('KID-SAFE VIOLATION: flagged terms in title/body: ' + hits.join(', '));
+  errors.push(...validateMediaArray(article.media));
   if (errors.length) { console.error('Validation errors:\n  - ' + errors.join('\n  - ')); process.exit(3); }
 
   const slug = article.slug || slugify(article.title);
@@ -117,7 +147,8 @@ async function main() {
     featured: !!article.featured,
     pinned: !!article.pinned,
     live: !!article.live,
-    sources: article.sources || []
+    sources: article.sources || [],
+    media: Array.isArray(article.media) ? article.media : []
   };
 
   // Write article file
@@ -156,7 +187,8 @@ async function main() {
     emoji: full.emoji,
     featured: full.featured,
     pinned: full.pinned,
-    live: full.live
+    live: full.live,
+    media: full.media
   };
 
   // Replace existing entry or append

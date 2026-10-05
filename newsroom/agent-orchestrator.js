@@ -68,6 +68,36 @@ GUARDRAILS (stories violating these are rejected):
 Return ONLY the JSON objects, one per line (JSONL). No commentary, no markdown fences.`;
 }
 
+
+// Validate the optional `media` array on a draft:
+// [{type:'image'|'video'|'link', url, caption, credit, sourceUrl?}]
+// Caps: max 6 items, http(s) urls, caption <= 200 chars, credit <= 120 chars.
+// Kid-safe guardrail applies to captions too.
+function validateMediaArray(media) {
+  const errors = [];
+  if (media == null) return errors;
+  if (!Array.isArray(media)) return ['media must be an array'];
+  if (media.length > 6) errors.push('media: max 6 items (got ' + media.length + ')');
+  const okUrl = u => typeof u === 'string' && /^https?:\/\//i.test(u.trim());
+  const flagged = ['killed', 'murder', 'suicide', 'terrorist', 'assault', 'rape', 'overdose', 'nazi', 'slavery', 'gun ', 'shooting', 'weapon', 'combat'];
+  media.forEach((m, i) => {
+    const tag = 'media[' + i + ']';
+    if (!m || typeof m !== 'object') { errors.push(tag + ': must be an object'); return; }
+    if (!['image', 'video', 'link'].includes(m.type)) errors.push(tag + ': type must be image|video|link');
+    if (!okUrl(m.url)) errors.push(tag + ': url must be an http(s) URL');
+    if (m.sourceUrl && !okUrl(m.sourceUrl)) errors.push(tag + ': sourceUrl must be an http(s) URL');
+    const cap = String(m.caption || '').trim();
+    if (!cap) errors.push(tag + ': caption required');
+    else if (cap.length > 200) errors.push(tag + ': caption max 200 chars');
+    const cred = String(m.credit || '').trim();
+    if (!cred) errors.push(tag + ': credit required (name the source)');
+    else if (cred.length > 120) errors.push(tag + ': credit max 120 chars');
+    const hits = flagged.filter(w => cap.toLowerCase().includes(w));
+    if (hits.length) errors.push(tag + ': KID-SAFE VIOLATION in caption: ' + hits.join(', '));
+  });
+  return errors;
+}
+
 // Validate a filed draft against the house schema + kid-safe guardrails.
 // Mirrors the rules in newsroom/publish.js so bad drafts never reach the queue.
 function validateDraft(article) {
@@ -88,6 +118,8 @@ function validateDraft(article) {
   const haystack = (String(article.title || '') + ' ' + String(article.body || '')).toLowerCase();
   const hits = flagged.filter(w => haystack.includes(w));
   if (hits.length) errors.push('KID-SAFE VIOLATION: flagged terms: ' + hits.join(', '));
+
+  errors.push(...validateMediaArray(article.media));
 
   return errors;
 }
@@ -136,6 +168,7 @@ function agentSpawnTime(from = new Date()) {
 }
 
 module.exports = {
+  validateMediaArray,
   AGENTS,
   DROP_TIMES_ET,
   EDITIONS,
