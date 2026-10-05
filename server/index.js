@@ -1346,6 +1346,55 @@ api.put('/newsroom/whats-new', (req, res) => {
   }
 });
 
+// -------------- KID DASHBOARD --------------
+// GET /api/kids/:id/dashboard — full kid dashboard data (parent must own kid)
+api.get('/kids/:id/dashboard', requireAuth, (req, res) => {
+  try {
+    const { db, gamStatus } = require('./db');
+    const kid = db.prepare('SELECT * FROM kid_profiles WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
+    if (!kid) return res.status(404).json({ error: 'not found' });
+    const gs = gamStatus({ kidId: kid.id, userId: req.user.id });
+    const xp = db.prepare('SELECT COALESCE(SUM(xp),0) as total FROM kid_xp_events WHERE kid_id = ?').get(kid.id);
+    const stories = db.prepare("SELECT article_id, article_cat, created_at FROM kid_xp_events WHERE kid_id = ? AND event_type = 'story' ORDER BY created_at DESC LIMIT 20").all(kid.id);
+    const quizzes = db.prepare('SELECT * FROM quiz_attempts WHERE kid_id = ? ORDER BY created_at DESC LIMIT 10').all(kid.id);
+    const badges = (gs.status && gs.status.badges) || [];
+    // Family
+    const fam = db.prepare('SELECT f.name FROM family_members fm JOIN families f ON f.id = fm.family_id WHERE fm.user_id = ?').get(req.user.id);
+    const famMembers = fam ? db.prepare(`SELECT u.display_name, fm.relationship FROM family_members fm
+      JOIN users u ON u.id = fm.user_id JOIN families f ON f.id = fm.family_id WHERE f.name = ?`).all(fam.name) : [];
+    // Classrooms
+    const classes = db.prepare(`SELECT c.id, c.name, u.display_name as teacher FROM classroom_students cs
+      JOIN classrooms c ON c.id = cs.classroom_id JOIN users u ON u.id = c.teacher_id WHERE cs.kid_id = ?`).all(kid.id);
+    // Weekend Lab / STEM activities
+    let activities = [];
+    try { activities = db.prepare('SELECT * FROM lab_signups WHERE kid_id = ? ORDER BY created_at DESC LIMIT 10').all(kid.id); } catch (e) {}
+    res.json({
+      kid: { id: kid.id, name: kid.name, birthYear: kid.birth_year, avatarColor: kid.avatar_color,
+        avatarEmoji: kid.avatar_emoji, bannerImage: kid.banner_image || '', quote: kid.quote || '',
+        interests: JSON.parse(kid.interests || '[]') },
+      xp: xp.total, storiesRead: stories.length, stories, quizzes, badges,
+      streak: (gs.status && gs.status.streak) || 0,
+      family: fam ? { name: fam.name, members: famMembers } : null,
+      classrooms: classes, activities,
+      settings: getKidSettings(db, kid.id),
+    });
+  } catch (e) { res.status(500).json({ error: 'failed: ' + e.message }); }
+});
+// PUT /api/kids/:id/profile — kid customizes banner, quote, interests
+api.put('/kids/:id/profile', requireAuth, (req, res) => {
+  try {
+    const { db } = require('./db');
+    const kid = db.prepare('SELECT * FROM kid_profiles WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
+    if (!kid) return res.status(404).json({ error: 'not found' });
+    const b = req.body || {};
+    if (b.bannerImage !== undefined) db.prepare('UPDATE kid_profiles SET banner_image = ? WHERE id = ?').run(String(b.bannerImage || '').slice(0, 500), kid.id);
+    if (b.quote !== undefined) db.prepare('UPDATE kid_profiles SET quote = ? WHERE id = ?').run(String(b.quote || '').slice(0, 200), kid.id);
+    if (b.interests !== undefined) db.prepare('UPDATE kid_profiles SET interests = ? WHERE id = ?').run(JSON.stringify((b.interests || []).slice(0, 10)), kid.id);
+    if (b.avatarEmoji !== undefined) db.prepare('UPDATE kid_profiles SET avatar_emoji = ? WHERE id = ?').run(String(b.avatarEmoji || '').slice(0, 8), kid.id);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: 'failed' }); }
+});
+
 // -------------- KID SETTINGS + PARENT CONTROLS --------------
 function getKidSettings(db, kidId) {
   let s = db.prepare('SELECT * FROM kid_settings WHERE kid_id = ?').get(kidId);
