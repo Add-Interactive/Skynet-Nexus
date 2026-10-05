@@ -535,6 +535,7 @@
       tile('cyan', '⚡', 'Quick actions', '', 'New assignment · discussion · announcement', 'actions') +
       tile('pink', '🌟', 'Public profile', '', 'Photo, bio, degrees, awards, quote', 'pubprofile') +
       tile('slate', '✉️', 'Invite parents', '', 'Email invites to link students', 'invites') +
+      tile('gold', '⚙️', 'Class settings', '', 'Listen toggle, channel filters', 'csettings') +
       '</div>';
 
     // Students panel
@@ -573,6 +574,9 @@
       '<p><input id="inv-email" type="email" placeholder="parent@example.com" style="padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;width:260px"/> <button class="btn" id="inv-send">Send invite</button></p>' +
       '<div id="inv-result" style="margin-top:10px;font-size:14px"></div></div>';
 
+    // Class settings panel
+    html += '<div class="panel hidden" id="p-csettings"><h2>⚙️ Class settings</h2><div id="cs-body"><p style="color:#7c8898">Loading…</p></div></div>';
+
     // Safety panel (teacher)
     html += '<div class="panel" style="border-color:rgba(57,255,20,.35)"><h2>🛡️ Child safety rules</h2>' +
       '<div style="display:grid;gap:10px;font-size:14px;line-height:1.6;color:var(--muted,#9aa7bd)">' +
@@ -596,6 +600,7 @@
           el.classList.remove('hidden');
           el.scrollIntoView({ behavior: 'smooth', block: 'start' });
           if (id === 'p-pubprofile') loadProfileForm();
+          if (id === 'p-csettings') loadClassSettings(classId);
         }
       });
     });
@@ -647,6 +652,41 @@
     });
   }
 
+  var CLASS_CHANNELS = ['ai','space','robotics','biotech','quantum','climate','engineering','math','cyber','gaming','music','stem','play'];
+  function loadClassSettings(classId) {
+    var b = document.getElementById('cs-body');
+    api('/api/classrooms/' + classId + '/settings').then(function (d) {
+      var s = d.settings || {};
+      var allowed = s.channels && s.channels.length ? s.channels : CLASS_CHANNELS.slice();
+      b.innerHTML =
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:10px 0"><input type="checkbox" id="cs-listen" ' + (s.listenEnabled ? 'checked' : '') + '/> 🔊 Listen feature for this class</label>' +
+        '<div style="font:700 13px/1 Inter,sans-serif;margin:16px 0 8px">📰 Channels visible to students</div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap" id="cs-channels">' +
+        CLASS_CHANNELS.map(function (c) {
+          var on = allowed.indexOf(c) !== -1;
+          return '<button data-ch="' + c + '" style="padding:6px 12px;border-radius:999px;font:700 12px/1 Inter,sans-serif;cursor:pointer;border:1px solid ' + (on ? '#00e5ff' : 'rgba(255,255,255,.2)') + ';background:' + (on ? 'rgba(0,229,255,.15)' : 'transparent') + ';color:' + (on ? '#00e5ff' : '#7c8898') + '">' + c + '</button>';
+        }).join('') + '</div>' +
+        '<button class="btn" id="cs-save" style="margin-top:16px">Save class settings</button>' +
+        '<p style="font-size:12px;color:var(--muted,#7c8898);margin-top:10px">Note: parents can further restrict channels per kid — your settings are the classroom default.</p>';
+      var sel = allowed.slice();
+      b.querySelectorAll('[data-ch]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var c = btn.getAttribute('data-ch');
+          var i = sel.indexOf(c);
+          if (i === -1) sel.push(c); else sel.splice(i, 1);
+          var on = sel.indexOf(c) !== -1;
+          btn.style.border = on ? '1px solid #00e5ff' : '1px solid rgba(255,255,255,.2)';
+          btn.style.background = on ? 'rgba(0,229,255,.15)' : 'transparent';
+          btn.style.color = on ? '#00e5ff' : '#7c8898';
+        });
+      });
+      document.getElementById('cs-save').addEventListener('click', function () {
+        api('/api/classrooms/' + classId + '/settings', { method: 'PUT', body: JSON.stringify({
+          listenEnabled: document.getElementById('cs-listen').checked, channels: sel }) })
+          .then(function () { alert('Class settings saved!'); }).catch(function () { alert('Could not save.'); });
+      });
+    }).catch(function () { b.innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
   function bindInviteSender(classId) {
     var btn = document.getElementById('inv-send');
     if (!btn) return;
