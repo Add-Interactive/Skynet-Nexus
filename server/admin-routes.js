@@ -342,6 +342,38 @@ router.patch('/feedback/:id', (req, res) => {
   res.json(out);
 });
 
+// -------------------- Weekend Lab polls --------------------
+router.post('/polls', (req, res) => {
+  try {
+    const { title, opensAt, closesAt, options } = req.body || {};
+    if (!title || !String(title).trim()) return res.status(400).json({ error: 'Title is required.' });
+    if (!Array.isArray(options) || options.length < 2 || options.length > 8) {
+      return res.status(400).json({ error: 'Provide 2 to 8 options.' });
+    }
+    for (const o of options) {
+      if (!o.label || !String(o.label).trim()) return res.status(400).json({ error: 'Every option needs a label.' });
+      if (!o.description || !String(o.description).trim()) return res.status(400).json({ error: 'Every option needs a description.' });
+    }
+    const poll = db.createPollWithOptions({
+      title, opensAt: opensAt || new Date().toISOString(), closesAt: closesAt || null, options,
+    });
+    logAction(req.adminUser.id, 'poll.create', 'polls', poll.id, { title });
+    res.status(201).json(db.getPollWithOptions(poll.id));
+  } catch (err) {
+    console.error('[admin/polls] create failed:', err.message);
+    res.status(500).json({ error: 'Could not create poll.' });
+  }
+});
+router.patch('/polls/:id', (req, res) => {
+  const out = db.closePoll(Number(req.params.id));
+  if (!out) return res.status(404).json({ error: 'Poll not found.' });
+  logAction(req.adminUser.id, 'poll.close', 'polls', Number(req.params.id), {});
+  res.json(out);
+});
+router.get('/polls/latest-closed', (req, res) => {
+  res.json({ poll: db.getLatestClosedPoll() });
+});
+
 // -------------------- Ask the Correspondent: moderation --------------------
 router.get('/questions', (req, res) => {
   const out = db.listQuestions({ status: req.query.status, channel: req.query.channel });

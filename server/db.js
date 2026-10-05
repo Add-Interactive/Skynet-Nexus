@@ -352,6 +352,39 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_beta_feedback_user ON beta_feedback(user_id);
   CREATE INDEX IF NOT EXISTS idx_beta_feedback_status ON beta_feedback(status);
 `);
+// Weekend Lab polls: Thursday-night vote on weekend activities (votes are private).
+// Runs every boot; IF NOT EXISTS keeps it safe on the persistent Railway volume.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS polls (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    opens_at TEXT NOT NULL,
+    closes_at TEXT,
+    status TEXT NOT NULL DEFAULT 'open',
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  );
+  CREATE TABLE IF NOT EXISTS poll_options (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    poll_id INTEGER NOT NULL REFERENCES polls(id) ON DELETE CASCADE,
+    label TEXT NOT NULL,
+    description TEXT NOT NULL,
+    emoji TEXT NOT NULL DEFAULT '🧪',
+    article_id TEXT,
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  );
+  CREATE TABLE IF NOT EXISTS poll_votes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    poll_id INTEGER NOT NULL REFERENCES polls(id) ON DELETE CASCADE,
+    option_id INTEGER NOT NULL REFERENCES poll_options(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+    UNIQUE (user_id, poll_id, option_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_poll_options_poll ON poll_options(poll_id);
+  CREATE INDEX IF NOT EXISTS idx_poll_votes_poll ON poll_votes(poll_id);
+  CREATE INDEX IF NOT EXISTS idx_poll_votes_option ON poll_votes(option_id);
+  CREATE INDEX IF NOT EXISTS idx_poll_votes_user ON poll_votes(user_id);
+`);
 // Beta tester flag: everyone is a beta tester while the site is in beta.
 // DEFAULT 1 backfills existing rows on ALTER; new signups get it automatically.
 _addColumnIfMissing('users', 'is_beta_tester', "INTEGER NOT NULL DEFAULT 1");
@@ -579,6 +612,20 @@ const stmts = {
     WHERE (? IS NULL OR f.type = ?) AND (? IS NULL OR f.status = ?)`),
   countFeedbackNew: db.prepare(`SELECT COUNT(*) AS n FROM beta_feedback WHERE status = 'new'`),
   updateFeedbackStatus: db.prepare(`UPDATE beta_feedback SET status = ? WHERE id = ?`),
+  // Weekend Lab polls
+  createPoll: db.prepare(`INSERT INTO polls (title, opens_at, closes_at, status) VALUES (?, ?, ?, 'open')`),
+  addPollOption: db.prepare(`INSERT INTO poll_options (poll_id, label, description, emoji, article_id) VALUES (?, ?, ?, ?, ?)`),
+  findOpenPoll: db.prepare(`SELECT * FROM polls WHERE status = 'open' ORDER BY id DESC LIMIT 1`),
+  findLatestClosedPoll: db.prepare(`SELECT * FROM polls WHERE status = 'closed' ORDER BY id DESC LIMIT 1`),
+  findPollById: db.prepare(`SELECT * FROM polls WHERE id = ?`),
+  listPollOptions: db.prepare(`SELECT * FROM poll_options WHERE poll_id = ? ORDER BY id ASC`),
+  closePollStmt: db.prepare(`UPDATE polls SET status = 'closed' WHERE id = ?`),
+  countVotesByOption: db.prepare(`SELECT option_id, COUNT(*) AS n FROM poll_votes WHERE poll_id = ? GROUP BY option_id`),
+  countUserVotes: db.prepare(`SELECT COUNT(*) AS n FROM poll_votes WHERE poll_id = ? AND user_id = ?`),
+  listUserVotedOptions: db.prepare(`SELECT option_id FROM poll_votes WHERE poll_id = ? AND user_id = ?`),
+  deleteUserVotes: db.prepare(`DELETE FROM poll_votes WHERE poll_id = ? AND user_id = ?`),
+  insertVote: db.prepare(`INSERT OR IGNORE INTO poll_votes (poll_id, option_id, user_id) VALUES (?, ?, ?)`),
+  optionBelongsToPoll: db.prepare(`SELECT id FROM poll_options WHERE id = ? AND poll_id = ?`),
   updateKid: db.prepare(`
     UPDATE kid_profiles
        SET name               = COALESCE(?, name),
@@ -1252,6 +1299,63 @@ module.exports = {
     return { feedback: stmts.findFeedbackById.get(id), xpAward };
   },
   countNewFeedback() { return stmts.countFeedbackNew.get().n; },
+
+  // ---------- Weekend Lab polls ----------
+  createPollWithOptions({ title, opensAt, closesAt, options }) {
+    const info = stmts.createPoll.run(
+      String(title).trim().slice(0, 120),
+      opensAt, closesAt
+    );
+    const pollId = info.lastInsertRowid;
+    for (const o of options) {
+      stmts.addPollOption.run(
+        pollId,
+        String(o.label || '').trim().slice(0, 80),
+        String(o.description || '').trim().slice(0, 500),
+        String(o.emoji || '🧪').slice(0, 8),
+        o.articleId ? String(o.articleId).slice(0, 200) : null
+      );
+    }
+    return stmts.findPollById.get(pollId);
+  },
+  getPollWithOptions(pollId) {
+    const poll = stmts.findPollById.get(pollId);
+    if (!poll) return null;
+    const options = stmts.listPollOptions.all(pollId);
+    const counts = {};
+    for (const c of stmts.countVotesByOption.all(pollId)) counts[c.option_id] = c.n;
+    return { poll, options: options.map(o => ({ ...o, votes: counts[o.id] || 0 })) };
+  },
+  getCurrentPoll(userId) {
+    const poll = stmts.findOpenPoll.get();
+    if (!poll) return null;
+    const out = this.getPollWithOptions(poll.id);
+    out.votedOptionIds = userId ? stmts.listUserVotedOptions.all(poll.id, userId).map(r => r.option_id) : [];
+    return out;
+  },
+  getLatestClosedPoll() {
+    const poll = stmts.findLatestClosedPoll.get();
+    return poll ? this.getPollWithOptions(poll.id) : null;
+  },
+  votePoll({ pollId, userId, optionIds }) {
+    const poll = stmts.findPollById.get(pollId);
+    if (!poll || poll.status !== 'open') return { error: 'This poll is not open for voting.' };
+    const valid = [];
+    for (const oid of optionIds.slice(0, 3)) {
+      const id = Number(oid);
+      if (Number.isInteger(id) && stmts.optionBelongsToPoll.get(id, pollId)) valid.push(id);
+    }
+    if (!valid.length) return { error: 'Pick at least one option.' };
+    stmts.deleteUserVotes.run(pollId, userId);
+    for (const oid of valid) stmts.insertVote.run(pollId, oid, userId);
+    return this.getPollWithOptions(pollId);
+  },
+  closePoll(pollId) {
+    const poll = stmts.findPollById.get(pollId);
+    if (!poll) return null;
+    stmts.closePollStmt.run(pollId);
+    return this.getPollWithOptions(pollId);
+  },
 
   // ---------- Daily news quiz ----------
   saveQuiz(date, questions) {

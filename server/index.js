@@ -45,7 +45,9 @@ const {
   listQueuedStories, deleteQueuedStory,
   listSourcesByStaff, createSource, countSourcesByStaff,
   createSocialDraft,
-  submitFeedback, getMyFeedback
+  submitFeedback, getMyFeedback,
+  createPollWithOptions, getPollWithOptions, getCurrentPoll, getLatestClosedPoll,
+  votePoll, closePoll
 } = require('./db');
 const {
   hashPassword, verifyPassword,
@@ -464,6 +466,91 @@ api.post('/feedback', requireAuth, rateLimit({ windowMs: 15 * 60_000, max: 20, k
 });
 api.get('/feedback/mine', requireAuth, (req, res) => {
   res.json({ items: getMyFeedback(req.session.userId) });
+});
+
+// ---- Weekend Lab polls (votes are private: counts public, voter lists never) ----
+api.get('/polls/current', (req, res) => {
+  try {
+    const userId = req.session && req.session.userId ? req.session.userId : null;
+    const poll = getCurrentPoll(userId);
+    if (!poll) return res.json({ poll: null });
+    res.json(poll);
+  } catch (err) {
+    console.error('[polls] current failed:', err.message);
+    res.status(500).json({ error: 'Could not load the poll.' });
+  }
+});
+api.get('/polls/:id/results', (req, res) => {
+  try {
+    const out = getPollWithOptions(Number(req.params.id));
+    if (!out) return res.status(404).json({ error: 'Poll not found.' });
+    const sorted = [...out.options].sort((a, b) => b.votes - a.votes);
+    res.json({ poll: out.poll, options: sorted });
+  } catch (err) {
+    console.error('[polls] results failed:', err.message);
+    res.status(500).json({ error: 'Could not load results.' });
+  }
+});
+api.post('/polls/:id/vote', requireAuth, rateLimit({ windowMs: 15 * 60_000, max: 30, key: 'poll-vote' }), (req, res) => {
+  try {
+    const raw = req.body.optionIds;
+    const optionIds = Array.isArray(raw) ? raw : [];
+    if (!optionIds.length || optionIds.length > 3) {
+      return res.status(400).json({ error: 'Pick 1 to 3 options.' });
+    }
+    const out = votePoll({ pollId: Number(req.params.id), userId: req.session.userId, optionIds });
+    if (out.error) return res.status(400).json({ error: out.error });
+    res.json(out);
+  } catch (err) {
+    console.error('[polls] vote failed:', err.message);
+    res.status(500).json({ error: 'Could not save your vote. Try again in a bit.' });
+  }
+});
+api.get('/polls/latest-closed', (req, res) => {
+  try {
+    const out = getLatestClosedPoll();
+    if (!out) return res.json({ poll: null });
+    const sorted = [...out.options].sort((a, b) => b.votes - a.votes);
+    res.json({ poll: out.poll, options: sorted });
+  } catch (err) {
+    console.error('[polls] latest-closed failed:', err.message);
+    res.status(500).json({ error: 'Could not load results.' });
+  }
+});
+// Newsroom (key-guarded): Thursday poll creation by the poll-generation agent.
+api.post('/newsroom/polls', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  const got = String(req.headers['x-newsroom-key'] || '');
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+  try {
+    const { title, opensAt, closesAt, options } = req.body || {};
+    if (!title || !String(title).trim()) return res.status(400).json({ error: 'Title is required.' });
+    if (!Array.isArray(options) || options.length < 2 || options.length > 8) {
+      return res.status(400).json({ error: 'Provide 2 to 8 options.' });
+    }
+    for (const o of options) {
+      if (!o.label || !String(o.label).trim()) return res.status(400).json({ error: 'Every option needs a label.' });
+      if (!o.description || !String(o.description).trim()) return res.status(400).json({ error: 'Every option needs a description.' });
+    }
+    const poll = createPollWithOptions({
+      title, opensAt: opensAt || new Date().toISOString(), closesAt: closesAt || null, options,
+    });
+    res.status(201).json(getPollWithOptions(poll.id));
+  } catch (err) {
+    console.error('[newsroom/polls] create failed:', err.message);
+    res.status(500).json({ error: 'Could not create poll.' });
+  }
+});
+// Newsroom (key-guarded): close a poll (used by the Saturday Lab agent).
+api.post('/newsroom/polls/:id/close', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  const got = String(req.headers['x-newsroom-key'] || '');
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+  const out = closePoll(Number(req.params.id));
+  if (!out) return res.status(404).json({ error: 'Poll not found.' });
+  res.json(out);
 });
 
 // ---- Daily news quiz ----
