@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Chats · Skynet Nexus</title>
+<link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"/>
+<link rel="stylesheet" href="/assets/css/style.css"/>
+<style>
+  body { margin: 0; font-family: Inter, sans-serif; background: #060a18; color: #e6ecf3; }
+  .chat-wrap { display: flex; height: 100vh; max-width: 1100px; margin: 0 auto; }
+  .spaces { width: 300px; flex: none; border-right: 1px solid rgba(255,255,255,.08); overflow-y: auto; background: rgba(255,255,255,.02); }
+  .spaces h2 { padding: 16px; margin: 0; font-size: 18px; }
+  .space { padding: 14px 16px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,.05); }
+  .space:hover { background: rgba(0,229,255,.06); }
+  .space.active { background: rgba(0,229,255,.1); border-left: 3px solid #00e5ff; }
+  .space .sn { font: 700 14px/1.3 Inter; }
+  .space .sp { font: 500 12px/1.4 Inter; color: #7c8898; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .space .st { font: 700 10px/1 Inter; padding: 3px 8px; border-radius: 999px; background: rgba(57,255,20,.12); color: #39ff14; margin-left: 6px; }
+  .msgs { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .msgs-head { padding: 16px; border-bottom: 1px solid rgba(255,255,255,.08); font: 800 16px/1 Inter; }
+  .msgs-head .safe { font: 600 11px/1 Inter; color: #39ff14; margin-top: 4px; }
+  .msg-list { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .msg { max-width: 75%; padding: 10px 14px; border-radius: 16px; background: rgba(255,255,255,.06); }
+  .msg.mine { align-self: flex-end; background: rgba(0,229,255,.15); }
+  .msg .ma { font: 700 11px/1 Inter; color: #00e5ff; margin-bottom: 4px; }
+  .msg .mb { font: 500 14px/1.5 Inter; word-wrap: break-word; }
+  .msg .mt { font: 500 10px/1 Inter; color: #7c8898; margin-top: 6px; }
+  .msg .acts { margin-top: 6px; display: flex; gap: 8px; }
+  .msg .acts button { background: none; border: none; color: #7c8898; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .msg .acts button:hover { color: #ff2e63; }
+  .composer { padding: 14px 16px; border-top: 1px solid rgba(255,255,255,.08); display: flex; gap: 10px; }
+  .composer input { flex: 1; padding: 12px 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.05); color: inherit; font: 500 14px/1 Inter; }
+  .composer button { padding: 12px 24px; border-radius: 999px; border: none; background: #00e5ff; color: #060a18; font: 800 14px/1 Inter; cursor: pointer; }
+  .kid-pick { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.08); font-size: 13px; }
+  .kid-pick select { padding: 8px; border-radius: 8px; background: #0b1026; color: inherit; margin-left: 8px; }
+  .empty { text-align: center; padding: 60px 20px; color: #7c8898; }
+  @media (max-width: 700px) { .spaces { width: 110px; } .space .sp, .spaces h2 { display: none; } .space .sn { font-size: 12px; } }
+</style>
+</head>
+<body>
+<div class="chat-wrap">
+  <div class="spaces"><h2>💬 Chats</h2><div id="space-list"></div></div>
+  <div class="msgs">
+    <div class="kid-pick" id="kid-pick" style="display:none">Chatting as: <select id="kid-sel"></select></div>
+    <div class="msgs-head" id="msgs-head"><span style="color:#7c8898">Select a chat</span></div>
+    <div class="msg-list" id="msg-list"><div class="empty">👈 Pick a chat to start.<br><br><span style="font-size:13px">🛡️ Family & classroom chats are private.<br>Kids stay in their groups unless a parent allows public.</span></div></div>
+    <div class="composer" id="composer" style="display:none">
+      <input id="msg-in" placeholder="Type a message…" maxlength="500"/>
+      <button id="msg-send">Send</button>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  var spaceList = document.getElementById('space-list');
+  var msgList = document.getElementById('msg-list');
+  var head = document.getElementById('msgs-head');
+  var composer = document.getElementById('composer');
+  var activeSpace = null, activeKid = null, myRole = 'member', pollTimer = null;
+
+  // Kid picker (parent can chat as their kid's context)
+  fetch('/api/kids', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
+    var kids = d.kids || d || [];
+    if (kids.length) {
+      var kp = document.getElementById('kid-pick'); kp.style.display = 'block';
+      var sel = document.getElementById('kid-sel');
+      sel.innerHTML = '<option value="">Me (adult)</option>' + kids.map(function (k) { return '<option value="' + k.id + '">' + esc(k.name) + '</option>'; }).join('');
+      sel.addEventListener('change', function () { activeKid = sel.value || null; loadSpaces(); });
+    }
+  }).catch(function () {});
+
+  function loadSpaces() {
+    var url = '/api/chat/spaces' + (activeKid ? '?kid_id=' + activeKid : '');
+    fetch(url, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
+      var spaces = d.spaces || [];
+      spaceList.innerHTML = spaces.map(function (s) {
+        var tag = s.type === 'family' ? '<span class="st">FAMILY</span>' : s.type === 'classroom' ? '<span class="st" style="background:rgba(0,229,255,.12);color:#00e5ff">CLASS</span>' : s.type === 'public' ? '<span class="st" style="background:rgba(255,209,102,.12);color:#ffd166">PUBLIC</span>' : '';
+        return '<div class="space' + (activeSpace === s.id ? ' active' : '') + '" data-sp="' + s.id + '"><div class="sn">' + esc(s.name) + tag + '</div><div class="sp">' + esc(s.preview || 'No messages yet') + '</div></div>';
+      }).join('') || '<div class="empty" style="padding:20px">No chats yet.</div>';
+      spaceList.querySelectorAll('.space').forEach(function (el) {
+        el.addEventListener('click', function () { openSpace(Number(el.getAttribute('data-sp'))); });
+      });
+    });
+  }
+
+  function openSpace(id) {
+    activeSpace = id;
+    spaceList.querySelectorAll('.space').forEach(function (el) { el.classList.toggle('active', Number(el.getAttribute('data-sp')) === id); });
+    loadMessages();
+    clearInterval(pollTimer);
+    pollTimer = setInterval(loadMessages, 5000);
+  }
+
+  function loadMessages() {
+    if (!activeSpace) return;
+    var url = '/api/chat/spaces/' + activeSpace + '/messages' + (activeKid ? '?kid_id=' + activeKid : '');
+    fetch(url, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
+      myRole = d.myRole || 'member';
+      var msgs = d.messages || [];
+      // Find space name
+      var spEl = spaceList.querySelector('[data-sp="' + activeSpace + '"] .sn');
+      head.innerHTML = esc(spEl ? spEl.textContent : 'Chat') + '<div class="safe">🛡️ Private space · Be kind · <span style="color:#7c8898">Report abuse via 🚩 on any message</span></div>';
+      composer.style.display = 'flex';
+      msgList.innerHTML = msgs.map(function (m) {
+        var name = m.kid_name ? esc(m.kid_name) + ' 🧒' : esc(m.user_name || 'Unknown');
+        var mine = (!activeKid && m.user_id) || (activeKid && String(m.kid_id) === String(activeKid));
+        var canDel = myRole === 'admin' || myRole === 'moderator' || mine;
+        return '<div class="msg' + (mine ? ' mine' : '') + '"><div class="ma">' + name + '</div><div class="mb">' + esc(m.body) + '</div>' +
+          '<div class="mt">' + esc((m.created_at || '').slice(5, 16).replace('T', ' ')) + '</div>' +
+          '<div class="acts">' + (canDel ? '<button data-del="' + m.id + '">🗑️</button>' : '') + '<button data-rep="' + m.id + '">🚩</button></div></div>';
+      }).join('') || '<div class="empty">No messages yet. Say hi! 👋</div>';
+      msgList.scrollTop = msgList.scrollHeight;
+      msgList.querySelectorAll('[data-del]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          if (!confirm('Delete this message?')) return;
+          fetch('/api/chat/messages/' + b.getAttribute('data-del'), { method: 'DELETE', credentials: 'same-origin' }).then(loadMessages);
+        });
+      });
+      msgList.querySelectorAll('[data-rep]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var r = prompt('Why are you reporting this?', 'inappropriate');
+          if (r === null) return;
+          fetch('/api/chat/messages/' + b.getAttribute('data-rep') + '/report', { method: 'POST', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: r }) })
+            .then(function () { alert('Reported. A moderator will review.'); });
+        });
+      });
+    });
+  }
+
+  function send() {
+    var inp = document.getElementById('msg-in');
+    var body = inp.value.trim();
+    if (!body || !activeSpace) return;
+    fetch('/api/chat/spaces/' + activeSpace + '/messages', { method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ body: body, kid_id: activeKid }) })
+      .then(function () { inp.value = ''; loadMessages(); });
+  }
+  document.getElementById('msg-send').addEventListener('click', send);
+  document.getElementById('msg-in').addEventListener('keypress', function (e) { if (e.key === 'Enter') send(); });
+
+  loadSpaces();
+})();
+</script>
+</body>
+</html>
