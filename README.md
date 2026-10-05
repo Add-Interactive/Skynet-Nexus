@@ -43,6 +43,15 @@ Built as a **Node.js Express app** (static site + JSON API + SQLite). Runs on Ra
 - **Assignment completion matrix**: students × assignments grid
 - Progress dashboard, discussions, assignments, drop alerts
 
+### 🔗 Connect
+- **Parent-teacher messaging** — private 1:1 threads per kid with dedicated chat spaces
+- **Read Together mode** — guided co-reading: parent/kid role toggle, inline discussion prompts, tap-to-complete progress sync
+- **Kid creations gallery** — kid submits → parent approves → public gallery with likes
+- **Family feed & cheers** — achievements across the tree, one-tap encouragement templates
+- **Weekly parent email** — HTML digest composer (XP, streaks, conversation starter); needs `RESEND_API_KEY` to send
+- **Classroom announcements** — teacher broadcast with pin-to-top; parents see Class news tile
+- **Reading lists** — bookmarks API, per-kid shelves, floating 🔖 on articles
+
 ### 💬 Safe chat (Discord-style)
 - **Four space types**: Family (private), Classroom (teacher-admin, parent-moderator), Solo notes, Public Square
 - **Invite-gated**: family/classroom codes unlock social; solo signup = reading-only
@@ -87,6 +96,7 @@ SQLite DB auto-creates at `server/skynet.db` (or `$DB_PATH`).
 │   ├── index.js        Express app (~120KB — keep under ~125KB for push limits)
 │   ├── chat.js         Safe chat module (spaces, moderation, quiet hours)
 │   ├── plus.js         Engagement module (goals, digest, at-risk, matrix, leaderboard)
+│   ├── connect.js        Connect module (PT messaging, announcements, bookmarks, creations, cheers, coread, email)
 │   ├── db.js           SQLite schema + queries (node:sqlite)
 │   ├── auth.js         bcrypt + validators
 │   └── ...
@@ -98,6 +108,8 @@ SQLite DB auto-creates at `server/skynet.db` (or `$DB_PATH`).
 │   │   ├── chat.html       Discord-style chat
 │   │   ├── teacher.html    Public teacher profile
 │   │   ├── guide.html      How to Use
+│   │   ├── read-together.html  Co-reading mode
+│   │   ├── creations.html      Kid creations gallery
 │   │   ├── register.html   Signup (invite-aware)
 │   │   └── ...
 │   └── assets/
@@ -124,6 +136,13 @@ SQLite DB auto-creates at `server/skynet.db` (or `$DB_PATH`).
 | Moderation | `GET /api/moderation/queue`, `POST /api/moderation/reports/:id/resolve` |
 | Consent | `POST /api/consent/request`, `POST /api/consent/verify`, `GET /api/consent/status` |
 | Digest | `GET /api/digest/weekly` |
+| PT messaging | `GET/POST /api/pt/threads`, `GET /api/pt/teachers` |
+| Announcements | `GET/POST /api/classrooms/:id/announcements`, `DELETE /api/announcements/:id` |
+| Bookmarks | `GET/POST /api/bookmarks`, `DELETE /api/bookmarks/:slug` |
+| Creations | `POST /api/creations`, `GET /api/creations/gallery`, `POST /api/creations/:id/approve`, `POST /api/creations/:id/like` |
+| Cheers | `POST /api/cheers`, `GET /api/family/feed`, `GET /api/kids/:id/cheers` |
+| Co-reading | `POST /api/coread/start`, `POST /api/coread/:id/progress`, `GET /api/coread/history` |
+| Email | `GET /api/email/weekly-preview`, `POST /api/email/weekly-send`, `GET/PUT /api/email/prefs` |
 | Gamification | `GET /api/gamification/status?kid_id=`, `POST /api/gamification/event` |
 | Newsroom | `POST /api/newsroom/drafts`, `POST /api/newsroom/images`, `PUT /api/newsroom/whats-new` (key: `NEWSROOM_API_KEY`) |
 
