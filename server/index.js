@@ -1346,6 +1346,46 @@ api.put('/newsroom/whats-new', (req, res) => {
   }
 });
 
+// -------------- TEACHER PUBLIC PROFILES --------------
+// GET /api/teachers/:id — public profile (only if public_profile=1 and has teacher role)
+api.get('/teachers/:id', (req, res) => {
+  try {
+    const { db } = require('./db');
+    const row = db.prepare(`SELECT id, display_name, avatar_color, bio, degrees, awards, quote,
+      profile_image, school, subjects, roles, role FROM users WHERE id = ?`).get(req.params.id);
+    if (!row) return res.status(404).json({ error: 'not found' });
+    const roles = JSON.parse(row.roles || '[]');
+    if (!row.public_profile || (roles.indexOf('teacher') === -1 && row.role !== 'teacher')) {
+      return res.status(404).json({ error: 'not found' });
+    }
+    res.json({
+      id: row.id, name: row.display_name, avatarColor: row.avatar_color,
+      bio: row.bio, degrees: JSON.parse(row.degrees || '[]'), awards: JSON.parse(row.awards || '[]'),
+      quote: row.quote, profileImage: row.profile_image, school: row.school,
+      subjects: row.subjects ? row.subjects.split(',').map(function (s) { return s.trim(); }) : [],
+    });
+  } catch (e) { res.status(500).json({ error: 'failed' }); }
+});
+
+// PUT /api/users/profile — update own teacher profile fields
+api.put('/users/profile', requireAuth, (req, res) => {
+  try {
+    const { db } = require('./db');
+    const b = req.body || {};
+    const fields = ['bio', 'quote', 'school', 'subjects', 'profile_image', 'public_profile'];
+    const sets = [], vals = [];
+    for (const f of fields) {
+      if (b[f] !== undefined) { sets.push(f + ' = ?'); vals.push(f === 'public_profile' ? (b[f] ? 1 : 0) : String(b[f] || '')); }
+    }
+    if (b.degrees !== undefined) { sets.push('degrees = ?'); vals.push(JSON.stringify(b.degrees || [])); }
+    if (b.awards !== undefined) { sets.push('awards = ?'); vals.push(JSON.stringify(b.awards || [])); }
+    if (!sets.length) return res.status(400).json({ error: 'nothing to update' });
+    vals.push(req.user.id);
+    db.prepare('UPDATE users SET ' + sets.join(', ') + ' WHERE id = ?').run(...vals);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: 'failed: ' + e.message }); }
+});
+
 // -------------- NEWSROOM AUDIO UPLOAD --------------
 // Upload pre-generated narration MP3s (Piper TTS). Same X-Newsroom-Key guard.
 // Body: { articleId, voice, filename, base64 } (MP3, max 8MB).
