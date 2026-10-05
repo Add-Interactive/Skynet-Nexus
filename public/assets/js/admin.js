@@ -234,24 +234,47 @@
       State.overview = o;
       var a = o.articles || {}, q = o.queue || {}, s = o.submissions || {}, u = o.users || {};
       var per = a.perChannel || {};
+      var editions = o.editions || [];
       main.innerHTML = '';
-      main.appendChild(h(
-        '<div class="admin-view-head"><h1>Newsroom Dashboard</h1><p>Live snapshot · ' + fmtDate(o.now) + '</p></div>'
-      ));
-      main.appendChild(h(
-        '<div class="admin-stat-grid">' +
-          stat('accent', a.total || 0, 'Published articles') +
-          stat('green', a.today || 0, 'Published today') +
-          stat('pink', s.pending || 0, 'Tips awaiting review') +
-          stat('purple', q.draft || 0, 'Drafts in queue') +
-          stat('', q.approved || 0, 'Approved, ready') +
-          stat('', u.total || 0, 'Registered users') +
-          stat('', u.newsletter || 0, 'Newsletter subs') +
-          stat('', (o.staff && o.staff.total) || 0, 'Staff & agents') +
+
+      // Sticky quick-actions toolbar
+      var toolbar = h(
+        '<div class="dash-toolbar">' +
+          '<button class="admin-btn" data-nav="queue">Review queue</button>' +
+          '<button class="admin-btn" data-nav="compose">Write &amp; publish</button>' +
+          '<button class="admin-btn" data-nav="agents">Correspondents</button>' +
+          '<button class="admin-btn" data-nav="submissions">Reader tips</button>' +
         '</div>'
-      ));
-      main.appendChild(h(
-        '<div class="admin-panel"><h2>Coverage by channel</h2>' +
+      );
+      Array.prototype.forEach.call(toolbar.querySelectorAll('[data-nav]'), function (b) {
+        b.addEventListener('click', function () { navTo(b.getAttribute('data-nav')); });
+      });
+      main.appendChild(toolbar);
+
+      main.appendChild(h('<div class="admin-view-head"><h1>Newsroom Dashboard</h1><p>Live snapshot · ' + fmtDate(o.now) + '</p></div>'));
+
+      // ---- Today strip: 3 editions ----
+      var strip = h('<div class="edition-strip"></div>');
+      editions.forEach(function (ed) {
+        var pct = ed.expected ? Math.round((ed.filed / ed.expected) * 100) : 0;
+        var statusCls = ed.filed >= ed.expected ? 'done' : (ed.filed > 0 ? 'partial' : 'empty');
+        var statusTxt = ed.filed >= ed.expected ? 'Ready' : (ed.filed > 0 ? ed.filed + '/' + ed.expected + ' filed' : 'Awaiting drafts');
+        var card = h(
+          '<div class="edition-card ' + statusCls + '">' +
+            '<div class="ed-head"><strong>' + esc(ed.label) + '</strong><span class="ed-drop">' + esc(ed.drop) + ' ET</span></div>' +
+            '<div class="ed-bar"><div class="ed-fill" style="width:' + pct + '%"></div></div>' +
+            '<div class="ed-status">' + esc(statusTxt) + '</div>' +
+            (ed.missing && ed.missing.length ? '<div class="ed-missing">Missing: ' + ed.missing.map(esc).join(', ') + '</div>' : '') +
+          '</div>'
+        );
+        strip.appendChild(card);
+      });
+      var stripPanel = h('<div class="admin-panel"><h2>Today\u2019s editions</h2></div>');
+      stripPanel.appendChild(strip);
+      main.appendChild(stripPanel);
+
+      // ---- Collapsible: Coverage by channel ----
+      main.appendChild(collapsiblePanel('Coverage by channel',
         '<div class="admin-stat-grid">' +
           stat('accent', per.ai || 0, 'AI') +
           stat('', per.space || 0, 'Space') +
@@ -266,173 +289,32 @@
           stat('', per.music || 0, 'Music') +
           stat('', per.stem || 0, 'STEM') +
           stat('', per.play || 0, 'Play & Design') +
-        '</div></div>'
-      ));
-      var quick = h(
-        '<div class="admin-panel"><h2>Quick actions</h2><div class="row-actions"></div></div>'
-      );
-      var ra = quick.querySelector('.row-actions');
-      [['agents', 'Message an agent'], ['submissions', 'Review reader tips'], ['queue', 'Review story queue'], ['compose', 'Write & publish']]
-        .forEach(function (p) {
-          var b = h('<button class="admin-btn">' + p[1] + '</button>');
-          b.addEventListener('click', function () { navTo(p[0]); });
-          ra.appendChild(b);
-        });
-      main.appendChild(quick);
+        '</div>', true));
+
+      // ---- Collapsible: Pipeline & engagement ----
+      main.appendChild(collapsiblePanel('Pipeline & engagement',
+        '<div class="admin-stat-grid">' +
+          stat('accent', a.total || 0, 'Published articles') +
+          stat('green', a.today || 0, 'Published today') +
+          stat('pink', s.pending || 0, 'Tips awaiting review') +
+          stat('purple', q.draft || 0, 'Drafts in queue') +
+          stat('', q.approved || 0, 'Approved, ready') +
+          stat('', u.total || 0, 'Registered users') +
+          stat('', u.newsletter || 0, 'Newsletter subs') +
+          stat('', (o.questions && o.questions.pending) || 0, 'Questions pending') +
+        '</div>', false));
     }).catch(errView);
   };
-  function stat(cls, n, label) {
-    return '<div class="admin-stat ' + cls + '"><div class="n">' + esc(n) + '</div><div class="l">' + esc(label) + '</div></div>';
+  function collapsiblePanel(title, bodyHtml, open) {
+    var p = h(
+      '<div class="admin-panel collapsible' + (open ? ' open' : '') + '">' +
+        '<h2 class="coll-head">' + esc(title) + ' <span class="coll-arrow">\u25be</span></h2>' +
+        '<div class="coll-body">' + bodyHtml + '</div>' +
+      '</div>'
+    );
+    p.querySelector('.coll-head').addEventListener('click', function () { p.classList.toggle('open'); });
+    return p;
   }
-
-  function hexToRgba(hex, alpha) {
-    if (!hex) return 'transparent';
-    hex = hex.replace('#', '');
-    if (hex.length === 3) {
-      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-    }
-    var r = parseInt(hex.substring(0, 2), 16);
-    var g = parseInt(hex.substring(2, 4), 16);
-    var b = parseInt(hex.substring(4, 6), 16);
-    return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
-  }
-
-  // ===== Agents & Staff =====
-  Views.agents = function () {
-    api('/admin/staff').then(function (r) {
-      State.staff = r.staff || [];
-      main.innerHTML = '';
-      main.appendChild(h('<div class="admin-view-head"><h1>Agents &amp; Staff</h1><p>Message correspondents and assign them stories to write. Tasks & messages are picked up by each agent during its next newsroom run.</p></div>'));
-      
-      // Inject CSS styles for the collapsible accordion layout
-      var styles = h(
-        '<style>' +
-          '.agent-group { margin-bottom: 16px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }' +
-          '.group-header { width: 100%; padding: 12px 16px; background: rgba(30, 41, 59, 0.4); border: none; color: var(--text); font-family: inherit; font-size: 0.95rem; font-weight: 700; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; border-bottom: 1px solid transparent; }' +
-          '.group-header:hover { background: rgba(255,255,255,0.05); }' +
-          '.group-content { padding: 12px; display: none; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; transition: all 0.3s ease; }' +
-          '.group-content.open { display: grid; }' +
-          '.group-header .arrow { transition: transform 0.2s; font-size: 0.8rem; opacity: 0.7; }' +
-          '.group-header.open .arrow { transform: rotate(180deg); }' +
-          '.humans-hdr.open { background: rgba(239, 68, 68, 0.15) !important; border-bottom: 1px solid rgba(239, 68, 68, 0.3); }' +
-          '.humans-content.open { background: rgba(239, 68, 68, 0.04); }' +
-          '.subs-hdr.open { background: rgba(168, 85, 247, 0.15) !important; border-bottom: 1px solid rgba(168, 85, 247, 0.3); }' +
-          '.subs-content.open { background: rgba(168, 85, 247, 0.04); }' +
-        '</style>'
-      );
-      main.appendChild(styles);
-
-      var layout = h('<div class="agents-layout"><div class="agent-list" id="agent-list"></div><div id="agent-detail"></div></div>');
-      main.appendChild(layout);
-      var list = layout.querySelector('#agent-list');
-
-      // Separate staff list into humans and correspondents
-      var humans = [];
-      var subs = [];
-      
-      State.staff.forEach(function (st) {
-        if (st.slug === 'jeffrey-hunt') {
-          humans.push(st);
-        } else {
-          subs.push(st);
-        }
-      });
-
-      // Create Group Containers
-      var humansGroup = h(
-        '<div class="agent-group" id="g-humans">' +
-          '<button class="group-header humans-hdr">👤 Humans (' + humans.length + ') <span class="arrow">▼</span></button>' +
-          '<div class="group-content humans-content" id="list-humans"></div>' +
-        '</div>'
-      );
-      var subsGroup = h(
-        '<div class="agent-group" id="g-subs">' +
-          '<button class="group-header subs-hdr">🛰️ Correspondents (' + subs.length + ') <span class="arrow">▼</span></button>' +
-          '<div class="group-content subs-content" id="list-subs"></div>' +
-        '</div>'
-      );
-      
-      list.appendChild(humansGroup);
-      list.appendChild(subsGroup);
-      
-      var listHumans = humansGroup.querySelector('#list-humans');
-      var listSubs = subsGroup.querySelector('#list-subs');
-
-      // Render all cards
-      State.staff.forEach(function (st) {
-        var col = st.accentColor || '#00e5ff';
-        var bg = hexToRgba(col, 0.08);
-        var border = hexToRgba(col, 0.25);
-        var style = 'background:' + bg + '; border:1px solid ' + border + '; border-left:5px solid ' + col + ';';
-        var card = h(
-          '<button class="agent-card" data-id="' + st.id + '" data-color="' + col + '" style="' + style + '">' +
-            '<span class="agent-av" style="background:' + col + '22">' + esc(st.avatarEmoji || '🛰️') + '</span>' +
-            '<span><span class="an">' + esc(st.displayName) + '</span><br><span class="ar">' + esc(st.role) + '</span></span>' +
-          '</button>'
-        );
-        card.addEventListener('click', function () { selectAgent(st.id); });
-        card.addEventListener('mouseenter', function () {
-          if (!card.classList.contains('active')) {
-            card.style.background = hexToRgba(col, 0.15);
-            card.style.borderColor = hexToRgba(col, 0.5);
-          }
-        });
-        card.addEventListener('mouseleave', function () {
-          if (!card.classList.contains('active')) {
-            card.style.background = hexToRgba(col, 0.08);
-            card.style.borderColor = hexToRgba(col, 0.25);
-          }
-        });
-
-        // Distribute to correct group container
-        if (st.slug === 'jeffrey-hunt') {
-          listHumans.appendChild(card);
-        } else {
-          listSubs.appendChild(card);
-        }
-      });
-
-      // Add collapsible trigger listeners
-      [humansGroup, subsGroup].forEach(function (g) {
-        var hdr = g.querySelector('.group-header');
-        var content = g.querySelector('.group-content');
-        
-        // Default to active open
-        hdr.classList.add('open');
-        content.classList.add('open');
-        
-        hdr.addEventListener('click', function () {
-          hdr.classList.toggle('open');
-          content.classList.toggle('open');
-        });
-      });
-
-      if (State.staff.length) selectAgent(State.agentId || State.staff[0].id);
-      else layout.querySelector('#agent-detail').innerHTML = '<div class="admin-empty">No staff configured.</div>';
-    }).catch(errView);
-  };
-
-  function selectAgent(id) {
-    State.agentId = id;
-    Array.prototype.forEach.call(document.querySelectorAll('.agent-card'), function (c) {
-      var isActive = Number(c.getAttribute('data-id')) === Number(id);
-      c.classList.toggle('active', isActive);
-      var col = c.getAttribute('data-color') || '#00e5ff';
-      if (isActive) {
-        c.style.boxShadow = '0 0 14px ' + hexToRgba(col, 0.35);
-        c.style.borderColor = col;
-        c.style.background = hexToRgba(col, 0.22);
-      } else {
-        c.style.boxShadow = 'none';
-        c.style.borderColor = hexToRgba(col, 0.25);
-        c.style.background = hexToRgba(col, 0.08);
-      }
-    });
-    api('/admin/staff/' + id).then(function (r) {
-      renderAgentDetail(r.staff, r.tasks || [], r.messages || []);
-    }).catch(errView);
-  }
-
   function renderAgentDetail(st, tasks, messages) {
     var box = document.getElementById('agent-detail');
     if (!box) return;
@@ -1463,8 +1345,8 @@
 
         '<label class="admin-label">Roles <span class="admin-hint">(a user can hold several &mdash; e.g. teacher + parent)</span></label>' +
         '<div id="um-roles" class="role-checks">' +
-        ['parent','teacher','editor','admin'].map(function (r) {
-          return '<label class="role-check"><input type="checkbox" value="' + r + '"/> ' + r + '</label>';
+        [['parent','Family: kids, quiz, Q&A'],['teacher','Classroom: assignments, leaderboard'],['editor','Newsroom: review queue, publish'],['admin','Everything: users, settings']].map(function (r) {
+          return '<label class="role-check" title="' + r[1] + '"><input type="checkbox" value="' + r[0] + '"/> ' + r[0] + '<span class="role-desc">' + r[1] + '</span></label>';
         }).join('') + '</div>' +
 
         '<label class="admin-label">Admin notes <span class="admin-hint">(private, staff-only)</span></label>' +
@@ -2138,7 +2020,126 @@
   };
 
   // ===== Correspondents =====
+  // ===== Correspondents (merged: team grid + portraits) =====
   Views.correspondents = function () {
+    main.innerHTML = '';
+    main.appendChild(h('<div class="admin-view-head"><h1>Correspondents</h1><p>Channel correspondents, social producers, and the newsroom team.</p></div>'));
+    var tabs = h('<div class="agent-tabs"><button class="agent-tab active" data-tab="team">🛰️ Team</button><button class="agent-tab" data-tab="portraits">🌟 Portraits</button></div>');
+    var body = h('<div id="corr-tab-body"></div>');
+    main.appendChild(tabs);
+    main.appendChild(body);
+    tabs.addEventListener('click', function (e) {
+      var b = e.target.closest('.agent-tab'); if (!b) return;
+      Array.prototype.forEach.call(tabs.querySelectorAll('.agent-tab'), function (x) { x.classList.toggle('active', x === b); });
+      if (b.getAttribute('data-tab') === 'team') renderCorrespondentGrid(body);
+      else renderCorrespondentPortraits(body);
+    });
+    renderCorrespondentGrid(body);
+  };
+
+  // ===== Correspondents (flip-card grid) =====
+  var SOCIAL_AGENTS = [
+    { id: 'social-youtube', slug: 'social-youtube', displayName: 'Shorts Producer', role: 'Social — YouTube Shorts', channel: 'social', avatarEmoji: '🎬', accentColor: '#ff0033', bio: 'Turns each edition\u2019s top stories into YouTube Shorts scripts.', social: true },
+    { id: 'social-tiktok', slug: 'social-tiktok', displayName: 'TikTok Producer', role: 'Social — TikTok', channel: 'social', avatarEmoji: '🎵', accentColor: '#00f2ea', bio: 'Turns each edition\u2019s top stories into TikTok scripts.', social: true },
+    { id: 'social-reels', slug: 'social-reels', displayName: 'Reels Producer', role: 'Social — Instagram Reels', channel: 'social', avatarEmoji: '📸', accentColor: '#e1306c', bio: 'Turns each edition\u2019s top stories into Reels scripts.', social: true }
+  ];
+
+  function renderCorrespondentGrid(container) {
+    api('/admin/staff').then(function (r) {
+      var all = r.staff || [];
+      State.staff = all;
+      container.innerHTML = '';
+      container.appendChild(h('<p class="admin-hint">13 channel correspondents, 3 social producers, and the newsroom team. Click a card to flip it.</p>'));
+
+      // 13 channel correspondents (agent-* slugs with a real channel)
+      var channels = ['ai','space','robotics','biotech','quantum','climate','engineering','math','cyber','gaming','music','stem','play'];
+      var correspondents = [];
+      channels.forEach(function (ch) {
+        var found = null;
+        all.forEach(function (st) { if (st.channel === ch && st.slug && st.slug.indexOf('agent-') === 0 && !found) found = st; });
+        if (found) correspondents.push(found);
+      });
+      // Humans (Jeff etc.)
+      var humans = all.filter(function (st) { return st.kind === 'human'; });
+
+      var grid = h('<div class="corr-grid"></div>');
+      correspondents.forEach(function (st) { grid.appendChild(correspondentCard(st)); });
+      // Social producers
+      var socHead = h('<div class="corr-section-head"><h2>Social producers</h2></div>');
+      container.appendChild(grid);
+      container.appendChild(socHead);
+      var socGrid = h('<div class="corr-grid"></div>');
+      SOCIAL_AGENTS.forEach(function (st) { socGrid.appendChild(correspondentCard(st)); });
+      container.appendChild(socGrid);
+      if (humans.length) {
+        container.appendChild(h('<div class="corr-section-head"><h2>Newsroom team</h2></div>'));
+        var humGrid = h('<div class="corr-grid"></div>');
+        humans.forEach(function (st) { humGrid.appendChild(correspondentCard(st)); });
+        container.appendChild(humGrid);
+      }
+      // Full detail modal root
+      if (!document.getElementById('corr-modal-root')) {
+        document.body.appendChild(h('<div id="corr-modal-root"></div>'));
+      }
+    }).catch(errView);
+  };
+
+  function correspondentCard(st) {
+    var card = h(
+      '<div class="corr-card" tabindex="0">' +
+        '<div class="corr-inner">' +
+          '<div class="corr-face corr-front">' +
+            '<span class="corr-av" style="background:' + esc(st.accentColor || '#1a2233') + '22">' + esc(st.avatarEmoji || '🛰️') + '</span>' +
+            '<div class="corr-name">' + esc(st.displayName) + '</div>' +
+            '<div class="corr-role">' + esc(st.channel ? '#' + st.channel : st.role) + '</div>' +
+            '<div class="corr-hint">click to flip</div>' +
+          '</div>' +
+          '<div class="corr-face corr-back">' +
+            '<div class="corr-back-name">' + esc(st.displayName) + '</div>' +
+            (st.bio ? '<div class="corr-bio">' + esc(st.bio) + '</div>' : '') +
+            '<div class="corr-actions">' +
+              (st.social ? '' : '<button class="admin-btn admin-btn-sm" data-act="open">Open</button>') +
+              '<button class="admin-btn admin-btn-sm" data-act="flip">Back</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
+    function toggleFlip(e) { if (e) e.stopPropagation(); card.classList.toggle('flipped'); }
+    card.addEventListener('click', function (e) {
+      var act = e.target.getAttribute && e.target.getAttribute('data-act');
+      if (act === 'open') { e.stopPropagation(); openCorrespondentModal(st); return; }
+      if (act === 'flip') { toggleFlip(e); return; }
+      toggleFlip(e);
+    });
+    card.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleFlip(); } });
+    return card;
+  }
+
+  function openCorrespondentModal(st) {
+    var root = document.getElementById('corr-modal-root');
+    root.innerHTML = '';
+    var overlay = h(
+      '<div class="corr-modal-overlay"><div class="corr-modal">' +
+        '<button class="admin-modal-close" aria-label="Close">\u2715</button>' +
+        '<div id="corr-modal-body"></div>' +
+      '</div></div>'
+    );
+    root.appendChild(overlay);
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) root.innerHTML = ''; });
+    overlay.querySelector('.admin-modal-close').addEventListener('click', function () { root.innerHTML = ''; });
+    // Reuse the existing detail renderer inside the modal
+    var holder = h('<div id="agent-detail"></div>');
+    overlay.querySelector('#corr-modal-body').appendChild(holder);
+    if (st.id && !st.social) {
+      api('/admin/staff/' + st.id).then(function (r) { renderAgentDetail(r.staff, r.tasks || [], r.messages || []); }).catch(errView);
+    } else {
+      holder.innerHTML = '<div class="admin-empty">Social producers run on schedule after each edition drop. No direct messaging.</div>';
+    }
+  }
+
+
+  function renderCorrespondentPortraits(container) {
     var PORTRAIT_STYLES = [
       ['human', 'Humans', '🧑'],
       ['animal', 'Animals', '🐾'],
@@ -2162,19 +2163,19 @@
 
     function render(r) {
       var list = r.correspondents || [];
-      main.innerHTML = '';
-      main.appendChild(h(
+      container.innerHTML = '';
+      container.appendChild(h(
         '<div class="admin-view-head"><h1>Meet the Correspondents</h1>' +
         '<p>These are the 13 public-facing characters who write for Skynet Nexus. ' +
         'Each one comes in three portrait styles — Humans, Animals, and Skynet Agents — ' +
         'and kids pick their favorite style in their kid profile.</p></div>'
       ));
       if (!list.length) {
-        main.appendChild(h('<div class="admin-empty">No correspondents configured yet.</div>'));
+        container.appendChild(h('<div class="admin-empty">No correspondents configured yet.</div>'));
         return;
       }
       var grid = h('<div class="admin-queue-grid" id="corr-grid"></div>');
-      main.appendChild(grid);
+      container.appendChild(grid);
       list.forEach(function (c) {
         if (c.kind && c.kind !== 'agent') return;
         grid.appendChild(correspondentCard(c));
