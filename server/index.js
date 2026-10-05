@@ -1327,14 +1327,11 @@ api.post('/newsroom/images', (req, res) => {
 // -------------- ADMIN: UPDATE WHATS-NEW --------------
 // PUT /api/admin/whats-new { items: [...] } — replaces data/whats-new.json.
 // Admin auth required.
-// Allow newsroom key as well as admin key for whats-new updates (automation).
-function requireAdminOrNewsroom(req, res, next) {
-  const newsroomKey = process.env.NEWSROOM_API_KEY;
+api.put('/newsroom/whats-new', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
   const got = String(req.headers['x-newsroom-key'] || '');
-  if (newsroomKey && got && got === newsroomKey) return next();
-  return requireAdmin(req, res, next);
-}
-api.put('/admin/whats-new', requireAdminOrNewsroom, (req, res) => {
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
   try {
     const items = (req.body || {}).items;
     if (!Array.isArray(items)) return res.status(400).json({ error: 'items array required' });
