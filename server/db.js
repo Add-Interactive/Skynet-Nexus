@@ -79,6 +79,61 @@ db.exec(`
   );
 `);
 
+// Safe chat system (added 2026-10-05). Invite-only spaces, kid default-deny on public.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS chat_spaces (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    type       TEXT NOT NULL,  -- 'family', 'classroom', 'solo', 'public'
+    ref_id     INTEGER,        -- family_id / classroom_id / user_id
+    name       TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(type, ref_id)
+  );
+  CREATE TABLE IF NOT EXISTS chat_members (
+    space_id   INTEGER NOT NULL,
+    user_id    INTEGER,        -- adult member
+    kid_id     INTEGER,        -- kid member
+    role       TEXT NOT NULL DEFAULT 'member',  -- 'admin', 'moderator', 'member'
+    joined_at  TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (space_id, user_id, kid_id),
+    FOREIGN KEY (space_id) REFERENCES chat_spaces(id) ON DELETE CASCADE
+  );
+  CREATE TABLE IF NOT EXISTS chat_messages (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    space_id   INTEGER NOT NULL,
+    user_id    INTEGER,        -- adult author
+    kid_id     INTEGER,        -- kid author
+    body       TEXT NOT NULL,
+    flagged    INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (space_id) REFERENCES chat_spaces(id) ON DELETE CASCADE
+  );
+  CREATE TABLE IF NOT EXISTS chat_reports (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    message_id INTEGER NOT NULL,
+    reporter_user_id INTEGER,
+    reason     TEXT NOT NULL,
+    status     TEXT NOT NULL DEFAULT 'open',
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (message_id) REFERENCES chat_messages(id) ON DELETE CASCADE
+  );
+`);
+// Ensure every family/classroom/user gets a chat space (run once at boot)
+function ensureChatSpaces() {
+  try {
+    for (const f of db.prepare('SELECT id, name FROM families').all()) {
+      db.prepare('INSERT OR IGNORE INTO chat_spaces (type, ref_id, name) VALUES (?,?,?)').run('family', f.id, f.name + ' 💬');
+    }
+    for (const c of db.prepare('SELECT id, name FROM classrooms').all()) {
+      db.prepare('INSERT OR IGNORE INTO chat_spaces (type, ref_id, name) VALUES (?,?,?)').run('classroom', c.id, c.name + ' 🏫');
+    }
+    for (const u of db.prepare('SELECT id, display_name FROM users').all()) {
+      db.prepare('INSERT OR IGNORE INTO chat_spaces (type, ref_id, name) VALUES (?,?,?)').run('solo', u.id, (u.display_name || 'You') + "'s notes");
+    }
+    db.prepare("INSERT OR IGNORE INTO chat_spaces (type, ref_id, name) VALUES ('public', 0, '🌍 Public Square')").run();
+  } catch (e) { console.warn('[chat] ensureChatSpaces:', e.message); }
+}
+
 // Classroom settings (added 2026-10-05).
 db.exec(`
   CREATE TABLE IF NOT EXISTS classroom_settings (
@@ -88,6 +143,10 @@ db.exec(`
     FOREIGN KEY (classroom_id) REFERENCES classrooms(id) ON DELETE CASCADE
   );
 `);
+
+// public_chat_allowed for existing kid_settings rows (added 2026-10-05).
+try { db.exec('ALTER TABLE kid_settings ADD COLUMN public_chat_allowed INTEGER DEFAULT 0'); }
+catch (e) { /* already exists */ }
 
 // Kid dashboard customization (added 2026-10-05).
 for (const [col, type] of [
@@ -113,6 +172,7 @@ db.exec(`
     voice_commands      INTEGER NOT NULL DEFAULT 0,
     large_text          INTEGER NOT NULL DEFAULT 0,
     high_contrast       INTEGER NOT NULL DEFAULT 0,
+    public_chat_allowed INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY (kid_id) REFERENCES kid_profiles(id) ON DELETE CASCADE
   );
 `);
@@ -1300,6 +1360,9 @@ function gamUserStatus(userId) {
 }
 
 // ---------- Exports ----------
+// Create chat spaces for existing families/classrooms/users
+ensureChatSpaces();
+
 module.exports = {
   db,
   DB_PATH,
