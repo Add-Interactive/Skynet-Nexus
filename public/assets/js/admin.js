@@ -73,7 +73,15 @@
       });
     });
   }
-  function isFullAdmin() { return State.user && State.user.role === 'admin'; }
+  function isFullAdmin() { return hasRole(State.user, 'admin'); }
+  // Multi-role support (2026-10-05): users may hold several roles.
+  function userRoles(u) {
+    if (!u) return [];
+    if (Array.isArray(u.roles) && u.roles.length) return u.roles;
+    return u.role ? [u.role] : [];
+  }
+  function hasRole(u, role) { return userRoles(u).indexOf(role) > -1; }
+  function hasAnyRole(u, roles) { return userRoles(u).some(function (r) { return roles.indexOf(r) > -1; }); }
 
   // ---------- Modal ----------
   function openModal(title) {
@@ -104,7 +112,7 @@
   function boot() {
     api('/auth/me').then(function (r) {
       var user = r && r.user;
-      if (user && ADMIN_ROLES.indexOf(user.role) > -1) {
+      if (user && hasAnyRole(user, ADMIN_ROLES)) {
         State.user = user;
         showApp();
       } else if (user) {
@@ -128,7 +136,7 @@
     gate.hidden = true;
     app.hidden = false;
     $('#admin-whoami').textContent = State.user.displayName + ' · ' + State.user.email;
-    $('#admin-role-pill').textContent = State.user.role;
+    $('#admin-role-pill').textContent = userRoles(State.user).join(' + ');
     document.body.classList.toggle('is-full-admin', isFullAdmin());
     // Hide admin-only nav for editors
     Array.prototype.forEach.call(document.querySelectorAll('.admin-only'), function (el) {
@@ -161,7 +169,7 @@
     api('/auth/login', { method: 'POST', body: { email: email, password: password } })
       .then(function (r) {
         var user = r && r.user;
-        if (user && ADMIN_ROLES.indexOf(user.role) > -1) {
+        if (user && hasAnyRole(user, ADMIN_ROLES)) {
           State.user = user; showApp();
         } else {
           errEl.textContent = 'That account does not have admin access.';
@@ -1409,7 +1417,7 @@
         '<tr class="user-row">' +
         '<td><span class="user-dot" style="background:' + esc(u.avatarColor || '#00e5ff') + '"></span><strong>' + esc(u.displayName) + '</strong></td>' +
         '<td>' + esc(u.email) + '</td>' +
-        '<td><span class="pill ' + rolePill(u.role) + '">' + esc(u.role) + '</span></td>' +
+        '<td>' + userRoles(u).map(function (r) { return '<span class="pill ' + rolePill(r) + '">' + esc(r) + '</span>'; }).join(' ') + '</td>' +
         '<td class="num">' + (u.kidCount || 0) + '</td>' +
         '<td class="num">' + fmtDate(u.createdAt) + '</td>' +
         '<td class="num">' + fmtDate(u.lastLoginAt) + '</td>' +
@@ -1444,8 +1452,11 @@
         '<label class="admin-label">Display name</label>' +
         '<input id="um-name" class="admin-input" value="' + esc(u.displayName) + '" maxlength="40"/>' +
 
-        '<label class="admin-label">Role</label>' +
-        '<select id="um-role" class="admin-input"><option value="parent">parent</option><option value="teacher">teacher</option><option value="editor">editor</option><option value="admin">admin</option></select>' +
+        '<label class="admin-label">Roles <span class="admin-hint">(a user can hold several &mdash; e.g. teacher + parent)</span></label>' +
+        '<div id="um-roles" class="role-checks">' +
+        ['parent','teacher','editor','admin'].map(function (r) {
+          return '<label class="role-check"><input type="checkbox" value="' + r + '"/> ' + r + '</label>';
+        }).join('') + '</div>' +
 
         '<label class="admin-label">Admin notes <span class="admin-hint">(private, staff-only)</span></label>' +
         '<textarea id="um-notes" class="admin-input" rows="3" maxlength="2000" placeholder="Notes about this account…">' + esc(u.adminNotes || '') + '</textarea>' +
@@ -1462,18 +1473,23 @@
         '<button id="um-delete" class="admin-btn admin-btn-danger">Delete account</button>' +
         '</div></div>';
 
-      modal.body.querySelector('#um-role').value = u.role;
+      var curRoles = userRoles(u);
+      Array.prototype.forEach.call(modal.body.querySelectorAll('#um-roles input[type=checkbox]'), function (cb) {
+        cb.checked = curRoles.indexOf(cb.value) > -1;
+      });
 
       modal.body.querySelector('#um-save').addEventListener('click', function () {
         var name = modal.body.querySelector('#um-name').value.trim();
         var notes = modal.body.querySelector('#um-notes').value;
-        var role = modal.body.querySelector('#um-role').value;
+        var roles = Array.prototype.map.call(
+          modal.body.querySelectorAll('#um-roles input[type=checkbox]:checked'),
+          function (cb) { return cb.value; });
         var chain = Promise.resolve();
         if (name !== u.displayName || notes !== (u.adminNotes || '')) {
           chain = chain.then(function () { return api('/admin/users/' + id, { method: 'PATCH', body: { displayName: name, adminNotes: notes } }); });
         }
-        if (role !== u.role) {
-          chain = chain.then(function () { return api('/admin/users/' + id + '/role', { method: 'PATCH', body: { role: role } }); });
+        if (roles.sort().join(',') !== userRoles(u).slice().sort().join(',')) {
+          chain = chain.then(function () { return api('/admin/users/' + id + '/role', { method: 'PATCH', body: { roles: roles } }); });
         }
         chain.then(function () { toast('Account updated'); closeModal(modal); loadUsers(); })
           .catch(function (e) { toast(e.message, true); });
