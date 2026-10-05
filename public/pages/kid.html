@@ -147,6 +147,9 @@
       tile('🔬', 'Weekend Lab', (d.activities || []).length + ' joined', '/pages/lab.html') +
       tile('💬', 'Ask', 'Question corner', '/pages/ask.html') +
       tile('🏆', 'Badges', d.badges.length + ' earned', '#badges') +
+      tile('🎨', 'My creations', 'Share your builds', '#creations') +
+      tile('🔖', 'My shelves', 'Saved stories', '#shelves') +
+      tile('🎉', 'Gallery', 'Kid creations', '/pages/creations.html') +
       '</div>';
 
     // Interests
@@ -155,6 +158,18 @@
       allInts.map(function (c) { return '<button class="int' + (k.interests.indexOf(c) !== -1 ? ' on' : '') + '" data-int="' + c + '">' + c + '</button>'; }).join('') +
       '</div></div>';
 
+    // Creations
+    html += '<div class="sec" id="creations"><h2>🎨 My creations</h2><div id="my-creations"><p style="color:#7c8898">Loading…</p></div>' +
+      '<div style="margin-top:12px;padding:14px;background:rgba(0,229,255,.05);border-radius:12px">' +
+      '<div style="font:700 13px/1 Inter;margin-bottom:8px">Share something you made!</div>' +
+      '<input id="cr-title" placeholder="What did you make?" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;margin-bottom:8px"/>' +
+      '<textarea id="cr-desc" placeholder="Tell us about it…" rows="2" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;margin-bottom:8px"></textarea>' +
+      '<input id="cr-img" placeholder="Photo link (optional)" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;margin-bottom:8px"/>' +
+      '<button class="btn" id="cr-send">Submit for parent approval 🎨</button></div></div>';
+    // Shelves
+    html += '<div class="sec" id="shelves"><h2>🔖 My shelves</h2><div id="my-shelves"><p style="color:#7c8898">Loading…</p></div></div>';
+    // Cheers
+    html += '<div class="sec" id="cheers"><h2>📣 Cheers for you!</h2><div id="my-cheers"><p style="color:#7c8898">Loading…</p></div></div>';
     // Badges
     html += '<div class="sec" id="badges"><h2>🏆 My achievements</h2>';
     if (d.badges.length) {
@@ -194,7 +209,60 @@
 
     root.innerHTML = html;
     bindAll(k, allInts);
+    loadKidCreations(kidId);
+    loadKidShelves(kidId);
+    loadKidCheers(kidId);
     if (window.NexusA11y) NexusA11y.init(kidId);
+  }
+
+  function loadKidCreations(kidId) {
+    var el = document.getElementById('my-creations');
+    if (!el) return;
+    fetch('/api/kids/' + kidId + '/creations', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
+      var c = d.creations || [];
+      el.innerHTML = c.length ? c.map(function (x) {
+        var st = x.status === 'approved' ? '✅ live in gallery' : x.status === 'pending' ? '⏳ waiting for parent' : '❌ not approved';
+        return '<div class="card"><div class="ct">' + esc(x.title) + '</div><div class="cs">' + st + ' · ❤️ ' + (x.likes || 0) + '</div></div>';
+      }).join('') : '<p style="color:#7c8898">Nothing shared yet — show off your first build!</p>';
+    }).catch(function () { el.innerHTML = ''; });
+    var btn = document.getElementById('cr-send');
+    if (btn) btn.addEventListener('click', function () {
+      var t = document.getElementById('cr-title').value.trim();
+      if (!t) { alert('Give it a title!'); return; }
+      fetch('/api/creations', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kid_id: Number(kidId), as_kid: true, title: t,
+          description: document.getElementById('cr-desc').value.trim(),
+          image_url: document.getElementById('cr-img').value.trim() }) })
+        .then(function (r) { return r.json(); }).then(function () {
+          alert('Sent to your parent for approval! 🎨'); loadKidCreations(kidId);
+        }).catch(function () { alert('Could not submit.'); });
+    });
+  }
+  function loadKidShelves(kidId) {
+    var el = document.getElementById('my-shelves');
+    if (!el) return;
+    fetch('/api/bookmarks?kid_id=' + kidId, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
+      var b = d.bookmarks || [];
+      el.innerHTML = b.length ? b.map(function (x) {
+        return '<div class="card"><div class="ct">🔖 ' + esc(x.article_slug) + '</div><div class="cs">' + esc(x.shelf) + ' <button data-unshelf="' + esc(x.article_slug) + '" style="background:none;border:none;color:#ff2e63;cursor:pointer">remove</button></div></div>';
+      }).join('') : '<p style="color:#7c8898">No saved stories yet. Tap 🔖 on any article!</p>';
+      el.querySelectorAll('[data-unshelf]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          fetch('/api/bookmarks/' + encodeURIComponent(btn.getAttribute('data-unshelf')) + '?kid_id=' + kidId, { method: 'DELETE', credentials: 'same-origin' })
+            .then(function () { loadKidShelves(kidId); });
+        });
+      });
+    }).catch(function () { el.innerHTML = ''; });
+  }
+  function loadKidCheers(kidId) {
+    var el = document.getElementById('my-cheers');
+    if (!el) return;
+    fetch('/api/kids/' + kidId + '/cheers', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
+      var c = d.cheers || [];
+      el.innerHTML = c.length ? c.map(function (x) {
+        return '<div class="card"><div class="ct">' + esc(x.template) + '</div><div class="cs">from ' + esc(x.from_name || 'family') + '</div></div>';
+      }).join('') : '<p style="color:#7c8898">No cheers yet — ask grandma to send one! 📣</p>';
+    }).catch(function () { el.innerHTML = ''; });
   }
 
   function tile(ic, t, s, href, n) {
