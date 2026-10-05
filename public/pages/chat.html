@@ -113,8 +113,8 @@
   var memList = document.getElementById('mem-list');
 
   var spaces = [], activeSpace = null, activeKid = null, myRole = 'member', pollTimer = null;
-  var SPACE_ICONS = { family: '🏠', classroom: '🏫', solo: '📝', public: '🌍', friend: '🤝' };
-  var SPACE_NAMES = { family: 'Family', classroom: 'Class', solo: 'Notes', public: 'Public', friend: 'Friends' };
+  var SPACE_ICONS = { family: '🏠', classroom: '🏫', solo: '📝', public: '🌍', friend: '🤝', pt: '💬' };
+  var SPACE_NAMES = { family: 'Family', classroom: 'Class', solo: 'Notes', public: 'Public', friend: 'Friends', pt: 'Parent–Teacher' };
 
   // Kid switcher
   fetch('/api/kids', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
@@ -151,7 +151,7 @@
   function renderChanList() {
     var groups = {};
     spaces.forEach(function (s) { (groups[s.type] = groups[s.type] || []).push(s); });
-    var order = ['family', 'classroom', 'friend', 'solo', 'public'];
+    var order = ['family', 'classroom', 'friend', 'pt', 'solo', 'public'];
     var html = '';
     order.forEach(function (t) {
       if (!groups[t]) return;
@@ -172,7 +172,7 @@
     rail.querySelectorAll('.srv').forEach(function (el) { el.classList.toggle('active', Number(el.getAttribute('data-sp')) === id); });
     renderChanList();
     if (sp) {
-      var tag = sp.type === 'family' ? '<span style="color:#39ff14">FAMILY · private</span>' : sp.type === 'classroom' ? '<span style="color:#00e5ff">CLASS · moderated</span>' : sp.type === 'public' ? '<span style="color:#ffd166">PUBLIC</span>' : sp.type === 'friend' ? '<span style="color:#ff9f1c">FRIENDS · parent-approved</span>' : '<span style="color:#7c8898">PRIVATE NOTES</span>';
+      var tag = sp.type === 'family' ? '<span style="color:#39ff14">FAMILY · private</span>' : sp.type === 'classroom' ? '<span style="color:#00e5ff">CLASS · moderated</span>' : sp.type === 'public' ? '<span style="color:#ffd166">PUBLIC</span>' : sp.type === 'friend' ? '<span style="color:#ff9f1c">FRIENDS · parent-approved</span>' : sp.type === 'pt' ? '<span style="color:#c084fc">PARENT–TEACHER · private</span>' : '<span style="color:#7c8898">PRIVATE NOTES</span>';
       chanHead.innerHTML = '<div class="cn">' + esc(sp.name) + '</div><div class="ct">' + tag + '</div><div class="safe">🛡️ Be kind · 🚩 flags abuse</div>';
       mainHead.style.display = 'flex';
       mainHead.innerHTML = '<span class="hash">#</span><span class="mn">' + esc(sp.name.replace(/ [💬🏫🌍📝]/g, '')) + '</span><span class="md">' + esc(sp.preview || 'Say hi!') + '</span>';
