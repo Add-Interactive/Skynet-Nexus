@@ -118,6 +118,82 @@ try {
   }
 } catch (e) {}
 
+// Connect features (added 2026-10-05): PT messaging, announcements, bookmarks, creations, cheers, coread, email.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS pt_threads (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    kid_id          INTEGER NOT NULL,
+    parent_user_id  INTEGER NOT NULL,
+    teacher_user_id INTEGER NOT NULL,
+    classroom_id    INTEGER,
+    subject         TEXT NOT NULL DEFAULT '',
+    created_at      TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at      TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(kid_id, teacher_user_id),
+    FOREIGN KEY (kid_id) REFERENCES kid_profiles(id) ON DELETE CASCADE
+  );
+  CREATE TABLE IF NOT EXISTS announcements (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    classroom_id    INTEGER NOT NULL,
+    teacher_user_id INTEGER NOT NULL,
+    title           TEXT NOT NULL,
+    body            TEXT NOT NULL,
+    pinned          INTEGER NOT NULL DEFAULT 0,
+    created_at      TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE TABLE IF NOT EXISTS bookmarks (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id      INTEGER,
+    kid_id       INTEGER,
+    article_slug TEXT NOT NULL,
+    shelf        TEXT NOT NULL DEFAULT 'want',
+    created_at   TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(user_id, kid_id, article_slug)
+  );
+  CREATE TABLE IF NOT EXISTS creations (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    kid_id      INTEGER NOT NULL,
+    title       TEXT NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
+    image_url   TEXT NOT NULL DEFAULT '',
+    status      TEXT NOT NULL DEFAULT 'pending',
+    likes       INTEGER NOT NULL DEFAULT 0,
+    created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (kid_id) REFERENCES kid_profiles(id) ON DELETE CASCADE
+  );
+  CREATE TABLE IF NOT EXISTS creation_likes (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    creation_id INTEGER NOT NULL,
+    user_id     INTEGER,
+    kid_id      INTEGER,
+    UNIQUE(creation_id, user_id, kid_id),
+    FOREIGN KEY (creation_id) REFERENCES creations(id) ON DELETE CASCADE
+  );
+  CREATE TABLE IF NOT EXISTS cheers (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    from_user_id INTEGER NOT NULL,
+    to_kid_id    INTEGER NOT NULL,
+    template     TEXT NOT NULL,
+    created_at   TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (to_kid_id) REFERENCES kid_profiles(id) ON DELETE CASCADE
+  );
+  CREATE TABLE IF NOT EXISTS coread_sessions (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    kid_id         INTEGER NOT NULL,
+    parent_user_id INTEGER NOT NULL,
+    article_slug   TEXT NOT NULL,
+    progress       TEXT NOT NULL DEFAULT '{}',
+    completed      INTEGER NOT NULL DEFAULT 0,
+    started_at     TEXT NOT NULL DEFAULT (datetime('now')),
+    completed_at   TEXT,
+    FOREIGN KEY (kid_id) REFERENCES kid_profiles(id) ON DELETE CASCADE
+  );
+  CREATE TABLE IF NOT EXISTS email_prefs (
+    user_id          INTEGER PRIMARY KEY,
+    weekly_digest_on INTEGER NOT NULL DEFAULT 1
+  );
+`);
+
 // Safety + engagement tables (added 2026-10-05).
 db.exec(`
   CREATE TABLE IF NOT EXISTS parental_consents (
