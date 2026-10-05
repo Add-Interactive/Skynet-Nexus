@@ -1346,6 +1346,120 @@ api.put('/newsroom/whats-new', (req, res) => {
   }
 });
 
+// -------------- FAMILIES --------------
+function genCode(n) {
+  const c = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  let s = '';
+  for (let i = 0; i < (n || 8); i++) s += c[Math.floor(Math.random() * c.length)];
+  return s;
+}
+
+// POST /api/families {name} — create a family (caller becomes first parent)
+api.post('/families', requireAuth, (req, res) => {
+  try {
+    const { db } = require('./db');
+    const name = String((req.body || {}).name || 'My Family').slice(0, 60);
+    const code = genCode(8);
+    const r = db.prepare('INSERT INTO families (name, created_by, invite_code) VALUES (?,?,?)').run(name, req.user.id, code);
+    db.prepare('INSERT INTO family_members (family_id, user_id, relationship, invited_by) VALUES (?,?,?,?)').run(r.lastInsertRowid, req.user.id, 'parent', req.user.id);
+    res.json({ ok: true, id: r.lastInsertRowid, inviteCode: code });
+  } catch (e) { res.status(500).json({ error: 'failed' }); }
+});
+
+// GET /api/families/mine — my family + members
+api.get('/families/mine', requireAuth, (req, res) => {
+  try {
+    const { db } = require('./db');
+    const mem = db.prepare('SELECT family_id, relationship FROM family_members WHERE user_id = ?').get(req.user.id);
+    if (!mem) return res.json({ family: null });
+    const fam = db.prepare('SELECT * FROM families WHERE id = ?').get(mem.family_id);
+    const members = db.prepare(`SELECT u.id, u.display_name, u.avatar_color, fm.relationship, fm.joined_at
+      FROM family_members fm JOIN users u ON u.id = fm.user_id WHERE fm.family_id = ? ORDER BY fm.joined_at`).all(mem.family_id);
+    res.json({ family: { id: fam.id, name: fam.name, inviteCode: fam.invite_code, myRelationship: mem.relationship }, members });
+  } catch (e) { res.status(500).json({ error: 'failed' }); }
+});
+
+// POST /api/families/join {code, relationship} — join via invite code
+api.post('/families/join', requireAuth, (req, res) => {
+  try {
+    const { db } = require('./db');
+    const code = String((req.body || {}).code || '').toUpperCase().trim();
+    const rel = String((req.body || {}).relationship || 'parent').slice(0, 20);
+    const valid = ['parent', 'spouse', 'grandparent', 'sibling', 'aunt_uncle', 'cousin', 'guardian'];
+    if (!valid.includes(rel)) return res.status(400).json({ error: 'invalid relationship' });
+    const fam = db.prepare('SELECT * FROM families WHERE invite_code = ?').get(code);
+    if (!fam) return res.status(404).json({ error: 'invalid invite code' });
+    const existing = db.prepare('SELECT id FROM family_members WHERE family_id = ? AND user_id = ?').get(fam.id, req.user.id);
+    if (existing) return res.status(400).json({ error: 'already a member' });
+    db.prepare('INSERT INTO family_members (family_id, user_id, relationship, invited_by) VALUES (?,?,?,?)').run(fam.id, req.user.id, rel, null);
+    res.json({ ok: true, family: { id: fam.id, name: fam.name } });
+  } catch (e) { res.status(500).json({ error: 'failed' }); }
+});
+
+// POST /api/families/leave — leave family
+api.post('/families/leave', requireAuth, (req, res) => {
+  try {
+    const { db } = require('./db');
+    db.prepare('DELETE FROM family_members WHERE user_id = ?').run(req.user.id);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: 'failed' }); }
+});
+
+// -------------- CLASSROOM INVITES (teacher → parent) --------------
+// POST /api/classrooms/:id/invite {parentEmail} — teacher invites a parent
+api.post('/classrooms/:id/invite', requireAuth, requireTeacher, (req, res) => {
+  try {
+    const { db } = require('./db');
+    const email = String((req.body || {}).parentEmail || '').toLowerCase().trim();
+    if (!email || !email.includes('@')) return res.status(400).json({ error: 'valid email required' });
+    const cls = db.prepare('SELECT * FROM classrooms WHERE id = ?').get(req.params.id);
+    if (!cls) return res.status(404).json({ error: 'classroom not found' });
+    const code = genCode(10);
+    const exp = new Date(Date.now() + 14 * 864e5).toISOString();
+    db.prepare('INSERT INTO classroom_invites (classroom_id, teacher_id, parent_email, invite_code, expires_at) VALUES (?,?,?,?,?)')
+      .run(cls.id, req.user.id, email, code, exp);
+    const link = `https://skynet-nexus-production.up.railway.app/pages/profile.html?classInvite=${code}`;
+    // Email via Resend when configured; always return the link for manual sharing
+    try {
+      const { sendMail } = require('./mailer');
+      sendMail({ to: email, subject: `You're invited to join ${cls.name} on Skynet Nexus`,
+        text: `${req.user.display_name || 'Your teacher'} invited you to link your child to their classroom "${cls.name}". Create your parent account, then open this link: ${link}`,
+        html: `<p>${req.user.display_name || 'Your teacher'} invited you to link your child to <b>${cls.name}</b>.</p><p>Create your parent account at Skynet Nexus, then <a href="${link}">accept the invite</a>.</p><p><small>Only parents can link children — teachers cannot add students directly. This protects your child's privacy.</small></p>` });
+    } catch (e) { /* mailer optional */ }
+    res.json({ ok: true, inviteCode: code, link });
+  } catch (e) { res.status(500).json({ error: 'failed' }); }
+});
+
+// GET /api/classrooms/invites/pending — my pending invites as a parent (by email)
+api.get('/classrooms/invites/pending', requireAuth, (req, res) => {
+  try {
+    const { db } = require('./db');
+    const rows = db.prepare(`SELECT ci.*, c.name as classroom_name, u.display_name as teacher_name
+      FROM classroom_invites ci JOIN classrooms c ON c.id = ci.classroom_id JOIN users u ON u.id = ci.teacher_id
+      WHERE ci.parent_email = ? AND ci.status = 'pending' AND ci.expires_at > datetime('now')`)
+      .all(req.user.email.toLowerCase());
+    res.json({ invites: rows });
+  } catch (e) { res.status(500).json({ error: 'failed' }); }
+});
+
+// POST /api/classrooms/join {code, kidId} — parent links their kid to a classroom
+api.post('/classrooms/join', requireAuth, (req, res) => {
+  try {
+    const { db } = require('./db');
+    const code = String((req.body || {}).code || '').toUpperCase().trim();
+    const kidId = (req.body || {}).kidId;
+    const inv = db.prepare("SELECT * FROM classroom_invites WHERE invite_code = ? AND status = 'pending'").get(code);
+    if (!inv || inv.expires_at < new Date().toISOString()) return res.status(404).json({ error: 'invalid or expired invite' });
+    if (inv.parent_email !== req.user.email.toLowerCase()) return res.status(403).json({ error: 'invite is for a different email' });
+    // Verify the kid belongs to this parent
+    const kid = db.prepare('SELECT * FROM kid_profiles WHERE id = ? AND user_id = ?').get(kidId, req.user.id);
+    if (!kid) return res.status(403).json({ error: 'kid not found' });
+    db.prepare('INSERT OR IGNORE INTO classroom_students (classroom_id, kid_id) VALUES (?,?)').run(inv.classroom_id, kidId);
+    db.prepare("UPDATE classroom_invites SET status = 'accepted' WHERE id = ?").run(inv.id);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: 'failed: ' + e.message }); }
+});
+
 // -------------- TEACHER PUBLIC PROFILES --------------
 // GET /api/teachers/:id — public profile (only if public_profile=1 and has teacher role)
 api.get('/teachers/:id', (req, res) => {
