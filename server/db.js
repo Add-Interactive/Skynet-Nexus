@@ -45,6 +45,40 @@ for (const [col, type] of [
   catch (e) { /* already exists */ }
 }
 
+// Family linking + classroom invites (added 2026-10-05).
+db.exec(`
+  CREATE TABLE IF NOT EXISTS families (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    name        TEXT NOT NULL,
+    created_by  INTEGER NOT NULL,
+    invite_code TEXT NOT NULL UNIQUE,
+    created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (created_by) REFERENCES users(id)
+  );
+  CREATE TABLE IF NOT EXISTS family_members (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    family_id    INTEGER NOT NULL,
+    user_id      INTEGER NOT NULL,
+    relationship TEXT NOT NULL DEFAULT 'parent',
+    invited_by   INTEGER,
+    joined_at    TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(family_id, user_id),
+    FOREIGN KEY (family_id) REFERENCES families(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+  CREATE TABLE IF NOT EXISTS classroom_invites (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    classroom_id INTEGER NOT NULL,
+    teacher_id   INTEGER NOT NULL,
+    parent_email TEXT NOT NULL,
+    invite_code  TEXT NOT NULL UNIQUE,
+    status       TEXT NOT NULL DEFAULT 'pending',
+    expires_at   TEXT NOT NULL,
+    created_at   TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (classroom_id) REFERENCES classrooms(id) ON DELETE CASCADE
+  );
+`);
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS kid_profiles (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
