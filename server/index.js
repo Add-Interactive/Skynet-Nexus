@@ -153,6 +153,8 @@ app.use((req, res, next) => {
 const api = express.Router();
 const { registerChat, syncChatMembers } = require('./chat');
 registerChat(api, requireAuth, requireTeacher);
+const { registerPlus, isQuietNow } = require('./plus');
+registerPlus(api, requireAuth, requireTeacher);
 
 // Server boot time for uptime reporting.
 const BOOT_TIME = Date.now();
