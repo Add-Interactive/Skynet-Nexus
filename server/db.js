@@ -250,6 +250,12 @@ function _addColumnIfMissing(table, col, decl) {
 }
 // users.role already exists in schema; make sure any old dbs get it too.
 _addColumnIfMissing('users', 'role', "TEXT NOT NULL DEFAULT 'parent'");
+// Multi-role support (2026-10-05): users.roles is a JSON array, e.g. ["teacher","parent"].
+// users.role stays as the primary/display role for backward compatibility.
+_addColumnIfMissing('users', 'roles', 'TEXT');
+try {
+  db.exec(`UPDATE users SET roles = json_array(role) WHERE roles IS NULL`);
+} catch (e) { console.warn('[db] backfill users.roles skipped:', e.message); }
 // admin_notes lets an admin annotate any user account.
 _addColumnIfMissing('users', 'admin_notes', 'TEXT');
 // Cadence engine: queued stories can be scheduled for a timed edition release.
@@ -822,7 +828,7 @@ const stmts = {
   countUsersSearch: db.prepare(`
     SELECT COUNT(*) AS n FROM users u
      WHERE lower(u.email) LIKE ? OR lower(u.display_name) LIKE ?`),
-  countAdmins: db.prepare(`SELECT COUNT(*) AS n FROM users WHERE role = 'admin'`),
+  countAdmins: db.prepare(`SELECT COUNT(*) AS n FROM users WHERE role = 'admin' OR roles LIKE '%"admin"%'`),
   setAdminNotes: db.prepare(`UPDATE users SET admin_notes = ? WHERE id = ?`)
 };
 
@@ -972,6 +978,19 @@ function toPublicAdminAction(row) {
 }
 
 // ---------- Serializers ----------
+// Parse a user's roles into an array. Prefers the roles JSON column,
+// falls back to the legacy single role column.
+function parseUserRoles(row) {
+  if (!row) return [];
+  try {
+    if (row.roles) {
+      const arr = JSON.parse(row.roles);
+      if (Array.isArray(arr) && arr.length) return arr.filter(r => typeof r === 'string');
+    }
+  } catch (e) {}
+  return row.role ? [row.role] : [];
+}
+
 function toPublicUser(row) {
   if (!row) return null;
   return {
@@ -980,6 +999,7 @@ function toPublicUser(row) {
     displayName: row.display_name,
     avatarColor: row.avatar_color,
     role: row.role,
+    roles: parseUserRoles(row),
     correspondentStyle: row.correspondent_style || 'human',
     createdAt: row.created_at,
     lastLoginAt: row.last_login_at,
@@ -1011,6 +1031,7 @@ function toAdminUser(row) {
     displayName: row.display_name,
     avatarColor: row.avatar_color,
     role: row.role,
+    roles: parseUserRoles(row),
     createdAt: row.created_at,
     lastLoginAt: row.last_login_at,
     adminNotes: row.admin_notes || '',
@@ -1854,7 +1875,22 @@ module.exports = {
 
   setUserRole(userId, role) {
     stmts.updateUserRole.run(role, userId);
+    try { db.prepare(`UPDATE users SET roles = ? WHERE id = ?`).run(JSON.stringify([role]), userId); }
+    catch (e) {}
     return toPublicUser(stmts.findUserById.get(userId));
+  },
+  setUserRoles(userId, roles) {
+    const clean = [...new Set((roles || []).map(r => String(r).trim()).filter(r => r))];
+    if (!clean.length) throw new Error('at least one role required');
+    const primary = clean[0];
+    stmts.updateUserRole.run(primary, userId);
+    try { db.prepare(`UPDATE users SET roles = ? WHERE id = ?`).run(JSON.stringify(clean), userId); }
+    catch (e) {}
+    return toAdminUser(stmts.findUserById.get(userId));
+  },
+  getUserRoles(userId) {
+    const row = stmts.findUserById.get(userId);
+    return parseUserRoles(row);
   },
   listAllUsers({ limit = 200, offset = 0 } = {}) {
     return stmts.listAllUsers.all(limit, offset).map(toPublicUser);
