@@ -23,7 +23,7 @@
           '<div style="display:flex;align-items:center;gap:12px;max-width:1100px;margin:0 auto;padding:12px 18px">' +
           '<span style="font-size:26px">🧪</span>' +
           '<div style="flex:1;min-width:0">' +
-          '<div style="font-weight:800;font-size:15px">Welcome, founding tester!</div>' +
+          '<div style="font-weight:800;font-size:15px">Welcome, Beta Tester!</div>' +
           '<div style="font-size:13px;opacity:.85">You\'re one of the first people trying Skynet Nexus. ' +
           'Found a bug or have an idea? <a href="/pages/profile.html#beta-section" style="color:#00e5ff;font-weight:700">Tell us from your profile</a> ' +
           '— and you\'ll earn the <strong>🏅 Beta Tester badge</strong> at launch.</div>' +
