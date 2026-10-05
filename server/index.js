@@ -945,45 +945,6 @@ api.get('/manifest', (req, res) => {
   }
 });
 
-// ---- Kokoro TTS: article narration ----
-const tts = require('./tts');
-
-// GET /api/tts/voices — curated voice list for the Listen picker.
-api.get('/tts/voices', (req, res) => {
-  res.json({ voices: tts.listVoices(), default: tts.DEFAULT_VOICE });
-});
-
-// GET /api/articles/:id/audio?voice=af_heart — narrated audio for an article.
-// Generates via Kokoro on first request, then serves the cached WAV.
-api.get('/articles/:id/audio', async (req, res) => {
-  try {
-    const id = String(req.params.id || '').replace(/[^a-z0-9-]/gi, '');
-    if (!id) return res.status(400).json({ error: 'article id required' });
-    const voice = String(req.query.voice || tts.DEFAULT_VOICE);
-    if (!tts.VOICE_IDS.has(voice)) return res.status(400).json({ error: 'unknown voice' });
-
-    // Find the article in the manifest, then load its JSON.
-    const manifest = JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'manifest.json'), 'utf8'));
-    const entry = (manifest.articles || []).find(a => a.id === id || a.slug === id);
-    if (!entry) return res.status(404).json({ error: 'article not found' });
-    const rel = entry.path || ('data/articles/' + entry.date + '/' + entry.slug + '.json');
-    const abs = path.join(DATA_DIR, String(rel).replace(/^data\//, ''));
-    if (!fs.existsSync(abs)) return res.status(404).json({ error: 'article file not found' });
-    const article = JSON.parse(fs.readFileSync(abs, 'utf8'));
-    article.id = entry.id || entry.slug;
-    article.slug = entry.slug;
-
-    const audioPath = await tts.getArticleAudio(article, voice);
-    res.type('audio/wav');
-    // Cache aggressively: audio is immutable per article+voice.
-    res.set('Cache-Control', 'public, max-age=31536000, immutable');
-    fs.createReadStream(audioPath).pipe(res);
-  } catch (err) {
-    console.error('[tts]', err);
-    res.status(500).json({ error: 'audio generation failed: ' + err.message });
-  }
-});
-
 // ---- Public story submission (readers send tips) ----
 const { SUBMISSION_IDS: SUBMISSION_CHANNELS, CHANNELS: CHANNEL_LIST, PUBLISH_IDS } = require('./channels');
 const scheduler = require('./scheduler');
