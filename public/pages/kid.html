@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>My Space · Skynet Nexus</title>
+<link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap"/>
+<link rel="stylesheet" href="/assets/css/style.css"/>
+<script src="/assets/js/a11y.js" defer></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Inter, sans-serif; background: #060a18; color: #e6ecf3; overflow-x: hidden; }
+  /* Animated starfield */
+  #stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .star { position: absolute; border-radius: 50%; background: #fff; animation: twinkle 3s infinite ease-in-out; }
+  @keyframes twinkle { 0%,100% { opacity: .15; transform: scale(.8); } 50% { opacity: .9; transform: scale(1.2); } }
+  .nebula { position: fixed; border-radius: 50%; filter: blur(90px); opacity: .25; z-index: 0; pointer-events: none; animation: drift 24s infinite ease-in-out alternate; }
+  @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(60px,-40px) scale(1.15); } }
+  .wrap { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 0 16px 80px; }
+  /* Banner */
+  .banner { position: relative; height: 220px; border-radius: 0 0 28px 28px; overflow: hidden; background: linear-gradient(135deg,#0B1026,#1a1040,#0B1026); background-size: 200% 200%; animation: bannerShift 12s ease infinite; margin: 0 -16px; }
+  @keyframes bannerShift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+  .banner img { width: 100%; height: 100%; object-fit: cover; }
+  .banner-edit { position: absolute; right: 14px; bottom: 14px; background: rgba(0,0,0,.55); border: 1px solid rgba(255,255,255,.25); color: #fff; border-radius: 999px; padding: 8px 16px; font: 700 12px/1 Inter; cursor: pointer; backdrop-filter: blur(6px); }
+  /* Profile hero */
+  .hero { display: flex; gap: 18px; align-items: flex-end; margin-top: -52px; padding: 0 8px; flex-wrap: wrap; }
+  .avatar-big { width: 108px; height: 108px; border-radius: 32px; font-size: 52px; display: flex; align-items: center; justify-content: center; border: 4px solid #060a18; box-shadow: 0 0 30px rgba(0,229,255,.4); flex: none; animation: popIn .5s cubic-bezier(.2,1.6,.4,1); background-size: cover; }
+  @keyframes popIn { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .hero-info h1 { margin: 0; font-size: 30px; font-weight: 900; text-shadow: 0 2px 20px rgba(0,0,0,.6); }
+  .hero-info .lvl { display: inline-block; margin-top: 6px; font: 800 12px/1 Inter; padding: 6px 14px; border-radius: 999px; background: linear-gradient(90deg,#00e5ff,#a855f7); color: #060a18; }
+  .quote { margin: 14px 8px 0; font: italic 600 16px/1.5 Georgia, serif; color: #c084fc; }
+  .quote-edit { cursor: pointer; border-bottom: 1px dashed #c084fc; }
+  /* XP bar */
+  .xp-wrap { margin: 20px 8px 0; background: rgba(255,255,255,.06); border-radius: 16px; padding: 14px 16px; }
+  .xp-top { display: flex; justify-content: space-between; font: 800 13px/1 Inter; margin-bottom: 8px; }
+  .xp-bar { height: 14px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; }
+  .xp-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#39ff14,#00e5ff,#a855f7); background-size: 200% 100%; animation: xpFlow 3s linear infinite; transition: width 1s cubic-bezier(.2,.8,.3,1); }
+  @keyframes xpFlow { to { background-position: 200% 0; } }
+  /* Tiles */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin: 22px 8px 0; }
+  .tile { border-radius: 20px; padding: 18px 14px; cursor: pointer; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); transition: transform .18s, box-shadow .18s; position: relative; overflow: hidden; }
+  .tile:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 32px rgba(0,229,255,.25); }
+  .tile .ic { font-size: 34px; }
+  .tile .t { font: 800 14px/1.3 Inter; margin-top: 8px; }
+  .tile .s { font: 500 12px/1.4 Inter; color: #9aa7bd; margin-top: 4px; }
+  .tile .n { position: absolute; top: 10px; right: 12px; font: 900 20px/1 Inter; color: #ffd166; text-shadow: 0 0 12px rgba(255,209,102,.6); }
+  /* Sections */
+  .sec { margin: 28px 8px 0; }
+  .sec h2 { font-size: 20px; font-weight: 800; margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
+  /* Badges */
+  .badges { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 12px; }
+  .badge { flex: none; width: 92px; text-align: center; animation: popIn .4s backwards; }
+  .badge .b-ic { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 34px; margin: 0 auto 6px; border: 3px solid; }
+  .badge.earned .b-ic { border-color: #ffd166; background: radial-gradient(circle at 35% 35%, rgba(255,209,102,.35), rgba(255,209,102,.05)); box-shadow: 0 0 18px rgba(255,209,102,.4); }
+  .badge.locked { opacity: .35; filter: grayscale(1); }
+  .badge.locked .b-ic { border-color: #4a5568; }
+  .badge .b-n { font: 700 11px/1.3 Inter; }
+  /* Interest picker */
+  .ints { display: flex; gap: 8px; flex-wrap: wrap; }
+  .int { padding: 10px 18px; border-radius: 999px; font: 700 13px/1 Inter; cursor: pointer; border: 2px solid rgba(255,255,255,.15); background: rgba(255,255,255,.04); color: #9aa7bd; transition: all .15s; }
+  .int.on { border-color: #39ff14; background: rgba(57,255,20,.12); color: #39ff14; box-shadow: 0 0 14px rgba(57,255,20,.3); }
+  /* Cards */
+  .card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; }
+  .card .ct { font: 700 14px/1.4 Inter; }
+  .card .cs { font: 500 12px/1.5 Inter; color: #9aa7bd; margin-top: 4px; }
+  /* Quiz bars */
+  .qz { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qz .qd { font: 600 12px/1 Inter; color: #9aa7bd; width: 74px; flex: none; }
+  .qz .qb { flex: 1; height: 10px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; }
+  .qz .qf { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#ff2e63,#ffd166); }
+  .qz .qs { font: 800 12px/1 Inter; width: 44px; text-align: right; }
+  /* Nav */
+  .topnav { display: flex; justify-content: space-between; align-items: center; padding: 14px 8px; }
+  .topnav a { color: #00e5ff; text-decoration: none; font: 700 13px/1 Inter; }
+  .a11y-large { font-size: 118%; }
+  .a11y-contrast { filter: contrast(1.25); }
+  @media (max-width: 560px) { .hero-info h1 { font-size: 24px; } .tiles { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<div class="nebula" style="width:420px;height:420px;background:#a855f7;top:-100px;left:-120px"></div>
+<div class="nebula" style="width:360px;height:360px;background:#00e5ff;bottom:10%;right:-140px;animation-delay:-8s"></div>
+<div class="wrap">
+  <div class="topnav">
+    <a href="/">← Feed</a>
+    <a href="/pages/profile.html">👨‍👩‍👧 Family →</a>
+  </div>
+  <div id="root"><p style="text-align:center;padding:60px;color:#7c8898">✨ Loading your space…</p></div>
+</div>
+<script>
+(function () {
+  var root = document.getElementById('root');
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  // Starfield
+  var sf = document.getElementById('stars');
+  for (var i = 0; i < 70; i++) {
+    var st = document.createElement('div');
+    st.className = 'star';
+    var sz = Math.random() * 3 + 1;
+    st.style.cssText = 'width:' + sz + 'px;height:' + sz + 'px;left:' + Math.random() * 100 + '%;top:' + Math.random() * 100 + '%;animation-delay:' + (Math.random() * 3) + 's';
+    sf.appendChild(st);
+  }
+
+  var kidId = new URLSearchParams(location.search).get('id');
+  if (!kidId) {
+    // Try active kid from localStorage
+    try { kidId = localStorage.getItem('nexus_active_kid'); } catch (e) {}
+  }
+  if (!kidId) { root.innerHTML = '<p style="text-align:center;padding:60px">No kid selected. <a href="/pages/profile.html" style="color:#00e5ff">Go to family dashboard</a></p>'; return; }
+  try { localStorage.setItem('nexus_active_kid', kidId); } catch (e) {}
+
+  fetch('/api/kids/' + kidId + '/dashboard', { credentials: 'same-origin' })
+    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(render)
+    .catch(function () { root.innerHTML = '<p style="text-align:center;padding:60px;color:#7c8898">Could not load your space.</p>'; });
+
+  function render(d) {
+    var k = d.kid;
+    document.title = k.name + "'s Space · Skynet Nexus";
+    var lvl = Math.floor(d.xp / 100) + 1;
+    var xpInLvl = d.xp % 100;
+
+    var html = '';
+    // Banner
+    html += '<div class="banner">' + (k.bannerImage ? '<img src="' + esc(k.bannerImage) + '" alt=""/>' : '') +
+      '<button class="banner-edit" id="b-edit">🖼️ Change banner</button></div>';
+    // Hero
+    var avBg = k.avatarEmoji && k.avatarEmoji.length <= 4 && !k.avatarEmoji.startsWith('/assets')
+      ? '' : 'background-image:url(' + esc(k.avatarEmoji) + ');background-size:cover;';
+    html += '<div class="hero"><div class="avatar-big" id="av-big" style="background:' + esc(k.avatarColor || '#00e5ff') + ';' + avBg + '">' +
+      (avBg ? '' : esc(k.avatarEmoji || k.name.slice(0, 2).toUpperCase())) + '</div>' +
+      '<div class="hero-info"><h1>Hey, ' + esc(k.name) + '! 👋</h1><span class="lvl">⚡ Level ' + lvl + ' · ' + d.xp + ' XP</span></div></div>';
+    html += '<div class="quote" id="q-wrap">' + (k.quote ? '“' + esc(k.quote) + '” <span class="quote-edit" id="q-edit">✏️</span>' : '<span class="quote-edit" id="q-edit">＋ Add your quote — what inspires you?</span>') + '</div>';
+    // XP bar
+    html += '<div class="xp-wrap"><div class="xp-top"><span>⚡ ' + d.xp + ' XP</span><span>🔥 ' + d.streak + ' day streak</span></div>' +
+      '<div class="xp-bar"><div class="xp-fill" style="width:' + xpInLvl + '%"></div></div></div>';
+
+    // Quick nav tiles
+    html += '<div class="tiles">' +
+      tile('📰', 'Read', d.storiesRead + ' stories', '/') +
+      tile('🧠', 'Daily Quiz', 'Test yourself', '/pages/quiz.html', d.quizzes.length ? d.quizzes.length : '') +
+      tile('🎧', 'Listen', 'Hear stories', '/', '') +
+      tile('🔬', 'Weekend Lab', (d.activities || []).length + ' joined', '/pages/lab.html') +
+      tile('💬', 'Ask', 'Question corner', '/pages/ask.html') +
+      tile('🏆', 'Badges', d.badges.length + ' earned', '#badges') +
+      '</div>';
+
+    // Interests
+    var allInts = ['ai', 'space', 'robotics', 'biotech', 'quantum', 'climate', 'engineering', 'math', 'cyber', 'gaming', 'music', 'stem', 'play'];
+    html += '<div class="sec"><h2>💜 My interests</h2><div class="ints" id="ints">' +
+      allInts.map(function (c) { return '<button class="int' + (k.interests.indexOf(c) !== -1 ? ' on' : '') + '" data-int="' + c + '">' + c + '</button>'; }).join('') +
+      '</div></div>';
+
+    // Badges
+    html += '<div class="sec" id="badges"><h2>🏆 My achievements</h2>';
+    if (d.badges.length) {
+      html += '<div class="badges">' + d.badges.map(function (b, i) {
+        return '<div class="badge earned" style="animation-delay:' + (i * 0.06) + 's"><div class="b-ic">' + esc(b.icon || '🏅') + '</div><div class="b-n">' + esc(b.name) + '</div></div>';
+      }).join('') + '</div>';
+    } else html += '<p style="color:#7c8898">Read stories and ace quizzes to earn badges!</p>';
+    html += '</div>';
+
+    // Quiz galaxy
+    if (d.quizzes.length) {
+      html += '<div class="sec"><h2>🧠 Quiz galaxy</h2>' + d.quizzes.slice(0, 6).map(function (q) {
+        var pct = Math.round((q.score / q.total) * 100) || 0;
+        var dt = (q.created_at || '').slice(5, 10);
+        return '<div class="qz"><div class="qd">' + esc(dt) + '</div><div class="qb"><div class="qf" style="width:' + pct + '%"></div></div><div class="qs">' + pct + '%</div></div>';
+      }).join('') + '</div>';
+    }
+
+    // Family
+    if (d.family) {
+      html += '<div class="sec"><h2>👨‍👩‍👧 My family</h2><div class="card"><div class="ct">' + esc(d.family.name) + '</div><div class="cs">' +
+        d.family.members.map(function (m) { return esc(m.display_name) + ' (' + esc(m.relationship) + ')'; }).join(' · ') + '</div></div></div>';
+    }
+    // Classrooms
+    if (d.classrooms.length) {
+      html += '<div class="sec"><h2>🏫 My classrooms</h2>' + d.classrooms.map(function (c) {
+        return '<div class="card"><div class="ct">' + esc(c.name) + '</div><div class="cs">Teacher: ' + esc(c.teacher) + '</div></div>';
+      }).join('') + '</div>';
+    }
+    // Activities
+    if (d.activities.length) {
+      html += '<div class="sec"><h2>🔬 STEM activities</h2>' + d.activities.map(function (a) {
+        return '<div class="card"><div class="ct">' + esc(a.title || a.activity || 'Weekend Lab') + '</div><div class="cs">' + esc((a.created_at || '').slice(0, 10)) + '</div></div>';
+      }).join('') + '</div>';
+    }
+
+    root.innerHTML = html;
+    bindAll(k, allInts);
+    if (window.NexusA11y) NexusA11y.init(kidId);
+  }
+
+  function tile(ic, t, s, href, n) {
+    return '<div class="tile" data-href="' + esc(href) + '"><div class="n">' + (n || '') + '</div><div class="ic">' + ic + '</div><div class="t">' + esc(t) + '</div><div class="s">' + esc(s) + '</div></div>';
+  }
+
+  function bindAll(k, allInts) {
+    root.querySelectorAll('.tile').forEach(function (t) {
+      t.addEventListener('click', function () {
+        var h = t.getAttribute('data-href');
+        if (h && h.charAt(0) !== '#') location.href = h;
+        else if (h) { var el = document.querySelector(h); if (el) el.scrollIntoView({ behavior: 'smooth' }); }
+      });
+    });
+    // Banner edit
+    document.getElementById('b-edit').addEventListener('click', function () {
+      var url = prompt('Banner image URL (or /assets/img/... path):', k.bannerImage || '');
+      if (url === null) return;
+      fetch('/api/kids/' + k.id + '/profile', { method: 'PUT', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bannerImage: url.trim() }) })
+        .then(function () { location.reload(); });
+    });
+    // Quote edit
+    document.getElementById('q-edit').addEventListener('click', function () {
+      var q = prompt('Your quote — what inspires you?', k.quote || '');
+      if (q === null) return;
+      fetch('/api/kids/' + k.id + '/profile', { method: 'PUT', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quote: q.trim().slice(0, 200) }) })
+        .then(function () { location.reload(); });
+    });
+    // Interests
+    var sel = k.interests.slice();
+    root.querySelectorAll('[data-int]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var c = b.getAttribute('data-int');
+        var i = sel.indexOf(c);
+        if (i === -1) { if (sel.length < 10) sel.push(c); } else sel.splice(i, 1);
+        b.classList.toggle('on', sel.indexOf(c) !== -1);
+        fetch('/api/kids/' + k.id + '/profile', { method: 'PUT', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ interests: sel }) }).catch(function () {});
+      });
+    });
+    // Avatar picker (100 avatars)
+    document.getElementById('av-big').addEventListener('click', function () {
+      fetch('/assets/img/avatars/avatars.json').then(function (r) { return r.json(); }).then(function (list) {
+        var m = document.createElement('div');
+        m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px';
+        m.innerHTML = '<div style="background:#0f1522;border-radius:20px;padding:20px;max-width:560px;width:100%;max-height:80vh;overflow-y:auto">' +
+          '<h3 style="margin:0 0 12px">Pick your avatar</h3><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">' +
+          list.map(function (a) { return '<img src="' + a.file + '" title="' + esc(a.name) + '" data-av="' + a.file + '" style="width:100%;border-radius:16px;cursor:pointer;border:2px solid transparent"/>'; }).join('') +
+          '</div><button id="av-x" style="margin-top:14px;width:100%;padding:10px;border-radius:10px;background:rgba(255,255,255,.08);color:#fff;border:none;cursor:pointer">Close</button></div>';
+        document.body.appendChild(m);
+        document.getElementById('av-x').addEventListener('click', function () { m.remove(); });
+        m.addEventListener('click', function (e) { if (e.target === m) m.remove(); });
+        m.querySelectorAll('[data-av]').forEach(function (img) {
+          img.addEventListener('click', function () {
+            fetch('/api/kids/' + k.id + '/profile', { method: 'PUT', credentials: 'same-origin',
+              headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ avatarEmoji: img.getAttribute('data-av') }) })
+              .then(function () { location.reload(); });
+          });
+        });
+      });
+    });
+  }
+  function tile(ic, t, s, href, n) {
+    return '<div class="tile" data-href="' + esc(href) + '"><div class="n">' + (n || '') + '</div><div class="ic">' + ic + '</div><div class="t">' + esc(t) + '</div><div class="s">' + esc(s) + '</div></div>';
+  }
+})();
+</script>
+</body>
+</html>
