@@ -1289,6 +1289,54 @@ router.patch('/stories/published/:id', (req, res) => {
   }
 });
 
+// PATCH /admin/articles/:slug — update a published article by slug.
+// Works for auto-published stories, which are cleared from the review queue on
+// publish (so PATCH /stories/published/:id cannot reach them). Merges the given
+// fields into the article JSON file on disk and the manifest entry.
+// Body: { heroImage?: string, title?: string, ... } — id/slug/path are protected.
+router.patch('/articles/:slug', (req, res) => {
+  try {
+    const slug = String(req.params.slug || '');
+    const b = req.body || {};
+    if (!slug) return res.status(400).json({ error: 'slug required' });
+    if (!b || typeof b !== 'object' || Array.isArray(b)) return res.status(400).json({ error: 'Missing update body.' });
+
+    const manifestPath = path.join(DATA_DIR, 'manifest.json');
+    let manifest = {};
+    try { manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')); }
+    catch (e) { return res.status(500).json({ error: 'cannot read manifest' }); }
+    const articles = Array.isArray(manifest.articles) ? manifest.articles : [];
+    const index = articles.findIndex(a => a && (a.slug === slug || a.id === slug));
+    if (index === -1) return res.status(404).json({ error: 'article not found' });
+    const entry = articles[index];
+    if (!entry.path || typeof entry.path !== 'string') return res.status(500).json({ error: 'article has no file path' });
+
+    // Resolve the article JSON file; keep it inside DATA_DIR/articles.
+    const articlesDir = path.resolve(path.join(DATA_DIR, 'articles'));
+    const artPath = path.resolve(path.join(DATA_DIR, entry.path));
+    if (artPath !== articlesDir && !artPath.startsWith(articlesDir + path.sep)) {
+      return res.status(400).json({ error: 'invalid article path' });
+    }
+    let fileData = {};
+    try { fileData = JSON.parse(fs.readFileSync(artPath, 'utf8')); } catch (e) {}
+
+    // Protect identity fields from being overwritten.
+    const update = Object.assign({}, b);
+    delete update.id; delete update.slug; delete update.path;
+
+    const merged = Object.assign({}, fileData, update);
+    fs.writeFileSync(artPath, JSON.stringify(merged, null, 2), 'utf8');
+
+    articles[index] = Object.assign({}, entry, update);
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+
+    logAction(req.adminUser.id, 'article.edit', 'article', entry.id, { fields: Object.keys(update) });
+    res.json({ ok: true, id: entry.id, slug: entry.slug });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // DELETE /admin/stories/published/:id — delete published post from DB, disk JSON, and manifest
 router.delete('/stories/published/:id', (req, res) => {
   try {
