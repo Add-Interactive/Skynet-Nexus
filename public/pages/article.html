@@ -231,6 +231,34 @@
     initArticle('../');
   </script>
 
+  <script>
+  // Bookmark + Read Together floating actions
+  (function () {
+    var slug = new URLSearchParams(location.search).get('id');
+    if (!slug) return;
+    var bar = document.createElement('div');
+    bar.style.cssText = 'position:fixed;bottom:20px;right:20px;display:flex;gap:10px;z-index:9999';
+    bar.innerHTML = '<button id="bm-btn" title="Save to shelf" style="width:52px;height:52px;border-radius:50%;border:2px solid rgba(0,229,255,.5);background:rgba(11,16,38,.9);color:#fff;font-size:22px;cursor:pointer">🔖</button>' +
+      '<button id="rt-btn" title="Read together" style="width:52px;height:52px;border-radius:50%;border:2px solid rgba(168,85,247,.5);background:rgba(11,16,38,.9);color:#fff;font-size:22px;cursor:pointer">📖</button>';
+    document.body.appendChild(bar);
+    var kidId = null;
+    try { kidId = localStorage.getItem('nexus_active_kid'); } catch (e) {}
+    document.getElementById('bm-btn').addEventListener('click', function () {
+      fetch('/api/bookmarks', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ article_slug: slug, kid_id: kidId ? Number(kidId) : null }) })
+        .then(function (r) { if (!r.ok) throw 0; alert('🔖 Saved to shelf!'); })
+        .catch(function () { alert('Sign in to save stories.'); });
+    });
+    document.getElementById('rt-btn').addEventListener('click', function () {
+      if (!kidId) { alert('Pick a kid profile first, then read together!'); location.href = '/pages/profile.html'; return; }
+      fetch('/api/coread/start', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kid_id: Number(kidId), article_slug: slug }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { location.href = '/pages/read-together.html?slug=' + encodeURIComponent(slug) + '&kid=' + kidId + '&session=' + d.sessionId; })
+        .catch(function () { location.href = '/pages/read-together.html?slug=' + encodeURIComponent(slug) + '&kid=' + kidId; });
+    });
+  })();
+  </script>
   <script src="/assets/js/auth.js" defer></script>
   <script src="/assets/js/whatsnew-badge.js"></script>
 </body>
