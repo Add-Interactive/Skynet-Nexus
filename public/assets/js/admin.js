@@ -305,6 +305,9 @@
         '</div>', false));
     }).catch(errView);
   };
+  function stat(cls, n, label) {
+    return '<div class="admin-stat ' + cls + '"><div class="n">' + esc(n) + '</div><div class="l">' + esc(label) + '</div></div>';
+  }
   function collapsiblePanel(title, bodyHtml, open) {
     var p = h(
       '<div class="admin-panel collapsible' + (open ? ' open' : '') + '">' +
