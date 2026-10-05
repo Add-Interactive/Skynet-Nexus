@@ -44,7 +44,7 @@ You cover **artificial intelligence, machine learning, neural networks, LLMs, ro
   "familyDiscussion": ["question1", "question2"],
   "glossary": [{ "term": "neural network", "meaning": "..." }],
   "ageBand": "8+",
-  "sources": [{ "label": "ICML Youth Awards", "url": "..." }],
+  "sources": [{ "title": "Original article headline", "url": "...", "publisher": "Publisher Name" }],
   "media": [{ "type": "image", "url": "...", "caption": "...", "credit": "...", "sourceUrl": "..." }]
 }
 ```
@@ -67,6 +67,36 @@ Rules:
 - Prefer **primary sources** — NASA, labs, universities, official channels — over random reposts.
 - **Hotlink the source URL.** Do NOT download, rehost, or AI-generate these.
 - If no suitable media exists, **omit the `"media"` field entirely** rather than forcing it.
+
+## 📰 Story Sources
+
+Fill the `"sources"` array — readers see these in the article's media gallery under "Sources", with the first entry featured as "📰 Original reporting". **The first entry must be the original article you reported from** (its real headline, URL, and publisher name), followed by up to 4 key primary sources (research papers, official announcements, lab pages, official footage):
+
+```json
+"sources": [
+  { "title": "Teen's Rover Wins National Robotics Final", "url": "https://example.com/original-story", "publisher": "Example News" },
+  { "title": "National Robotics Final \u2014 official results", "url": "https://...", "publisher": "Competition Org" }
+]
+```
+
+Rules:
+- `title` (≤150 chars) is the **real headline of the source page** \u2014 copy it from the page, never invent one.
+- `url` is the direct http(s) link. `publisher` (≤80 chars) names who published it.
+- Max 5 entries, primary sources only, kid-safe sources only.
+
+## 🧪 Try It Yourself
+
+If the story naturally connects to a hands-on activity, add a `"tryIt"` object so readers get a "🧪 Try it yourself" card under the article:
+
+```json
+"tryIt": { "type": "weekend-lab", "label": "Build a balloon rocket like the engineers in this story", "url": "https://skynet-nexus-production.up.railway.app/pages/weekend-lab.html" }
+```
+
+Rules:
+- `type` is `weekend-lab` (a Weekend Lab activity page) or `quiz` (a Daily Quiz topic).
+- `label` (≤80 chars) tells kids what they'll do, in their words — never clickbait.
+- `url` is the direct http(s) link to the activity or quiz.
+- Only add it when the connection is genuine. **Omit the field entirely** otherwise.
 
 ## Standards
 

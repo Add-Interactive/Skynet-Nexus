@@ -1,6 +1,8 @@
 /* Skynet Nexus — article media gallery.
  * Adds a "📸 Media (n)" button under the article hero when the story carries
- * a `media` array, opening a lightbox with images, embedded videos, and links.
+ * a `media` array (or "📰 Sources (n)" when it only has sources), opening a
+ * lightbox with images, embedded videos, links, and a Sources section
+ * (original reporting featured first, then more sources).
  * Standalone file (loaded after app.js on article.html only) — app.js is not touched.
  */
 
@@ -41,7 +43,32 @@
     'background:var(--panel2,#1a2130);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--text-mute,#8b94a7)}',
     '.am-thumb img{width:100%;height:100%;object-fit:cover}',
     '.am-thumb.active{border-color:var(--accent,#00e5ff)}',
-    '@media (max-width:640px){.am-box{width:100vw;height:100dvh;max-height:100dvh;border-radius:0}.am-stage,.am-stage iframe,.am-stage img{max-height:52vh}}'
+    '@media (max-width:640px){.am-box{width:100vw;height:100dvh;max-height:100dvh;border-radius:0}.am-stage,.am-stage iframe,.am-stage img{max-height:52vh}}',
+    '.am-sources{border-top:1px solid var(--border,#2a3348);padding:14px 20px;overflow-y:auto;max-height:44vh}',
+    '.am-src-head{font-size:.72rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-mute,#8b94a7);margin:12px 0 8px}',
+    '.am-src-head:first-child{margin-top:0}',
+    '.am-src-main{display:block;padding:12px 14px;border:1px solid var(--accent,#00e5ff);border-radius:12px;background:rgba(0,229,255,.06);text-decoration:none}',
+    '.am-src-main:hover{background:rgba(0,229,255,.12)}',
+    '.am-src-title{color:var(--text,#e8edf5);font-weight:700;font-size:.95rem;line-height:1.4}',
+    '.am-src-pub{color:var(--accent,#00e5ff);font-size:.8rem;margin-top:4px}',
+    '.am-src-list{display:flex;flex-direction:column;gap:6px}',
+    '.am-src-list a{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 12px;border:1px solid var(--border,#2a3348);border-radius:10px;color:var(--text,#e8edf5);text-decoration:none;font-size:.88rem}',
+    '.am-src-list a:hover{border-color:var(--accent,#00e5ff)}',
+    '.am-src-list .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.am-src-list .p{color:var(--text-mute,#8b94a7);font-size:.78rem;white-space:nowrap;flex:none}',
+    '.am-nomedia .am-stage,.am-nomedia .am-cap,.am-nomedia .am-credit,.am-nomedia .am-thumbs,.am-nomedia .am-bar{display:none}',
+    '.am-nomedia .am-sources{border-top:0}',
+    '.am-trust{display:inline-block;font-size:.66rem;font-weight:800;padding:2px 9px;border-radius:999px;background:var(--panel2,#1a2130);color:var(--text-mute,#8b94a7);margin-left:8px;white-space:nowrap;vertical-align:middle}',
+    '.am-tryit{display:flex;align-items:center;gap:14px;margin:22px 0;padding:16px 18px;border-radius:14px;border:1px solid var(--accent,#00e5ff);background:rgba(0,229,255,.07);text-decoration:none;color:var(--text,#e8edf5);transition:background .18s ease}',
+    '.am-tryit:hover{background:rgba(0,229,255,.14)}',
+    '.am-tryit-emoji{font-size:1.9rem;flex:none}',
+    '.am-tryit-text{font-size:1rem;line-height:1.45}',
+    '.am-tryit-text b{color:var(--accent,#00e5ff)}',
+    '.am-watch{margin:16px 0 6px;max-width:720px}',
+    '.am-watch-head{font-weight:800;font-size:.88rem;margin-bottom:8px;color:var(--text,#e8edf5)}',
+    '.am-watch-frame{position:relative;padding-bottom:56.25%;height:0;border-radius:12px;overflow:hidden;background:#05080f;border:1px solid var(--border,#2a3348)}',
+    '.am-watch-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}',
+    '@media (max-width:640px){.am-watch{margin-left:-4px;margin-right:-4px}.am-tryit{padding:14px}}'
   ].join('\n');
 
   function injectCss() {
@@ -68,6 +95,21 @@
   function vimeoId(url) {
     var m = String(url).match(/vimeo\.com\/(\d+)/);
     return m ? m[1] : null;
+  }
+  /* Trust tag from the source domain — teaches media literacy, kept factual. */
+  function trustTag(url) {
+    var host = '';
+    try { host = new URL(String(url)).hostname.toLowerCase(); } catch (e) { return null; }
+    var paper = /arxiv\.org$|doi\.org$|nature\.com$|science\.org$|sciencedirect\.com$|cell\.com$|plos\.org$|pnas\.org$|pubmed|\.nih\.gov$|ieee\.org$|acm\.org$|springer\.com$|wiley\.com$|tandfonline\.com$/;
+    var official = /\.gov$|\.edu$|\.ac\.uk$|\.edu\.au$/;
+    if (paper.test(host)) return { icon: '\U0001F4C4', label: 'Research paper' };
+    if (official.test(host)) return { icon: '\U0001F3DB\uFE0F', label: 'Official source' };
+    return { icon: '\U0001F4F0', label: 'News report' };
+  }
+  function trustPill(url) {
+    var t = trustTag(url);
+    if (!t) return '';
+    return '<span class="am-trust">' + t.icon + ' ' + esc(t.label) + '</span>';
   }
 
   /* ---------- article lookup ---------- */
@@ -96,19 +138,34 @@
     }
     return articles[0];
   }
-  function fetchFullMedia(entry) {
-    if (!entry || !entry.path || entry.body) return Promise.resolve(null);
-    var base = location.pathname.indexOf('/pages/') !== -1 ? '../' : '';
-    return fetch(base + entry.path, { cache: 'no-store' })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (full) { return full && Array.isArray(full.media) ? full.media : null; })
-      .catch(function () { return null; });
-  }
   function cleanMedia(raw) {
     if (!Array.isArray(raw)) return [];
     return raw.filter(function (m) {
       return m && (m.type === 'image' || m.type === 'video' || m.type === 'link') && okUrl(m.url);
     }).slice(0, 6);
+  }
+  function cleanSources(raw) {
+    if (!Array.isArray(raw)) return [];
+    return raw.filter(function (s) {
+      return s && okUrl(s.url) && String(s.title || s.label || '').trim();
+    }).map(function (s) {
+      return { title: String(s.title || s.label || '').trim(), url: s.url, publisher: String(s.publisher || '').trim() };
+    }).slice(0, 5);
+  }
+  function cleanTryIt(raw) {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+    if (raw.type !== 'weekend-lab' && raw.type !== 'quiz') return null;
+    if (!okUrl(raw.url)) return null;
+    var label = String(raw.label || '').trim();
+    if (!label) return null;
+    return { type: raw.type, label: label.slice(0, 80), url: raw.url };
+  }
+  function fetchFullArticle(entry) {
+    if (!entry || !entry.path || entry.body) return Promise.resolve(null);
+    var base = location.pathname.indexOf('/pages/') !== -1 ? '../' : '';
+    return fetch(base + entry.path, { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; });
   }
 
   /* ---------- lightbox ---------- */
@@ -182,12 +239,33 @@
   }
 
   function go(i) {
+    if (!items.length) return;
     idx = (i + items.length) % items.length;
     renderStage();
   }
 
-  function openLightbox(list, start) {
-    items = list; idx = start || 0; broken = {};
+  function renderSourcesHtml(sources) {
+    if (!sources || !sources.length) return '';
+    var first = sources[0], rest = sources.slice(1);
+    var html = '<div class="am-sources">' +
+      '<div class="am-src-head">\U0001F4F0 Original reporting</div>' +
+      '<a class="am-src-main" href="' + esc(first.url) + '" target="_blank" rel="noopener">' +
+        '<div class="am-src-title">' + esc(first.title) + trustPill(first.url) + '</div>' +
+        '<div class="am-src-pub">' + esc(first.publisher || 'Source') + ' \u2197</div></a>';
+    if (rest.length) {
+      html += '<div class="am-src-head">More sources</div><div class="am-src-list">' +
+        rest.map(function (s) {
+          return '<a href="' + esc(s.url) + '" target="_blank" rel="noopener">' +
+            '<span class="t">' + esc(s.title) + trustPill(s.url) + '</span>' +
+            '<span class="p">' + esc(s.publisher || '') + '</span></a>';
+        }).join('') + '</div>';
+    }
+    return html + '</div>';
+  }
+
+  var srcList = [];
+  function openLightbox(list, start, sources) {
+    items = list; idx = start || 0; broken = {}; srcList = sources || [];
     closeLightbox();
     injectCss();
     lb = document.createElement('div');
@@ -195,7 +273,7 @@
     lb.setAttribute('role', 'dialog');
     lb.setAttribute('aria-label', 'Story media gallery');
     lb.innerHTML =
-      '<div class="am-box">' +
+      '<div class="am-box' + (items.length ? '' : ' am-nomedia') + '">' +
         '<button class="am-x" aria-label="Close">✕</button>' +
         '<div class="am-stage"></div>' +
         '<div class="am-cap"></div>' +
@@ -204,11 +282,13 @@
         '<div class="am-bar"><div class="am-pos"></div>' +
         '<div class="am-nav"><button class="am-prev" aria-label="Previous">‹</button>' +
         '<button class="am-next" aria-label="Next">›</button></div></div>' +
+        renderSourcesHtml(srcList) +
       '</div>';
     document.body.appendChild(lb);
     requestAnimationFrame(function () { lb.classList.add('show'); });
     document.body.style.overflow = 'hidden';
 
+    if (!items.length) { var st = lb.querySelector('.am-stage'); if (st) st.style.display = 'none'; }
     lb.querySelector('.am-x').addEventListener('click', closeLightbox);
     lb.querySelector('.am-prev').addEventListener('click', function (e) { e.stopPropagation(); go(idx - 1); });
     lb.querySelector('.am-next').addEventListener('click', function (e) { e.stopPropagation(); go(idx + 1); });
@@ -232,18 +312,78 @@
     lb = null;
   }
 
+  /* ---------- try-it card + inline video ---------- */
+  function whenArticleReady(sel, fn) {
+    var el = document.querySelector(sel);
+    if (el) { fn(el); return; }
+    var root = document.getElementById('article-root');
+    if (!root) return;
+    var obs = new MutationObserver(function () {
+      var t = document.querySelector(sel);
+      if (t) { obs.disconnect(); fn(t); }
+    });
+    obs.observe(root, { childList: true, subtree: true });
+    setTimeout(function () { obs.disconnect(); }, 15000);
+  }
+  function mountTryIt(tryIt) {
+    if (!tryIt || document.getElementById('am-tryit')) return;
+    injectCss();
+    whenArticleReady('#article-root .family-discussion', function (anchor) {
+      if (document.getElementById('am-tryit')) return;
+      var a = document.createElement('a');
+      a.id = 'am-tryit';
+      a.className = 'am-tryit';
+      a.href = tryIt.url;
+      a.innerHTML = '<span class="am-tryit-emoji">\U0001F9EA</span>' +
+        '<span class="am-tryit-text"><b>Try it yourself:</b> ' + esc(tryIt.label) + ' \u2192</span>';
+      anchor.parentNode.insertBefore(a, anchor);
+    });
+  }
+  function videoEmbedUrl(m) {
+    var yt = youtubeId(m.url), vm = vimeoId(m.url);
+    if (yt) return 'https://www.youtube-nocookie.com/embed/' + yt;
+    if (vm) return 'https://player.vimeo.com/video/' + vm;
+    return null;
+  }
+  function mountWatchEmbed(media) {
+    if (document.getElementById('am-watch')) return;
+    var firstVideo = null;
+    for (var i = 0; i < media.length; i++) {
+      if (media[i].type === 'video') { firstVideo = media[i]; break; }
+    }
+    if (!firstVideo) return;
+    var embed = videoEmbedUrl(firstVideo);
+    if (!embed) return;
+    injectCss();
+    whenArticleReady('#article-root .article-hero', function (hero) {
+      if (document.getElementById('am-watch')) return;
+      var wrap = document.createElement('div');
+      wrap.id = 'am-watch';
+      wrap.className = 'am-watch';
+      wrap.innerHTML = '<div class="am-watch-head">\u25B6 Watch the story</div>' +
+        '<div class="am-watch-frame"><iframe src="' + esc(embed) + '" title="' + esc(firstVideo.caption || 'Story video') +
+        '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>';
+      hero.insertAdjacentElement('afterend', wrap);
+    });
+  }
+
   /* ---------- button ---------- */
-  function mountButton(media) {
+  function mountButton(media, sources) {
     if (document.getElementById('am-btn')) return;
     var hero = document.querySelector('#article-root .article-hero');
     if (!hero) return;
     injectCss();
+    var hasMedia = media.length > 0;
     var btn = document.createElement('button');
     btn.id = 'am-btn';
     btn.className = 'am-btn';
-    btn.innerHTML = '📸 Media <span class="am-count">' + media.length + '</span>';
-    btn.setAttribute('aria-label', 'Open story media gallery (' + media.length + ' items)');
-    btn.addEventListener('click', function () { openLightbox(media, 0); });
+    btn.innerHTML = hasMedia
+      ? '📸 Media <span class="am-count">' + media.length + '</span>'
+      : '📰 Sources <span class="am-count">' + sources.length + '</span>';
+    btn.setAttribute('aria-label', hasMedia
+      ? 'Open story media gallery (' + media.length + ' items)'
+      : 'Open story sources (' + sources.length + ' sources)');
+    btn.addEventListener('click', function () { openLightbox(media, 0, sources); });
     hero.insertAdjacentElement('afterend', btn);
   }
 
@@ -254,24 +394,35 @@
     waitForArticles().then(function (articles) {
       var entry = findEntry(articles, articleIdFromUrl());
       if (!entry) return;
-      var fromManifest = cleanMedia(entry.media);
-      if (fromManifest.length) { mountWhenReady(fromManifest); return; }
-      fetchFullMedia(entry).then(function (full) {
-        var m = cleanMedia(full);
-        if (m.length) mountWhenReady(m);
+      var media = cleanMedia(entry.media);
+      var sources = cleanSources(entry.sources);
+      var tryIt = cleanTryIt(entry.tryIt);
+      if (media.length || sources.length || tryIt) {
+        mountAll(media, sources, tryIt);
+        return;
+      }
+      fetchFullArticle(entry).then(function (full) {
+        if (!full) return;
+        mountAll(cleanMedia(full.media), cleanSources(full.sources), cleanTryIt(full.tryIt));
       });
     });
   }
 
-  function mountWhenReady(media) {
+  function mountAll(media, sources, tryIt) {
+    if (media.length || (sources && sources.length)) mountWhenReady(media, sources || []);
+    if (tryIt) mountTryIt(tryIt);
+    if (media.length) mountWatchEmbed(media);
+  }
+
+  function mountWhenReady(media, sources) {
     // The hero may render after the manifest resolves; watch for it.
     var hero = document.querySelector('#article-root .article-hero');
-    if (hero) { mountButton(media); return; }
+    if (hero) { mountButton(media, sources); return; }
     var root = document.getElementById('article-root');
     var obs = new MutationObserver(function () {
       if (document.querySelector('#article-root .article-hero')) {
         obs.disconnect();
-        mountButton(media);
+        mountButton(media, sources);
       }
     });
     obs.observe(root, { childList: true, subtree: true });
