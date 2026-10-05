@@ -1,9 +1,17 @@
 // public/assets/js/listen-kokoro.js
-// Kokoro neural TTS for article Listen button.
-// Replaces the browser speechSynthesis implementation with server-generated
-// natural voices + a voice picker. Loaded after app.js; takes over #btn-listen.
+// Piper TTS narration for articles. Plays pre-generated MP3s from
+// /assets/audio/<article-id>-<voice>.mp3 with a voice picker.
+// Falls back to browser speechSynthesis if no MP3 exists yet.
 (function () {
   'use strict';
+
+  var VOICES = [
+    { id: 'lessac', label: 'Heart', desc: 'Warm feminine' },
+    { id: 'amy', label: 'Amy', desc: 'Friendly feminine' },
+    { id: 'ryan', label: 'Ryan', desc: 'Friendly masculine' },
+    { id: 'danny', label: 'Danny', desc: 'Deep masculine' },
+  ];
+  var DEFAULT_VOICE = 'lessac';
 
   function init() {
     var btn = document.getElementById('btn-listen');
@@ -14,18 +22,14 @@
     btn.parentNode.replaceChild(fresh, btn);
     btn = fresh;
 
-    // Article data: app.js exposes it via window.__article or data attributes.
     var article = window.__article || {};
-    var articleId = article.id || article.slug ||
-      (document.querySelector('[data-article-id]') || {}).getAttribute?.('data-article-id');
+    var articleId = article.id || article.slug;
     if (!articleId) {
-      // Fall back to URL ?id= param (article.html uses ?id=)
       var m = /[?&]id=([^&]+)/.exec(location.search);
       if (m) articleId = decodeURIComponent(m[1]);
     }
     if (!articleId) { btn.style.display = 'none'; return; }
 
-    // Inject voice-picker styles.
     var st = document.createElement('style');
     st.textContent = '.voice-picker-wrap{display:inline-block;margin-left:8px}' +
       '.voice-picker{background:rgba(255,255,255,.08);color:inherit;border:1px solid rgba(255,255,255,.15);' +
@@ -36,6 +40,7 @@
     var audio = null, playing = false;
     var voice = null;
     try { voice = localStorage.getItem('sn-voice'); } catch (e) {}
+    if (!voice || !VOICES.some(function (v) { return v.id === voice; })) voice = DEFAULT_VOICE;
 
     function setUI(state, label) {
       btn.classList.toggle('listening', state === 'playing');
@@ -51,42 +56,42 @@
       playing = false; setUI('idle');
     }
 
-    // Voice picker dropdown.
     var wrap = document.createElement('span');
     wrap.className = 'voice-picker-wrap';
     var picker = document.createElement('select');
     picker.className = 'voice-picker';
     picker.setAttribute('aria-label', 'Narration voice');
+    VOICES.forEach(function (v) {
+      var o = document.createElement('option');
+      o.value = v.id; o.textContent = '🔊 ' + v.label + ' — ' + v.desc;
+      if (v.id === voice) o.selected = true;
+      picker.appendChild(o);
+    });
+    picker.addEventListener('change', function () {
+      voice = picker.value;
+      try { localStorage.setItem('sn-voice', voice); } catch (e) {}
+      if (playing) stop();
+    });
     wrap.appendChild(picker);
     btn.parentNode.insertBefore(wrap, btn.nextSibling);
 
-    fetch('/api/tts/voices').then(function (r) { return r.json(); }).then(function (d) {
-      var voices = d.voices || [];
-      if (!voices.length) { wrap.style.display = 'none'; return; }
-      if (!voice || !voices.some(function (v) { return v.id === voice; })) voice = d.default || voices[0].id;
-      voices.forEach(function (v) {
-        var o = document.createElement('option');
-        o.value = v.id; o.textContent = '🔊 ' + v.label + ' — ' + v.desc;
-        if (v.id === voice) o.selected = true;
-        picker.appendChild(o);
-      });
-      picker.addEventListener('change', function () {
-        voice = picker.value;
-        try { localStorage.setItem('sn-voice', voice); } catch (e) {}
-        if (playing) stop();
-      });
-    }).catch(function () { wrap.style.display = 'none'; });
+    function audioUrl(v) {
+      return '/assets/audio/' + encodeURIComponent(articleId) + '-' + encodeURIComponent(v || voice) + '.mp3';
+    }
 
     btn.addEventListener('click', function () {
       if (playing) { stop(); return; }
-      setUI('loading', 'Preparing audio…');
-      var url = '/api/articles/' + encodeURIComponent(articleId) + '/audio?voice=' + encodeURIComponent(voice || 'af_heart');
+      setUI('loading', 'Loading audio…');
       audio = new Audio();
       audio.preload = 'auto';
       audio.oncanplay = function () { playing = true; setUI('playing'); };
       audio.onended = stop;
-      audio.onerror = function () { stop(); fallback(); };
-      audio.src = url;
+      audio.onerror = function () {
+        // No pre-generated MP3 for this voice yet — fall back to browser TTS.
+        stop();
+        fallback();
+      };
+      audio.src = audioUrl();
       audio.play().catch(function () { stop(); fallback(); });
     });
 
