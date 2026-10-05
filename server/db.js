@@ -79,6 +79,16 @@ db.exec(`
   );
 `);
 
+// Kid dashboard customization (added 2026-10-05).
+for (const [col, type] of [
+  ['banner_image', 'TEXT'],
+  ['quote', 'TEXT'],
+  ['interests', 'TEXT'],
+]) {
+  try { db.exec(`ALTER TABLE kid_profiles ADD COLUMN ${col} ${type}`); }
+  catch (e) { /* already exists */ }
+}
+
 // Kid settings + accessibility (added 2026-10-05).
 db.exec(`
   CREATE TABLE IF NOT EXISTS kid_settings (
