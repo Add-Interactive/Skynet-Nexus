@@ -191,6 +191,11 @@
         <label for="reg-pw">Password (8+ characters)</label>
         <input id="reg-pw" name="password" type="password" required minlength="8" maxlength="200" autocomplete="new-password"/>
       </div>
+      <div class="sky-field">
+        <label for="reg-invite">Invite code <span style="font-weight:400;color:var(--text-mute,#9fb0c3)">(optional — from family or teacher)</span></label>
+        <input id="reg-invite" name="inviteCode" type="text" placeholder="e.g. XK7Q2M9P" style="text-transform:uppercase" autocomplete="off"/>
+        <div style="font-size:.8rem;color:var(--text-mute,#9fb0c3);margin-top:.4rem">🛡️ Have a family or teacher invite? Enter it to unlock chats. Without one, you get a solo reading account — no social features until invited.</div>
+      </div>
       <div class="sky-field" id="reg-role-field">
         <label>I am signing up as a… <span style="font-weight:400;color:var(--text-mute,#9fb0c3)">(you can add more roles later)</span></label>
         <div class="sky-role-row" id="reg-role-row" style="display:flex;gap:.6rem">
@@ -278,6 +283,11 @@
         } catch (e) { /* fall back to normal signup */ }
       })();
 
+      // Pre-fill invite from URL (?invite=CODE)
+      try {
+        var ic = new URLSearchParams(location.search).get('invite');
+        if (ic) document.getElementById('reg-invite').value = ic.toUpperCase();
+      } catch (e) {}
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         clearError();
@@ -288,7 +298,8 @@
             email: form.email.value.trim(),
             password: form.password.value,
             avatarColor: selected,
-            role: selectedRole
+            role: selectedRole,
+            inviteCode: (document.getElementById('reg-invite').value || '').trim()
           };
           const endpoint = setupMode ? '/api/auth/setup-admin' : '/api/auth/register';
           const res = await fetch(endpoint, {
