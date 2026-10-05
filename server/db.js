@@ -79,6 +79,45 @@ db.exec(`
   );
 `);
 
+// Kid friends (added 2026-10-05): dual-parent-approved friend requests.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS friend_requests (
+    id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+    from_kid_id        INTEGER NOT NULL,
+    to_kid_id          INTEGER NOT NULL,
+    from_parent_ok     INTEGER NOT NULL DEFAULT 0,
+    to_parent_ok       INTEGER NOT NULL DEFAULT 0,
+    status             TEXT NOT NULL DEFAULT 'pending',
+    created_at         TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(from_kid_id, to_kid_id),
+    FOREIGN KEY (from_kid_id) REFERENCES kid_profiles(id) ON DELETE CASCADE,
+    FOREIGN KEY (to_kid_id) REFERENCES kid_profiles(id) ON DELETE CASCADE
+  );
+  CREATE TABLE IF NOT EXISTS friendships (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    kid1_id    INTEGER NOT NULL,
+    kid2_id    INTEGER NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(kid1_id, kid2_id),
+    FOREIGN KEY (kid1_id) REFERENCES kid_profiles(id) ON DELETE CASCADE,
+    FOREIGN KEY (kid2_id) REFERENCES kid_profiles(id) ON DELETE CASCADE
+  );
+`);
+for (const [col, type] of [['friend_code', 'TEXT']]) {
+  try { db.exec(`ALTER TABLE kid_profiles ADD COLUMN ${col} ${type}`); }
+  catch (e) { /* already exists */ }
+}
+// Backfill friend codes
+try {
+  for (const k of db.prepare('SELECT id FROM kid_profiles WHERE friend_code IS NULL').all()) {
+    const c = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) code += c[Math.floor(Math.random() * c.length)];
+    try { db.prepare('UPDATE kid_profiles SET friend_code = ? WHERE id = ?').run(code, k.id); }
+    catch (e) { /* collision, skip */ }
+  }
+} catch (e) {}
+
 // Safety + engagement tables (added 2026-10-05).
 db.exec(`
   CREATE TABLE IF NOT EXISTS parental_consents (
