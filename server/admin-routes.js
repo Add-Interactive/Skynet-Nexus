@@ -1328,8 +1328,11 @@ router.patch('/articles/:slug', (req, res) => {
     if (!entry.path || typeof entry.path !== 'string') return res.status(500).json({ error: 'article has no file path' });
 
     // Resolve the article JSON file; keep it inside DATA_DIR/articles.
+    // Manifest paths look like "data/articles/2026-10-05/<slug>.json" — the
+    // leading data/ is relative to the volume root, so strip it for DATA_DIR.
     const articlesDir = path.resolve(path.join(DATA_DIR, 'articles'));
-    const artPath = path.resolve(path.join(DATA_DIR, entry.path));
+    const relPath = entry.path.replace(/^(\.\/)?data\//, '');
+    const artPath = path.resolve(path.join(DATA_DIR, relPath));
     if (artPath !== articlesDir && !artPath.startsWith(articlesDir + path.sep)) {
       return res.status(400).json({ error: 'invalid article path' });
     }
