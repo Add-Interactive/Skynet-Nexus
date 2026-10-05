@@ -69,6 +69,44 @@ Return ONLY the JSON objects, one per line (JSONL). No commentary, no markdown f
 }
 
 
+// Validate the optional `tryIt` object:
+// {type:'weekend-lab'|'quiz', label, url} — links a story to a hands-on activity.
+function validateTryIt(tryIt) {
+  const errors = [];
+  if (tryIt == null) return errors;
+  if (typeof tryIt !== 'object' || Array.isArray(tryIt)) return ['tryIt must be an object'];
+  if (!['weekend-lab', 'quiz'].includes(tryIt.type)) errors.push('tryIt.type must be weekend-lab|quiz');
+  const okUrl = u => typeof u === 'string' && /^https?:\/\//i.test(u.trim());
+  if (!okUrl(tryIt.url)) errors.push('tryIt.url must be an http(s) URL');
+  const label = String(tryIt.label || '').trim();
+  if (!label) errors.push('tryIt.label required');
+  else if (label.length > 80) errors.push('tryIt.label max 80 chars');
+  return errors;
+}
+
+// Validate the optional `sources` array:
+// [{title, url, publisher?}] — title <= 150 chars, url http(s), publisher <= 80 chars.
+// The first entry should be the original reporting the story was written from.
+// (accepts legacy `label` as a title fallback)
+function validateSourcesArray(sources) {
+  const errors = [];
+  if (sources == null) return errors;
+  if (!Array.isArray(sources)) return ['sources must be an array'];
+  if (sources.length > 5) errors.push('sources: max 5 items (got ' + sources.length + ')');
+  const okUrl = u => typeof u === 'string' && /^https?:\/\//i.test(u.trim());
+  sources.forEach((s, i) => {
+    const tag = 'sources[' + i + ']';
+    if (!s || typeof s !== 'object') { errors.push(tag + ': must be an object'); return; }
+    const title = String(s.title || s.label || '').trim();
+    if (!title) errors.push(tag + ': title required');
+    else if (title.length > 150) errors.push(tag + ': title max 150 chars');
+    if (!okUrl(s.url)) errors.push(tag + ': url must be an http(s) URL');
+    const pub = String(s.publisher || '').trim();
+    if (pub.length > 80) errors.push(tag + ': publisher max 80 chars');
+  });
+  return errors;
+}
+
 // Validate the optional `media` array on a draft:
 // [{type:'image'|'video'|'link', url, caption, credit, sourceUrl?}]
 // Caps: max 6 items, http(s) urls, caption <= 200 chars, credit <= 120 chars.
@@ -120,6 +158,8 @@ function validateDraft(article) {
   if (hits.length) errors.push('KID-SAFE VIOLATION: flagged terms: ' + hits.join(', '));
 
   errors.push(...validateMediaArray(article.media));
+  errors.push(...validateSourcesArray(article.sources));
+  errors.push(...validateTryIt(article.tryIt));
 
   return errors;
 }

@@ -42,6 +42,44 @@ function readStdin() {
 }
 
 
+// Validate the optional `tryIt` object:
+// {type:'weekend-lab'|'quiz', label, url} — links a story to a hands-on activity.
+function validateTryIt(tryIt) {
+  const errors = [];
+  if (tryIt == null) return errors;
+  if (typeof tryIt !== 'object' || Array.isArray(tryIt)) return ['tryIt must be an object'];
+  if (!['weekend-lab', 'quiz'].includes(tryIt.type)) errors.push('tryIt.type must be weekend-lab|quiz');
+  const okUrl = u => typeof u === 'string' && /^https?:\/\//i.test(u.trim());
+  if (!okUrl(tryIt.url)) errors.push('tryIt.url must be an http(s) URL');
+  const label = String(tryIt.label || '').trim();
+  if (!label) errors.push('tryIt.label required');
+  else if (label.length > 80) errors.push('tryIt.label max 80 chars');
+  return errors;
+}
+
+// Validate the optional `sources` array:
+// [{title, url, publisher?}] — title <= 150 chars, url http(s), publisher <= 80 chars.
+// The first entry should be the original reporting the story was written from.
+// (accepts legacy `label` as a title fallback)
+function validateSourcesArray(sources) {
+  const errors = [];
+  if (sources == null) return errors;
+  if (!Array.isArray(sources)) return ['sources must be an array'];
+  if (sources.length > 5) errors.push('sources: max 5 items (got ' + sources.length + ')');
+  const okUrl = u => typeof u === 'string' && /^https?:\/\//i.test(u.trim());
+  sources.forEach((s, i) => {
+    const tag = 'sources[' + i + ']';
+    if (!s || typeof s !== 'object') { errors.push(tag + ': must be an object'); return; }
+    const title = String(s.title || s.label || '').trim();
+    if (!title) errors.push(tag + ': title required');
+    else if (title.length > 150) errors.push(tag + ': title max 150 chars');
+    if (!okUrl(s.url)) errors.push(tag + ': url must be an http(s) URL');
+    const pub = String(s.publisher || '').trim();
+    if (pub.length > 80) errors.push(tag + ': publisher max 80 chars');
+  });
+  return errors;
+}
+
 // Validate the optional `media` array:
 // [{type:'image'|'video'|'link', url, caption, credit, sourceUrl?}]
 // (mirrors newsroom/agent-orchestrator.js validateMediaArray)
@@ -101,6 +139,8 @@ async function main() {
   const hits = flagged.filter(w => titleLower.includes(w) || bodyLower.includes(w));
   if (hits.length) errors.push('KID-SAFE VIOLATION: flagged terms in title/body: ' + hits.join(', '));
   errors.push(...validateMediaArray(article.media));
+  errors.push(...validateSourcesArray(article.sources));
+  errors.push(...validateTryIt(article.tryIt));
   if (errors.length) { console.error('Validation errors:\n  - ' + errors.join('\n  - ')); process.exit(3); }
 
   const slug = article.slug || slugify(article.title);
@@ -147,7 +187,18 @@ async function main() {
     featured: !!article.featured,
     pinned: !!article.pinned,
     live: !!article.live,
-    sources: article.sources || [],
+    tryIt: (article.tryIt && typeof article.tryIt === 'object' && !Array.isArray(article.tryIt)) ? {
+      type: article.tryIt.type,
+      label: String(article.tryIt.label || '').trim(),
+      url: String(article.tryIt.url || '').trim()
+    } : null,
+    sources: Array.isArray(article.sources) ? article.sources.map(function (s) {
+      return {
+        title: String(s.title || s.label || '').trim(),
+        url: String(s.url || '').trim(),
+        publisher: String(s.publisher || '').trim()
+      };
+    }) : [],
     media: Array.isArray(article.media) ? article.media : []
   };
 
@@ -188,7 +239,9 @@ async function main() {
     featured: full.featured,
     pinned: full.pinned,
     live: full.live,
-    media: full.media
+    media: full.media,
+    sources: full.sources,
+    tryIt: full.tryIt
   };
 
   // Replace existing entry or append
