@@ -1140,7 +1140,8 @@ function checkAndRenderAdminControls() {
     return;
   }
   const u = SkyAuth.state.user;
-  if (u.role !== 'admin' && u.role !== 'editor') {
+  const uRoles = Array.isArray(u.roles) && u.roles.length ? u.roles : (u.role ? [u.role] : []);
+  if (uRoles.indexOf('admin') === -1 && uRoles.indexOf('editor') === -1) {
     document.querySelectorAll('.post-admin-bar').forEach(el => el.remove());
     return;
   }
