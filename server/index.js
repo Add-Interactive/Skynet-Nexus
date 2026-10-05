@@ -1346,6 +1346,75 @@ api.put('/newsroom/whats-new', (req, res) => {
   }
 });
 
+// -------------- KID SETTINGS + PARENT CONTROLS --------------
+function getKidSettings(db, kidId) {
+  let s = db.prepare('SELECT * FROM kid_settings WHERE kid_id = ?').get(kidId);
+  if (!s) {
+    db.prepare('INSERT INTO kid_settings (kid_id) VALUES (?)').run(kidId);
+    s = db.prepare('SELECT * FROM kid_settings WHERE kid_id = ?').get(kidId);
+  }
+  return {
+    listenEnabled: s.listen_enabled == 1, channels: JSON.parse(s.channels || '[]'),
+    commentsEnabled: s.comments_enabled == 1,
+    isBlind: s.is_blind == 1, lowVision: s.low_vision == 1,
+    audioGuide: s.audio_guide == 1, voiceCommands: s.voice_commands == 1,
+    largeText: s.large_text == 1, highContrast: s.high_contrast == 1,
+  };
+}
+// GET /api/kids/:id/settings — parent reads kid settings
+api.get('/kids/:id/settings', requireAuth, (req, res) => {
+  try {
+    const { db } = require('./db');
+    const kid = db.prepare('SELECT * FROM kid_profiles WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
+    if (!kid) return res.status(404).json({ error: 'not found' });
+    res.json({ settings: getKidSettings(db, kid.id) });
+  } catch (e) { res.status(500).json({ error: 'failed' }); }
+});
+// PUT /api/kids/:id/settings — parent updates
+api.put('/kids/:id/settings', requireAuth, (req, res) => {
+  try {
+    const { db } = require('./db');
+    const kid = db.prepare('SELECT * FROM kid_profiles WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
+    if (!kid) return res.status(404).json({ error: 'not found' });
+    getKidSettings(db, kid.id); // ensure row exists
+    const b = req.body || {};
+    const map = { listenEnabled: 'listen_enabled', commentsEnabled: 'comments_enabled',
+      isBlind: 'is_blind', lowVision: 'low_vision', audioGuide: 'audio_guide',
+      voiceCommands: 'voice_commands', largeText: 'large_text', highContrast: 'high_contrast' };
+    for (const [k, col] of Object.entries(map)) {
+      if (b[k] !== undefined) db.prepare(`UPDATE kid_settings SET ${col} = ? WHERE kid_id = ?`).run(b[k] ? 1 : 0, kid.id);
+    }
+    if (b.channels !== undefined) db.prepare('UPDATE kid_settings SET channels = ? WHERE kid_id = ?').run(JSON.stringify(b.channels || []), kid.id);
+    // Auto-enable full a11y suite when parent declares blindness
+    if (b.isBlind) db.prepare('UPDATE kid_settings SET audio_guide = 1, voice_commands = 1, large_text = 1, high_contrast = 1 WHERE kid_id = ?').run(kid.id);
+    res.json({ ok: true, settings: getKidSettings(db, kid.id) });
+  } catch (e) { res.status(500).json({ error: 'failed' }); }
+});
+// GET /api/kids/:id/comments — parent sees kid's discussion history
+api.get('/kids/:id/comments', requireAuth, (req, res) => {
+  try {
+    const { db } = require('./db');
+    const kid = db.prepare('SELECT * FROM kid_profiles WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
+    if (!kid) return res.status(404).json({ error: 'not found' });
+    const rows = db.prepare(`SELECT r.id, r.body, r.created_at, d.title as discussion_title, d.id as discussion_id,
+      d.article_id, d.article_cat FROM discussion_replies r JOIN discussions d ON d.id = r.discussion_id
+      WHERE r.author_kid_id = ? ORDER BY r.created_at DESC LIMIT 100`).all(kid.id);
+    const qs = db.prepare(`SELECT id, question, answer, status, created_at, article_slug FROM correspondent_questions
+      WHERE kid_id = ? ORDER BY created_at DESC LIMIT 100`).all(kid.id);
+    res.json({ replies: rows, questions: qs });
+  } catch (e) { res.status(500).json({ error: 'failed: ' + e.message }); }
+});
+// GET /api/kids/:id/a11y — public a11y flags for the frontend (parent-authenticated)
+api.get('/kids/:id/a11y', requireAuth, (req, res) => {
+  try {
+    const { db } = require('./db');
+    const kid = db.prepare('SELECT * FROM kid_profiles WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
+    if (!kid) return res.status(404).json({ error: 'not found' });
+    const s = getKidSettings(db, kid.id);
+    res.json({ audioGuide: s.audioGuide, voiceCommands: s.voiceCommands, largeText: s.largeText, highContrast: s.highContrast, listenEnabled: s.listenEnabled, channels: s.channels });
+  } catch (e) { res.status(500).json({ error: 'failed' }); }
+});
+
 // -------------- FAMILIES --------------
 function genCode(n) {
   const c = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
