@@ -193,11 +193,88 @@ function skyRebrand() {
   } catch (e) {}
 }
 
+
+/* ---------- Footer columns (site footer mirrors the sidebar) ---------- */
+var SKY_FOOTER_CHANNELS = [
+  ['stem', '\uD83E\uDDEA STEM', 'stem.html'],
+  ['ai', '\uD83E\uDD16 AI', null],
+  ['space', '\uD83D\uDE80 Space', null],
+  ['robotics', '\uD83E\uDDBE Robotics', 'robotics.html'],
+  ['biotech', '\uD83E\uDDEC Biotech', null],
+  ['quantum', '\u269B\uFE0F Quantum', null],
+  ['climate', '\uD83C\uDF0D Climate', null],
+  ['engineering', '\uD83C\uDFD7\uFE0F Engineering', null],
+  ['math', '\uD83D\uDD22 Math', null],
+  ['cyber', '\uD83D\uDD12 Cybersecurity', null],
+  ['gaming', '\uD83C\uDFAE Gaming', null],
+  ['music', '\uD83C\uDFB5 Music', 'music.html'],
+  ['play', '\uD83C\uDFA8 Play & Design', 'play.html']
+];
+
+function renderSkyFooter(base) {
+  base = base || '';
+  var inner = document.querySelector('footer .footer-inner');
+  if (!inner) return;
+  var P = function (file) { return base + 'pages/' + file; };
+  function chanHref(id, dedicated) {
+    return dedicated ? P(dedicated) : P('channel.html?c=' + id);
+  }
+  function col(title, links) {
+    var lis = links.map(function (l) {
+      return '<li><a href="' + l[0] + '">' + l[1] + '</a></li>';
+    }).join('');
+    return '<div class="footer-col"><h5>' + title + '</h5><ul>' + lis + '</ul></div>';
+  }
+  var doCol = col('Do', [
+    [P('weekend-lab.html'), '\uD83E\uDDEA Weekend Lab'],
+    [P('events.html'), '\uD83D\uDCC5 Events'],
+    [P('summer.html'), '\uD83C\uDFD5\uFE0F Summer STEM'],
+    [P('quiz.html'), '\uD83E\uDDE0 Daily Quiz']
+  ]);
+  var readCol = col('Read', [
+    [base + 'index.html', 'Home'],
+    [base + 'index.html#trending', 'Trending'],
+    [P('archive.html'), '\uD83D\uDCDA Archive'],
+    [P('feeds.html'), '\uD83D\uDCE1 STEM Feeds']
+  ]);
+  var chanCol = col('Channels', SKY_FOOTER_CHANNELS.map(function (c) {
+    return [chanHref(c[0], c[2]), c[1]];
+  }));
+  var commCol = col('Community', [
+    [P('leaderboard.html'), 'Leaderboard'],
+    [P('team.html'), 'Meet the Team'],
+    [P('creators.html'), '\uD83C\uDF1F Creators'],
+    [P('whats-new.html'), "What's New"]
+  ]);
+  var youCol = col('You', [
+    [P('profile.html'), '\uD83D\uDC64 Profile'],
+    [P('about.html'), 'About'],
+    [P('contact.html'), 'Contact'],
+    [P('privacy.html'), 'Privacy']
+  ]);
+  // Replace the old link columns (Channels/Company/Community) but keep the
+  // brand block and the Network/partners column.
+  var cols = inner.querySelectorAll(':scope > .footer-col');
+  var keep = [];
+  cols.forEach(function (c) {
+    var h = c.querySelector('h5');
+    var t = h ? h.textContent.trim() : '';
+    if (t === 'Network' || c.classList.contains('footer-col-partners')) keep.push(c);
+    else c.remove();
+  });
+  var brand = inner.querySelector('.footer-brand');
+  var html = doCol + readCol + chanCol + commCol + youCol;
+  keep.forEach(function (c) { html += c.outerHTML; c.remove(); });
+  if (brand) brand.insertAdjacentHTML('afterend', html);
+  else inner.insertAdjacentHTML('afterbegin', html);
+}
+
 /* Init: rebuild the sidebar, keep the mobile drawer working, apply rebrand. */
 (function skyNavInit() {
   function boot() {
     var base = location.pathname.indexOf('/pages/') !== -1 ? '../' : '';
     renderSkyNav(base);
+    renderSkyFooter(base);
     // The rebuilt links need the drawer's close-on-tap behavior (app.js bound
     // the old ones). Delegate here.
     var sb = document.querySelector('aside.sidebar');
