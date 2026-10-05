@@ -79,6 +79,16 @@ db.exec(`
   );
 `);
 
+// Classroom settings (added 2026-10-05).
+db.exec(`
+  CREATE TABLE IF NOT EXISTS classroom_settings (
+    classroom_id   INTEGER PRIMARY KEY,
+    listen_enabled INTEGER NOT NULL DEFAULT 1,
+    channels       TEXT NOT NULL DEFAULT '[]',
+    FOREIGN KEY (classroom_id) REFERENCES classrooms(id) ON DELETE CASCADE
+  );
+`);
+
 // Kid dashboard customization (added 2026-10-05).
 for (const [col, type] of [
   ['banner_image', 'TEXT'],
