@@ -125,9 +125,46 @@ router.get('/overview', (req, res) => {
     questions: {
       pending: db.listQuestions({ status: 'pending' }).questions.length,
       approved: db.listQuestions({ status: 'approved' }).questions.length
-    }
+    },
+    editions: buildEditionPipeline(today)
   });
 });
+
+// Edition pipeline: for each daily edition, how many of the 13 channel drafts
+// are filed/approved/published today, plus the drop time.
+function buildEditionPipeline(today) {
+  const defs = [
+    { key: 'morning', label: 'Morning Edition', drop: '7:15 AM' },
+    { key: 'midday', label: 'Midday Edition', drop: '2:15 PM' },
+    { key: 'evening', label: 'Evening Edition', drop: '6:15 PM' }
+  ];
+  const channels = ['ai','space','robotics','biotech','quantum','climate','engineering','math','cyber','gaming','music','stem','play'];
+  return defs.map(function (d) {
+    const stories = db.listQueuedStories({ status: 'approved', limit: 1000 })
+      .concat(db.listQueuedStories({ status: 'draft', limit: 1000 }))
+      .concat(db.listQueuedStories({ status: 'published', limit: 1000 }));
+    const filed = {};
+    const counts = { draft: 0, approved: 0, published: 0 };
+    stories.forEach(function (s) {
+      let payload = {};
+      try { payload = JSON.parse(s.payload || '{}'); } catch (e) {}
+      const date = String(payload.date || '').slice(0, 10);
+      if (s.edition !== d.key || date !== today) return;
+      counts[s.status] = (counts[s.status] || 0) + 1;
+      if (s.channel) filed[s.channel] = s.status;
+    });
+    const missing = channels.filter(function (c) { return !filed[c]; });
+    return {
+      key: d.key, label: d.label, drop: d.drop,
+      expected: channels.length,
+      filed: Object.keys(filed).length,
+      approved: counts.approved || 0,
+      published: counts.published || 0,
+      channels: filed,
+      missing: missing
+    };
+  });
+}
 
 // -------------------- STAFF (correspondents + editors) --------------------
 
