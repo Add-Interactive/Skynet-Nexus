@@ -1,0 +1,702 @@
+[
+ {
+  "id": "kid-001",
+  "slug": "rocket",
+  "name": "Rocket",
+  "file": "/assets/img/avatars/kid-001.svg",
+  "glow": "#00e5ff"
+ },
+ {
+  "id": "kid-002",
+  "slug": "planet",
+  "name": "Planet",
+  "file": "/assets/img/avatars/kid-002.svg",
+  "glow": "#39ff14"
+ },
+ {
+  "id": "kid-003",
+  "slug": "astronaut",
+  "name": "Astronaut",
+  "file": "/assets/img/avatars/kid-003.svg",
+  "glow": "#ff2e63"
+ },
+ {
+  "id": "kid-004",
+  "slug": "alien",
+  "name": "Alien",
+  "file": "/assets/img/avatars/kid-004.svg",
+  "glow": "#ffd166"
+ },
+ {
+  "id": "kid-005",
+  "slug": "ufo",
+  "name": "UFO",
+  "file": "/assets/img/avatars/kid-005.svg",
+  "glow": "#a855f7"
+ },
+ {
+  "id": "kid-006",
+  "slug": "star",
+  "name": "Star",
+  "file": "/assets/img/avatars/kid-006.svg",
+  "glow": "#ff9f1c"
+ },
+ {
+  "id": "kid-007",
+  "slug": "moon",
+  "name": "Moon",
+  "file": "/assets/img/avatars/kid-007.svg",
+  "glow": "#06d6a0"
+ },
+ {
+  "id": "kid-008",
+  "slug": "comet",
+  "name": "Comet",
+  "file": "/assets/img/avatars/kid-008.svg",
+  "glow": "#4cc9f0"
+ },
+ {
+  "id": "kid-009",
+  "slug": "galaxy",
+  "name": "Galaxy",
+  "file": "/assets/img/avatars/kid-009.svg",
+  "glow": "#00e5ff"
+ },
+ {
+  "id": "kid-010",
+  "slug": "satellite",
+  "name": "Satellite",
+  "file": "/assets/img/avatars/kid-010.svg",
+  "glow": "#39ff14"
+ },
+ {
+  "id": "kid-011",
+  "slug": "cat",
+  "name": "Cat",
+  "file": "/assets/img/avatars/kid-011.svg",
+  "glow": "#ff2e63"
+ },
+ {
+  "id": "kid-012",
+  "slug": "dog",
+  "name": "Dog",
+  "file": "/assets/img/avatars/kid-012.svg",
+  "glow": "#ffd166"
+ },
+ {
+  "id": "kid-013",
+  "slug": "fox",
+  "name": "Fox",
+  "file": "/assets/img/avatars/kid-013.svg",
+  "glow": "#a855f7"
+ },
+ {
+  "id": "kid-014",
+  "slug": "owl",
+  "name": "Owl",
+  "file": "/assets/img/avatars/kid-014.svg",
+  "glow": "#ff9f1c"
+ },
+ {
+  "id": "kid-015",
+  "slug": "penguin",
+  "name": "Penguin",
+  "file": "/assets/img/avatars/kid-015.svg",
+  "glow": "#06d6a0"
+ },
+ {
+  "id": "kid-016",
+  "slug": "lion",
+  "name": "Lion",
+  "file": "/assets/img/avatars/kid-016.svg",
+  "glow": "#4cc9f0"
+ },
+ {
+  "id": "kid-017",
+  "slug": "frog",
+  "name": "Frog",
+  "file": "/assets/img/avatars/kid-017.svg",
+  "glow": "#00e5ff"
+ },
+ {
+  "id": "kid-018",
+  "slug": "bear",
+  "name": "Bear",
+  "file": "/assets/img/avatars/kid-018.svg",
+  "glow": "#39ff14"
+ },
+ {
+  "id": "kid-019",
+  "slug": "rabbit",
+  "name": "Rabbit",
+  "file": "/assets/img/avatars/kid-019.svg",
+  "glow": "#ff2e63"
+ },
+ {
+  "id": "kid-020",
+  "slug": "whale",
+  "name": "Whale",
+  "file": "/assets/img/avatars/kid-020.svg",
+  "glow": "#ffd166"
+ },
+ {
+  "id": "kid-021",
+  "slug": "robot-1",
+  "name": "Bolt Bot",
+  "file": "/assets/img/avatars/kid-021.svg",
+  "glow": "#a855f7"
+ },
+ {
+  "id": "kid-022",
+  "slug": "robot-2",
+  "name": "Mint Bot",
+  "file": "/assets/img/avatars/kid-022.svg",
+  "glow": "#ff9f1c"
+ },
+ {
+  "id": "kid-023",
+  "slug": "robot-3",
+  "name": "Sunny Bot",
+  "file": "/assets/img/avatars/kid-023.svg",
+  "glow": "#06d6a0"
+ },
+ {
+  "id": "kid-024",
+  "slug": "robot-4",
+  "name": "Aqua Bot",
+  "file": "/assets/img/avatars/kid-024.svg",
+  "glow": "#4cc9f0"
+ },
+ {
+  "id": "kid-025",
+  "slug": "robot-5",
+  "name": "Grape Bot",
+  "file": "/assets/img/avatars/kid-025.svg",
+  "glow": "#00e5ff"
+ },
+ {
+  "id": "kid-026",
+  "slug": "fish",
+  "name": "Fish",
+  "file": "/assets/img/avatars/kid-026.svg",
+  "glow": "#39ff14"
+ },
+ {
+  "id": "kid-027",
+  "slug": "octopus",
+  "name": "Octopus",
+  "file": "/assets/img/avatars/kid-027.svg",
+  "glow": "#ff2e63"
+ },
+ {
+  "id": "kid-028",
+  "slug": "shark",
+  "name": "Shark",
+  "file": "/assets/img/avatars/kid-028.svg",
+  "glow": "#ffd166"
+ },
+ {
+  "id": "kid-029",
+  "slug": "turtle",
+  "name": "Turtle",
+  "file": "/assets/img/avatars/kid-029.svg",
+  "glow": "#a855f7"
+ },
+ {
+  "id": "kid-030",
+  "slug": "crab",
+  "name": "Crab",
+  "file": "/assets/img/avatars/kid-030.svg",
+  "glow": "#ff9f1c"
+ },
+ {
+  "id": "kid-031",
+  "slug": "dragon",
+  "name": "Dragon",
+  "file": "/assets/img/avatars/kid-031.svg",
+  "glow": "#06d6a0"
+ },
+ {
+  "id": "kid-032",
+  "slug": "unicorn",
+  "name": "Unicorn",
+  "file": "/assets/img/avatars/kid-032.svg",
+  "glow": "#4cc9f0"
+ },
+ {
+  "id": "kid-033",
+  "slug": "wizard",
+  "name": "Wizard",
+  "file": "/assets/img/avatars/kid-033.svg",
+  "glow": "#00e5ff"
+ },
+ {
+  "id": "kid-034",
+  "slug": "knight",
+  "name": "Knight",
+  "file": "/assets/img/avatars/kid-034.svg",
+  "glow": "#39ff14"
+ },
+ {
+  "id": "kid-035",
+  "slug": "castle",
+  "name": "Castle",
+  "file": "/assets/img/avatars/kid-035.svg",
+  "glow": "#ff2e63"
+ },
+ {
+  "id": "kid-036",
+  "slug": "tree",
+  "name": "Tree",
+  "file": "/assets/img/avatars/kid-036.svg",
+  "glow": "#ffd166"
+ },
+ {
+  "id": "kid-037",
+  "slug": "mountain",
+  "name": "Mountain",
+  "file": "/assets/img/avatars/kid-037.svg",
+  "glow": "#a855f7"
+ },
+ {
+  "id": "kid-038",
+  "slug": "volcano",
+  "name": "Volcano",
+  "file": "/assets/img/avatars/kid-038.svg",
+  "glow": "#ff9f1c"
+ },
+ {
+  "id": "kid-039",
+  "slug": "wave",
+  "name": "Wave",
+  "file": "/assets/img/avatars/kid-039.svg",
+  "glow": "#06d6a0"
+ },
+ {
+  "id": "kid-040",
+  "slug": "sun",
+  "name": "Sun",
+  "file": "/assets/img/avatars/kid-040.svg",
+  "glow": "#4cc9f0"
+ },
+ {
+  "id": "kid-041",
+  "slug": "racecar",
+  "name": "Race Car",
+  "file": "/assets/img/avatars/kid-041.svg",
+  "glow": "#00e5ff"
+ },
+ {
+  "id": "kid-042",
+  "slug": "train",
+  "name": "Train",
+  "file": "/assets/img/avatars/kid-042.svg",
+  "glow": "#39ff14"
+ },
+ {
+  "id": "kid-043",
+  "slug": "plane",
+  "name": "Plane",
+  "file": "/assets/img/avatars/kid-043.svg",
+  "glow": "#ff2e63"
+ },
+ {
+  "id": "kid-044",
+  "slug": "boat",
+  "name": "Boat",
+  "file": "/assets/img/avatars/kid-044.svg",
+  "glow": "#ffd166"
+ },
+ {
+  "id": "kid-045",
+  "slug": "truck",
+  "name": "Truck",
+  "file": "/assets/img/avatars/kid-045.svg",
+  "glow": "#a855f7"
+ },
+ {
+  "id": "kid-046",
+  "slug": "pizza",
+  "name": "Pizza",
+  "file": "/assets/img/avatars/kid-046.svg",
+  "glow": "#ff9f1c"
+ },
+ {
+  "id": "kid-047",
+  "slug": "icecream",
+  "name": "Ice Cream",
+  "file": "/assets/img/avatars/kid-047.svg",
+  "glow": "#06d6a0"
+ },
+ {
+  "id": "kid-048",
+  "slug": "donut",
+  "name": "Donut",
+  "file": "/assets/img/avatars/kid-048.svg",
+  "glow": "#4cc9f0"
+ },
+ {
+  "id": "kid-049",
+  "slug": "cupcake",
+  "name": "Cupcake",
+  "file": "/assets/img/avatars/kid-049.svg",
+  "glow": "#00e5ff"
+ },
+ {
+  "id": "kid-050",
+  "slug": "watermelon",
+  "name": "Watermelon",
+  "file": "/assets/img/avatars/kid-050.svg",
+  "glow": "#39ff14"
+ },
+ {
+  "id": "kid-051",
+  "slug": "soccer",
+  "name": "Soccer",
+  "file": "/assets/img/avatars/kid-051.svg",
+  "glow": "#ff2e63"
+ },
+ {
+  "id": "kid-052",
+  "slug": "basketball",
+  "name": "Basketball",
+  "file": "/assets/img/avatars/kid-052.svg",
+  "glow": "#ffd166"
+ },
+ {
+  "id": "kid-053",
+  "slug": "trophy",
+  "name": "Trophy",
+  "file": "/assets/img/avatars/kid-053.svg",
+  "glow": "#a855f7"
+ },
+ {
+  "id": "kid-054",
+  "slug": "skateboard",
+  "name": "Skateboard",
+  "file": "/assets/img/avatars/kid-054.svg",
+  "glow": "#ff9f1c"
+ },
+ {
+  "id": "kid-055",
+  "slug": "medal",
+  "name": "Medal",
+  "file": "/assets/img/avatars/kid-055.svg",
+  "glow": "#06d6a0"
+ },
+ {
+  "id": "kid-056",
+  "slug": "guitar",
+  "name": "Guitar",
+  "file": "/assets/img/avatars/kid-056.svg",
+  "glow": "#4cc9f0"
+ },
+ {
+  "id": "kid-057",
+  "slug": "drum",
+  "name": "Drum",
+  "file": "/assets/img/avatars/kid-057.svg",
+  "glow": "#00e5ff"
+ },
+ {
+  "id": "kid-058",
+  "slug": "headphones",
+  "name": "Headphones",
+  "file": "/assets/img/avatars/kid-058.svg",
+  "glow": "#39ff14"
+ },
+ {
+  "id": "kid-059",
+  "slug": "palette",
+  "name": "Art Palette",
+  "file": "/assets/img/avatars/kid-059.svg",
+  "glow": "#ff2e63"
+ },
+ {
+  "id": "kid-060",
+  "slug": "controller",
+  "name": "Game Controller",
+  "file": "/assets/img/avatars/kid-060.svg",
+  "glow": "#ffd166"
+ },
+ {
+  "id": "kid-061",
+  "slug": "rocket-2",
+  "name": "Fire Rocket",
+  "file": "/assets/img/avatars/kid-061.svg",
+  "glow": "#a855f7"
+ },
+ {
+  "id": "kid-062",
+  "slug": "planet-2",
+  "name": "Ice Planet",
+  "file": "/assets/img/avatars/kid-062.svg",
+  "glow": "#ff9f1c"
+ },
+ {
+  "id": "kid-063",
+  "slug": "cat-2",
+  "name": "Midnight Cat",
+  "file": "/assets/img/avatars/kid-063.svg",
+  "glow": "#06d6a0"
+ },
+ {
+  "id": "kid-064",
+  "slug": "dog-2",
+  "name": "Sunny Dog",
+  "file": "/assets/img/avatars/kid-064.svg",
+  "glow": "#4cc9f0"
+ },
+ {
+  "id": "kid-065",
+  "slug": "dragon-2",
+  "name": "Ember Dragon",
+  "file": "/assets/img/avatars/kid-065.svg",
+  "glow": "#00e5ff"
+ },
+ {
+  "id": "kid-066",
+  "slug": "unicorn-2",
+  "name": "Star Unicorn",
+  "file": "/assets/img/avatars/kid-066.svg",
+  "glow": "#39ff14"
+ },
+ {
+  "id": "kid-067",
+  "slug": "fish-2",
+  "name": "Coral Fish",
+  "file": "/assets/img/avatars/kid-067.svg",
+  "glow": "#ff2e63"
+ },
+ {
+  "id": "kid-068",
+  "slug": "octopus-2",
+  "name": "Deep Octopus",
+  "file": "/assets/img/avatars/kid-068.svg",
+  "glow": "#ffd166"
+ },
+ {
+  "id": "kid-069",
+  "slug": "racecar-2",
+  "name": "Turbo Car",
+  "file": "/assets/img/avatars/kid-069.svg",
+  "glow": "#a855f7"
+ },
+ {
+  "id": "kid-070",
+  "slug": "plane-2",
+  "name": "Sky Plane",
+  "file": "/assets/img/avatars/kid-070.svg",
+  "glow": "#ff9f1c"
+ },
+ {
+  "id": "kid-071",
+  "slug": "pizza-2",
+  "name": "Cheesy Pizza",
+  "file": "/assets/img/avatars/kid-071.svg",
+  "glow": "#06d6a0"
+ },
+ {
+  "id": "kid-072",
+  "slug": "donut-2",
+  "name": "Sprinkle Donut",
+  "file": "/assets/img/avatars/kid-072.svg",
+  "glow": "#4cc9f0"
+ },
+ {
+  "id": "kid-073",
+  "slug": "soccer-2",
+  "name": "Champ Soccer",
+  "file": "/assets/img/avatars/kid-073.svg",
+  "glow": "#00e5ff"
+ },
+ {
+  "id": "kid-074",
+  "slug": "trophy-2",
+  "name": "Gold Trophy",
+  "file": "/assets/img/avatars/kid-074.svg",
+  "glow": "#39ff14"
+ },
+ {
+  "id": "kid-075",
+  "slug": "guitar-2",
+  "name": "Rock Guitar",
+  "file": "/assets/img/avatars/kid-075.svg",
+  "glow": "#ff2e63"
+ },
+ {
+  "id": "kid-076",
+  "slug": "alien-2",
+  "name": "Zorg Alien",
+  "file": "/assets/img/avatars/kid-076.svg",
+  "glow": "#ffd166"
+ },
+ {
+  "id": "kid-077",
+  "slug": "owl-2",
+  "name": "Night Owl",
+  "file": "/assets/img/avatars/kid-077.svg",
+  "glow": "#a855f7"
+ },
+ {
+  "id": "kid-078",
+  "slug": "frog-2",
+  "name": "Lily Frog",
+  "file": "/assets/img/avatars/kid-078.svg",
+  "glow": "#ff9f1c"
+ },
+ {
+  "id": "kid-079",
+  "slug": "tree-2",
+  "name": "Pine Tree",
+  "file": "/assets/img/avatars/kid-079.svg",
+  "glow": "#06d6a0"
+ },
+ {
+  "id": "kid-080",
+  "slug": "wave-2",
+  "name": "Tsunami Wave",
+  "file": "/assets/img/avatars/kid-080.svg",
+  "glow": "#4cc9f0"
+ },
+ {
+  "id": "kid-081",
+  "slug": "ufo-2",
+  "name": "Saucer",
+  "file": "/assets/img/avatars/kid-081.svg",
+  "glow": "#00e5ff"
+ },
+ {
+  "id": "kid-082",
+  "slug": "star-2",
+  "name": "Superstar",
+  "file": "/assets/img/avatars/kid-082.svg",
+  "glow": "#39ff14"
+ },
+ {
+  "id": "kid-083",
+  "slug": "moon-2",
+  "name": "Crescent",
+  "file": "/assets/img/avatars/kid-083.svg",
+  "glow": "#ff2e63"
+ },
+ {
+  "id": "kid-084",
+  "slug": "robot-6",
+  "name": "Nova Bot",
+  "file": "/assets/img/avatars/kid-084.svg",
+  "glow": "#ffd166"
+ },
+ {
+  "id": "kid-085",
+  "slug": "robot-7",
+  "name": "Pixel Bot",
+  "file": "/assets/img/avatars/kid-085.svg",
+  "glow": "#a855f7"
+ },
+ {
+  "id": "kid-086",
+  "slug": "bear-2",
+  "name": "Honey Bear",
+  "file": "/assets/img/avatars/kid-086.svg",
+  "glow": "#ff9f1c"
+ },
+ {
+  "id": "kid-087",
+  "slug": "lion-2",
+  "name": "King Lion",
+  "file": "/assets/img/avatars/kid-087.svg",
+  "glow": "#06d6a0"
+ },
+ {
+  "id": "kid-088",
+  "slug": "turtle-2",
+  "name": "Speedy Turtle",
+  "file": "/assets/img/avatars/kid-088.svg",
+  "glow": "#4cc9f0"
+ },
+ {
+  "id": "kid-089",
+  "slug": "shark-2",
+  "name": "Great White",
+  "file": "/assets/img/avatars/kid-089.svg",
+  "glow": "#00e5ff"
+ },
+ {
+  "id": "kid-090",
+  "slug": "knight-2",
+  "name": "Brave Knight",
+  "file": "/assets/img/avatars/kid-090.svg",
+  "glow": "#39ff14"
+ },
+ {
+  "id": "kid-091",
+  "slug": "wizard-2",
+  "name": "Merlin",
+  "file": "/assets/img/avatars/kid-091.svg",
+  "glow": "#ff2e63"
+ },
+ {
+  "id": "kid-092",
+  "slug": "castle-2",
+  "name": "Fortress",
+  "file": "/assets/img/avatars/kid-092.svg",
+  "glow": "#ffd166"
+ },
+ {
+  "id": "kid-093",
+  "slug": "train-2",
+  "name": "Express",
+  "file": "/assets/img/avatars/kid-093.svg",
+  "glow": "#a855f7"
+ },
+ {
+  "id": "kid-094",
+  "slug": "boat-2",
+  "name": "Sailboat",
+  "file": "/assets/img/avatars/kid-094.svg",
+  "glow": "#ff9f1c"
+ },
+ {
+  "id": "kid-095",
+  "slug": "rainbow",
+  "name": "Rainbow",
+  "file": "/assets/img/avatars/kid-095.svg",
+  "glow": "#06d6a0"
+ },
+ {
+  "id": "kid-096",
+  "slug": "mushroom",
+  "name": "Mushroom",
+  "file": "/assets/img/avatars/kid-096.svg",
+  "glow": "#4cc9f0"
+ },
+ {
+  "id": "kid-097",
+  "slug": "cactus",
+  "name": "Cactus",
+  "file": "/assets/img/avatars/kid-097.svg",
+  "glow": "#00e5ff"
+ },
+ {
+  "id": "kid-098",
+  "slug": "kite",
+  "name": "Kite",
+  "file": "/assets/img/avatars/kid-098.svg",
+  "glow": "#39ff14"
+ },
+ {
+  "id": "kid-099",
+  "slug": "camera",
+  "name": "Camera",
+  "file": "/assets/img/avatars/kid-099.svg",
+  "glow": "#ff2e63"
+ },
+ {
+  "id": "kid-100",
+  "slug": "book",
+  "name": "Book",
+  "file": "/assets/img/avatars/kid-100.svg",
+  "glow": "#ffd166"
+ }
+]
