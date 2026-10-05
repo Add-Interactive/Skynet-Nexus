@@ -145,7 +145,7 @@
     html += '<div class="panel" id="p-kids"><h2>🧒 Kid profiles</h2><div class="kid-grid">' +
       kids.map(function (k) {
         var g = gam[k.id] || {};
-        return '<div class="kid-card"><div class="k-av" style="background:' + esc(k.avatarColor || '#00e5ff') + '">' + esc(k.avatarEmoji || k.name.slice(0, 2).toUpperCase()) + '</div>' +
+        return '<div class="kid-card" data-kid-dash="' + k.id + '" style="cursor:pointer"><div class="k-av" style="background:' + esc(k.avatarColor || '#00e5ff') + '">' + esc(k.avatarEmoji || k.name.slice(0, 2).toUpperCase()) + '</div>' +
           '<div class="k-name">' + esc(k.name) + '</div><div class="k-meta">Age ' + (new Date().getFullYear() - k.birthYear) + ' · Level ' + esc(g.level || 'Rookie Reader') + '</div>' +
           '<div class="k-xp">' + (g.xp || 0).toLocaleString() + ' XP · ' + (g.streak || 0) + '🔥</div>' +
           '<div style="margin-top:10px"><button data-edit-kid="' + k.id + '">Edit</button><button data-ctrl-kid="' + k.id + '">Controls</button><button data-hist-kid="' + k.id + '">History</button></div></div>';
@@ -348,6 +348,12 @@
     }).catch(function () { document.getElementById('hm-body').innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
   }
   function bindKidButtons() {
+    root.querySelectorAll('[data-kid-dash]').forEach(function (c) {
+      c.addEventListener('click', function (e) {
+        if (e.target.tagName === 'BUTTON') return; // let Edit/Controls/History buttons work
+        location.href = '/pages/kid.html?id=' + c.getAttribute('data-kid-dash');
+      });
+    });
     var add = document.getElementById('add-kid');
     if (add) add.addEventListener('click', function () { kidModal(null); });
     var q = root.querySelectorAll ? root.querySelectorAll('[data-edit-kid]') : [];
