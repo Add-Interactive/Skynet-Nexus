@@ -1324,6 +1324,36 @@ api.post('/newsroom/images', (req, res) => {
   }
 });
 
+// -------------- NEWSROOM AUDIO UPLOAD --------------
+// Upload pre-generated narration MP3s (Piper TTS). Same X-Newsroom-Key guard.
+// Body: { articleId, voice, filename, base64 } (MP3, max 8MB).
+// Served publicly at /assets/audio/<filename>.
+api.post('/newsroom/audio', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  const got = String(req.headers['x-newsroom-key'] || '');
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+  try {
+    const b = req.body || {};
+    let filename = String(b.filename || '').trim().replace(/[^a-zA-Z0-9_.-]/g, '_');
+    if (!filename) return res.status(400).json({ error: 'filename required' });
+    if (!/\.mp3$/i.test(filename)) filename += '.mp3';
+    const base64 = String(b.base64 || '').replace(/^data:audio\/\w+;base64,/, '');
+    if (!base64) return res.status(400).json({ error: 'base64 required' });
+    if (base64.length > 12 * 1024 * 1024) return res.status(413).json({ error: 'audio too large' });
+    const dir = path.join(DATA_DIR, 'audio');
+    fs.mkdirSync(dir, { recursive: true });
+    const filePath = path.join(dir, filename);
+    if (path.dirname(filePath) !== dir) return res.status(400).json({ error: 'bad filename' });
+    fs.writeFileSync(filePath, Buffer.from(base64, 'base64'));
+    const publicPath = `/assets/audio/${filename}`;
+    console.log(`[newsroom] audio uploaded: ${publicPath}`);
+    res.json({ ok: true, path: publicPath, filename });
+  } catch (e) {
+    res.status(500).json({ error: 'audio upload failed: ' + e.message });
+  }
+});
+
 // -------------- PURGE CHANNEL IMAGE POOL --------------
 // One-shot cleanup: empties the volume-backed channel image pools
 // (USERS_DIR/<channel>/) so the image pool starts fresh alongside the fresh
@@ -1739,6 +1769,13 @@ app.use('/assets/img/channels', (req, res, next) => {
   
   next();
 });
+
+// Serve /assets/audio from DATA_DIR/audio (pre-generated narration MP3s)
+app.use('/assets/audio', express.static(path.join(DATA_DIR, 'audio'), {
+  maxAge: '365d',
+  immutable: true,
+  setHeaders: (res) => res.set('Content-Type', 'audio/mpeg'),
+}));
 
 // Serve /assets/img/users from USERS_DIR (volume in prod, local folder in dev)
 app.use('/assets/img/users', (req, res, next) => {
