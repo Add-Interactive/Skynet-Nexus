@@ -84,6 +84,15 @@
     .stat .s-v { font: 800 24px/1 Inter, sans-serif; color: #00e5ff; }
     .stat .s-l { font: 500 12px/1.4 Inter, sans-serif; color: var(--muted, #7c8898); margin-top: 2px; }
   </style>
+<style>
+.a11y-large { font-size: 118%; }
+.a11y-large h1 { font-size: 2.2em; }
+.a11y-large p, .a11y-large div { line-height: 1.8; }
+.a11y-contrast { --text: #ffffff; --muted: #c8d4e3; }
+.a11y-contrast body, .a11y-contrast { background: #000 !important; }
+.a11y-contrast .panel, .a11y-contrast .kid-card { border-width: 2px !important; }
+</style>
+<script src="/assets/js/a11y.js" defer></script>
 </head>
 <body>
   <div class="dash-wrap">
@@ -139,7 +148,7 @@
         return '<div class="kid-card"><div class="k-av" style="background:' + esc(k.avatarColor || '#00e5ff') + '">' + esc(k.avatarEmoji || k.name.slice(0, 2).toUpperCase()) + '</div>' +
           '<div class="k-name">' + esc(k.name) + '</div><div class="k-meta">Age ' + (new Date().getFullYear() - k.birthYear) + ' · Level ' + esc(g.level || 'Rookie Reader') + '</div>' +
           '<div class="k-xp">' + (g.xp || 0).toLocaleString() + ' XP · ' + (g.streak || 0) + '🔥</div>' +
-          '<div style="margin-top:10px"><button data-edit-kid="' + k.id + '">Edit</button><button data-avatar-kid="' + k.id + '">Avatar</button></div></div>';
+          '<div style="margin-top:10px"><button data-edit-kid="' + k.id + '">Edit</button><button data-ctrl-kid="' + k.id + '">Controls</button><button data-hist-kid="' + k.id + '">History</button></div></div>';
       }).join('') +
       (kids.length < 6 ? '<div class="kid-card" style="display:flex;align-items:center;justify-content:center;min-height:180px;cursor:pointer;border-style:dashed" id="add-kid"><span style="font-size:15px;color:#39ff14">＋ Add a kid</span></div>' : '') +
       '</div></div>';
@@ -199,6 +208,11 @@
       '<label style="display:block;font:700 12px/1 Inter,sans-serif;margin:12px 0 6px">Avatar emoji</label>' +
       '<div id="km-emojis" style="display:flex;gap:6px;flex-wrap:wrap;font-size:24px">' +
       KID_EMOJIS.map(function (e) { return '<div data-e="' + e + '" style="cursor:pointer;padding:4px;border-radius:8px;background:' + ((kid.avatarEmoji || KID_EMOJIS[0]) === e ? 'rgba(0,229,255,.25)' : 'transparent') + '">' + e + '</div>'; }).join('') + '</div>' +
+      '<div style="margin-top:16px;padding:14px;border:1px solid rgba(57,255,20,.3);border-radius:10px;background:rgba(57,255,20,.04)">' +
+      '<div style="font:700 13px/1 Inter,sans-serif;margin-bottom:8px">♿ Accessibility needs</div>' +
+      '<label style="display:flex;align-items:center;gap:8px;font-size:13px;margin:6px 0"><input type="checkbox" id="km-blind"/> My child is blind</label>' +
+      '<label style="display:flex;align-items:center;gap:8px;font-size:13px;margin:6px 0"><input type="checkbox" id="km-lowvision"/> Low vision (large text + high contrast)</label>' +
+      '<div style="font-size:12px;color:var(--muted,#7c8898);margin-top:6px">Declaring blindness enables the full audio guide, voice commands, and gesture navigation.</div></div>' +
       '<div style="display:flex;gap:10px;margin-top:20px">' +
       '<button class="btn" id="km-save" style="flex:1">' + (isEdit ? 'Save' : 'Add kid') + '</button>' +
       (isEdit ? '<button class="btn ghost" id="km-del" style="color:#ff2e63">Remove</button>' : '') +
@@ -219,17 +233,119 @@
     });
     document.getElementById('km-cancel').addEventListener('click', function () { m.remove(); });
     m.addEventListener('click', function (e) { if (e.target === m) m.remove(); });
+    // Load existing accessibility flags when editing
+    if (isEdit && kid.id) {
+      api('/api/kids/' + kid.id + '/settings').then(function (d) {
+        var s = d.settings || {};
+        document.getElementById('km-blind').checked = !!s.isBlind;
+        document.getElementById('km-lowvision').checked = !!s.lowVision;
+      }).catch(function () {});
+    }
     document.getElementById('km-save').addEventListener('click', function () {
       var payload = { name: document.getElementById('km-name').value.trim(), birthYear: Number(document.getElementById('km-year').value), avatarColor: selColor, avatarEmoji: selEmoji };
       if (!payload.name) { alert('Enter a name.'); return; }
+      var a11y = { isBlind: document.getElementById('km-blind').checked, lowVision: document.getElementById('km-lowvision').checked };
       var p = isEdit ? api('/api/kids/' + kid.id, { method: 'PATCH', body: JSON.stringify(payload) })
                      : api('/api/kids', { method: 'POST', body: JSON.stringify(payload) });
-      p.then(function () { m.remove(); location.reload(); }).catch(function () { alert('Could not save.'); });
+      p.then(function (d) {
+        var kidId = isEdit ? kid.id : (d.kid && d.kid.id);
+        if (kidId) return api('/api/kids/' + kidId + '/settings', { method: 'PUT', body: JSON.stringify(a11y) });
+      }).then(function () { m.remove(); location.reload(); }).catch(function () { alert('Could not save.'); });
     });
     if (isEdit) document.getElementById('km-del').addEventListener('click', function () {
       if (!confirm('Remove ' + kid.name + '?')) return;
       api('/api/kids/' + kid.id, { method: 'DELETE' }).then(function () { m.remove(); location.reload(); }).catch(function () { alert('Could not remove.'); });
     });
+  }
+  var CHANNELS = ['ai','space','robotics','biotech','quantum','climate','engineering','math','cyber','gaming','music','stem','play'];
+  function controlsModal(kid) {
+    var m = document.createElement('div');
+    m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px;overflow-y:auto';
+    m.innerHTML = '<div style="background:#0f1522;border:1px solid rgba(0,229,255,.3);border-radius:16px;padding:24px;max-width:440px;width:100%;margin:auto">' +
+      '<h3 style="margin:0 0 8px">⚙️ Controls — ' + esc(kid.name) + '</h3>' +
+      '<div id="cm-body"><p style="color:#7c8898">Loading…</p></div>' +
+      '<div style="display:flex;gap:10px;margin-top:16px"><button class="btn ghost" id="cm-close" style="flex:1">Close</button></div></div>';
+    document.body.appendChild(m);
+    document.getElementById('cm-close').addEventListener('click', function () { m.remove(); });
+    m.addEventListener('click', function (e) { if (e.target === m) m.remove(); });
+    api('/api/kids/' + kid.id + '/settings').then(function (d) {
+      var s = d.settings || {};
+      var allowed = s.channels && s.channels.length ? s.channels : CHANNELS.slice();
+      var b = document.getElementById('cm-body');
+      b.innerHTML =
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:10px 0"><input type="checkbox" id="cm-listen" ' + (s.listenEnabled ? 'checked' : '') + '/> 🔊 Listen (read stories aloud)</label>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:10px 0"><input type="checkbox" id="cm-comments" ' + (s.commentsEnabled ? 'checked' : '') + '/> 💬 Allow discussions & questions</label>' +
+        '<div style="font:700 13px/1 Inter,sans-serif;margin:16px 0 8px">📰 Channels visible to ' + esc(kid.name) + '</div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+        CHANNELS.map(function (c) {
+          var on = allowed.indexOf(c) !== -1;
+          return '<button data-ch="' + c + '" style="padding:6px 12px;border-radius:999px;font:700 12px/1 Inter,sans-serif;cursor:pointer;border:1px solid ' + (on ? '#00e5ff' : 'rgba(255,255,255,.2)') + ';background:' + (on ? 'rgba(0,229,255,.15)' : 'transparent') + ';color:' + (on ? '#00e5ff' : '#7c8898') + '">' + c + '</button>';
+        }).join('') + '</div>' +
+        '<div style="font:700 13px/1 Inter,sans-serif;margin:16px 0 8px">♿ Accessibility</div>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"><input type="checkbox" id="cm-blind" ' + (s.isBlind ? 'checked' : '') + '/> Blind — full audio guide + voice + gestures</label>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"><input type="checkbox" id="cm-audio" ' + (s.audioGuide ? 'checked' : '') + '/> Audio guide (spoken navigation)</label>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"><input type="checkbox" id="cm-voice" ' + (s.voiceCommands ? 'checked' : '') + '/> Voice commands</label>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"><input type="checkbox" id="cm-large" ' + (s.largeText ? 'checked' : '') + '/> Large text</label>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"><input type="checkbox" id="cm-contrast" ' + (s.highContrast ? 'checked' : '') + '/> High contrast</label>' +
+        '<button class="btn" id="cm-save" style="width:100%;margin-top:16px">Save controls</button>';
+      var selChannels = allowed.slice();
+      b.querySelectorAll('[data-ch]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var c = btn.getAttribute('data-ch');
+          var i = selChannels.indexOf(c);
+          if (i === -1) selChannels.push(c); else selChannels.splice(i, 1);
+          var on = selChannels.indexOf(c) !== -1;
+          btn.style.border = on ? '1px solid #00e5ff' : '1px solid rgba(255,255,255,.2)';
+          btn.style.background = on ? 'rgba(0,229,255,.15)' : 'transparent';
+          btn.style.color = on ? '#00e5ff' : '#7c8898';
+        });
+      });
+      document.getElementById('cm-save').addEventListener('click', function () {
+        api('/api/kids/' + kid.id + '/settings', { method: 'PUT', body: JSON.stringify({
+          listenEnabled: document.getElementById('cm-listen').checked,
+          commentsEnabled: document.getElementById('cm-comments').checked,
+          channels: selChannels,
+          isBlind: document.getElementById('cm-blind').checked,
+          audioGuide: document.getElementById('cm-audio').checked,
+          voiceCommands: document.getElementById('cm-voice').checked,
+          largeText: document.getElementById('cm-large').checked,
+          highContrast: document.getElementById('cm-contrast').checked,
+        })}).then(function () { alert('Saved!'); m.remove(); }).catch(function () { alert('Could not save.'); });
+      });
+    }).catch(function () { document.getElementById('cm-body').innerHTML = '<p style="color:#ff2e63">Could not load settings.</p>'; });
+  }
+  function historyModal(kid) {
+    var m = document.createElement('div');
+    m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px;overflow-y:auto';
+    m.innerHTML = '<div style="background:#0f1522;border:1px solid rgba(0,229,255,.3);border-radius:16px;padding:24px;max-width:520px;width:100%;margin:auto;max-height:85vh;overflow-y:auto">' +
+      '<h3 style="margin:0 0 8px">💬 ' + esc(kid.name) + '\'s activity</h3>' +
+      '<div id="hm-body"><p style="color:#7c8898">Loading…</p></div>' +
+      '<div style="display:flex;gap:10px;margin-top:16px"><button class="btn ghost" id="hm-close" style="flex:1">Close</button></div></div>';
+    document.body.appendChild(m);
+    document.getElementById('hm-close').addEventListener('click', function () { m.remove(); });
+    m.addEventListener('click', function (e) { if (e.target === m) m.remove(); });
+    api('/api/kids/' + kid.id + '/comments').then(function (d) {
+      var h = '';
+      if (d.replies && d.replies.length) {
+        h += '<div style="font:700 13px/1 Inter,sans-serif;margin:14px 0 8px">Discussion replies (' + d.replies.length + ')</div>';
+        h += d.replies.map(function (r) {
+          return '<div style="padding:10px;border:1px solid rgba(255,255,255,.1);border-radius:8px;margin-bottom:8px">' +
+            '<div style="font-size:13px">' + esc(r.body) + '</div>' +
+            '<div style="font-size:12px;color:#7c8898;margin-top:6px">' + esc(r.discussion_title || 'Discussion') +
+            ' · <a href="/pages/discussions.html?id=' + r.discussion_id + '" style="color:#00e5ff">Join thread →</a></div></div>';
+        }).join('');
+      }
+      if (d.questions && d.questions.length) {
+        h += '<div style="font:700 13px/1 Inter,sans-serif;margin:14px 0 8px">Questions to correspondents (' + d.questions.length + ')</div>';
+        h += d.questions.map(function (q) {
+          return '<div style="padding:10px;border:1px solid rgba(255,255,255,.1);border-radius:8px;margin-bottom:8px">' +
+            '<div style="font-size:13px">Q: ' + esc(q.question) + '</div>' +
+            (q.answer ? '<div style="font-size:13px;color:#39ff14;margin-top:4px">A: ' + esc(q.answer) + '</div>' : '<div style="font-size:12px;color:#7c8898">Awaiting answer</div>') + '</div>';
+        }).join('');
+      }
+      if (!h) h = '<p style="color:#7c8898">No activity yet.</p>';
+      document.getElementById('hm-body').innerHTML = h;
+    }).catch(function () { document.getElementById('hm-body').innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
   }
   function bindKidButtons() {
     var add = document.getElementById('add-kid');
@@ -240,6 +356,22 @@
         var id = b.getAttribute('data-edit-kid');
         var kid = _kidsCache.filter(function (k) { return String(k.id) === String(id); })[0];
         kidModal(kid || { id: id });
+      });
+    });
+    var q3 = root.querySelectorAll ? root.querySelectorAll('[data-ctrl-kid]') : [];
+    q3.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-ctrl-kid');
+        var kid = _kidsCache.filter(function (k) { return String(k.id) === String(id); })[0];
+        if (kid) controlsModal(kid);
+      });
+    });
+    var q4 = root.querySelectorAll ? root.querySelectorAll('[data-hist-kid]') : [];
+    q4.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-hist-kid');
+        var kid = _kidsCache.filter(function (k) { return String(k.id) === String(id); })[0];
+        if (kid) historyModal(kid);
       });
     });
     var q2 = root.querySelectorAll ? root.querySelectorAll('[data-avatar-kid]') : [];
@@ -606,6 +738,11 @@
     ]).then(function (rs) {
       var kids = rs[0].kids || rs[0] || [];
       _kidsCache = kids;
+      try {
+        if (kids.length && !localStorage.getItem('nexus_active_kid')) {
+          localStorage.setItem('nexus_active_kid', kids[0].id);
+        }
+      } catch (e) {}
       var gam = {};
       (rs[1].kids || []).forEach(function (k) { gam[k.id] = k; });
       parentDash(user, kids, gam);
