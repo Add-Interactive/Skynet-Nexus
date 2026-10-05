@@ -262,6 +262,7 @@
       tile('purple', '💬', 'Discussions', '', 'Class threads & Q&A', null, '/pages/classroom.html') +
       tile('gold', '🧠', 'Quiz', '', 'Tonight\'s results & leaderboard', null, '/pages/quiz.html') +
       tile('cyan', '⚡', 'Quick actions', '', 'New assignment · discussion · announcement', 'actions') +
+      tile('pink', '🌟', 'Public profile', '', 'Photo, bio, degrees, awards, quote', 'pubprofile') +
       '</div>';
 
     // Students panel
@@ -289,6 +290,11 @@
         sorted.map(function (s, i) { return '<tr><td>' + (i + 1) + '</td><td>' + esc(s.name) + '</td><td>' + (s.xp || 0).toLocaleString() + '</td><td>' + (s.streak || 0) + '🔥</td></tr>'; }).join('') + '</table>'
         : '<p style="color:var(--muted)">No data yet.</p>') + '</div>';
 
+    // Public profile panel
+    html += '<div class="panel hidden" id="p-pubprofile"><h2>🌟 Public profile</h2>' +
+      '<p style="color:var(--muted,#7c8898);font-size:14px;margin:0 0 16px">This is what families see on your public page. <a href="/pages/teacher.html?id=' + classId + '" style="color:#00e5ff" id="pp-view-link">Preview →</a></p>' +
+      '<div id="pp-form"><p style="color:#7c8898">Loading…</p></div></div>';
+
     // Actions panel
     html += '<div class="panel hidden" id="p-actions"><h2>⚡ Quick actions</h2>' +
       '<p><a class="btn" href="/pages/assignments.html">📝 New assignment</a> <a class="btn ghost" href="/pages/classroom.html">💬 Start discussion</a></p></div>';
@@ -299,7 +305,56 @@
         var id = t.getAttribute('data-panel');
         body.querySelectorAll('.panel').forEach(function (p) { p.classList.add('hidden'); });
         var el = document.getElementById(id);
-        if (el) { el.classList.remove('hidden'); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        if (el) {
+          el.classList.remove('hidden');
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (id === 'p-pubprofile') loadProfileForm();
+        }
+      });
+    });
+  }
+
+  function loadProfileForm() {
+    var f = document.getElementById('pp-form');
+    api('/api/auth/me').then(function (d) {
+      var u = d.user || {};
+      f.innerHTML =
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">Profile photo URL</label>' +
+        '<input id="pp-img" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit" value="' + esc(u.profile_image || '') + '" placeholder="/assets/img/... or https://…"/>' +
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">Bio</label>' +
+        '<textarea id="pp-bio" rows="4" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit">' + esc(u.bio || '') + '</textarea>' +
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">Teaching quote</label>' +
+        '<input id="pp-quote" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit" value="' + esc(u.quote || '') + '" placeholder="Your teaching philosophy in one line"/>' +
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">School</label>' +
+        '<input id="pp-school" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit" value="' + esc(u.school || '') + '"/>' +
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">Subjects (comma-separated)</label>' +
+        '<input id="pp-subj" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit" value="' + esc(u.subjects || '') + '" placeholder="Science, Math"/>' +
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">Degrees (one per line: Degree, School, Year)</label>' +
+        '<textarea id="pp-deg" rows="3" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit" placeholder="M.Ed. Curriculum, State University, 2018">' + esc((u.degrees || []).map(function (x) { return [x.degree, x.school, x.year].filter(Boolean).join(', '); }).join('\n')) + '</textarea>' +
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">Awards (one per line: Title, Organization, Year)</label>' +
+        '<textarea id="pp-awd" rows="3" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit" placeholder="Teacher of the Year, District, 2024">' + esc((u.awards || []).map(function (x) { return [x.title, x.org, x.year].filter(Boolean).join(', '); }).join('\n')) + '</textarea>' +
+        '<label style="display:flex;align-items:center;gap:8px;margin:16px 0;font:600 14px/1 Inter"><input type="checkbox" id="pp-pub" ' + (u.public_profile ? 'checked' : '') + '/> Make my profile public</label>' +
+        '<p><button class="btn" id="pp-save">Save profile</button> <a class="btn ghost" id="pp-preview" href="/pages/teacher.html?id=' + u.id + '" target="_blank">Preview →</a></p>';
+      document.getElementById('pp-save').addEventListener('click', function () {
+        function parseLines(txt, keys) {
+          return txt.split('\n').map(function (l) { return l.trim(); }).filter(Boolean).map(function (l) {
+            var p = l.split(',').map(function (x) { return x.trim(); });
+            var o = {}; keys.forEach(function (k, i) { o[k] = p[i] || ''; }); return o;
+          });
+        }
+        var payload = {
+          profile_image: document.getElementById('pp-img').value.trim(),
+          bio: document.getElementById('pp-bio').value.trim(),
+          quote: document.getElementById('pp-quote').value.trim(),
+          school: document.getElementById('pp-school').value.trim(),
+          subjects: document.getElementById('pp-subj').value.trim(),
+          degrees: parseLines(document.getElementById('pp-deg').value, ['degree', 'school', 'year']),
+          awards: parseLines(document.getElementById('pp-awd').value, ['title', 'org', 'year']),
+          public_profile: document.getElementById('pp-pub').checked,
+        };
+        api('/api/users/profile', { method: 'PUT', body: JSON.stringify(payload) })
+          .then(function () { alert('Profile saved!'); })
+          .catch(function () { alert('Could not save.'); });
       });
     });
   }
