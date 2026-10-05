@@ -136,6 +136,8 @@
       tile('gold', '🏆', 'Achievements', '<div class="t-big">' + totalBadges + '</div>', 'badges earned across the family', 'badges') +
       tile('pink', '🌳', 'Family tree', '', 'Link spouses, grandparents & relatives', 'family') +
       '<a href="/pages/chat.html" style="text-decoration:none">' + tile('cyan', '💬', 'Chats', '', 'Family & class conversations', '') + '</a>' +
+      tile('gold', '📊', 'Weekly digest', '', 'What your kids read', 'digest') +
+      tile('orange', '🏅', 'Family leaderboard', '', 'Sibling XP race', 'board') +
       tile('green', '🔥', 'Streaks', '<div class="t-big">' + bestStreak + '🔥</div>', 'best reading streak in the family', 'streaks') +
       tile('purple', '🧪', 'Weekend Lab', '', 'Vote Thursday · activities Saturday', null, '/pages/weekend-lab.html') +
       tile('orange', '🧠', 'Daily Quiz', '', 'Tonight\'s 5 questions · leaderboard', null, '/pages/quiz.html') +
@@ -167,6 +169,8 @@
       '<div><b style="color:#39ff14">6. Leave anytime.</b> Remove a family member or unlink a classroom instantly — no questions, no waiting.</div>' +
       '</div></div>';
 
+    html += '<div class="panel hidden" id="p-digest"><h2>📊 Weekly digest</h2><div id="digest-body"><p style="color:#7c8898">Loading…</p></div></div>';
+    html += '<div class="panel hidden" id="p-board"><h2>🏅 Family leaderboard</h2><div id="board-body"><p style="color:#7c8898">Loading…</p></div></div>';
     html += '<div class="panel hidden" id="p-badges"><h2>🏆 Achievement board</h2>' +
       '<p style="color:var(--muted,#7c8898);font-size:14px;margin:0 0 16px">Every badge the family has earned — and what\'s still to unlock.</p>' +
       '<div class="badge-wall" id="badge-wall"><p style="color:#7c8898">Loading badges…</p></div></div>';
@@ -290,6 +294,11 @@
         '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"><input type="checkbox" id="cm-voice" ' + (s.voiceCommands ? 'checked' : '') + '/> Voice commands</label>' +
         '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"><input type="checkbox" id="cm-large" ' + (s.largeText ? 'checked' : '') + '/> Large text</label>' +
         '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"><input type="checkbox" id="cm-contrast" ' + (s.highContrast ? 'checked' : '') + '/> High contrast</label>' +
+        '<div style="font:700 13px/1 Inter,sans-serif;margin:16px 0 8px">🌙 Quiet hours</div>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"><input type="checkbox" id="cm-quiet" /> Pause chat during quiet hours</label>' +
+        '<div style="display:flex;gap:8px;align-items:center;font-size:13px"><span>From</span><input type="time" id="cm-qs" value="20:00" style="padding:6px;border-radius:6px;background:#0b1026;color:inherit;border:1px solid rgba(255,255,255,.2)"/><span>to</span><input type="time" id="cm-qe" value="07:00" style="padding:6px;border-radius:6px;background:#0b1026;color:inherit;border:1px solid rgba(255,255,255,.2)"/></div>' +
+        '<div style="font:700 13px/1 Inter,sans-serif;margin:16px 0 8px">🎯 Weekly reading goal</div>' +
+        '<div style="display:flex;gap:8px;align-items:center"><input type="number" id="cm-goal" min="1" max="20" value="3" style="width:70px;padding:8px;border-radius:8px;background:#0b1026;color:inherit;border:1px solid rgba(255,255,255,.2)"/><span style="font-size:13px">stories per week</span></div>' +
         '<button class="btn" id="cm-save" style="width:100%;margin-top:16px">Save controls</button>';
       var selChannels = allowed.slice();
       b.querySelectorAll('[data-ch]').forEach(function (btn) {
@@ -303,7 +312,22 @@
           btn.style.color = on ? '#00e5ff' : '#7c8898';
         });
       });
+      // Load quiet hours + goal
+      api('/api/kids/' + kid.id + '/quiet').then(function (q) {
+        document.getElementById('cm-quiet').checked = !!q.enabled;
+        document.getElementById('cm-qs').value = q.start || '20:00';
+        document.getElementById('cm-qe').value = q.end || '07:00';
+      }).catch(function () {});
+      api('/api/kids/' + kid.id + '/goals').then(function (g) {
+        document.getElementById('cm-goal').value = g.target || 3;
+      }).catch(function () {});
       document.getElementById('cm-save').addEventListener('click', function () {
+        var quietP = api('/api/kids/' + kid.id + '/quiet', { method: 'PUT', body: JSON.stringify({
+          enabled: document.getElementById('cm-quiet').checked,
+          start: document.getElementById('cm-qs').value, end: document.getElementById('cm-qe').value }) });
+        var goalP = api('/api/kids/' + kid.id + '/goals', { method: 'POST', body: JSON.stringify({
+          stories_target: Number(document.getElementById('cm-goal').value) || 3 }) });
+        Promise.all([quietP, goalP]).catch(function () {});
         api('/api/kids/' + kid.id + '/settings', { method: 'PUT', body: JSON.stringify({
           listenEnabled: document.getElementById('cm-listen').checked,
           commentsEnabled: document.getElementById('cm-comments').checked,
@@ -432,6 +456,52 @@
       });
     }).catch(function () { b.innerHTML = '<p style="color:#7c8898">Could not load family.</p>'; });
   }
+  function checkConsent() {
+    api('/api/consent/status').then(function (d) {
+      if (!d.verified) {
+        var b = document.createElement('div');
+        b.className = 'panel';
+        b.style.borderColor = 'rgba(255,209,102,.5)';
+        b.innerHTML = '<h2>✅ Verify your parent account</h2><p style="color:var(--muted)">To create kid profiles and use family features, verify you are the parent.</p><p><button class="btn" id="consent-btn">Send verification email</button></p><div id="consent-msg" style="margin-top:8px;font-size:13px"></div>';
+        document.getElementById('root').prepend(b);
+        document.getElementById('consent-btn').addEventListener('click', function () {
+          api('/api/consent/request', { method: 'POST' }).then(function () {
+            document.getElementById('consent-msg').innerHTML = '<span style="color:#39ff14">✓ Verification email sent! Check your inbox.</span>';
+          });
+        });
+        // Check ?consent= param
+        var cid = new URLSearchParams(location.search).get('consent');
+        if (cid) {
+          api('/api/consent/verify', { method: 'POST', body: JSON.stringify({ consentId: cid }) })
+            .then(function () { alert('Verified! You are now a verified parent.'); location.reload(); });
+        }
+      }
+    }).catch(function () {});
+  }
+  function loadDigest() {
+    api('/api/digest/weekly').then(function (d) {
+      var b = document.getElementById('digest-body');
+      if (!d.kids.length) { b.innerHTML = '<p style="color:#7c8898">No kids yet.</p>'; return; }
+      b.innerHTML = '<p style="color:var(--muted);font-size:13px">Week of ' + esc(d.weekStart) + '</p>' +
+        d.kids.map(function (k) {
+          return '<div class="kid-card" style="margin-bottom:10px"><div class="k-name">' + esc(k.name) + '</div>' +
+            '<div class="k-meta">📚 ' + k.stories + ' stories · ⚡ ' + k.xp + ' XP' +
+            (k.quizAvg !== null ? ' · 🧠 ' + k.quizAvg + '% quiz avg (' + k.quizCount + ')' : '') +
+            (k.newBadges ? ' · 🏆 ' + k.newBadges + ' new badges' : '') + '</div></div>';
+        }).join('');
+    });
+  }
+  function loadBoard() {
+    api('/api/families/leaderboard').then(function (d) {
+      var b = document.getElementById('board-body');
+      var medals = ['🥇', '🥈', '🥉'];
+      b.innerHTML = (d.board || []).map(function (k, i) {
+        return '<div class="kid-card" style="margin-bottom:10px;display:flex;align-items:center;gap:12px">' +
+          '<div style="font-size:28px">' + (medals[i] || '🏅') + '</div>' +
+          '<div><div class="k-name">' + esc(k.name) + '</div><div class="k-meta">This week: ' + k.weekXp + ' XP · Total: ' + k.totalXp + ' XP</div></div></div>';
+      }).join('') || '<p style="color:#7c8898">No family yet.</p>';
+    });
+  }
   function bindParentTiles() {
     root.querySelectorAll('[data-panel]').forEach(function (t) {
       t.addEventListener('click', function () {
@@ -442,6 +512,8 @@
           el.classList.remove('hidden');
           el.scrollIntoView({ behavior: 'smooth', block: 'start' });
           if (id === 'p-family') loadFamily();
+          if (id === 'p-digest') loadDigest();
+          if (id === 'p-board') loadBoard();
         }
       });
     });
@@ -541,6 +613,8 @@
       tile('slate', '✉️', 'Invite parents', '', 'Email invites to link students', 'invites') +
       tile('gold', '⚙️', 'Class settings', '', 'Listen toggle, channel filters', 'csettings') +
       '<a href="/pages/chat.html" style="text-decoration:none">' + tile('cyan', '💬', 'Class chats', '', 'Talk with families', '') + '</a>' +
+      tile('red', '⚠️', 'Needs attention', '', 'At-risk students', 'atrisk') +
+      tile('slate', '📋', 'Completion matrix', '', 'Assignments × students', 'matrix') +
       '</div>';
 
     // Students panel
@@ -579,6 +653,10 @@
       '<p><input id="inv-email" type="email" placeholder="parent@example.com" style="padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;width:260px"/> <button class="btn" id="inv-send">Send invite</button></p>' +
       '<div id="inv-result" style="margin-top:10px;font-size:14px"></div></div>';
 
+    // At-risk panel
+    html += '<div class="panel hidden" id="p-atrisk"><h2>⚠️ Needs attention</h2><div id="atrisk-body"><p style="color:#7c8898">Loading…</p></div></div>';
+    // Matrix panel
+    html += '<div class="panel hidden" id="p-matrix"><h2>📋 Completion matrix</h2><div id="matrix-body" style="overflow-x:auto"><p style="color:#7c8898">Loading…</p></div></div>';
     // Class settings panel
     html += '<div class="panel hidden" id="p-csettings"><h2>⚙️ Class settings</h2><div id="cs-body"><p style="color:#7c8898">Loading…</p></div></div>';
 
@@ -606,6 +684,8 @@
           el.scrollIntoView({ behavior: 'smooth', block: 'start' });
           if (id === 'p-pubprofile') loadProfileForm();
           if (id === 'p-csettings') loadClassSettings(classId);
+          if (id === 'p-atrisk') loadAtRisk(classId);
+          if (id === 'p-matrix') loadMatrix(classId);
         }
       });
     });
@@ -692,6 +772,35 @@
       });
     }).catch(function () { b.innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
   }
+  function loadAtRisk(classId) {
+    api('/api/classrooms/' + classId + '/at-risk').then(function (d) {
+      var b = document.getElementById('atrisk-body');
+      if (!d.atRisk.length) { b.innerHTML = '<p style="color:#39ff14">✅ Everyone is on track!</p>'; return; }
+      b.innerHTML = d.atRisk.map(function (k) {
+        var color = k.risk === 'high' ? '#ff2e63' : '#ff9f1c';
+        return '<div class="kid-card" style="margin-bottom:10px;border-left:4px solid ' + color + '">' +
+          '<div class="k-name">' + esc(k.name) + ' <span style="font-size:12px;color:' + color + '">' + k.risk.toUpperCase() + '</span></div>' +
+          '<div class="k-meta">' + k.daysIdle + ' days idle · ' + k.xp7 + ' XP this week · 🔥 ' + k.streak + ' streak</div></div>';
+      }).join('');
+    }).catch(function () { document.getElementById('atrisk-body').innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
+  function loadMatrix(classId) {
+    api('/api/classrooms/' + classId + '/matrix').then(function (d) {
+      var b = document.getElementById('matrix-body');
+      if (!d.assignments.length) { b.innerHTML = '<p style="color:#7c8898">No assignments yet.</p>'; return; }
+      var h = '<table style="border-collapse:collapse;font-size:13px"><tr><th style="padding:8px;text-align:left;position:sticky;left:0;background:#0f1522">Student</th>';
+      d.assignments.forEach(function (a) { h += '<th style="padding:8px;min-width:90px" title="' + esc(a.title) + '">' + esc(a.title.slice(0, 12)) + '…</th>'; });
+      h += '</tr>';
+      d.matrix.forEach(function (row) {
+        h += '<tr><td style="padding:8px;font-weight:700;position:sticky;left:0;background:#0f1522">' + esc(row.name) + '</td>';
+        row.cells.forEach(function (c) {
+          h += '<td style="padding:8px;text-align:center;background:' + (c.done ? 'rgba(57,255,20,.15)' : 'rgba(255,46,99,.08)') + '">' + (c.done ? '✅' : '⬜') + '</td>';
+        });
+        h += '</tr>';
+      });
+      b.innerHTML = h + '</table>';
+    }).catch(function () { document.getElementById('matrix-body').innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
   function bindInviteSender(classId) {
     var btn = document.getElementById('inv-send');
     if (!btn) return;
@@ -756,7 +865,7 @@
         return;
       }
       if (isTeacher) loadTeacher(user);
-      else { loadParent(user); checkClassInvite(); }
+      else { loadParent(user); checkClassInvite(); checkConsent(); }
     }).catch(function () { location.href = '/pages/login.html'; });
   }
 
