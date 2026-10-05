@@ -1324,6 +1324,24 @@ api.post('/newsroom/images', (req, res) => {
   }
 });
 
+// -------------- ADMIN: UPDATE WHATS-NEW --------------
+// PUT /api/admin/whats-new { items: [...] } — replaces data/whats-new.json.
+// Admin auth required.
+api.put('/admin/whats-new', requireAdmin, (req, res) => {
+  try {
+    const items = (req.body || {}).items;
+    if (!Array.isArray(items)) return res.status(400).json({ error: 'items array required' });
+    for (const it of items) {
+      if (!it.date || !it.title || !it.body) return res.status(400).json({ error: 'each item needs date, title, body' });
+    }
+    const fp = path.join(DATA_DIR, 'whats-new.json');
+    fs.writeFileSync(fp, JSON.stringify(items, null, 2));
+    res.json({ ok: true, count: items.length });
+  } catch (e) {
+    res.status(500).json({ error: 'failed: ' + e.message });
+  }
+});
+
 // -------------- NEWSROOM AUDIO UPLOAD --------------
 // Upload pre-generated narration MP3s (Piper TTS). Same X-Newsroom-Key guard.
 // Body: { articleId, voice, filename, base64 } (MP3, max 8MB).
