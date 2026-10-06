@@ -124,6 +124,18 @@ function ensureStorage() {
       } catch (e) {
         console.warn('[storage] whats-new.json sync failed:', e.message);
       }
+
+      // Sync beta-status.json from the bundle (Beta HQ page data).
+      try {
+        const seedBetaStatus = path.join(SEED_DATA_DIR, 'beta-status.json');
+        const dataBetaStatus = path.join(DATA_DIR, 'beta-status.json');
+        if (fs.existsSync(seedBetaStatus)) {
+          fs.cpSync(seedBetaStatus, dataBetaStatus, { force: true });
+          console.log('[storage] Synced beta-status.json from bundle to persistent volume');
+        }
+      } catch (e) {
+        console.warn('[storage] beta-status.json sync failed:', e.message);
+      }
     }
   }
 
