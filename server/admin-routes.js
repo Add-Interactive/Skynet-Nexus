@@ -84,6 +84,53 @@ function publishArticleFile(absJsonPath) {
 const router = express.Router();
 
 // Every admin route requires the admin/editor role.
+// POST /api/admin/bootstrap-admin — creates the FIRST admin when none exist,
+// or lets an existing admin promote/create others.
+// Registered BEFORE router.use(requireAdminRole) so the zero-admin case works.
+router.post('/bootstrap-admin', async (req, res, next) => {
+  // Count existing admins (legacy role column + user_roles table)
+  let adminCount = 0;
+  try {
+    const r1 = db.db.prepare("SELECT COUNT(*) AS c FROM users WHERE role = 'admin'").get();
+    adminCount += (r1 && r1.c) || 0;
+  } catch (e) { /* query failed */ }
+  try {
+    const r2 = db.db.prepare("SELECT COUNT(*) AS c FROM user_roles WHERE role = 'admin'").get();
+    adminCount += (r2 && r2.c) || 0;
+  } catch (e) { /* no user_roles table */ }
+
+  if (adminCount > 0) {
+    // Admins exist — require admin role like all other admin routes
+    return requireAdminRole(req, res, () => bootstrapHandler(req, res));
+  }
+  // Zero admins — allow bootstrap without auth
+  return bootstrapHandler(req, res);
+});
+
+async function bootstrapHandler(req, res) {
+  const email = String((req.body && req.body.email) || '').trim().toLowerCase();
+  const password = String((req.body && req.body.password) || '');
+  const displayName = String((req.body && req.body.displayName) || 'Admin').trim();
+  if (!isValidEmail(email)) return res.status(400).json({ error: 'valid email required.' });
+  if (!isValidPassword(password)) return res.status(400).json({ error: 'password >= 8 chars.' });
+  if (!isValidDisplayName(displayName)) return res.status(400).json({ error: 'display name 2-40 chars.' });
+
+  const actorId = req.adminUser ? req.adminUser.id : null;
+
+  const existing = db.findUserByEmail(email);
+  if (existing) {
+    const promoted = db.setUserRole(existing.id, 'admin');
+    if (actorId) logAction(actorId, 'user.role.set', 'user', existing.id, { role: 'admin', via: 'bootstrap' });
+    return res.json({ ok: true, user: promoted, note: 'existing user promoted' });
+  }
+
+  const hash = await hashPassword(password);
+  const user = db.createUser({ email, displayName, passwordHash: hash, avatarColor: '#00e5ff' });
+  db.setUserRole(user.id, 'admin');
+  if (actorId) logAction(actorId, 'user.create', 'user', user.id, { email, role: 'admin' });
+  res.status(201).json({ ok: true, user: db.findUserById(user.id) });
+}
+
 router.use(requireAdminRole);
 
 // -------------------- DASHBOARD --------------------
@@ -948,27 +995,7 @@ router.get('/analytics/export/stories', (req, res) => {
 
 // POST /api/admin/bootstrap-admin - only usable if there are ZERO admins yet, or by an existing admin.
 // Accepts { email, password, displayName } and creates or promotes.
-router.post('/bootstrap-admin', async (req, res) => {
-  const email = String((req.body && req.body.email) || '').trim().toLowerCase();
-  const password = String((req.body && req.body.password) || '');
-  const displayName = String((req.body && req.body.displayName) || 'Admin').trim();
-  if (!isValidEmail(email)) return res.status(400).json({ error: 'valid email required.' });
-  if (!isValidPassword(password)) return res.status(400).json({ error: 'password >= 8 chars.' });
-  if (!isValidDisplayName(displayName)) return res.status(400).json({ error: 'display name 2-40 chars.' });
-
-  const existing = db.findUserByEmail(email);
-  if (existing) {
-    const promoted = db.setUserRole(existing.id, 'admin');
-    logAction(req.adminUser.id, 'user.role.set', 'user', existing.id, { role: 'admin', via: 'bootstrap' });
-    return res.json({ ok: true, user: promoted, note: 'existing user promoted' });
-  }
-
-  const hash = await hashPassword(password);
-  const user = db.createUser({ email, displayName, passwordHash: hash, avatarColor: '#00e5ff' });
-  db.setUserRole(user.id, 'admin');
-  logAction(req.adminUser.id, 'user.create', 'user', user.id, { email, role: 'admin' });
-  res.status(201).json({ ok: true, user: db.findUserById(user.id) });
-});
+// (bootstrap-admin moved above router.use — see below)
 
 // GET /admin/images/list — returns list of images inside channel subfolders (merged recursively from ComfyUI outputs, users folder, and repo)
 router.get('/images/list', (req, res) => {
