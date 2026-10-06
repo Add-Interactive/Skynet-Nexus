@@ -109,38 +109,70 @@
       <div class="page">
   <div class="page-hero">
     <h1>Privacy at Skynet Nexus</h1>
-    <p>Family-first also means privacy-first. Here is exactly what we collect, what we do not, and how to remove your account.</p>
+    <p>Family-first also means privacy-first. Here is exactly what we collect, what we do not, and how to remove your data.</p>
   </div>
 
   <div class="widget" style="margin-bottom: 20px;">
     <h2 style="margin-top:0">TL;DR</h2>
     <ul>
       <li>We <strong>do not track kids.</strong> No analytics run on kid profiles. No ad tech, ever.</li>
-      <li>Parents opt in to an account. We store only email, display name, and a bcrypt hash of the password.</li>
-      <li>Kid profiles store only what you type: a name, birth year, an emoji, a color.</li>
-      <li>Age-appropriate filtering happens <em>in your browser</em>. We never see which stories your kid read.</li>
+      <li>Parents verify their email before adding kid profiles — this confirms a parent or guardian created the account.</li>
+      <li>We store only what the site needs to work: account info, kid profiles, quiz answers, XP, comments, and messages.</li>
       <li>We do not sell, share, or transfer any user data. Ever.</li>
-      <li>You can delete your account (and every kid profile with it) any time from the profile page.</li>
+      <li>You can delete a kid's data or your whole account any time from the profile page.</li>
     </ul>
   </div>
 
   <div class="widget" style="margin-bottom: 20px;">
     <h2 style="margin-top:0">What we collect</h2>
-    <p><strong>Parent account:</strong> email address, display name, hashed password, an avatar color you pick, timestamps of account creation and last login.</p>
+    <p><strong>Parent account:</strong> email address (verified via a confirmation link), display name, hashed password, an avatar color you pick, timestamps of account creation and last login.</p>
     <p><strong>Kid profiles:</strong> first name (or nickname), birth year (used only to choose an age band on your device), an emoji, a color. That is the entire list.</p>
+    <p><strong>Quiz answers:</strong> which questions your kid answered and their score, so we can show progress and award XP. Kept for 1 year.</p>
+    <p><strong>XP &amp; gamification:</strong> experience points, badges, and reading goals earned by kid profiles. Kept for the life of the account — it's the product.</p>
+    <p><strong>Article reactions &amp; comments:</strong> thumbs up/down and comments on stories. Kid comments show publicly only as an avatar plus "a young reader" — never a name — and only after a parent approves them.</p>
+    <p><strong>Ask the Correspondent:</strong> questions your family asks our AI correspondents, and our answers. Questions are kept 90 days after being answered.</p>
+    <p><strong>Chat messages:</strong> family chat and parent-teacher messages. Kept 90 days.</p>
+    <p><strong>Push subscriptions:</strong> if you turn on edition-drop alerts, your browser registers with its push service (Google, Apple, or Mozilla, depending on your browser). We store only the subscription endpoint so we can send alerts — you can unsubscribe anytime.</p>
+    <p><strong>Weekly email (optional):</strong> email address only, if you opt in. One digest every Sunday morning. Unsubscribe anytime.</p>
+    <p><strong>Voice preference:</strong> which narration voice you picked for article read-aloud (stored on your device, not our server).</p>
+    <p><strong>Kid Creations:</strong> drawings, stories, or other uploads your family shares to the gallery, plus likes. Shown publicly only as avatar + "a young reader."</p>
     <p><strong>Newsletter (optional):</strong> email address only, if you sign up on the homepage.</p>
     <p><strong>Session cookie:</strong> one first-party HttpOnly cookie named <code>skynet.sid</code> so you stay signed in. No tracking pixels, no third-party cookies, no fingerprinting.</p>
   </div>
 
   <div class="widget" style="margin-bottom: 20px;">
-    <h2 style="margin-top:0">COPPA (US kids under 13)</h2>
-    <p>Skynet Nexus is designed for co-reading by families. Kid profiles exist so a parent can choose what content their child sees at a glance. We treat every kid profile as belonging to the parent account it lives under. That means:</p>
+    <h2 style="margin-top:0">How long we keep it</h2>
     <ul>
-      <li>Only the parent creates, edits, or deletes a kid profile.</li>
+      <li><strong>Quiz answers:</strong> 1 year, then deleted.</li>
+      <li><strong>XP, badges, reading goals:</strong> for the life of the account.</li>
+      <li><strong>Q&amp;A questions:</strong> 90 days after being answered.</li>
+      <li><strong>Chat messages:</strong> 90 days.</li>
+      <li><strong>Push subscriptions:</strong> until you unsubscribe.</li>
+      <li><strong>Everything else:</strong> until you delete it or delete your account.</li>
+    </ul>
+    <p>When data passes its retention period, we delete it. We don't archive kids' data.</p>
+  </div>
+
+  <div class="widget" style="margin-bottom: 20px;">
+    <h2 style="margin-top:0">COPPA (US kids under 13)</h2>
+    <p>Skynet Nexus is designed for co-reading by families. Before you can add a kid profile, we ask you to <strong>verify your email address</strong> by clicking a link we send you. This is our parental-consent step: it confirms that a parent or guardian — not a child — created the account.</p>
+    <ul>
+      <li>Only the verified parent creates, edits, or deletes a kid profile.</li>
       <li>Kid profile birth year never leaves your browser except to be stored on our server for you.</li>
+      <li>Public kid identity is always an avatar plus "a young reader" — never a name.</li>
       <li>We never target advertising to any user, adult or child.</li>
       <li>We never sell any data to any third party.</li>
-      <li>Parents can email <a href="mailto:privacy@skynet-nexus.local">privacy@skynet-nexus.local</a> to review or delete any data associated with their account.</li>
+    </ul>
+    <p><em>This page describes our practices in plain language. It is not legal advice, and we encourage you to consult an attorney with questions about children's privacy law.</em></p>
+  </div>
+
+  <div class="widget" style="margin-bottom: 20px;">
+    <h2 style="margin-top:0">Your rights as a parent</h2>
+    <ul>
+      <li><strong>Review:</strong> see everything we store about your family on your profile page.</li>
+      <li><strong>Delete a kid's data:</strong> on your profile page, open a kid's settings and choose "Delete kid's data" — you'll type the kid's name to confirm. This wipes quiz answers, XP, reactions, comments, questions, chat messages, and creations for that kid.</li>
+      <li><strong>Revoke consent:</strong> deleting your account revokes consent entirely.</li>
+      <li><strong>Contact us:</strong> email <a href="mailto:privacy@skynet-nexus.local">privacy@skynet-nexus.local</a> and we will respond within 30 days.</li>
     </ul>
   </div>
 
@@ -163,9 +195,8 @@
   <div class="widget">
     <h2 style="margin-top:0">Questions</h2>
     <p>Email <a href="mailto:privacy@skynet-nexus.local">privacy@skynet-nexus.local</a> or use the <a href="contact.html">Contact</a> page. A human replies.</p>
-    <p style="opacity:0.6;font-size:12px;margin-top:20px">Last updated: 2026-07-01. When we change how we handle data, we update this page and note the change here.</p>
+    <p style="opacity:0.6;font-size:12px;margin-top:20px">Last updated: 2026-10-06. When we change how we handle data, we update this page and note the change here. Previous update: 2026-07-01.</p>
   </div>
-</div>
         </main>
 
     <aside class="right-rail">
