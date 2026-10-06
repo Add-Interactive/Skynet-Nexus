@@ -669,7 +669,7 @@
       var d = rs[0], tmpl = rs[1].templates || [];
       var h = '<p style="color:var(--muted);font-size:13px;margin-bottom:12px">Everyone in your family tree — achievements, badges, and cheers. Send encouragement with one tap.</p>';
       (d.kids || []).forEach(function (k) {
-        h += '<div class="kid-card" style="margin-bottom:10px"><div class="k-name">' + (k.avatar_emoji || '🚀') + ' ' + esc(k.name) + '</div>' +
+        h += '<div class="kid-card" style="margin-bottom:10px"><div class="k-name">' + (k.avatarEmoji || '🚀') + ' ' + esc(k.name) + '</div>' +
           '<div style="margin-top:8px"><select data-cheerkid="' + k.id + '" style="padding:8px;border-radius:8px;background:rgba(255,255,255,.05);color:inherit;border:1px solid rgba(255,255,255,.2)">' +
           tmpl.map(function (t) { return '<option>' + esc(t) + '</option>'; }).join('') + '</select> ' +
           '<button class="btn ghost" data-cheerbtn="' + k.id + '" style="padding:8px 14px;font-size:13px">Send cheer 📣</button></div></div>';
