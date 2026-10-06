@@ -1218,7 +1218,9 @@ api.post('/newsroom/drafts', (req, res) => {
     publishAt: dropAt, edition
   });
   console.log(`[newsroom] draft filed: #${story.id} ${channel} "${String(payload.title).slice(0, 60)}" for ${edition || 'unscheduled'} drop`);
-  res.status(201).json({ story });
+  let warnings = [];
+  try { warnings = require('../newsroom/agent-orchestrator').checkDraftShapes(payload) || []; } catch (e) {}
+  res.status(201).json({ story, warnings });
 });
 
 
@@ -1442,6 +1444,20 @@ api.post('/newsroom/images', (req, res) => {
   } catch (e) {
     res.status(500).json({ error: 'artwork upload failed: ' + e.message });
   }
+});
+
+// DELETE /api/newsroom/images/:filename?channel=<ch> — remove an uploaded image.
+// Newsroom-key gated; filename sanitized and confined to the channel image dir.
+api.delete('/newsroom/images/:filename', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  if (String(req.headers['x-newsroom-key'] || '') !== expected) return res.status(401).json({ error: 'unauthorized' });
+  const dir = path.join(require('./storage').USERS_DIR, String(req.query.channel || ''));
+  const filename = String(req.params.filename || '').replace(/[^a-zA-Z0-9_.-]/g, '');
+  const fp = path.join(dir, filename);
+  if (!filename || path.dirname(fp) !== dir || !fs.existsSync(fp)) return res.status(404).json({ error: 'not found' });
+  fs.unlinkSync(fp);
+  res.json({ ok: true, filename });
 });
 
 // -------------- ADMIN: UPDATE WHATS-NEW --------------
@@ -1875,6 +1891,7 @@ api.post('/newsroom/fresh-start', (req, res) => {
   if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
   const got = String(req.headers['x-newsroom-key'] || '');
   if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+  if (!req.body || req.body.confirm !== true) return res.status(400).json({ error: 'confirmation required: send { "confirm": true }' });
 
   const KEEP_IDS = [
     '2026-07-04-how-youth-stem-achievements-and-innovation-shaped-america' // Jeff's 4th of July movie
