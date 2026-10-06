@@ -103,7 +103,9 @@ function registerPlus(api, requireAuth, requireTeacher) {
   api.get('/kids/:id/quiet', requireAuth, (req, res) => {
     try {
       const { db } = require('./db');
-      const s = db.prepare('SELECT quiet_enabled, quiet_start, quiet_end FROM kid_settings WHERE kid_id = ?').get(req.params.id);
+      const kid = db.prepare('SELECT id FROM kid_profiles WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
+      if (!kid) return res.status(404).json({ error: 'not found' });
+      const s = db.prepare('SELECT quiet_enabled, quiet_start, quiet_end FROM kid_settings WHERE kid_id = ?').get(kid.id);
       res.json({ enabled: s && s.quiet_enabled == 1, start: (s && s.quiet_start) || '20:00', end: (s && s.quiet_end) || '07:00' });
     } catch (e) { res.status(500).json({ error: 'failed' }); }
   });
@@ -304,7 +306,16 @@ function registerPlus(api, requireAuth, requireTeacher) {
   api.post('/friends/requests/:id/decline', requireAuth, (req, res) => {
     try {
       const { db } = require('./db');
-      db.prepare("UPDATE friend_requests SET status = 'declined' WHERE id = ?").run(req.params.id);
+      const r = db.prepare(`SELECT r.*, kf.user_id AS from_user_id, kt.user_id AS to_user_id
+        FROM friend_requests r
+        JOIN kid_profiles kf ON kf.id = r.from_kid_id
+        JOIN kid_profiles kt ON kt.id = r.to_kid_id
+        WHERE r.id = ? AND r.status = 'pending'`).get(req.params.id);
+      if (!r) return res.status(404).json({ error: 'not found' });
+      if (r.from_user_id !== req.user.id && r.to_user_id !== req.user.id) {
+        return res.status(403).json({ error: 'not allowed' });
+      }
+      db.prepare("UPDATE friend_requests SET status = 'declined' WHERE id = ?").run(r.id);
       res.json({ ok: true });
     } catch (e) { res.status(500).json({ error: 'failed' }); }
   });
