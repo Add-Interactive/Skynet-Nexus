@@ -347,13 +347,15 @@ api.post('/auth/logout', (req, res) => {
   });
 });
 
-// PATCH /api/auth/profile — { displayName?, avatarColor? }
+// PATCH /api/auth/profile — { displayName?, avatarColor?, avatarEmoji?, photoUrl? }
 api.patch('/auth/profile', requireAuth, (req, res) => {
   const displayName = req.body.displayName != null ? String(req.body.displayName).trim() : null;
   const avatarColor = req.body.avatarColor != null ? isValidHexColor(req.body.avatarColor, null) : null;
   const styleRaw = req.body.correspondentStyle != null ? String(req.body.correspondentStyle).trim().toLowerCase() : null;
   const correspondentStyle = styleRaw == null ? null
     : (['human', 'animal', 'skynet'].includes(styleRaw) ? styleRaw : null);
+  const avatarEmoji = req.body.avatarEmoji != null ? String(req.body.avatarEmoji).slice(0, 8) : null;
+  const photoUrl = req.body.photoUrl != null ? String(req.body.photoUrl).slice(0, 500) : null;
   if (displayName != null && !isValidDisplayName(displayName)) {
     return res.status(400).json({ error: 'Display name must be 2–40 characters.' });
   }
@@ -363,7 +365,7 @@ api.patch('/auth/profile', requireAuth, (req, res) => {
   if (styleRaw != null && correspondentStyle == null) {
     return res.status(400).json({ error: 'Correspondent style must be human, animal, or skynet.' });
   }
-  const user = updateUser({ id: req.session.userId, displayName, avatarColor, correspondentStyle });
+  const user = updateUser({ id: req.session.userId, displayName, avatarColor, correspondentStyle, avatarEmoji, photoUrl });
   res.json({ user });
 });
 
