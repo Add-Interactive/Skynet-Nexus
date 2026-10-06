@@ -59,6 +59,12 @@ function ensureStorage() {
         const dataArtRoot = path.join(DATA_DIR, 'articles');
         if (fs.existsSync(seedArtRoot)) {
           fs.cpSync(seedArtRoot, dataArtRoot, { recursive: true, force: true });
+          // Sync whats-new.json from bundle (What's New page content)
+          const seedWhatsNew = path.join(SEED_DATA_DIR, 'whats-new.json');
+          const dataWhatsNew = path.join(DATA_DIR, 'whats-new.json');
+          if (fs.existsSync(seedWhatsNew)) {
+            fs.cpSync(seedWhatsNew, dataWhatsNew, { force: true });
+          }
           console.log('[storage] Synchronized articles from bundle to persistent volume');
         }
         
