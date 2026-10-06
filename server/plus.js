@@ -209,7 +209,6 @@ function registerPlus(api, requireAuth, requireTeacher) {
       res.json({ board, weekStart: ws });
     } catch (e) { res.status(500).json({ error: 'failed: ' + e.message }); }
   });
-}
 
   // ---- FRIENDS (dual-parent approval) ----
   // GET /api/kids/:id/friend-code
@@ -337,6 +336,8 @@ function registerPlus(api, requireAuth, requireTeacher) {
       res.json({ ok: true });
     } catch (e) { res.status(500).json({ error: 'failed' }); }
   });
+
+}
 
 function isQuietNow(db, kidId) {
   try {
