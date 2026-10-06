@@ -2130,7 +2130,7 @@ function initArticlePage() {
     '<div class="glossary" id="sec-glossary">' +
       '<div class="glossary-title">Words to know</div>' +
       '<dl>' + a.glossary.map(g =>
-        '<dt>' + g.term + '</dt><dd>' + g.meaning + '</dd>'
+        '<dt>' + (g.term || '') + '</dt><dd>' + (g.definition || g.meaning || '') + '</dd>'
       ).join('') + '</dl>' +
       SkyGam.stepButton('glossary', 'Learned these words', 5) +
     '</div>'
@@ -2148,7 +2148,7 @@ function initArticlePage() {
     '<div class="sources">' +
       '<div class="sources-title">Read the sources</div>' +
       '<ul>' + a.sources.map(s =>
-        '<li><a href="' + s.url + '" target="_blank" rel="noopener">' + s.label + '</a></li>'
+        '<li><a href="' + s.url + '" target="_blank" rel="noopener">' + (s.label || s.title || s.url) + '</a>' + (s.publisher ? ' <span class="src-pub">' + s.publisher + '</span>' : '') + '</li>'
       ).join('') + '</ul>' +
     '</div>'
   ) : '';
