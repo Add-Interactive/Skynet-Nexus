@@ -665,6 +665,36 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_beta_feedback_user ON beta_feedback(user_id);
   CREATE INDEX IF NOT EXISTS idx_beta_feedback_status ON beta_feedback(status);
 `);
+
+// Article engagement: reader reactions (thumbs up/down) + moderated comments.
+// Runs every boot; IF NOT EXISTS keeps it safe on the persistent Railway volume.
+// Kid-safety model: reactions are per-person counts; comments from kids start
+// 'pending' and are visible only to the authoring kid + their parents until approved.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS article_reactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    article_id TEXT NOT NULL,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    kid_id INTEGER REFERENCES kid_profiles(id) ON DELETE CASCADE,
+    reaction TEXT NOT NULL CHECK(reaction IN ('up','down')),
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  );
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_article_reactions_one
+    ON article_reactions(article_id, COALESCE(user_id, 0), COALESCE(kid_id, 0));
+  CREATE INDEX IF NOT EXISTS idx_article_reactions_article ON article_reactions(article_id);
+
+  CREATE TABLE IF NOT EXISTS article_comments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    article_id TEXT NOT NULL,
+    author_user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    author_kid_id INTEGER REFERENCES kid_profiles(id) ON DELETE CASCADE,
+    body TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','approved','rejected')),
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_article_comments_article ON article_comments(article_id, status, created_at);
+  CREATE INDEX IF NOT EXISTS idx_article_comments_kid ON article_comments(author_kid_id, status);
+`);
 // Weekend Lab polls: Thursday-night vote on weekend activities (votes are private).
 // Runs every boot; IF NOT EXISTS keeps it safe on the persistent Railway volume.
 db.exec(`
@@ -913,6 +943,43 @@ const stmts = {
   listFeedbackByUser: db.prepare(`
     SELECT * FROM beta_feedback WHERE user_id = ? ORDER BY id DESC`),
   findFeedbackById: db.prepare(`SELECT * FROM beta_feedback WHERE id = ?`),
+  // Article engagement
+  upsertReactionDelete: db.prepare(`
+    DELETE FROM article_reactions
+    WHERE article_id = ? AND COALESCE(user_id, 0) = COALESCE(?, 0) AND COALESCE(kid_id, 0) = COALESCE(?, 0)`),
+  insertReaction: db.prepare(`
+    INSERT INTO article_reactions (article_id, user_id, kid_id, reaction) VALUES (?, ?, ?, ?)`),
+  countReactions: db.prepare(`
+    SELECT reaction, COUNT(*) AS n FROM article_reactions WHERE article_id = ? GROUP BY reaction`),
+  findMyReaction: db.prepare(`
+    SELECT reaction FROM article_reactions
+    WHERE article_id = ? AND COALESCE(user_id, 0) = COALESCE(?, 0) AND COALESCE(kid_id, 0) = COALESCE(?, 0)`),
+  insertComment: db.prepare(`
+    INSERT INTO article_comments (article_id, author_user_id, author_kid_id, body, status)
+    VALUES (?, ?, ?, ?, ?)`),
+  findCommentById: db.prepare(`SELECT * FROM article_comments WHERE id = ?`),
+  listArticleComments: db.prepare(`
+    SELECT c.*, k.name AS kid_name, k.avatar_emoji AS kid_emoji,
+           u.display_name AS user_name
+    FROM article_comments c
+    LEFT JOIN kid_profiles k ON k.id = c.author_kid_id
+    LEFT JOIN users u ON u.id = c.author_user_id
+    WHERE c.article_id = ?
+      AND (c.status = 'approved'
+           OR c.author_user_id = ?
+           OR c.author_kid_id IN (SELECT id FROM kid_profiles WHERE user_id = ?))
+    ORDER BY c.created_at ASC`),
+  listPendingCommentsForParent: db.prepare(`
+    SELECT c.*, k.name AS kid_name, k.avatar_emoji AS kid_emoji
+    FROM article_comments c
+    JOIN kid_profiles k ON k.id = c.author_kid_id
+    WHERE c.status = 'pending' AND k.user_id = ? AND (? IS NULL OR c.article_id = ?)
+    ORDER BY c.created_at DESC`),
+  countRecentCommentsByAuthor: db.prepare(`
+    SELECT COUNT(*) AS n FROM article_comments
+    WHERE (author_user_id = ? OR author_kid_id = ?)
+      AND created_at > strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 hour')`),
+  updateCommentStatus: db.prepare(`UPDATE article_comments SET status = ? WHERE id = ?`),
   listFeedbackAll: db.prepare(`
     SELECT f.*, u.display_name AS submitter_name, u.email AS submitter_email
     FROM beta_feedback f LEFT JOIN users u ON u.id = f.user_id
@@ -1525,6 +1592,18 @@ function gamUserStatus(userId) {
 // Create chat spaces for existing families/classrooms/users
 ensureChatSpaces();
 
+// Basic server-side profanity screen for kid-authored text (article comments).
+// Keep the list short and obvious; the parent-moderation queue is the real
+// safety net. Word-boundary matching avoids Scunthorpe-style false positives.
+const PROFANITY_WORDS = [
+  'damn', 'hell', 'crap', 'piss', 'bastard', 'bitch', 'asshole', 'shit',
+  'fuck', 'dick', 'pussy', 'slut', 'whore', 'nigger', 'faggot', 'retard',
+];
+const PROFANITY_RE = new RegExp('\\b(' + PROFANITY_WORDS.join('|') + ')\\b', 'i');
+function containsProfanity(text) {
+  return PROFANITY_RE.test(String(text || ''));
+}
+
 module.exports = {
   db,
   DB_PATH,
@@ -1620,6 +1699,117 @@ module.exports = {
   },
   getMyFeedback(userId) {
     return stmts.listFeedbackByUser.all(userId);
+  },
+
+  // ---------- Article engagement: reactions + moderated comments ----------
+  // Kid-safety model:
+  // - Reactions are per-person counts; no content, no moderation needed.
+  // - Kid comments start 'pending'; visible only to the authoring kid + their
+  //   parents until a parent (or admin) approves. Rejected comments vanish for
+  //   everyone except the authoring family (they see it as rejected).
+  // - Public comment lists never show kid first names (COPPA convention from
+  //   the Q&A surface): kid authors render as avatar + "a young reader".
+  setArticleReaction({ userId, kidId, articleId, reaction }) {
+    const art = String(articleId || '').trim();
+    if (!art) return { error: 'Unknown article.' };
+    const r = String(reaction || '').toLowerCase();
+    if (!['up', 'down', 'none'].includes(r)) return { error: "Reaction must be 'up', 'down', or 'none'." };
+    let kId = null;
+    if (kidId != null) {
+      const kid = stmts.findKid.get(Number(kidId), userId);
+      if (!kid) return { error: 'Kid profile not found.' };
+      kId = kid.id;
+    }
+    // One row per person per article: remove any existing, then insert (unless 'none').
+    stmts.upsertReactionDelete.run(art, userId, kId);
+    if (r !== 'none') stmts.insertReaction.run(art, userId, kId, r);
+    return this.getArticleReactions({ userId, kidId: kId, articleId: art });
+  },
+  getArticleReactions({ userId, kidId, articleId }) {
+    const art = String(articleId || '').trim();
+    let up = 0, down = 0, mine = null;
+    for (const row of stmts.countReactions.all(art)) {
+      if (row.reaction === 'up') up = row.n;
+      else if (row.reaction === 'down') down = row.n;
+    }
+    const kId = kidId != null ? Number(kidId) : null;
+    const mineRow = stmts.findMyReaction.get(art, userId, kId);
+    if (mineRow) mine = mineRow.reaction;
+    return { up, down, mine };
+  },
+  postArticleComment({ userId, kidId, articleId, body }) {
+    const art = String(articleId || '').trim();
+    if (!art) return { error: 'Unknown article.' };
+    const text = String(body || '').trim().slice(0, 2000);
+    if (text.length < 1) return { error: 'Write something first.' };
+    let kId = null;
+    if (kidId != null) {
+      const kid = stmts.findKid.get(Number(kidId), userId);
+      if (!kid) return { error: 'Kid profile not found.' };
+      kId = kid.id;
+    }
+    if (containsProfanity(text)) {
+      return { error: "Let's keep it kind — please reword your comment." };
+    }
+    // Rate limit: ~10 comments/hour per author (parent account or kid).
+    const recent = stmts.countRecentCommentsByAuthor.get(userId, kId).n;
+    if (recent >= 10) return { error: 'Slow down — you can post again in a bit.' };
+    // Kids go through parent moderation; grown-ups post directly.
+    const status = kId != null ? 'pending' : 'approved';
+    const info = stmts.insertComment.run(art, userId, kId, text, status);
+    return { ok: true, id: info.lastInsertRowid, status };
+  },
+  listArticleComments({ userId, articleId }) {
+    const art = String(articleId || '').trim();
+    const rows = stmts.listArticleComments.all(art, userId, userId);
+    return {
+      comments: rows.map(c => {
+        const isKid = c.author_kid_id != null;
+        return {
+          id: c.id,
+          body: c.body,
+          status: c.status,
+          createdAt: c.created_at,
+          // Never expose kid first names on the shared list (matches the
+          // public Q&A convention); the authoring family sees names in the
+          // moderation queue instead.
+          author: isKid
+            ? { type: 'kid', name: 'a young reader', emoji: c.kid_emoji || '🌟' }
+            : { type: 'grownup', name: c.user_name || 'A grown-up' },
+          mine: isKid ? null : (c.author_user_id === userId),
+          kidId: c.author_kid_id,
+        };
+      }),
+    };
+  },
+  pendingCommentsForParent({ userId, articleId = null }) {
+    const art = articleId ? String(articleId) : null;
+    const rows = stmts.listPendingCommentsForParent.all(userId, art, art);
+    return {
+      comments: rows.map(c => ({
+        id: c.id,
+        articleId: c.article_id,
+        body: c.body,
+        createdAt: c.created_at,
+        author: { type: 'kid', name: c.kid_name, emoji: c.kid_emoji || '🌟', kidId: c.author_kid_id },
+      })),
+    };
+  },
+  moderateArticleComment({ userId, commentId, approve }) {
+    const c = stmts.findCommentById.get(Number(commentId));
+    if (!c) return { error: 'Comment not found.' };
+    if (c.status !== 'pending') return { error: 'Comment is already moderated.' };
+    const me = stmts.findUserById.get(userId);
+    const isAdmin = me && me.role === 'admin';
+    let allowed = isAdmin;
+    if (!allowed && c.author_kid_id != null) {
+      // Only a parent of the authoring kid may moderate.
+      const kid = stmts.findKid.get(c.author_kid_id, userId);
+      allowed = !!kid;
+    }
+    if (!allowed) return { error: 'Not allowed.' };
+    stmts.updateCommentStatus.run(approve ? 'approved' : 'rejected', c.id);
+    return { ok: true, status: approve ? 'approved' : 'rejected' };
   },
   listFeedbackAdmin({ type = null, status = null, limit = 100, offset = 0 } = {}) {
     const t = (type === 'bug' || type === 'idea') ? type : null;
