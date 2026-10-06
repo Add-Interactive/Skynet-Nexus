@@ -539,9 +539,9 @@ api.get('/feedback/mine', requireAuth, (req, res) => {
 // Reactions are per-person counts. Comments from kids start 'pending' and are
 // visible only to the authoring kid + their parents until approved.
 api.post('/articles/:id/react', requireAuth, (req, res) => {
-  const { setArticleReaction } = require('./db');
+  const dbEngage = require('./db');
   const kidId = req.body.kid_id != null ? Number(req.body.kid_id) : null;
-  const out = setArticleReaction({
+  const out = dbEngage.setArticleReaction({
     userId: req.session.userId, kidId,
     articleId: req.params.id, reaction: req.body.reaction,
   });
