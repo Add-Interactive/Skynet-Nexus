@@ -266,6 +266,32 @@
       });
 
       function showError(msg) { errBox.className = 'sky-error'; errBox.textContent = msg; errBox.hidden = false; }
+
+      // COPPA: after signup, show "check your email" before sending them onward.
+      function showVerifyInterstitial(data) {
+        var wrap = document.getElementById('sky-register-form');
+        var done = document.getElementById('reg-verify-done');
+        if (wrap) wrap.hidden = true;
+        if (!done) {
+          done = document.createElement('div');
+          done.id = 'reg-verify-done';
+          done.className = 'sky-verify-done';
+          done.innerHTML =
+            '<div style="font-size:40px;margin-bottom:12px">📬</div>' +
+            '<h2 style="margin:0 0 8px">Check your email</h2>' +
+            '<p class="sky-verify-sub"></p>' +
+            '<p style="opacity:.75;font-size:14px">Once you click the link, you can add kid profiles to your account.</p>' +
+            '<button class="sky-btn" id="reg-verify-continue">Continue to my profile →</button>';
+          (wrap ? wrap.parentNode : document.body).appendChild(done);
+          document.getElementById('reg-verify-continue').addEventListener('click', function () {
+            location.href = '/pages/profile.html?welcome=1';
+          });
+        }
+        var sub = done.querySelector('.sky-verify-sub');
+        if (sub) sub.textContent = 'We sent a verification link to your email. Click it to verify your account before adding kid profiles.';
+        done.hidden = false;
+        btn.disabled = false; btn.textContent = idleBtnText();
+      }
       function clearError() { errBox.hidden = true; errBox.textContent = ''; }
 
       // First-time setup: if no admin exists yet, this signup creates the owner
@@ -313,8 +339,10 @@
           });
           const data = await res.json();
           if (!res.ok) { showError(data.error || 'Registration failed.'); btn.disabled = false; btn.textContent = idleBtnText(); return; }
-          // Owner admin -> straight to the admin panel; members -> add kids.
-          location.href = setupMode ? '/pages/admin.html' : '/pages/profile.html?welcome=1';
+          // Owner admin -> straight to the admin panel.
+          // Members -> email verification interstitial, then profile.
+          if (setupMode) { location.href = '/pages/admin.html'; return; }
+          showVerifyInterstitial(data);
         } catch (err) {
           showError('Network error. Try again?');
           btn.disabled = false; btn.textContent = idleBtnText();
