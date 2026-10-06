@@ -1609,21 +1609,27 @@ function renderTrending() {
 function renderLeaderboard() {
   const el = document.getElementById('leaderboard');
   if (!el) return;
-  if (!LEADERBOARD.length) {
-    el.innerHTML = '<div class="lb-empty" style="color:var(--text-mute);padding:12px 4px;font-size:.85rem">Reader rankings open up as the community grows. Check back soon.</div>';
-    return;
-  }
-  el.innerHTML = LEADERBOARD.map(u =>
-    '<div class="lb-item">' +
-      '<div class="lb-rank">' + u.rank + '</div>' +
-      '<div class="lb-avatar">' + u.av + '</div>' +
-      '<div class="lb-body">' +
-        '<div class="lb-name">' + u.name + (u.isBeta ? ' <span title="Beta tester" style="font-size:.85em">🧪</span>' : '') + '</div>' +
-        '<div class="lb-crew">' + u.crew + '</div>' +
-      '</div>' +
-      '<div class="lb-score">' + formatCount(u.score) + '</div>' +
-    '</div>'
-  ).join('');
+  const emptyHTML = '<div class="lb-empty" style="color:var(--text-mute);padding:12px 4px;font-size:.85rem">Reader rankings open up as the community grows. Check back soon.</div>';
+  // Show the placeholder while loading; replaced when the fetch resolves.
+  el.innerHTML = emptyHTML;
+  fetch('/api/leaderboard?limit=5', { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error('leaderboard ' + r.status); return r.json(); })
+    .then(function (d) {
+      const board = (d && d.board) || [];
+      if (!board.length) { el.innerHTML = emptyHTML; return; }
+      el.innerHTML = board.map(function (u) {
+        return '<div class="lb-item">' +
+          '<div class="lb-rank">' + u.rank + '</div>' +
+          '<div class="lb-avatar" style="background:' + (u.avatarColor || '#39ff14') + '">' + (u.avatarEmoji || '\uD83D\uDE80') + '</div>' +
+          '<div class="lb-body">' +
+            '<div class="lb-name">' + u.name + '</div>' +
+            '<div class="lb-crew">Top reader</div>' +
+          '</div>' +
+          '<div class="lb-score">' + formatCount(u.totalXp || 0) + '</div>' +
+        '</div>';
+      }).join('');
+    })
+    .catch(function () { el.innerHTML = emptyHTML; });
 }
 
 function renderCountdown() {
