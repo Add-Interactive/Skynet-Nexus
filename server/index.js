@@ -1678,7 +1678,7 @@ api.get('/teachers/:id', (req, res) => {
   try {
     const { db } = require('./db');
     const row = db.prepare(`SELECT id, display_name, avatar_color, bio, degrees, awards, quote,
-      profile_image, school, subjects, roles, role FROM users WHERE id = ?`).get(req.params.id);
+      profile_image, school, subjects, roles, role, public_profile FROM users WHERE id = ?`).get(req.params.id);
     if (!row) return res.status(404).json({ error: 'not found' });
     const roles = JSON.parse(row.roles || '[]');
     if (!row.public_profile || (roles.indexOf('teacher') === -1 && row.role !== 'teacher')) {
