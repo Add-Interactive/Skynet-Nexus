@@ -373,6 +373,13 @@ db.exec(`
     kid_count   INTEGER DEFAULT 0,
     created_at  TEXT NOT NULL DEFAULT (datetime('now'))
   );
+  CREATE TABLE IF NOT EXISTS contact_messages (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT NOT NULL,
+    email      TEXT NOT NULL,
+    message    TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 
   -- ---------- ADMIN / NEWSROOM PRODUCTION SCHEMA ----------
 
@@ -908,6 +915,24 @@ const stmts = {
     VALUES (?, ?, ?, ?, ?, ?)`),
   findAssignment: db.prepare(`SELECT * FROM assignments WHERE id = ?`),
   deleteAssignment: db.prepare(`DELETE FROM assignments WHERE id = ?`),
+  updateAssignment: db.prepare(`UPDATE assignments SET article_title = ?, due_at = ?, note = ? WHERE id = ?`),
+  insertContact: db.prepare(`INSERT INTO contact_messages (name, email, message) VALUES (?, ?, ?)`),
+  listContactMessages: db.prepare(`SELECT * FROM contact_messages ORDER BY created_at DESC LIMIT ?`),
+  deleteAgentTask: db.prepare(`DELETE FROM agent_tasks WHERE id = ?`),
+  reopenPollStmt: db.prepare(`UPDATE polls SET status = 'open' WHERE id = ?`),
+  findPoll: db.prepare(`SELECT * FROM polls WHERE id = ?`),
+  deleteCheer: db.prepare(`DELETE FROM cheers WHERE id = ? AND from_user_id = ?`),
+  removeNewsletter: db.prepare(`DELETE FROM newsletter_signups WHERE email = ?`),
+  listPushSubscriptions: db.prepare(`SELECT endpoint, created_at FROM push_subscriptions WHERE user_id = ? ORDER BY created_at DESC`),
+  findPublishedStoryByArticleId: db.prepare(`SELECT id, channel, payload FROM queued_stories WHERE published_article_id = ? AND status = 'published' ORDER BY published_at DESC LIMIT 1`),
+  publicLeaderboard: db.prepare(`
+    SELECT k.avatar_emoji, k.avatar_color, COALESCE(SUM(e.xp), 0) AS total_xp
+    FROM kid_profiles k
+    LEFT JOIN kid_xp_events e ON e.kid_id = k.id
+    GROUP BY k.id
+    ORDER BY total_xp DESC
+    LIMIT ?
+  `),
   listAssignments: db.prepare(`SELECT * FROM assignments WHERE classroom_id = ? ORDER BY created_at DESC`),
   assignmentReads: db.prepare(`SELECT kid_id FROM assignment_reads WHERE assignment_id = ?`),
   assignmentsForKid: db.prepare(`
@@ -2038,6 +2063,78 @@ module.exports = {
     if (!a || a.teacher_user_id !== teacherUserId) return { error: 'Assignment not found.' };
     stmts.deleteAssignment.run(Number(id));
     return { ok: true };
+  },
+  updateAssignment({ teacherUserId, id, patch }) {
+    const a = stmts.findAssignment.get(Number(id));
+    if (!a || a.teacher_user_id !== teacherUserId) return { error: 'Assignment not found.' };
+    const p = patch || {};
+    const title = p.name != null ? String(p.name).trim().slice(0, 200) : a.article_title;
+    const note = p.description != null ? String(p.description).trim().slice(0, 2000) : a.note;
+    const dueAt = p.due_at !== undefined ? (p.due_at ? String(p.due_at).slice(0, 40) : null) : a.due_at;
+    if (!title) return { error: 'Name is required.' };
+    stmts.updateAssignment.run(title, dueAt, note, a.id);
+    return { ok: true, assignment: stmts.findAssignment.get(a.id) };
+  },
+  submitContact({ name, email, message }) {
+    const n = String(name || '').trim().slice(0, 100);
+    const e = String(email || '').trim().toLowerCase().slice(0, 200);
+    const m = String(message || '').trim().slice(0, 5000);
+    if (!n) return { error: 'Name is required.' };
+    if (!e || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return { error: 'A valid email is required.' };
+    if (!m) return { error: 'Message is required.' };
+    const info = stmts.insertContact.run(n, e, m);
+    return { ok: true, id: info.lastInsertRowid };
+  },
+  listContactMessages({ limit = 100 } = {}) {
+    const lim = Math.max(1, Math.min(500, Number(limit) || 100));
+    return { messages: stmts.listContactMessages.all(lim) };
+  },
+  getPublicLeaderboard({ limit = 20 } = {}) {
+    const lim = Math.max(1, Math.min(100, Number(limit) || 20));
+    // COPPA-safe: never expose kid names — avatar + generic label only.
+    const rows = stmts.publicLeaderboard.all(lim);
+    return {
+      board: rows.map((r, i) => ({
+        rank: i + 1,
+        name: 'a young reader',
+        avatarEmoji: r.avatar_emoji || '\uD83D\uDE80',
+        avatarColor: r.avatar_color || '#39ff14',
+        totalXp: r.total_xp,
+      })),
+    };
+  },
+  deleteNewsroomTask({ id }) {
+    const t = stmts.findAgentTask.get(Number(id));
+    if (!t) return { error: 'Task not found.' };
+    stmts.deleteAgentTask.run(Number(id));
+    return { ok: true };
+  },
+  reopenPoll({ id }) {
+    const p = stmts.findPoll.get(Number(id));
+    if (!p) return { error: 'Poll not found.' };
+    stmts.reopenPollStmt.run(Number(id));
+    return { ok: true, poll: stmts.findPoll.get(Number(id)) };
+  },
+  deleteCheer({ userId, id }) {
+    const info = stmts.deleteCheer.run(Number(id), userId);
+    if (!info.changes) return { error: 'Cheer not found.' };
+    return { ok: true };
+  },
+  removeNewsletter(email) {
+    const e = String(email || '').trim().toLowerCase();
+    if (!e) return false;
+    const info = stmts.removeNewsletter.run(e);
+    return info.changes > 0;
+  },
+  listPushSubscriptions(userId) {
+    return stmts.listPushSubscriptions.all(userId);
+  },
+  findPublishedStoryByArticleId(articleId) {
+    const row = stmts.findPublishedStoryByArticleId.get(String(articleId || ''));
+    if (!row) return null;
+    let payload = null;
+    try { payload = JSON.parse(row.payload); } catch (e) { payload = null; }
+    return { story: { id: row.id, channel: row.channel, payload } };
   },
   trackAssignmentRead({ userId, kidId, articleId }) {
     const kid = stmts.findKid.get(kidId, userId);
