@@ -47,6 +47,14 @@ var SkyPush = {
         this.subscribed = false;
         toast('Drop alerts off.');
       } else {
+        // COPPA: disclose the browser push service before subscribing.
+        const ok = confirm(
+          'Get an alert for every edition drop?\n\n' +
+          'Alerts are delivered through your browser\u2019s push service ' +
+          '(Google, Apple, or Mozilla, depending on your browser). ' +
+          'You can unsubscribe anytime.'
+        );
+        if (!ok) return;
         const perm = await Notification.requestPermission();
         if (perm !== 'granted') { toast('Notifications blocked — allow them in your browser settings.'); return; }
         const kr = await fetch('/api/push/vapid-key', { credentials: 'same-origin' });
