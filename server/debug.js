@@ -195,6 +195,41 @@ function registerDebug(api) {
     }
   });
 
+  // ---- GET /api/debug/manifest — full test-population structure for the dashboard ----
+  api.get('/debug/manifest', checkKey, (req, res) => {
+    try {
+      const { db } = require('./db');
+      const group = String(req.query.group || 'week1').slice(0, 24) || 'week1';
+      const users = db.prepare(`SELECT id, email, display_name, role FROM users WHERE debug_group = ?`).all(group);
+      const byId = Object.fromEntries(users.map(u => [u.id, u]));
+      const kids = db.prepare(`SELECT k.id, k.user_id, k.name, k.birth_year FROM kid_profiles k
+        JOIN users u ON u.id = k.user_id WHERE u.debug_group = ?`).all(group);
+      const families = db.prepare(`SELECT f.id, f.name, f.invite_code FROM families f
+        WHERE f.created_by IN (SELECT id FROM users WHERE debug_group = ?) ORDER BY f.id`).all(group);
+      const famOut = families.map(f => {
+        const members = db.prepare(`SELECT user_id, relationship FROM family_members WHERE family_id = ?`).all(f.id)
+          .map(m => ({ id: m.user_id, name: (byId[m.user_id] || {}).display_name || '?', email: (byId[m.user_id] || {}).email || '?', relationship: m.relationship }));
+        const fkids = kids.filter(k => members.some(m => m.id === k.user_id))
+          .map(k => ({ id: k.id, name: k.name, birthYear: k.birth_year, parentId: k.user_id }));
+        return { id: f.id, name: f.name, inviteCode: f.invite_code, members, kids: fkids };
+      });
+      const classrooms = db.prepare(`SELECT c.id, c.name, c.user_id FROM classrooms c
+        WHERE c.user_id IN (SELECT id FROM users WHERE debug_group = ?) ORDER BY c.id`).all(group);
+      const clsOut = classrooms.map(c => {
+        const studentIds = db.prepare(`SELECT kid_id FROM classroom_students WHERE classroom_id = ?`).all(c.id).map(r => r.kid_id);
+        const students = kids.filter(k => studentIds.includes(k.id)).map(k => ({ id: k.id, name: k.name }));
+        const t = byId[c.user_id] || {};
+        return { id: c.id, name: c.name, teacher: { id: c.user_id, name: t.display_name || '?', email: t.email || '?' }, students };
+      });
+      const teachers = users.filter(u => u.role === 'teacher').map(u => ({ id: u.id, name: u.display_name, email: u.email }));
+      res.json({ group, teachers, families: famOut, classrooms: clsOut,
+        counts: { users: users.length, kids: kids.length, families: famOut.length, classrooms: clsOut.length } });
+    } catch (e) {
+      console.error('[debug/manifest]', e.message);
+      res.status(500).json({ error: 'manifest failed: ' + e.message });
+    }
+  });
+
   // ---- GET /api/debug/stats — activity stats for the nightly report ----
   api.get('/debug/stats', checkKey, (req, res) => {
     try {
