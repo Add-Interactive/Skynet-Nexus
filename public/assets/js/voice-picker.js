@@ -123,8 +123,22 @@
         // playing
       }).catch(function () {
         audio = null;
-        // MP3 not ready yet — fall back to browser TTS.
-        browserTTS(function (ok) { setUI(!!ok); });
+        // MP3 not ready — try on-demand server TTS (Kokoro), then browser TTS.
+        var ttsUrl = '/api/tts/audio/' + encodeURIComponent(articleId()) + '/af_heart';
+        fetch(ttsUrl, { credentials: 'same-origin' }).then(function (tr) {
+          if (!tr.ok) throw new Error('no server tts');
+          return tr.blob();
+        }).then(function (blob) {
+          var url = URL.createObjectURL(blob);
+          audio = new Audio(url);
+          audio.onended = function () { URL.revokeObjectURL(url); audio = null; setUI(false); };
+          audio.onerror = function () { URL.revokeObjectURL(url); audio = null; browserTTS(function (ok) { setUI(!!ok); }); };
+          setUI(true);
+          return audio.play();
+        }).catch(function () {
+          audio = null;
+          browserTTS(function (ok) { setUI(!!ok); });
+        });
       });
     });
     document.addEventListener('pagehide', stop);

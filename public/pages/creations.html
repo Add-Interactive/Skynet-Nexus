@@ -8,17 +8,31 @@
 <style>
   body { background: #0B1026; color: #e6ecf3; font-family: Inter, sans-serif; margin: 0; }
   .g-wrap { max-width: 1000px; margin: 0 auto; padding: 24px 18px 80px; }
-  .g-hero { text-align: center; padding: 30px 0; }
+  .g-hero { text-align: center; padding: 30px 0 10px; }
   .g-hero h1 { font-size: 2rem; margin: 0 0 8px; }
-  .g-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .g-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-top: 20px; }
   .g-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; overflow: hidden; }
   .g-card img { width: 100%; height: 160px; object-fit: cover; background: rgba(0,229,255,.05); }
   .g-body { padding: 14px 16px; }
   .g-title { font-weight: 800; font-size: 15px; margin-bottom: 4px; }
   .g-desc { font-size: 13px; color: #9fb0c3; line-height: 1.5; margin-bottom: 8px; }
   .g-meta { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #7c8898; }
+  .g-maker { display: flex; align-items: center; gap: 6px; }
+  .g-avatar { width: 24px; height: 24px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 14px; }
   .g-like { background: none; border: 1px solid rgba(255,255,255,.2); border-radius: 8px; color: #e6ecf3; padding: 6px 12px; cursor: pointer; font-size: 13px; }
   .g-like:hover { border-color: #ff2e63; }
+  .g-like.liked { border-color: #ff2e63; color: #ff2e63; }
+  .g-form { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 20px; margin: 24px 0; max-width: 600px; margin-left: auto; margin-right: auto; }
+  .g-form h2 { margin: 0 0 12px; font-size: 1.2rem; }
+  .g-form label { display: block; font-size: 13px; color: #9fb0c3; margin: 10px 0 4px; }
+  .g-form input, .g-form textarea, .g-form select { width: 100%; box-sizing: border-box; background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.15); border-radius: 8px; color: #e6ecf3; padding: 10px 12px; font-size: 14px; font-family: inherit; }
+  .g-form textarea { min-height: 80px; resize: vertical; }
+  .g-form button[type=submit] { margin-top: 14px; background: #00e5ff; color: #0B1026; border: none; border-radius: 10px; padding: 12px 24px; font-weight: 800; font-size: 14px; cursor: pointer; }
+  .g-form button[type=submit]:hover { background: #33ebff; }
+  .g-note { font-size: 12px; color: #7c8898; margin-top: 10px; }
+  .g-tabs { display: flex; gap: 8px; justify-content: center; margin: 16px 0; }
+  .g-tab { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); color: #e6ecf3; border-radius: 20px; padding: 8px 18px; cursor: pointer; font-size: 13px; }
+  .g-tab.active { background: #00e5ff; color: #0B1026; border-color: #00e5ff; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -27,33 +41,132 @@
     <div style="font-size:3rem">🎨</div>
     <h1>Kid Creations Gallery</h1>
     <p style="color:#9fb0c3">Builds, experiments, and art from young makers — every piece parent-approved.</p>
-    <p><a href="/pages/kid.html" style="color:#00e5ff">Share yours from your dashboard →</a></p>
   </div>
-  <div class="g-grid" id="g-grid"><p style="color:#7c8898">Loading…</p></div>
+
+  <div class="g-tabs">
+    <button class="g-tab active" data-tab="gallery">Gallery</button>
+    <button class="g-tab" data-tab="submit">Share yours</button>
+  </div>
+
+  <div id="tab-gallery">
+    <div class="g-grid" id="g-grid"><p style="color:#7c8898">Loading…</p></div>
+  </div>
+
+  <div id="tab-submit" style="display:none">
+    <div class="g-form">
+      <h2>Share your creation</h2>
+      <div id="submit-login-msg" style="display:none;color:#ffb020;font-size:13px;margin-bottom:8px">Please sign in to share your creation.</div>
+      <form id="creation-form">
+        <label for="f-kid">Which maker is this for?</label>
+        <select id="f-kid" required><option value="">Loading…</option></select>
+        <label for="f-title">Title</label>
+        <input id="f-title" maxlength="120" required placeholder="My volcano experiment"/>
+        <label for="f-desc">Tell us about it</label>
+        <textarea id="f-desc" maxlength="1000" placeholder="What did you make? How does it work?"></textarea>
+        <label for="f-img">Image URL (optional)</label>
+        <input id="f-img" maxlength="500" placeholder="https://…"/>
+        <button type="submit">Share creation</button>
+        <div class="g-note">Creations go to your parent for approval before appearing in the gallery. Be kind — no personal info in titles or descriptions.</div>
+      </form>
+      <div id="submit-result" style="margin-top:12px;font-size:14px"></div>
+    </div>
+  </div>
 </div>
 <script>
 (function () {
-  function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
-  fetch('/api/creations/gallery').then(function (r) { return r.json(); }).then(function (d) {
-    var g = document.getElementById('g-grid');
-    var items = d.gallery || [];
-    if (!items.length) { g.innerHTML = '<p style="color:#7c8898">No creations yet — be the first!</p>'; return; }
-    g.innerHTML = items.map(function (x) {
-      return '<div class="g-card">' +
-        (x.image_url ? '<img src="' + esc(x.image_url) + '" alt="" loading="lazy"/>' : '<div style="height:120px;display:flex;align-items:center;justify-content:center;font-size:3rem">🎨</div>') +
-        '<div class="g-body"><div class="g-title">' + esc(x.title) + '</div>' +
-        '<div class="g-desc">' + esc((x.description || '').slice(0, 120)) + '</div>' +
-        '<div class="g-meta"><span>' + esc(x.kid_first || 'a maker') + '</span>' +
-        '<button class="g-like" data-like="' + x.id + '">❤️ ' + (x.likes || 0) + '</button></div></div></div>';
-    }).join('');
-    g.querySelectorAll('[data-like]').forEach(function (b) {
-      b.addEventListener('click', function () {
-        fetch('/api/creations/' + b.getAttribute('data-like') + '/like', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: '{}' })
-          .then(function () { location.reload(); })
-          .catch(function () { alert('Sign in to like!'); });
-      });
+  'use strict';
+  function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+  // Tabs
+  document.querySelectorAll('.g-tab').forEach(function (t) {
+    t.addEventListener('click', function () {
+      document.querySelectorAll('.g-tab').forEach(function (x) { x.classList.remove('active'); });
+      t.classList.add('active');
+      document.getElementById('tab-gallery').style.display = t.dataset.tab === 'gallery' ? '' : 'none';
+      document.getElementById('tab-submit').style.display = t.dataset.tab === 'submit' ? '' : 'none';
+      if (t.dataset.tab === 'submit') loadKids();
     });
-  }).catch(function () { document.getElementById('g-grid').innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  });
+
+  // Gallery (COPPA-safe: avatar + "a young reader", never names)
+  function loadGallery() {
+    fetch('/api/creations/gallery').then(function (r) { return r.json(); }).then(function (d) {
+      var g = document.getElementById('g-grid');
+      var items = d.gallery || [];
+      if (!items.length) { g.innerHTML = '<p style="color:#7c8898">No creations yet — be the first!</p>'; return; }
+      g.innerHTML = items.map(function (x) {
+        var emoji = esc(x.avatar_emoji || '🎨');
+        var color = esc(x.avatar_color || '#00e5ff');
+        return '<div class="g-card">' +
+          (x.image_url ? '<img src="' + esc(x.image_url) + '" alt="" loading="lazy"/>' : '<div style="height:120px;display:flex;align-items:center;justify-content:center;font-size:3rem">🎨</div>') +
+          '<div class="g-body"><div class="g-title">' + esc(x.title) + '</div>' +
+          '<div class="g-desc">' + esc((x.description || '').slice(0, 120)) + '</div>' +
+          '<div class="g-meta"><span class="g-maker"><span class="g-avatar" style="background:' + color + '33">' + emoji + '</span>a young reader</span>' +
+          '<button class="g-like" data-like="' + x.id + '">❤️ ' + (x.likes || 0) + '</button></div></div></div>';
+      }).join('');
+      g.querySelectorAll('[data-like]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          fetch('/api/creations/' + b.getAttribute('data-like') + '/like', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+              if (d && d.ok) { b.classList.add('liked'); var n = parseInt(b.textContent.replace(/\D/g, ''), 10) || 0; b.innerHTML = '❤️ ' + (n + 1); }
+              else alert('Sign in to like!');
+            })
+            .catch(function () { alert('Sign in to like!'); });
+        });
+      });
+    }).catch(function () { document.getElementById('g-grid').innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
+
+  // Kid picker for the submission form
+  var kidsLoaded = false;
+  function loadKids() {
+    if (kidsLoaded) return;
+    fetch('/api/kids', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
+      var sel = document.getElementById('f-kid');
+      var kids = d.kids || d || [];
+      if (!kids.length) {
+        sel.innerHTML = '<option value="">No kid profiles — add one in settings</option>';
+        document.getElementById('submit-login-msg').style.display = '';
+        return;
+      }
+      kidsLoaded = true;
+      sel.innerHTML = kids.map(function (k) { return '<option value="' + k.id + '">' + esc(k.name || 'Kid') + '</option>'; }).join('');
+    }).catch(function () {
+      document.getElementById('f-kid').innerHTML = '<option value="">Sign in to share</option>';
+      document.getElementById('submit-login-msg').style.display = '';
+    });
+  }
+
+  // Submission
+  document.getElementById('creation-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var res = document.getElementById('submit-result');
+    res.style.color = '#9fb0c3'; res.textContent = 'Sharing…';
+    fetch('/api/creations', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        kid_id: Number(document.getElementById('f-kid').value),
+        title: document.getElementById('f-title').value,
+        description: document.getElementById('f-desc').value,
+        image_url: document.getElementById('f-img').value,
+        as_kid: true
+      })
+    }).then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+    .then(function (out) {
+      if (out.d && out.d.ok) {
+        res.style.color = '#39ff14';
+        res.textContent = out.d.status === 'approved' ? 'Shared! It\'s live in the gallery.' : 'Sent! Your parent will review it before it appears.';
+        document.getElementById('creation-form').reset(); kidsLoaded = false;
+      } else {
+        res.style.color = '#ff2e63';
+        res.textContent = 'Hmm: ' + ((out.d && out.d.error) || 'could not share');
+      }
+    }).catch(function () { res.style.color = '#ff2e63'; res.textContent = 'Could not share — are you signed in?'; });
+  });
+
+  loadGallery();
 })();
 </script>
 </body>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Search — Skynet Nexus</title>
+<link rel="stylesheet" href="/assets/css/style.css"/>
+<style>
+  body { background: #0B1026; color: #e6ecf3; font-family: Inter, sans-serif; margin: 0; }
+  .s-wrap { max-width: 800px; margin: 0 auto; padding: 24px 18px 80px; }
+  .s-hero { text-align: center; padding: 30px 0 10px; }
+  .s-hero h1 { font-size: 2rem; margin: 0 0 8px; }
+  .s-box { display: flex; gap: 8px; margin: 20px 0; }
+  .s-box input { flex: 1; background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.15); border-radius: 12px; color: #e6ecf3; padding: 14px 18px; font-size: 16px; font-family: inherit; }
+  .s-box button { background: #00e5ff; color: #0B1026; border: none; border-radius: 12px; padding: 14px 24px; font-weight: 800; font-size: 15px; cursor: pointer; }
+  .s-results { display: grid; gap: 12px; margin-top: 16px; }
+  .s-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 16px; text-decoration: none; color: inherit; display: block; }
+  .s-card:hover { border-color: #00e5ff; }
+  .s-title { font-weight: 800; font-size: 16px; margin-bottom: 6px; color: #e6ecf3; }
+  .s-sum { font-size: 13px; color: #9fb0c3; line-height: 1.5; margin-bottom: 8px; }
+  .s-meta { font-size: 12px; color: #7c8898; display: flex; gap: 12px; }
+  .s-count { color: #7c8898; font-size: 13px; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div class="s-wrap">
+  <div class="s-hero">
+    <div style="font-size:3rem">🔍</div>
+    <h1>Search stories</h1>
+    <p style="color:#9fb0c3">Search titles, summaries, and article text across Skynet Nexus.</p>
+  </div>
+  <div class="s-box">
+    <input id="s-q" type="search" placeholder="Try &quot;volcano&quot; or &quot;space station&quot;…" autocomplete="off"/>
+    <button id="s-go">Search</button>
+  </div>
+  <div class="s-count" id="s-count"></div>
+  <div class="s-results" id="s-results"></div>
+</div>
+<script>
+(function () {
+  'use strict';
+  function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  var q = document.getElementById('s-q'), go = document.getElementById('s-go'),
+      out = document.getElementById('s-results'), count = document.getElementById('s-count');
+  var t = null;
+  function articleUrl(r) {
+    if (r.slug) return '/pages/article.html?slug=' + encodeURIComponent(r.slug);
+    if (r.id) return '/pages/article.html?id=' + encodeURIComponent(r.id);
+    return '#';
+  }
+  function run() {
+    var query = q.value.trim();
+    if (query.length < 2) { out.innerHTML = ''; count.textContent = ''; return; }
+    count.textContent = 'Searching…';
+    fetch('/api/search?q=' + encodeURIComponent(query)).then(function (r) { return r.json(); }).then(function (d) {
+      var rs = d.results || [];
+      count.textContent = rs.length ? rs.length + ' result' + (rs.length === 1 ? '' : 's') : 'No stories found. Try different words.';
+      out.innerHTML = rs.map(function (r) {
+        return '<a class="s-card" href="' + articleUrl(r) + '">' +
+          '<div class="s-title">' + esc(r.title) + '</div>' +
+          (r.summary ? '<div class="s-sum">' + esc(r.summary.slice(0, 160)) + '</div>' : '') +
+          '<div class="s-meta">' + (r.channel ? '<span>' + esc(r.channel) + '</span>' : '') + (r.date ? '<span>' + esc(r.date) + '</span>' : '') + '</div></a>';
+      }).join('');
+    }).catch(function () { count.textContent = 'Search failed. Try again.'; });
+  }
+  go.addEventListener('click', run);
+  q.addEventListener('input', function () { clearTimeout(t); t = setTimeout(run, 400); });
+  q.addEventListener('keydown', function (e) { if (e.key === 'Enter') run(); });
+  // Pre-fill from ?q=
+  try { var pq = new URLSearchParams(location.search).get('q'); if (pq) { q.value = pq; run(); } } catch (e) {}
+})();
+</script>
+</body>
+</html>
