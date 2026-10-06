@@ -1393,6 +1393,15 @@ function parseUserRoles(row) {
   return row.role ? [row.role] : [];
 }
 
+// Beta detection: the legacy is_beta_tester boolean flag OR the beta_tester role.
+// A user holding the beta_tester role is always treated as a beta tester.
+function isBetaUser(row) {
+  if (!row) return false;
+  if (parseUserRoles(row).includes('beta_tester')) return true;
+  // Legacy flag: everyone is a beta tester while the site is in beta.
+  return row.is_beta_tester == null ? true : row.is_beta_tester == 1;
+}
+
 function toPublicUser(row) {
   if (!row) return null;
   return {
@@ -1407,7 +1416,7 @@ function toPublicUser(row) {
     correspondentStyle: row.correspondent_style || 'human',
     createdAt: row.created_at,
     lastLoginAt: row.last_login_at,
-    isBetaTester: row.is_beta_tester == null ? true : row.is_beta_tester == 1,
+    isBetaTester: isBetaUser(row),
     foundingBadge: row.founding_badge || 'pending',
     bio: row.bio || '',
     degrees: JSON.parse(row.degrees || '[]'),
@@ -1641,6 +1650,7 @@ module.exports = {
   findUserByEmail(email) { return stmts.findUserByEmail.get(email); },
   findUserById(id) { return toPublicUser(stmts.findUserById.get(id)); },
   findUserRawById(id) { return stmts.findUserById.get(id); },
+  isBetaUser,
   updateLastLogin(id) { stmts.updateLastLogin.run(id); },
   updateUser({ id, displayName, avatarColor, correspondentStyle, avatarEmoji, photoUrl }) {
     stmts.updateUser.run(displayName ?? null, avatarColor ?? null, correspondentStyle ?? null, avatarEmoji ?? null, photoUrl ?? null, id);
