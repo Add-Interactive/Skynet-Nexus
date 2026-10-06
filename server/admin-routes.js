@@ -794,7 +794,7 @@ router.delete('/social/queue/:id', (req, res) => {
 
 // -------------------- USERS / ROLES --------------------
 
-const USER_ROLES = ['parent', 'teacher', 'editor', 'admin'];
+const USER_ROLES = ['parent', 'teacher', 'beta_tester', 'editor', 'admin'];
 
 router.get('/users', requireFullAdmin, (req, res) => {
   const q = String(req.query.q || '').trim();
