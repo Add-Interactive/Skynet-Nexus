@@ -266,8 +266,11 @@
                      : api('/api/kids', { method: 'POST', body: JSON.stringify(payload) });
       p.then(function (d) {
         var kidId = isEdit ? kid.id : (d.kid && d.kid.id);
-        if (kidId) return api('/api/kids/' + kidId + '/settings', { method: 'PUT', body: JSON.stringify(a11y) });
-      }).then(function () { m.remove(); location.reload(); }).catch(function () { alert('Could not save.'); });
+        m.remove();
+        // Save accessibility settings in background — don't block on it
+        if (kidId) api('/api/kids/' + kidId + '/settings', { method: 'PUT', body: JSON.stringify(a11y) }).catch(function () {});
+        location.reload();
+      }).catch(function () { alert('Could not save.'); });
     });
     if (isEdit) document.getElementById('km-del').addEventListener('click', function () {
       if (!confirm('Remove ' + kid.name + '?')) return;
@@ -1118,11 +1121,26 @@
   function bindNewClass() {
     var b = document.getElementById('btn-new-class');
     if (b) b.addEventListener('click', function () {
-      var name = prompt('Class name (e.g. "Ms. Rivera\'s 4th Grade"):');
-      if (!name) return;
-      api('/api/classrooms', { method: 'POST', body: JSON.stringify({ name: name }) })
-        .then(function () { location.reload(); })
-        .catch(function () { alert('Could not create class.'); });
+      var m = document.createElement('div');
+      m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px';
+      m.innerHTML = '<div style="background:#0f1522;border:1px solid rgba(0,229,255,.3);border-radius:16px;padding:24px;max-width:380px;width:100%">' +
+        '<h3 style="margin:0 0 14px">＋ New class</h3>' +
+        '<input id="nc-name" placeholder="Class name (e.g. Ms. Rivera\'s 4th Grade)" maxlength="80" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;margin-bottom:14px"/>' +
+        '<div style="display:flex;gap:10px"><button class="btn ghost" id="nc-cancel" style="flex:1">Cancel</button><button class="btn" id="nc-go" style="flex:1">Create</button></div></div>';
+      document.body.appendChild(m);
+      var input = document.getElementById('nc-name');
+      input.focus();
+      document.getElementById('nc-cancel').addEventListener('click', function () { m.remove(); });
+      m.addEventListener('click', function (e) { if (e.target === m) m.remove(); });
+      function go() {
+        var name = input.value.trim();
+        if (!name) { input.focus(); return; }
+        api('/api/classrooms', { method: 'POST', body: JSON.stringify({ name: name }) })
+          .then(function () { location.reload(); })
+          .catch(function () { alert('Could not create class.'); });
+      }
+      document.getElementById('nc-go').addEventListener('click', go);
+      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
     });
   }
 
