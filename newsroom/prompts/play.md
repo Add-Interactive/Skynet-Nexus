@@ -121,7 +121,7 @@ Rules:
     { "term": "Scratch", "meaning": "A free tool from MIT where kids can build their own games and animations by snapping blocks of code together, like puzzle pieces." }
   ],
   "ageBand": "5+",
-  "author": "Consistent byline — use 'Amara Okafor' unless you have reason to change",
+  "author": "Consistent byline — use 'Hazel Quinn' unless you have reason to change",
   "date": "TODAY_ISO_DATE",
   "tags": ["scratch", "minecraft-education", "chess", "or-similar", "3-6"],
   "sources": [{ "label": "...", "url": "https://..." }],
