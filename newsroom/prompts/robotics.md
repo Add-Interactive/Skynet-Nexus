@@ -116,7 +116,7 @@ Rules:
     { "term": "Alliance", "meaning": "In FIRST competitions, teams work together in three-team alliances during matches." }
   ],
   "ageBand": "8+",
-  "author": "Consistent byline — use 'Maya Ortiz' unless you have reason to change",
+  "author": "Consistent byline — use 'Dexter Cole' unless you have reason to change",
   "date": "TODAY_ISO_DATE",
   "tags": ["FRC", "FTC", "or-similar", "3-6"],
   "sources": [{ "label": "...", "url": "https://..." }],
