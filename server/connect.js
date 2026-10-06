@@ -1,4 +1,6 @@
 // Connect features: PT messaging, announcements, bookmarks, creations, cheers, co-reading, weekly email.
+let notifyFn = null;
+try { notifyFn = require('./notifications').notify; } catch (e) { /* notifications optional */ }
 // Registered after auth middleware in server/index.js.
 function registerConnect(api, requireAuth, requireTeacher) {
   const { db } = require('./db');
@@ -187,6 +189,7 @@ function registerConnect(api, requireAuth, requireTeacher) {
       const c = db.prepare(`SELECT c.*, k.user_id FROM creations c JOIN kid_profiles k ON k.id = c.kid_id WHERE c.id = ?`).get(req.params.id);
       if (!c || c.user_id !== req.user.id) return res.status(403).json({ error: 'not your kid' });
       db.prepare("UPDATE creations SET status = 'approved' WHERE id = ?").run(req.params.id);
+      if (notifyFn) notifyFn(c.user_id, { kind: 'creation', title: '🎨 Creation approved!', body: 'Your creation is now in the gallery.', link: '/pages/creations.html' });
       res.json({ ok: true });
     } catch (e) { res.status(500).json({ error: 'failed' }); }
   });
@@ -202,11 +205,11 @@ function registerConnect(api, requireAuth, requireTeacher) {
   api.get('/creations/gallery', (req, res) => {
     try {
       const rows = db.prepare(`SELECT c.id, c.title, c.description, c.image_url, c.likes, c.created_at,
-          k.name as kid_first, k.avatar_emoji, k.avatar_color
+          k.avatar_emoji, k.avatar_color
         FROM creations c JOIN kid_profiles k ON k.id = c.kid_id
         WHERE c.status = 'approved' ORDER BY c.created_at DESC LIMIT 60`).all();
-      // First name only in public gallery
-      res.json({ gallery: rows.map(r => ({ ...r, kid_first: String(r.kid_first || '?').split(' ')[0] })) });
+      // COPPA-safe: no kid names in public gallery — frontend shows avatar + "a young reader"
+      res.json({ gallery: rows });
     } catch (e) { res.status(500).json({ error: 'failed' }); }
   });
   // POST /api/creations/:id/like
@@ -258,6 +261,11 @@ function registerConnect(api, requireAuth, requireTeacher) {
       const par = db.prepare('SELECT 1 FROM kid_profiles WHERE id = ? AND user_id = ?').get(to_kid_id, req.user.id);
       if (!fam && !par) return res.status(403).json({ error: 'not family' });
       db.prepare('INSERT INTO cheers (from_user_id, to_kid_id, template) VALUES (?,?,?)').run(req.user.id, to_kid_id, template);
+      // Notify the kid's parent
+      try {
+        const kp = db.prepare('SELECT user_id FROM kid_profiles WHERE id = ?').get(to_kid_id);
+        if (kp && notifyFn) notifyFn(kp.user_id, { kind: 'cheer', title: '🎉 Your kid got a cheer!', body: 'Someone sent encouragement.', link: '/pages/family.html' });
+      } catch (e) {}
       res.json({ ok: true });
     } catch (e) { res.status(500).json({ error: 'failed: ' + e.message }); }
   });
