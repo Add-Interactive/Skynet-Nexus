@@ -1348,7 +1348,7 @@
 
         '<label class="admin-label">Roles <span class="admin-hint">(a user can hold several &mdash; e.g. teacher + parent)</span></label>' +
         '<div id="um-roles" class="role-checks">' +
-        [['parent','Family: kids, quiz, Q&A'],['teacher','Classroom: assignments, leaderboard'],['editor','Newsroom: review queue, publish'],['admin','Everything: users, settings']].map(function (r) {
+        [['parent','Family: kids, quiz, Q&A'],['teacher','Classroom: assignments, leaderboard'],['beta_tester','Beta: early features + feedback'],['editor','Newsroom: review queue, publish'],['admin','Everything: users, settings']].map(function (r) {
           return '<label class="role-check" title="' + r[1] + '"><input type="checkbox" value="' + r[0] + '"/> ' + r[0] + '<span class="role-desc">' + r[1] + '</span></label>';
         }).join('') + '</div>' +
 
