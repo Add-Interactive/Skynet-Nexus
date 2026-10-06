@@ -1940,11 +1940,15 @@ module.exports = {
   getDiscussion({ userId, kidId, discussionId }) {
     const d = stmts.findDiscussion.get(discussionId);
     if (!d) return { error: 'Discussion not found.' };
-    const cls = stmts.findClassroom.get(d.classroom_id, userId);
-    if (!cls) return { error: 'Discussion not found.' };
+    let cls = null;
     if (kidId != null) {
-      const inClass = stmts.studentInClassroom.get(d.classroom_id, kidId);
-      if (!inClass) return { error: 'Discussion not found.' };
+      const kid = stmts.findKid.get(kidId, userId);
+      if (!kid) return { error: 'Discussion not found.' };
+      cls = stmts.kidClassrooms.all(kidId).find(c => c.id === d.classroom_id);
+      if (!cls) return { error: 'Discussion not found.' };
+    } else {
+      cls = stmts.findClassroom.get(d.classroom_id, userId);
+      if (!cls) return { error: 'Discussion not found.' };
     }
     const replies = stmts.listReplies.all(discussionId).map(r => ({
       id: r.id, body: r.body, created_at: r.created_at,
@@ -1960,8 +1964,10 @@ module.exports = {
   createReply({ userId, kidId, discussionId, body }) {
     const d = stmts.findDiscussion.get(discussionId);
     if (!d) return { error: 'Discussion not found.' };
-    const cls = stmts.findClassroom.get(d.classroom_id, userId);
-    if (!cls) return { error: 'Discussion not found.' };
+    if (kidId == null) {
+      const cls = stmts.findClassroom.get(d.classroom_id, userId);
+      if (!cls) return { error: 'Discussion not found.' };
+    }
     const text = String(body || '').trim().slice(0, 2000);
     if (!text) return { error: 'Reply cannot be empty.' };
     let authorKidId = null;
