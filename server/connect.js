@@ -361,12 +361,34 @@ function registerConnect(api, requireAuth, requireTeacher) {
     catch (e) { res.status(500).send('failed'); }
   });
   // POST /api/email/weekly-send — admin/cron trigger
-  api.post('/email/weekly-send', requireAuth, (req, res) => {
+  api.post('/email/weekly-send', requireAuth, async (req, res) => {
     try {
       if (req.user.role !== 'admin') return res.status(403).json({ error: 'admin only' });
-      const key = process.env.RESEND_API_KEY;
-      if (!key) return res.status(400).json({ error: 'RESEND_API_KEY not set — connect Resend first' });
-      res.json({ ok: true, note: 'Resend key present. Full batch send wires up on next pass.' });
+      const { sendMail, isConfigured } = require('./mailer');
+      if (!isConfigured()) return res.status(400).json({ error: 'RESEND_API_KEY not set — connect Resend first' });
+      // All users opted into the weekly digest (default on unless explicitly off).
+      const users = db.prepare(`
+        SELECT u.id, u.email, u.display_name FROM users u
+        LEFT JOIN email_prefs p ON p.user_id = u.id
+        WHERE (p.weekly_digest_on IS NULL OR p.weekly_digest_on = 1)
+          AND u.email IS NOT NULL AND u.email != ''
+      `).all();
+      let sent = 0, failed = 0, skipped = 0;
+      for (const u of users) {
+        try {
+          const html = buildWeeklyEmail(u.id);
+          const r = await sendMail({
+            to: u.email,
+            subject: 'Your Skynet Nexus Weekly Digest',
+            html,
+            text: 'Your Skynet Nexus weekly digest is here! Open the full version in your browser.'
+          });
+          if (r.ok) sent++; else if (r.skipped) skipped++; else failed++;
+        } catch (e) { failed++; }
+        // Small delay to respect Resend rate limits.
+        await new Promise(r => setTimeout(r, 300));
+      }
+      res.json({ ok: true, sent, failed, skipped, total: users.length });
     } catch (e) { res.status(500).json({ error: 'failed' }); }
   });
   // GET/PUT /api/email/prefs
