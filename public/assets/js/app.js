@@ -2746,6 +2746,12 @@ function _initArticle(baseUrl) {
   renderChannelNav(baseUrl);
   initMobileMenu();
   initArticlePage();
+  // Populate the right-sidebar widgets (same as homepage).
+  renderTrending();
+  renderLeaderboard();
+  renderCountdown();
+  renderStats();
+  renderPoll();
 }
 
 function _initSimplePage(baseUrl) {
