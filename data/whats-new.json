@@ -1,1 +1,212 @@
-[{"date": "2026-10-05", "tag": "New", "title": "\ud83d\udcac Private parent-teacher messaging", "body": "Teachers and parents can now message each other 1:1 about a specific child \u2014 conference requests, progress notes, quick questions. Each conversation gets its own private chat space. Find it under Teacher messages on the parent dashboard."}, {"date": "2026-10-05", "tag": "New", "title": "\ud83d\udcd6 Read Together mode", "body": "The kitchen-table promise, made real: open any story in Read Together mode and read side by side. Parents see discussion prompts inline, kids get the Kid Take front and center, and tap-to-complete checkmarks track progress through story, summary, discussion, and vocabulary."}, {"date": "2026-10-05", "tag": "New", "title": "\ud83c\udfa8 Kid Creations Gallery", "body": "Kids can now share what they build! Submit experiments, art, and projects from the kid dashboard \u2014 parents approve, and approved creations go live in a public gallery where other families can \u2764\ufe0f them."}, {"date": "2026-10-05", "tag": "New", "title": "\ud83d\udc74 Family feed & cheers", "body": "Grandparents and relatives finally have something to do: the Family feed shows achievements across your whole tree, and anyone in the family can send one-tap cheers. Kids see cheers on their dashboard."}, {"date": "2026-10-05", "tag": "New", "title": "\ud83d\udce7 Weekly parent email", "body": "A digest of your crew's week: XP earned, reading streaks, and one conversation starter for the dinner table. Preview anytime and toggle on/off in settings. Email delivery activates once Resend is connected."}, {"date": "2026-10-05", "tag": "New", "title": "\ud83d\udce2 Classroom announcements", "body": "Teachers can now broadcast to families \u2014 field trip Friday, quiz tomorrow, permission slips due. Pinned announcements stay on top. Parents see them in the new Class news tile."}, {"date": "2026-10-05", "tag": "New", "title": "\ud83d\udd16 Reading lists & bookmarks", "body": "Tap the \ud83d\udd16 button on any article to save it to a shelf \u2014 want to read or favorites. Kids manage shelves from their dashboard. Never lose a great story again."}, {"date": "2026-10-05", "tag": "New", "title": "\ud83d\ude80 Kid dashboards are here", "body": "Every kid gets their own cinematic space: animated starfield, custom banner, editable quote, 100 avatars to pick from, interest picker, achievement wall, quiz galaxy with score history, family connections, classrooms, and STEM activities. Tap their card in the family dashboard to visit."}, {"date": "2026-10-05", "tag": "New", "title": "\ud83c\udfa8 100 kid avatars", "body": "100 hand-crafted avatars in the Nexus Glow style \u2014 rockets, animals, robots, dragons, unicorns and more. Kids pick their favorite right from their dashboard."}, {"date": "2026-10-05", "tag": "New", "title": "\ud83c\udf1f Teacher public profiles", "body": "Teachers get a professional public page: photo, bio, teaching quote, degrees, awards, school and subjects. Families can preview before joining a classroom."}, {"date": "2026-10-05", "tag": "New", "title": "\ud83c\udf33 Family tree", "body": "Link your whole family \u2014 spouses, grandparents, aunts, uncles, cousins. Create a family, share your invite code (only true family with the code can join), and everyone gets their own private family chat."}, {"date": "2026-10-05", "tag": "New", "title": "\u2709\ufe0f Teacher invites", "body": "Teachers send email invites straight to parents. Parents create the account and link their child \u2014 teachers can never add students directly. Parents stay in control, always."}, {"date": "2026-10-05", "tag": "Safety", "title": "\ud83d\udee1\ufe0f Child safety rules, front and center", "body": "Our protection rules now live on every parent and teacher dashboard: family-only by invite, parents own kid data, teachers see classroom stats only, no kid-to-kid contact, instant unlink anytime. Transparent by design."}, {"date": "2026-10-05", "tag": "New", "title": "\u2699\ufe0f Parent controls per kid", "body": "Fine-grained controls for each child: Listen on/off, pick exactly which of the 13 channels they see, discussions on/off, and public chat access (off by default \u2014 kids stay in family & classroom only unless you allow it). Plus full comment and question history with links to join the thread."}, {"date": "2026-10-05", "tag": "New", "title": "\u267f Accessibility for blind kids", "body": "Parents can declare blindness in their kid's profile \u2014 this unlocks the full suite: spoken audio guide for navigation, voice commands ('read this', 'next story', 'go home'), swipe gestures, double-tap to read aloud, large text and high contrast modes."}, {"date": "2026-10-05", "tag": "New", "title": "\ud83d\udcac Safe chat system", "body": "Private chats for families and classrooms, plus solo notes and a moderated public square. Profanity filtered, parents and teachers can delete messages, anyone can report. Kids can't see public chat unless a parent allows it."}, {"date": "2026-10-05", "tag": "Safety", "title": "\ud83d\udd12 Invite-gated signup", "body": "New accounts join via family or teacher invite codes. Signing up solo? You get a reading tracker with zero social features until a family or teacher invites you in. No open doors for strangers."}, {"date": "2026-10-04", "tag": "New", "title": "\ud83d\uddf3\ufe0f You pick the Weekend Lab", "body": "Every Thursday night, vote for which of the week's biggest STEM stories become Saturday's hands-on activities. The top picks win \u2014 the Lab is built around what families chose."}, {"date": "2026-10-04", "tag": "New", "title": "\ud83d\udcf8 Photos, videos & sources on every article", "body": "Stories now carry media galleries with credited photos and videos, a source list with trust labels (official source, research paper, news report), 'try it yourself' links that turn news into hands-on fun, and watch embeds for the story's video."}, {"date": "2026-10-04", "tag": "New", "title": "\ud83e\uddea Weekend Lab: Saturday STEM", "body": "Five fresh family STEM activities every Saturday morning, made from household materials \u2014 a fun way to catch up on the week's stories by doing, not just reading."}, {"date": "2026-10-04", "tag": "Improved", "title": "\u2728 A simpler Skynet Nexus", "body": "New collapsible sidebar organized around what you do here \u2014 Do, Read, Community, You \u2014 and a shorter name to match the bigger mission: the Nexus of STEM for families."}, {"body": "Teachers can now create classrooms, add their students, track everyone's reading progress (XP, levels, streaks, badges) on a live dashboard, and start threaded article discussions the whole class can join.", "date": "2026-10-01", "tag": "New", "title": "\ud83c\udfeb Classroom system for teachers"}, {"body": "Kids earn XP for every step of the reading journey \u2014 finishing the story (10), the Kid Take (5), talking it over together (15), and learning new words (5). Climb 7 ranks from Rookie Reader to Editor-in-Chief, earn 20 badges, and build daily reading streaks. Parents and teachers earn XP too: +10 for co-reading, +20 for hosting a class discussion.", "date": "2026-10-01", "tag": "New", "title": "\ud83c\udfc6 Junior Correspondent gamification"}, {"body": "You can now sign up as a Teacher (not just a Parent). Teachers create student profiles the same way parents create kid profiles, and can be promoted to Editor or Admin from the Users panel.", "date": "2026-10-01", "tag": "Teachers", "title": "Teacher accounts are here"}, {"body": "Tap any correspondent's name or portrait on a story to jump to their bio on the Meet the Correspondents page \u2014 and every bio links to all of that correspondent's stories. You can also pick your portrait style (Humans, Animals, or Skynet Agents) for your whole account from your profile page.", "date": "2026-10-01", "tag": "Improved", "title": "Correspondent bylines link to bios"}, {"body": "All 13 channel correspondents now have full bios, fun facts, and portraits in three styles: Humans, Animals, and Skynet Agents. Each kid picks their favorite style in their profile, and the whole site re-skins to match.", "date": "2026-10-01", "tag": "New", "title": "Meet the Correspondents \u2014 3 art styles"}, {"body": "Articles now walk you through the full family reading flow: the story, the Kid Take (age-8 reading level), Talk Together discussion questions, and Words to Know \u2014 with a scroll-spy so you always know where you are. Plus: download any article's artwork free for wallpapers and school projects.", "date": "2026-09-30", "tag": "Improved", "title": "Guided co-reading journey"}, {"body": "Fresh stories drop three times a day \u2014 7:15 AM, 2:15 PM, and 6:15 PM Eastern \u2014 each with its own front page. Thirteen correspondents file one story per edition across every channel.", "date": "2026-09-30", "tag": "New", "title": "Three daily editions"}, {"body": "Every edition's top stories are now drafted as YouTube Shorts, TikTok, and Instagram Reels scripts \u2014 hook, script, caption, hashtags \u2014 waiting for review in the admin Social tab. (Posting is still manual for now.)", "date": "2026-09-30", "tag": "New", "title": "Social drafts queue (admin)"}]
+[
+  {
+    "date": "2026-10-06",
+    "tag": "New",
+    "title": "🔍 Site search is here",
+    "body": "Find any story in seconds — a brand-new search page with live-as-you-type results across every article we've published. Look for the search box in the nav."
+  },
+  {
+    "date": "2026-10-06",
+    "tag": "New",
+    "title": "🔔 Push notifications are live",
+    "body": "Never miss an edition drop. Turn on push alerts and we'll ping you the moment the Morning, Midday, or Evening edition lands — right through your browser."
+  },
+  {
+    "date": "2026-10-06",
+    "tag": "New",
+    "title": "🎨 Kid Creations gallery rebuilt",
+    "body": "The Creations gallery got a full makeover: browse what young readers are making, tap to like your favorites, and submit your own from the new Share form. Kid-safe as always — no names, just avatars."
+  },
+  {
+    "date": "2026-10-06",
+    "tag": "Fixed",
+    "title": "✉️ Contact form + leaderboard working",
+    "body": "The contact page now actually sends your message to us, and the leaderboard shows real reader rankings instead of 'warming up.'"
+  },
+  {
+    "date": "2026-10-06",
+    "tag": "New",
+    "title": "🛡️ Email verification for parents",
+    "body": "New parent accounts now verify by email before kid profiles can be added — an extra layer keeping kids' accounts in parents' hands. We've also rewritten our privacy notice in plain language and added a one-tap 'delete my kid's data' button for parents."
+  },
+  {
+    "date": "2026-10-06",
+    "tag": "Improved",
+    "title": "🎧 Listen: more voices, on demand",
+    "body": "The Listen feature now falls back to on-demand narration when a pre-made recording isn't ready yet, so every article can be heard in your chosen voice."
+  },
+  {
+    "date": "2026-10-05",
+    "tag": "New",
+    "title": "💬 Private parent-teacher messaging",
+    "body": "Teachers and parents can now message each other 1:1 about a specific child — conference requests, progress notes, quick questions. Each conversation gets its own private chat space. Find it under Teacher messages on the parent dashboard."
+  },
+  {
+    "date": "2026-10-05",
+    "tag": "New",
+    "title": "📖 Read Together mode",
+    "body": "The kitchen-table promise, made real: open any story in Read Together mode and read side by side. Parents see discussion prompts inline, kids get the Kid Take front and center, and tap-to-complete checkmarks track progress through story, summary, discussion, and vocabulary."
+  },
+  {
+    "date": "2026-10-05",
+    "tag": "New",
+    "title": "🎨 Kid Creations Gallery",
+    "body": "Kids can now share what they build! Submit experiments, art, and projects from the kid dashboard — parents approve, and approved creations go live in a public gallery where other families can ❤️ them."
+  },
+  {
+    "date": "2026-10-05",
+    "tag": "New",
+    "title": "👴 Family feed & cheers",
+    "body": "Grandparents and relatives finally have something to do: the Family feed shows achievements across your whole tree, and anyone in the family can send one-tap cheers. Kids see cheers on their dashboard."
+  },
+  {
+    "date": "2026-10-05",
+    "tag": "New",
+    "title": "📧 Weekly parent email",
+    "body": "A digest of your crew's week: XP earned, reading streaks, and one conversation starter for the dinner table. Preview anytime and toggle on/off in settings. Email delivery activates once Resend is connected."
+  },
+  {
+    "date": "2026-10-05",
+    "tag": "New",
+    "title": "📢 Classroom announcements",
+    "body": "Teachers can now broadcast to families — field trip Friday, quiz tomorrow, permission slips due. Pinned announcements stay on top. Parents see them in the new Class news tile."
+  },
+  {
+    "date": "2026-10-05",
+    "tag": "New",
+    "title": "🔖 Reading lists & bookmarks",
+    "body": "Tap the 🔖 button on any article to save it to a shelf — want to read or favorites. Kids manage shelves from their dashboard. Never lose a great story again."
+  },
+  {
+    "date": "2026-10-05",
+    "tag": "New",
+    "title": "🚀 Kid dashboards are here",
+    "body": "Every kid gets their own cinematic space: animated starfield, custom banner, editable quote, 100 avatars to pick from, interest picker, achievement wall, quiz galaxy with score history, family connections, classrooms, and STEM activities. Tap their card in the family dashboard to visit."
+  },
+  {
+    "date": "2026-10-05",
+    "tag": "New",
+    "title": "🎨 100 kid avatars",
+    "body": "100 hand-crafted avatars in the Nexus Glow style — rockets, animals, robots, dragons, unicorns and more. Kids pick their favorite right from their dashboard."
+  },
+  {
+    "date": "2026-10-05",
+    "tag": "New",
+    "title": "🌟 Teacher public profiles",
+    "body": "Teachers get a professional public page: photo, bio, teaching quote, degrees, awards, school and subjects. Families can preview before joining a classroom."
+  },
+  {
+    "date": "2026-10-05",
+    "tag": "New",
+    "title": "🌳 Family tree",
+    "body": "Link your whole family — spouses, grandparents, aunts, uncles, cousins. Create a family, share your invite code (only true family with the code can join), and everyone gets their own private family chat."
+  },
+  {
+    "date": "2026-10-05",
+    "tag": "New",
+    "title": "✉️ Teacher invites",
+    "body": "Teachers send email invites straight to parents. Parents create the account and link their child — teachers can never add students directly. Parents stay in control, always."
+  },
+  {
+    "date": "2026-10-05",
+    "tag": "Safety",
+    "title": "🛡️ Child safety rules, front and center",
+    "body": "Our protection rules now live on every parent and teacher dashboard: family-only by invite, parents own kid data, teachers see classroom stats only, no kid-to-kid contact, instant unlink anytime. Transparent by design."
+  },
+  {
+    "date": "2026-10-05",
+    "tag": "New",
+    "title": "⚙️ Parent controls per kid",
+    "body": "Fine-grained controls for each child: Listen on/off, pick exactly which of the 13 channels they see, discussions on/off, and public chat access (off by default — kids stay in family & classroom only unless you allow it). Plus full comment and question history with links to join the thread."
+  },
+  {
+    "date": "2026-10-05",
+    "tag": "New",
+    "title": "♿ Accessibility for blind kids",
+    "body": "Parents can declare blindness in their kid's profile — this unlocks the full suite: spoken audio guide for navigation, voice commands ('read this', 'next story', 'go home'), swipe gestures, double-tap to read aloud, large text and high contrast modes."
+  },
+  {
+    "date": "2026-10-05",
+    "tag": "New",
+    "title": "💬 Safe chat system",
+    "body": "Private chats for families and classrooms, plus solo notes and a moderated public square. Profanity filtered, parents and teachers can delete messages, anyone can report. Kids can't see public chat unless a parent allows it."
+  },
+  {
+    "date": "2026-10-05",
+    "tag": "Safety",
+    "title": "🔒 Invite-gated signup",
+    "body": "New accounts join via family or teacher invite codes. Signing up solo? You get a reading tracker with zero social features until a family or teacher invites you in. No open doors for strangers."
+  },
+  {
+    "date": "2026-10-04",
+    "tag": "New",
+    "title": "🗳️ You pick the Weekend Lab",
+    "body": "Every Thursday night, vote for which of the week's biggest STEM stories become Saturday's hands-on activities. The top picks win — the Lab is built around what families chose."
+  },
+  {
+    "date": "2026-10-04",
+    "tag": "New",
+    "title": "📸 Photos, videos & sources on every article",
+    "body": "Stories now carry media galleries with credited photos and videos, a source list with trust labels (official source, research paper, news report), 'try it yourself' links that turn news into hands-on fun, and watch embeds for the story's video."
+  },
+  {
+    "date": "2026-10-04",
+    "tag": "New",
+    "title": "🧪 Weekend Lab: Saturday STEM",
+    "body": "Five fresh family STEM activities every Saturday morning, made from household materials — a fun way to catch up on the week's stories by doing, not just reading."
+  },
+  {
+    "date": "2026-10-04",
+    "tag": "Improved",
+    "title": "✨ A simpler Skynet Nexus",
+    "body": "New collapsible sidebar organized around what you do here — Do, Read, Community, You — and a shorter name to match the bigger mission: the Nexus of STEM for families."
+  },
+  {
+    "body": "Teachers can now create classrooms, add their students, track everyone's reading progress (XP, levels, streaks, badges) on a live dashboard, and start threaded article discussions the whole class can join.",
+    "date": "2026-10-01",
+    "tag": "New",
+    "title": "🏫 Classroom system for teachers"
+  },
+  {
+    "body": "Kids earn XP for every step of the reading journey — finishing the story (10), the Kid Take (5), talking it over together (15), and learning new words (5). Climb 7 ranks from Rookie Reader to Editor-in-Chief, earn 20 badges, and build daily reading streaks. Parents and teachers earn XP too: +10 for co-reading, +20 for hosting a class discussion.",
+    "date": "2026-10-01",
+    "tag": "New",
+    "title": "🏆 Junior Correspondent gamification"
+  },
+  {
+    "body": "You can now sign up as a Teacher (not just a Parent). Teachers create student profiles the same way parents create kid profiles, and can be promoted to Editor or Admin from the Users panel.",
+    "date": "2026-10-01",
+    "tag": "Teachers",
+    "title": "Teacher accounts are here"
+  },
+  {
+    "body": "Tap any correspondent's name or portrait on a story to jump to their bio on the Meet the Correspondents page — and every bio links to all of that correspondent's stories. You can also pick your portrait style (Humans, Animals, or Skynet Agents) for your whole account from your profile page.",
+    "date": "2026-10-01",
+    "tag": "Improved",
+    "title": "Correspondent bylines link to bios"
+  },
+  {
+    "body": "All 13 channel correspondents now have full bios, fun facts, and portraits in three styles: Humans, Animals, and Skynet Agents. Each kid picks their favorite style in their profile, and the whole site re-skins to match.",
+    "date": "2026-10-01",
+    "tag": "New",
+    "title": "Meet the Correspondents — 3 art styles"
+  },
+  {
+    "body": "Articles now walk you through the full family reading flow: the story, the Kid Take (age-8 reading level), Talk Together discussion questions, and Words to Know — with a scroll-spy so you always know where you are. Plus: download any article's artwork free for wallpapers and school projects.",
+    "date": "2026-09-30",
+    "tag": "Improved",
+    "title": "Guided co-reading journey"
+  },
+  {
+    "body": "Fresh stories drop three times a day — 7:15 AM, 2:15 PM, and 6:15 PM Eastern — each with its own front page. Thirteen correspondents file one story per edition across every channel.",
+    "date": "2026-09-30",
+    "tag": "New",
+    "title": "Three daily editions"
+  },
+  {
+    "body": "Every edition's top stories are now drafted as YouTube Shorts, TikTok, and Instagram Reels scripts — hook, script, caption, hashtags — waiting for review in the admin Social tab. (Posting is still manual for now.)",
+    "date": "2026-09-30",
+    "tag": "New",
+    "title": "Social drafts queue (admin)"
+  }
+]
