@@ -1798,16 +1798,19 @@ module.exports = {
   moderateArticleComment({ userId, commentId, approve }) {
     const c = stmts.findCommentById.get(Number(commentId));
     if (!c) return { error: 'Comment not found.' };
-    if (c.status !== 'pending') return { error: 'Comment is already moderated.' };
     const me = stmts.findUserById.get(userId);
     const isAdmin = me && me.role === 'admin';
-    let allowed = isAdmin;
+    const isAuthor = c.author_user_id != null && Number(c.author_user_id) === Number(userId);
+    let allowed = isAdmin || isAuthor;
     if (!allowed && c.author_kid_id != null) {
       // Only a parent of the authoring kid may moderate.
       const kid = stmts.findKid.get(c.author_kid_id, userId);
       allowed = !!kid;
     }
     if (!allowed) return { error: 'Not allowed.' };
+    // Authors may remove (reject) their own published comments; queue
+    // moderation by others only applies to pending comments.
+    if (c.status !== 'pending' && !(isAuthor && !approve)) return { error: 'Comment is already moderated.' };
     stmts.updateCommentStatus.run(approve ? 'approved' : 'rejected', c.id);
     return { ok: true, status: approve ? 'approved' : 'rejected' };
   },
