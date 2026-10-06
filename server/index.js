@@ -889,6 +889,7 @@ api.delete('/assignments/:id', requireAuth, requireTeacher, (req, res) => {
   if (out.error) return res.status(404).json({ error: out.error });
   res.json(out);
 });
+
 // Called by the article page when a signed-in kid opens a story: marks any
 // matching assignments (kid's classrooms × this article) as read.
 api.post('/assignments/track-read', requireAuth, (req, res) => {
@@ -1221,7 +1222,6 @@ api.post('/newsroom/drafts', (req, res) => {
   res.status(201).json({ story });
 });
 
-
 // -------------- GIZMO SOCIAL INGESTION --------------
 // The social producer agents (YouTube Shorts / TikTok / Instagram Reels) file
 // video packages here ~30 min after each edition drop. Same NEWSROOM_API_KEY
@@ -1268,8 +1268,6 @@ api.post('/newsroom/social-drafts', (req, res) => {
   if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
   const got = String(req.headers['x-newsroom-key'] || '');
   if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
-
-
 
   const b = req.body || {};
   const platform = String(b.platform || '').trim();
@@ -1865,7 +1863,6 @@ api.patch('/newsroom/tasks/:id', (req, res) => {
   res.json({ task: updated });
 });
 
-
 // -------------- FRESH START (Jeff-authorized content reset) --------------
 // Clears the site for a clean relaunch: removes ALL queued drafts and ALL
 // published articles EXCEPT the keep-list, then publishes a new welcome
@@ -1966,6 +1963,8 @@ api.post('/newsroom/fresh-start', (req, res) => {
   console.log('[newsroom] fresh-start: queue cleared=' + report.clearedQueue + ', articles removed=' + report.removedArticles.length + ', kept=' + report.keptArticles.length);
   res.json({ ok: true, report });
 });
+
+require('./missing-crud')(api, { requireAuth, requireTeacher, requireAdmin, rateLimit });
 
 app.use('/api', api);
 
