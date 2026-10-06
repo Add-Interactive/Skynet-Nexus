@@ -11,7 +11,7 @@ the News Director (Jeff) reviews in the Review Console. No OpenClaw, no Antigrav
 | T-45 min | Gizmo validates every draft (schema + kid-safe guardrails — the same rules as `newsroom/publish.js`) and files it to the review queue: `POST /api/newsroom/drafts` with `x-newsroom-key` (server env `NEWSROOM_API_KEY`). Each draft is stamped for its drop (`publish_at`, `edition`). |
 | T-60 → T-0 | Director review window in the Review Console (`newsroom/dashboard.html`): approve, spike (reject), publish-now, or leave notes on any draft. Notes are applied on the final pass. |
 | T-15 min | Final pass: director notes applied, drafts revised, queue updated. |
-| Drop (10:15 AM / 2:15 PM / 6:15 PM ET) | `server/scheduler.js` releases scheduled stories, then **auto-publishes any draft stamped for that drop which is still unreviewed**. The director's review is a courtesy, never a blocker. Rejected stories never auto-publish. A failed publish clears the drop stamp and parks the story as a draft with a note. |
+| Drop (7:15 AM / 2:15 PM / 6:15 PM ET) | `server/scheduler.js` releases scheduled stories, then **auto-publishes any draft stamped for that drop which is still unreviewed**. The director's review is a courtesy, never a blocker. Rejected stories never auto-publish. A failed publish clears the drop stamp and parks the story as a draft with a note. |
 
 ## Filing a draft (pipeline)
 

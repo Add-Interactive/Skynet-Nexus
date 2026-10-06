@@ -122,7 +122,7 @@ Rules:
     { "term": "Ensemble", "meaning": "A group of musicians who play together — like a band, an orchestra, or a choir." }
   ],
   "ageBand": "5+",
-  "author": "Consistent byline — use 'Riley Chen' unless you have reason to change",
+  "author": "Consistent byline — use 'Cadence Liu' unless you have reason to change",
   "date": "TODAY_ISO_DATE",
   "tags": ["youngarts", "classical", "songwriter", "or-similar", "3-6"],
   "sources": [{ "label": "...", "url": "https://..." }],
