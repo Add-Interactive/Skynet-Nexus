@@ -292,7 +292,7 @@
         const dateStr = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
         let h = '<div class="quiz-card"><span class="q-num">🧠 Daily Quiz · ' + esc(dateStr) + '</span>' +
           '<h2 style="margin:8px 0 4px">5 questions. 25 XP on the line.</h2>' +
-          '<p style="color:var(--muted,#9aa7bd);font-size:14px">One try per day — make it count! ' +
+          '<p style="color:var(--muted,#9aa7bd);font-size:14px">One try per day — make it count! Take your time, there\'s no timer. ' +
           (window.SkyAuth.state.user.role === 'teacher' || window.SkyAuth.state.user.role === 'admin'
             ? 'Teachers: your classroom leaderboard updates as students play.' : '') + '</p></div>';
         h += '<form id="quiz-form"><div class="quiz-card">';
