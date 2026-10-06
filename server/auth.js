@@ -39,9 +39,18 @@ async function verifyPassword(plain, hash) {
 }
 
 // Express middleware: require an authenticated session.
+// Populates req.user with the full user record (id, email, displayName, role, roles, etc.)
 function requireAuth(req, res, next) {
   if (!req.session || !req.session.userId) {
     return res.status(401).json({ error: 'unauthorized' });
+  }
+  try {
+    const { findUserById } = require('./db');
+    const u = findUserById(req.session.userId);
+    if (!u) return res.status(401).json({ error: 'unauthorized' });
+    req.user = u;
+  } catch (e) {
+    req.user = { id: req.session.userId };
   }
   next();
 }
