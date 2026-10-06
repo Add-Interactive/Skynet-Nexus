@@ -2,6 +2,42 @@
   {
     "date": "2026-10-06",
     "tag": "New",
+    "title": "🧪 Beta HQ is live",
+    "body": "Beta testers now have a Beta HQ page showing what's being built, what's fixed, and what's coming next. Find it in the footer when you're logged in as a beta tester."
+  },
+  {
+    "date": "2026-10-06",
+    "tag": "New",
+    "title": "🏅 Beta Tester role",
+    "body": "Beta testing is now a proper role you can pick at signup. Testers get early access to new features and a special badge."
+  },
+  {
+    "date": "2026-10-06",
+    "tag": "Fixed",
+    "title": "📊 Article sidebars are alive",
+    "body": "Article pages now show the same live sidebar as the homepage: trending stories, stats, leaderboard, and polls."
+  },
+  {
+    "date": "2026-10-06",
+    "tag": "New",
+    "title": "🏆 Live leaderboard",
+    "body": "The Weekly Leaderboard now shows real reader rankings based on XP earned."
+  },
+  {
+    "date": "2026-10-06",
+    "tag": "New",
+    "title": "🎧 Listen speed control",
+    "body": "You can now adjust read-aloud speed (0.75x–1.5x) on any story. Great for younger readers."
+  },
+  {
+    "date": "2026-10-06",
+    "tag": "New",
+    "title": "✅ Debug checklist for testers",
+    "body": "Beta testers get a 105-item checklist to guide testing, with live progress tracking in their profile."
+  },
+  {
+    "date": "2026-10-06",
+    "tag": "New",
     "title": "🔍 Site search is here",
     "body": "Find any story in seconds — a brand-new search page with live-as-you-type results across every article we've published. Look for the search box in the nav."
   },

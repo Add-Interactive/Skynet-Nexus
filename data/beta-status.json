@@ -1,1 +1,62 @@
-{"codeReview":{"fullyBuilt":40,"note":"Full review backlog cleared Oct 6 — see breakdown","partial":5,"total":45},"debugWeek":{"issuesFound":0,"status":"On track — zero errors across all waves","wavesDone":5,"wavesTotal":21},"recentFixes":[{"date":"2026-10-06","fix":"Quiz pressure copy — added 'take your time, no timer' reassurance"},{"date":"2026-10-06","fix":"Chat preview truncation on mobile"},{"date":"2026-10-06","fix":"Avatar display bug (was reading wrong field name)"},{"date":"2026-10-06","fix":"Added read-aloud speed control (0.75x–1.5x)"},{"date":"2026-10-06","fix":"Beta tester debug checklist with progress tracking"},{"date":"2026-10-06","fix":"What's New auto-open modal for beta testers"}],"roadmapTeaser":["Read Together 2.0 — guided co-reading","Reading levels — one story, three tiers","Family challenges with badges"],"updated":"2026-10-06"}
+{
+  "codeReview": {
+    "fullyBuilt": 40,
+    "note": "Full review backlog cleared Oct 6 — see breakdown",
+    "partial": 5,
+    "total": 45
+  },
+  "debugWeek": {
+    "issuesFound": 0,
+    "status": "On track — zero errors across all waves",
+    "wavesDone": 5,
+    "wavesTotal": 21
+  },
+  "recentFixes": [
+    {
+      "date": "2026-10-06",
+      "fix": "Article page sidebar widgets now populate (were empty)"
+    },
+    {
+      "date": "2026-10-06",
+      "fix": "Weekly Leaderboard wired to live API (was placeholder)"
+    },
+    {
+      "date": "2026-10-06",
+      "fix": "Beta Tester added as a proper user role"
+    },
+    {
+      "date": "2026-10-06",
+      "fix": "Beta HQ transparency page + beta-gated footer links"
+    },
+    {
+      "date": "2026-10-06",
+      "fix": "Quiz pressure copy — added 'take your time, no timer' reassurance"
+    },
+    {
+      "date": "2026-10-06",
+      "fix": "Chat preview truncation on mobile"
+    },
+    {
+      "date": "2026-10-06",
+      "fix": "Avatar display bug (was reading wrong field name)"
+    },
+    {
+      "date": "2026-10-06",
+      "fix": "Added read-aloud speed control (0.75x–1.5x)"
+    },
+    {
+      "date": "2026-10-06",
+      "fix": "Beta tester debug checklist with progress tracking"
+    },
+    {
+      "date": "2026-10-06",
+      "fix": "What's New auto-open modal for beta testers"
+    }
+  ],
+  "roadmapTeaser": [
+    "Read Together 2.0 — guided co-reading",
+    "Reading levels — one story, three tiers",
+    "Family challenges with badges"
+  ],
+  "updated": "2026-10-06"
+}
