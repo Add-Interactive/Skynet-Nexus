@@ -51,6 +51,10 @@ for (const [col, type] of [
   catch (e) { /* already exists */ }
 }
 
+// Debug test-group marker (added 2026-10-06).
+try { db.exec(`ALTER TABLE users ADD COLUMN debug_group TEXT`); }
+catch (e) { /* already exists */ }
+
 // Family linking + classroom invites (added 2026-10-05).
 db.exec(`
   CREATE TABLE IF NOT EXISTS families (
