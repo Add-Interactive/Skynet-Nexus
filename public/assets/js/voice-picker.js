@@ -128,6 +128,16 @@
       });
     });
     document.addEventListener('pagehide', stop);
+
+    // Move the action toolbar (Save, Share, Listen) to the top of the article,
+    // right after the Read together nav — static in the flow, never floating.
+    try {
+      var toolbar = document.querySelector('.article-toolbar');
+      var journey = document.querySelector('.read-journey');
+      if (toolbar && journey && toolbar.previousElementSibling !== journey) {
+        journey.insertAdjacentElement('afterend', toolbar);
+      }
+    } catch (e) {}
     return true;
   }
 
