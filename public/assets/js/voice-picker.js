@@ -14,6 +14,11 @@
   ];
   var DEF_VOICE = 'lessac';
   var LS_KEY = 'skeynet_listen_voice';
+  var LS_SPEED_KEY = 'skynet_listen_speed';
+  var SPEEDS = [['0.75','0.75x'],['1','1x'],['1.25','1.25x'],['1.5','1.5x']];
+  var DEF_SPEED = '1';
+  function speedGet() { try { var v = localStorage.getItem(LS_SPEED_KEY); return SPEEDS.some(function(s){return s[0]===v;}) ? v : DEF_SPEED; } catch (e) { return DEF_SPEED; } }
+  function speedSet(v) { try { localStorage.setItem(LS_SPEED_KEY, v); } catch (e) {} }
 
   function lsGet(d) { try { var v = localStorage.getItem(LS_KEY); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
   function lsSet(v) { try { localStorage.setItem(LS_KEY, JSON.stringify(v)); } catch (e) {} }
@@ -65,7 +70,7 @@
       chunks.forEach(function (chunk, i) {
         var u = new SpeechSynthesisUtterance(chunk);
         if (voice) u.voice = voice;
-        u.rate = 1; u.pitch = 1;
+        u.rate = parseFloat(speedGet()) || 1; u.pitch = 1;
         if (i === chunks.length - 1) u.onend = function () { onDone(false); };
         u.onerror = function () { onDone(false); };
         synth.speak(u);
@@ -89,6 +94,22 @@
     sel.value = lsGet(DEF_VOICE);
     sel.addEventListener('change', function () { lsSet(sel.value); });
     btn.insertAdjacentElement('afterend', sel);
+
+    // Playback speed control (0.75x-1.5x), persisted per device.
+    var spd = document.createElement('select');
+    spd.id = 'speed-picker';
+    spd.className = 'share-btn voice-picker';
+    spd.title = 'Playback speed';
+    spd.setAttribute('aria-label', 'Playback speed');
+    spd.innerHTML = SPEEDS.map(function (s) {
+      return '<option value="' + s[0] + '">' + s[1] + '</option>';
+    }).join('');
+    spd.value = speedGet();
+    spd.addEventListener('change', function () {
+      speedSet(spd.value);
+      try { if (audio) audio.playbackRate = parseFloat(spd.value) || 1; } catch (e) {}
+    });
+    sel.insertAdjacentElement('afterend', spd);
 
     // Replace the button to drop the old browser-TTS-only listener, then rewire.
     var nb = btn.cloneNode(true);
@@ -115,6 +136,7 @@
       fetch(url, { method: 'HEAD' }).then(function (h) {
         if (!h.ok) throw new Error('no mp3');
         audio = new Audio(url);
+        try { audio.playbackRate = parseFloat(speedGet()) || 1; } catch (e) {}
         audio.onended = function () { audio = null; setUI(false); };
         audio.onerror = function () { audio = null; browserTTS(function (ok) { if (ok) setUI(true); else setUI(false); }); };
         setUI(true);
@@ -131,6 +153,7 @@
         }).then(function (blob) {
           var url = URL.createObjectURL(blob);
           audio = new Audio(url);
+          try { audio.playbackRate = parseFloat(speedGet()) || 1; } catch (e) {}
           audio.onended = function () { URL.revokeObjectURL(url); audio = null; setUI(false); };
           audio.onerror = function () { URL.revokeObjectURL(url); audio = null; browserTTS(function (ok) { setUI(!!ok); }); };
           setUI(true);
