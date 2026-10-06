@@ -1982,6 +1982,9 @@ api.post('/newsroom/fresh-start', (req, res) => {
 });
 
 require('./missing-crud')(api, { requireAuth, requireTeacher, requireAdmin, rateLimit });
+require('./tts-routes')(api, { requireAuth });
+require('./notifications')(api, { requireAuth });
+require('./search')(api);
 
 app.use('/api', api);
 
