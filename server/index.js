@@ -535,6 +535,59 @@ api.get('/feedback/mine', requireAuth, (req, res) => {
   res.json({ items: getMyFeedback(req.session.userId) });
 });
 
+// ---- Article engagement: reactions (thumbs up/down) + moderated comments ----
+// Reactions are per-person counts. Comments from kids start 'pending' and are
+// visible only to the authoring kid + their parents until approved.
+api.post('/articles/:id/react', requireAuth, (req, res) => {
+  const { setArticleReaction } = require('./db');
+  const kidId = req.body.kid_id != null ? Number(req.body.kid_id) : null;
+  const out = setArticleReaction({
+    userId: req.session.userId, kidId,
+    articleId: req.params.id, reaction: req.body.reaction,
+  });
+  if (out.error) return res.status(400).json({ error: out.error });
+  res.json(out);
+});
+api.get('/articles/:id/reactions', requireAuth, (req, res) => {
+  const { getArticleReactions } = require('./db');
+  const kidId = req.query.kid_id != null ? Number(req.query.kid_id) : null;
+  res.json(getArticleReactions({ userId: req.session.userId, kidId, articleId: req.params.id }));
+});
+api.post('/articles/:id/comments',
+  requireAuth, rateLimit({ windowMs: 60 * 60_000, max: 30, key: 'article-comments' }),
+  (req, res) => {
+    const { postArticleComment } = require('./db');
+    const kidId = req.body.kid_id != null ? Number(req.body.kid_id) : null;
+    const out = postArticleComment({
+      userId: req.session.userId, kidId,
+      articleId: req.params.id, body: req.body.body,
+    });
+    if (out.error) return res.status(400).json({ error: out.error });
+    res.status(201).json(out);
+  });
+api.get('/articles/:id/comments', requireAuth, (req, res) => {
+  const { listArticleComments } = require('./db');
+  res.json(listArticleComments({ userId: req.session.userId, articleId: req.params.id }));
+});
+// Parent moderation queue: pending comments authored by the caller's kids.
+api.get('/comments/pending', requireAuth, (req, res) => {
+  const { pendingCommentsForParent } = require('./db');
+  const articleId = req.query.article_id ? String(req.query.article_id) : null;
+  res.json(pendingCommentsForParent({ userId: req.session.userId, articleId }));
+});
+api.post('/comments/:commentId/approve', requireAuth, (req, res) => {
+  const { moderateArticleComment } = require('./db');
+  const out = moderateArticleComment({ userId: req.session.userId, commentId: req.params.commentId, approve: true });
+  if (out.error) return res.status(403).json({ error: out.error });
+  res.json(out);
+});
+api.post('/comments/:commentId/reject', requireAuth, (req, res) => {
+  const { moderateArticleComment } = require('./db');
+  const out = moderateArticleComment({ userId: req.session.userId, commentId: req.params.commentId, approve: false });
+  if (out.error) return res.status(403).json({ error: out.error });
+  res.json(out);
+});
+
 // ---- Weekend Lab polls (votes are private: counts public, voter lists never) ----
 api.get('/polls/current', (req, res) => {
   try {
