@@ -369,6 +369,42 @@ api.patch('/auth/profile', requireAuth, (req, res) => {
   res.json({ user });
 });
 
+// POST /api/auth/avatar-upload — { base64 } — user profile photo upload, returns { url }
+api.post('/auth/avatar-upload', requireAuth, (req, res) => {
+  try {
+    let base64 = String((req.body || {}).base64 || '').trim();
+    if (!base64) return res.status(400).json({ error: 'base64 required' });
+    // Detect mime from data URL prefix
+    let ext = 'png';
+    const m = base64.match(/^data:image\/(png|jpe?g|webp|gif);base64,/);
+    if (m) { ext = m[1] === 'jpeg' ? 'jpg' : m[1]; base64 = base64.slice(m[0].length); }
+    else base64 = base64.replace(/^data:image\/\w+;base64,/, '');
+    if (base64.length > 2 * 1024 * 1024) return res.status(413).json({ error: 'Image too large (max ~1.5MB).' });
+    let buf;
+    try { buf = Buffer.from(base64, 'base64'); } catch (e) { return res.status(400).json({ error: 'Invalid image data.' }); }
+    if (buf.length < 100) return res.status(400).json({ error: 'Invalid image data.' });
+    // Magic-byte check
+    const isPng = buf[0] === 0x89 && buf[1] === 0x50;
+    const isJpg = buf[0] === 0xFF && buf[1] === 0xD8;
+    const isGif = buf[0] === 0x47 && buf[1] === 0x49;
+    const isWebp = buf[0] === 0x52 && buf[1] === 0x49 && buf[8] === 0x57 && buf[9] === 0x45;
+    if (!isPng && !isJpg && !isGif && !isWebp) return res.status(400).json({ error: 'Only PNG, JPG, GIF, or WebP images.' });
+    const { USERS_DIR } = require('./storage');
+    const dir = path.join(USERS_DIR, 'avatars');
+    fs.mkdirSync(dir, { recursive: true });
+    const filename = 'u' + req.session.userId + '-' + Date.now() + '.' + ext;
+    const filePath = path.join(dir, filename);
+    if (path.dirname(filePath) !== dir) return res.status(400).json({ error: 'bad filename' });
+    fs.writeFileSync(filePath, buf);
+    // Clean up old uploads from this user (keep latest 3)
+    try {
+      const mine = fs.readdirSync(dir).filter(f => f.startsWith('u' + req.session.userId + '-')).sort();
+      while (mine.length > 3) { fs.unlinkSync(path.join(dir, mine.shift())); }
+    } catch (e) {}
+    res.json({ ok: true, url: '/assets/img/users/avatars/' + filename });
+  } catch (e) { res.status(500).json({ error: 'Upload failed.' }); }
+});
+
 // POST /api/auth/change-password — { currentPassword, newPassword }
 api.post('/auth/change-password', requireAuth, rateLimit({ windowMs: 15 * 60_000, max: 10, key: 'changepw' }), async (req, res) => {
   const currentPassword = String(req.body.currentPassword || '');
