@@ -267,6 +267,28 @@ function renderSkyFooter(base) {
   keep.forEach(function (c) { html += c.outerHTML; c.remove(); });
   if (brand) brand.insertAdjacentHTML('afterend', html);
   else inner.insertAdjacentHTML('afterbegin', html);
+  // Beta-gated footer column: only rendered for beta testers.
+  // Silent on failure (logged out, non-beta, or API down) — footer stays unchanged.
+  (function addBetaCol() {
+    fetch('/api/auth/me', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        var user = d && d.user;
+        if (!user || !user.isBetaTester) return;
+        var fi = document.querySelector('footer .footer-inner');
+        if (!fi || fi.querySelector('.footer-col-beta')) return;
+        var betaCol = col('\uD83E\uDDEA Beta', [
+          [P('beta.html'), '\uD83E\uDDEA Beta HQ'],
+          [P('debug-checklist.html'), '\u2705 Debug Checklist']
+        ]);
+        var tmp = document.createElement('div');
+        tmp.innerHTML = betaCol;
+        var el = tmp.firstChild;
+        if (el) el.classList.add('footer-col-beta');
+        fi.insertAdjacentHTML('beforeend', tmp.innerHTML);
+      })
+      .catch(function () {});
+  })();
 }
 
 /* Init: rebuild the sidebar, keep the mobile drawer working, apply rebrand. */
