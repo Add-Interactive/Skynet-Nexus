@@ -118,7 +118,7 @@ Rules:
     { "term": "Superconductor", "meaning": "A material that lets electricity flow with zero resistance, like a slide with no friction." }
   ],
   "ageBand": "8+",
-  "author": "Consistent journalist byline — use 'Priya Ramanathan' unless you have a reason to change it",
+  "author": "Consistent journalist byline — use 'Dr. Lena Osei' unless you have a reason to change it",
   "date": "TODAY_ISO_DATE — provided in your task instructions",
   "tags": ["3-6", "relevant", "lowercase-hyphen", "tags"],
   "sources": [
