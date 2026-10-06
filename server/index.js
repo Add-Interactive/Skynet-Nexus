@@ -1985,6 +1985,7 @@ require('./missing-crud')(api, { requireAuth, requireTeacher, requireAdmin, rate
 require('./tts-routes')(api, { requireAuth });
 require('./notifications')(api, { requireAuth });
 require('./search')(api);
+require('./checklist')(api, { requireAuth });
 
 app.use('/api', api);
 

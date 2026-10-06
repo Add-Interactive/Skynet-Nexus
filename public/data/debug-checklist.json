@@ -1,0 +1,248 @@
+{
+  "version": "2026-10-06",
+  "sections": [
+    {
+      "id": "s01",
+      "title": "Signup & Email Verification (Parent)",
+      "items": [
+        "Register a new parent account — confirm \"check your email\" screen appears",
+        "Try adding a kid profile BEFORE verifying email — should be blocked with a friendly message",
+        "Click the verification link — confirm success page",
+        "Add a kid profile AFTER verifying — should work",
+        "Log out and log back in"
+      ]
+    },
+    {
+      "id": "s02",
+      "title": "What's New Modal (Beta Tester)",
+      "items": [
+        "Log in as a beta tester — What's New popup appears with latest updates",
+        "Click \"Got it!\" — modal closes, doesn't reappear this session",
+        "Log out, log back in — modal does NOT reappear (already seen)",
+        "(After a new What's New entry is published) Log in — modal reappears with only the new items"
+      ]
+    },
+    {
+      "id": "s03",
+      "title": "Articles — Reading",
+      "items": [
+        "Open homepage — today's edition loads with hero images (no broken images, no \"undefined\" text)",
+        "Open an article — body, kid take, family discussion questions all render",
+        "Check glossary — terms have definitions (no \"undefined\")",
+        "Check sources — show publisher names and links (no \"undefined\")",
+        "Check \"Try it yourself\" cards and \"Watch the story\" embeds render",
+        "Save to bookshelf — confirm it saves, check bookshelf page shows it"
+      ]
+    },
+    {
+      "id": "s04",
+      "title": "Articles — Listen / TTS",
+      "items": [
+        "Click Listen — voice picker shows (Lessac, Amy, Ryan, Danny)",
+        "Play with each voice — audio plays, no errors",
+        "Switch voice mid-article — new voice is used",
+        "Reload page — voice choice is remembered",
+        "(If no pre-made audio) Confirm on-demand narration kicks in"
+      ]
+    },
+    {
+      "id": "s05",
+      "title": "Reactions & Comments",
+      "items": [
+        "Thumbs up an article — count goes up, persists after reload",
+        "Thumbs down — count goes up",
+        "Remove your reaction — count goes back down",
+        "Post a comment as a kid — stays hidden, says \"pending parent approval\"",
+        "Post a comment as a grown-up — appears immediately",
+        "Parent approves kid's comment — becomes visible publicly as \"a young reader\" (no real name)",
+        "Try posting with a swear word — should be blocked",
+        "Post 11 comments quickly — 11th should be rate-limited"
+      ]
+    },
+    {
+      "id": "s06",
+      "title": "Daily Quiz",
+      "items": [
+        "Open today's quiz — 5 questions load",
+        "Answer all 5, submit — score shows, XP awarded (5 XP each)",
+        "Try taking it again same day — blocked (1 attempt/day)",
+        "Check teacher leaderboard — your score appears"
+      ]
+    },
+    {
+      "id": "s07",
+      "title": "Ask the Correspondent",
+      "items": [
+        "Ask a question on an article — appears as pending",
+        "Ask 6 questions — 6th blocked (5 open limit)",
+        "(Admin) Answer a question — answer appears publicly",
+        "Public Q&A shows asker as tier/level, NOT kid's name"
+      ]
+    },
+    {
+      "id": "s08",
+      "title": "Assignments (Teacher → Kid)",
+      "items": [
+        "Teacher: create an assignment for a class",
+        "Teacher: edit the assignment (PATCH) — changes save",
+        "Kid: open assignments page — sees the assignment",
+        "Kid: complete it (read the article) — progress tracks",
+        "Teacher: check class progress — sees kid's completion"
+      ]
+    },
+    {
+      "id": "s09",
+      "title": "Classrooms & Discussions",
+      "items": [
+        "Teacher: create a class, add kids",
+        "Post an announcement — kids/parents see it",
+        "Start a discussion — post as teacher",
+        "Reply as an enrolled kid — works (this was the Oct 6 bugfix)",
+        "Reply as a parent on behalf of kid — works"
+      ]
+    },
+    {
+      "id": "s10",
+      "title": "Gamification & Leaderboard",
+      "items": [
+        "Kid dashboard shows XP, level, badges",
+        "Earn XP (quiz, reading) — total updates",
+        "Leaderboard page — shows real rankings with \"a young reader\" (no real names)",
+        "Reading goals — set a goal, progress tracks",
+        "Quiet hours — set them, verify they save"
+      ]
+    },
+    {
+      "id": "s11",
+      "title": "Family Feed, Cheers & Friends",
+      "items": [
+        "Send a cheer to a family member — they get a notification",
+        "Family feed shows cheers and activity",
+        "Send a friend request — other user sees it",
+        "Accept friend request — both see each other as friends",
+        "Decline a friend request — works, no error",
+        "Delete/retract a cheer — disappears"
+      ]
+    },
+    {
+      "id": "s12",
+      "title": "Family Chat",
+      "items": [
+        "Open a chat space — messages load",
+        "Send a message — appears for other members",
+        "Report a message — goes to moderation queue",
+        "Delete your own message — disappears"
+      ]
+    },
+    {
+      "id": "s13",
+      "title": "Read Together",
+      "items": [
+        "Start a co-reading session from an article",
+        "Track progress — saves correctly",
+        "Check reading history — session appears"
+      ]
+    },
+    {
+      "id": "s14",
+      "title": "Kid Creations",
+      "items": [
+        "Open gallery — creations display with images, likes",
+        "Gallery shows \"a young reader\" (no kid names)",
+        "Like a creation — count updates in place",
+        "Submit a creation (title, description, image) — appears as pending",
+        "(Admin/Parent) Approve a creation — appears in gallery"
+      ]
+    },
+    {
+      "id": "s15",
+      "title": "Weekend Lab & Polls",
+      "items": [
+        "Open Weekend Lab — current poll shows",
+        "Vote in the poll — vote counts, results update",
+        "(Admin) Close a poll, reopen it — both work"
+      ]
+    },
+    {
+      "id": "s16",
+      "title": "Search",
+      "items": [
+        "Search for \"space\" — results appear, ranked (title matches first)",
+        "Search as you type — live results update",
+        "Click a result — goes to the article"
+      ]
+    },
+    {
+      "id": "s17",
+      "title": "Notifications",
+      "items": [
+        "Bell icon shows unread count",
+        "Trigger a notification (get a cheer, have a comment approved) — bell updates",
+        "Open notifications — list shows with links",
+        "Mark one as read — count drops",
+        "Mark all as read — count clears",
+        "Subscribe to push notifications — confirm dialog names the browser push service",
+        "(If subscribed) Verify edition drop alert arrives"
+      ]
+    },
+    {
+      "id": "s18",
+      "title": "Contact & Newsletter",
+      "items": [
+        "Submit the contact form — success message, no error",
+        "Subscribe to newsletter — confirmation",
+        "Unsubscribe from newsletter — works, no more emails"
+      ]
+    },
+    {
+      "id": "s19",
+      "title": "Privacy, Consent & Data",
+      "items": [
+        "Open privacy notice — reads clearly, mentions all features, dated Oct 6 2026",
+        "Parent dashboard: find \"delete kid data\" button",
+        "Click it, type kid's name to confirm — data wiped, summary shown",
+        "Verify kid's quiz history, comments, XP are gone"
+      ]
+    },
+    {
+      "id": "s20",
+      "title": "Parent-Teacher Messaging",
+      "items": [
+        "Parent: open teacher messages, start a thread about your kid",
+        "Teacher: see the thread, reply",
+        "Confirm messages are private (not visible to other parents)"
+      ]
+    },
+    {
+      "id": "s21",
+      "title": "Admin Console (Admin role only)",
+      "items": [
+        "Open Review Console — today's drafts appear",
+        "Publish a draft — goes live",
+        "Reject a draft — removed from queue",
+        "Use \"edit story\" deep link (?editStoryId=) — opens the story editor (Oct 6 fix)",
+        "Check social drafts queue — create a manual draft",
+        "Check analytics — numbers load"
+      ]
+    },
+    {
+      "id": "s22",
+      "title": "Mobile / Responsive (iPhone + Android)",
+      "items": [
+        "All of the above on a phone-sized screen — no overlapping text, buttons tappable",
+        "Article toolbar doesn't float or cover content",
+        "Listen/voice picker works on mobile Safari and Chrome"
+      ]
+    },
+    {
+      "id": "s23",
+      "title": "No Regressions",
+      "items": [
+        "No \"undefined\" or \"null\" text visible on any page",
+        "No broken images (all show Nexus Glow art or real photos)",
+        "No JavaScript console errors on homepage, article page, dashboard",
+        "All nav links work — no 404s, no dead ends"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Debug Checklist — Skynet Nexus</title>
+<style>
+  :root { --navy:#0B1026; --cyan:#00e5ff; --muted:#8899bb; --card:#111a33; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--navy); color:#e8f4ff; font-family:system-ui,-apple-system,sans-serif; }
+  header { padding:20px; border-bottom:1px solid rgba(0,229,255,.15); position:sticky; top:0; background:var(--navy); z-index:10; }
+  header h1 { margin:0 0 4px; font-size:20px; }
+  header p { margin:0; color:var(--muted); font-size:13px; }
+  .progress-wrap { margin-top:12px; }
+  .progress-label { font-size:14px; font-weight:700; margin-bottom:6px; }
+  .bar { height:14px; background:#1a2547; border-radius:8px; overflow:hidden; }
+  .bar > div { height:100%; background:linear-gradient(90deg,#00e5ff,#39ff14); width:0%; transition:width .3s; }
+  main { max-width:760px; margin:0 auto; padding:16px; }
+  .section { background:var(--card); border:1px solid rgba(0,229,255,.12); border-radius:12px; margin-bottom:12px; overflow:hidden; }
+  .section-head { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; cursor:pointer; user-select:none; }
+  .section-head:hover { background:rgba(0,229,255,.05); }
+  .section-title { font-weight:700; font-size:15px; }
+  .section-count { font-size:13px; color:var(--cyan); font-weight:700; white-space:nowrap; margin-left:12px; }
+  .section-items { display:none; padding:0 16px 16px; }
+  .section.open .section-items { display:block; }
+  .item { display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-top:1px solid rgba(255,255,255,.06); font-size:14px; line-height:1.45; }
+  .item input { margin-top:3px; width:18px; height:18px; accent-color:var(--cyan); flex-shrink:0; cursor:pointer; }
+  .item.done span { text-decoration:line-through; color:var(--muted); }
+  .back { display:inline-block; margin:16px; color:var(--cyan); text-decoration:none; font-size:14px; }
+  #gate { max-width:520px; margin:80px auto; text-align:center; padding:24px; display:none; }
+  .done-banner { text-align:center; padding:24px; display:none; }
+  .done-banner .big { font-size:48px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🧪 Beta Debug Checklist</h1>
+  <p>Work through each section. Your progress saves automatically.</p>
+  <div class="progress-wrap">
+    <div class="progress-label" id="overall-label">Loading…</div>
+    <div class="bar"><div id="overall-bar"></div></div>
+  </div>
+</header>
+<main id="list"></main>
+<div class="done-banner" id="done-banner">
+  <div class="big">🎉</div>
+  <h2>All 105 checks complete!</h2>
+  <p>Great work, debugger. Report any open bugs to Jeff.</p>
+</div>
+<div id="gate">
+  <h2>Beta testers only</h2>
+  <p>This checklist is for beta testers. <a href="/" style="color:var(--cyan)">Back home</a></p>
+</div>
+<a class="back" href="/pages/profile.html">← Back to profile</a>
+
+<script>
+(function () {
+  'use strict';
+  var state = { sections: [], completed: {} };
+
+  function api(path, opts) {
+    opts = opts || {};
+    return fetch('/api' + path, {
+      credentials: 'same-origin',
+      method: opts.method || 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    }).then(function (r) { return r.json(); });
+  }
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function key(sid, i) { return sid + ':' + i; }
+
+  function renderProgress() {
+    var total = 0, done = 0;
+    state.sections.forEach(function (s) {
+      s.items.forEach(function (_, i) {
+        total++;
+        if (state.completed[key(s.id, i)]) done++;
+      });
+    });
+    var pct = total ? Math.round(done / total * 100) : 0;
+    document.getElementById('overall-label').textContent = pct + '% — ' + done + '/' + total + ' checks';
+    document.getElementById('overall-bar').style.width = pct + '%';
+    document.getElementById('done-banner').style.display = (total && done === total) ? 'block' : 'none';
+    // Per-section counts
+    state.sections.forEach(function (s) {
+      var c = 0;
+      s.items.forEach(function (_, i) { if (state.completed[key(s.id, i)]) c++; });
+      var el = document.getElementById('count-' + s.id);
+      if (el) el.textContent = c + '/' + s.items.length;
+    });
+  }
+
+  function toggle(sid, idx, box) {
+    var done = box.checked;
+    var path = done ? '/checklist/complete' : '/checklist/uncomplete';
+    api(path, { method: 'POST', body: { section_id: sid, item_index: idx } }).then(function () {
+      if (done) state.completed[key(sid, idx)] = true;
+      else delete state.completed[key(sid, idx)];
+      box.closest('.item').classList.toggle('done', done);
+      renderProgress();
+    });
+  }
+
+  function render() {
+    var list = document.getElementById('list');
+    list.innerHTML = '';
+    state.sections.forEach(function (s, si) {
+      var sec = document.createElement('div');
+      sec.className = 'section' + (si === 0 ? ' open' : '');
+      var head = document.createElement('div');
+      head.className = 'section-head';
+      head.innerHTML = '<span class="section-title">' + esc(s.title) + '</span>' +
+        '<span class="section-count" id="count-' + esc(s.id) + '">0/' + s.items.length + '</span>';
+      head.onclick = function () { sec.classList.toggle('open'); };
+      var items = document.createElement('div');
+      items.className = 'section-items';
+      s.items.forEach(function (text, i) {
+        var isDone = !!state.completed[key(s.id, i)];
+        var row = document.createElement('label');
+        row.className = 'item' + (isDone ? ' done' : '');
+        var box = document.createElement('input');
+        box.type = 'checkbox';
+        box.checked = isDone;
+        box.onchange = function () { toggle(s.id, i, box); };
+        var span = document.createElement('span');
+        span.textContent = text;
+        row.appendChild(box);
+        row.appendChild(span);
+        items.appendChild(row);
+      });
+      sec.appendChild(head);
+      sec.appendChild(items);
+      list.appendChild(sec);
+    });
+    renderProgress();
+  }
+
+  // Gate: beta testers only
+  api('/auth/me').then(function (d) {
+    var user = d && d.user;
+    if (!user || !user.isBetaTester) {
+      document.getElementById('gate').style.display = 'block';
+      document.querySelector('header').style.display = 'none';
+      document.getElementById('list').style.display = 'none';
+      return;
+    }
+    return api('/checklist').then(function (data) {
+      state.sections = data.sections || [];
+      state.completed = data.completed || {};
+      render();
+    });
+  }).catch(function () {
+    document.getElementById('gate').style.display = 'block';
+  });
+})();
+</script>
+</body>
+</html>
