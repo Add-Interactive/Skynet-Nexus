@@ -78,7 +78,7 @@ Railway auto-redeploys
   ↓
 Live site updated: https://skynet-nexus-production.up.railway.app/
   ↓
-Repeat at 2:00 PM ET and 6:00 PM ET
+Repeat at 2:15 PM ET and 6:15 PM ET
 ```
 
 ## Files in Detail
@@ -134,7 +134,7 @@ Orchestrates story filing:
 **Usage (in a cron job or scheduler):**
 ```javascript
 const orch = require('./newsroom/agent-orchestrator');
-const drops = ['10:00 AM ET', '2:00 PM ET', '6:00 PM ET'];
+const drops = ['7:15 AM ET', '2:15 PM ET', '6:15 PM ET'];
 const results = await orch.spawnAllCorrespondents(drops);
 // results = { timestamp, spawned: 12, agents: [...] }
 ```
@@ -175,11 +175,11 @@ Live. The Gizmo Newsroom pipeline operates the full loop:
 
 - [x] **Agent spawning** — Gizmo's scheduler spawns one correspondent subagent per channel 1 hour before each drop (`newsroom/agent-orchestrator.js` defines prompts + validation)
 - [x] **Story filing** — drafts validated → `POST /api/newsroom/drafts` → `queued_stories` (status `draft`, stamped for the drop)
-- [x] **Image scraping** — `image-scraper.scrapeArticleImages()` runs after story creation
+- [x] **Image scraping (opt-in utility)** — `newsroom/image-scraper.js` extracts og:image / twitter:image / article images from source URLs via `scrapeArticleImages(article)`. It is NOT auto-run by the pipeline (hero art is AI-generated Nexus Glow); call it manually when you need source images for the media gallery.
 - [x] **Admin API routes** — `/api/admin/stories/queue`, `/api/admin/stories/scheduled`, etc.
 - [x] **Scheduler** — `releaseDue()` every 60s: releases scheduled stories, then auto-publishes unreviewed drafts stamped for the drop
 - [x] **Review Console** — `newsroom/dashboard.html`: approve / spike / notes per draft, grouped by edition
-- [x] **Cron** — three daily correspondent runs, one hour before each drop (10:15 AM / 2:15 PM / 6:15 PM ET)
+- [x] **Cron** — three daily correspondent runs, one hour before each drop (7:15 AM / 2:15 PM / 6:15 PM ET)
 
 See `newsroom/director.md` for the full runbook.
 
