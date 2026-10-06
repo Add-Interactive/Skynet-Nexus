@@ -965,6 +965,7 @@ const stmts = {
     LEFT JOIN kid_profiles k ON k.id = c.author_kid_id
     LEFT JOIN users u ON u.id = c.author_user_id
     WHERE c.article_id = ?
+      AND c.status != 'rejected'
       AND (c.status = 'approved'
            OR c.author_user_id = ?
            OR c.author_kid_id IN (SELECT id FROM kid_profiles WHERE user_id = ?))
