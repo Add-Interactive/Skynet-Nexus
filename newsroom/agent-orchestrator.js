@@ -25,8 +25,8 @@ const path = require('path');
 const fs = require('fs');
 const { AGENTS } = require('./agents-config');
 
-const DROP_TIMES_ET = ['10:15 AM', '2:15 PM', '6:15 PM'];
-const EDITIONS = { 10: 'morning', 14: 'midday', 18: 'evening' };
+const DROP_TIMES_ET = ['7:15 AM', '2:15 PM', '6:15 PM'];
+const EDITIONS = { 7: 'morning', 14: 'midday', 18: 'evening' };
 
 // The prompt template handed to each correspondent subagent.
 function generateAgentPrompt(agent, drops) {
@@ -171,6 +171,38 @@ function validateDraft(article) {
   return errors;
 }
 
+// ---- Glossary/source shape warnings (2026-10-06) ----
+// The Oct 6 "undefined" bug: glossary items arrived as {term, definition} while
+// the renderer expected {term, meaning}, and sources arrived as {title,
+// publisher, url} while the renderer expected {label, url}. The renderer now
+// falls back gracefully, so these are WARNINGS, not rejections — they flag
+// shape drift for the newsroom without blocking filing.
+function checkDraftShapes(article) {
+  const warnings = [];
+  const glossary = article.glossary;
+  if (Array.isArray(glossary)) {
+    glossary.forEach((g, i) => {
+      if (!g || typeof g !== 'object') { warnings.push(`glossary[${i}]: not an object`); return; }
+      if (!g.term) warnings.push(`glossary[${i}]: missing term`);
+      if (!g.definition && !g.meaning) {
+        warnings.push(`glossary[${i}] ("${g.term || '?'}"): has neither definition nor meaning — will render empty`);
+      }
+    });
+  }
+  const sources = article.sources;
+  if (Array.isArray(sources)) {
+    sources.forEach((s, i) => {
+      if (!s || typeof s !== 'object') { warnings.push(`sources[${i}]: not an object`); return; }
+      if (!s.label && !s.title && !s.url) {
+        warnings.push(`sources[${i}]: missing label/title/url — link will render empty`);
+      } else if (!s.url) {
+        warnings.push(`sources[${i}] ("${s.label || s.title || '?'}"): missing url`);
+      }
+    });
+  }
+  return warnings;
+}
+
 // ---- Drop-time helpers (America/New_York) ----
 
 function etParts(date = new Date()) {
@@ -198,14 +230,14 @@ function etDateToUtc(year, month, day, hour, minute = 0) {
 // The next drop instant strictly after `from`.
 function nextDrop(from = new Date()) {
   const p = etParts(from);
-  for (const h of [10, 14, 18]) {
+  for (const h of [7, 14, 18]) {
     const cand = etDateToUtc(p.year, p.month, p.day, h, 15);
     if (cand.getTime() > from.getTime()) return { at: cand, hour: h, edition: EDITIONS[h] };
   }
   const t = new Date(from.getTime() + 24 * 3600_000);
   const tp = etParts(t);
   const cand = etDateToUtc(tp.year, tp.month, tp.day, 10, 15);
-  return { at: cand, hour: 10, edition: EDITIONS[10] };
+  return { at: cand, hour: 7, edition: EDITIONS[7] };
 }
 
 // Correspondents file 60 minutes before the drop.
@@ -221,6 +253,7 @@ module.exports = {
   EDITIONS,
   generateAgentPrompt,
   validateDraft,
+  checkDraftShapes,
   nextDrop,
   agentSpawnTime
 };
