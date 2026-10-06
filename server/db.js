@@ -29,6 +29,12 @@ db.exec(`
 
 `);
 
+// User profile image fields (added 2026-10-05).
+for (const [col, type] of [['avatar_emoji', 'TEXT'], ['photo_url', 'TEXT']]) {
+  try { db.exec(`ALTER TABLE users ADD COLUMN ${col} ${type}`); }
+  catch (e) { /* already exists */ }
+}
+
 // Teacher public profile fields (added 2026-10-05).
 // ALTER TABLE guards: SQLite has no IF NOT EXISTS for columns.
 for (const [col, type] of [
@@ -768,7 +774,9 @@ const stmts = {
     UPDATE users
        SET display_name       = COALESCE(?, display_name),
            avatar_color       = COALESCE(?, avatar_color),
-           correspondent_style = COALESCE(?, correspondent_style)
+           correspondent_style = COALESCE(?, correspondent_style),
+           avatar_emoji       = COALESCE(?, avatar_emoji),
+           photo_url          = COALESCE(?, photo_url)
      WHERE id = ?
   `),
   changePassword: db.prepare(`UPDATE users SET password_hash = ? WHERE id = ?`),
@@ -1295,6 +1303,8 @@ function toPublicUser(row) {
     email: row.email,
     displayName: row.display_name,
     avatarColor: row.avatar_color,
+    avatarEmoji: row.avatar_emoji || null,
+    photoUrl: row.photo_url || null,
     role: row.role,
     roles: parseUserRoles(row),
     correspondentStyle: row.correspondent_style || 'human',
@@ -1335,6 +1345,8 @@ function toAdminUser(row) {
     email: row.email,
     displayName: row.display_name,
     avatarColor: row.avatar_color,
+    avatarEmoji: row.avatar_emoji || null,
+    photoUrl: row.photo_url || null,
     role: row.role,
     roles: parseUserRoles(row),
     createdAt: row.created_at,
@@ -1521,8 +1533,8 @@ module.exports = {
   findUserById(id) { return toPublicUser(stmts.findUserById.get(id)); },
   findUserRawById(id) { return stmts.findUserById.get(id); },
   updateLastLogin(id) { stmts.updateLastLogin.run(id); },
-  updateUser({ id, displayName, avatarColor, correspondentStyle }) {
-    stmts.updateUser.run(displayName ?? null, avatarColor ?? null, correspondentStyle ?? null, id);
+  updateUser({ id, displayName, avatarColor, correspondentStyle, avatarEmoji, photoUrl }) {
+    stmts.updateUser.run(displayName ?? null, avatarColor ?? null, correspondentStyle ?? null, avatarEmoji ?? null, photoUrl ?? null, id);
     return toPublicUser(stmts.findUserById.get(id));
   },
   changePassword(id, hash) { stmts.changePassword.run(hash, id); },
