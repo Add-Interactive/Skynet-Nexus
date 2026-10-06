@@ -107,8 +107,39 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
   function api(path, opts) {
     return fetch(path, Object.assign({ credentials: 'same-origin', headers: { 'Content-Type': 'application/json' } }, opts || {}))
-      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+      .then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (d) {
+          if (!r.ok) { var e = new Error('HTTP ' + r.status); e.status = r.status; e.data = d; e.consent_required = !!(d && d.consent_required); throw e; }
+          return d;
+        });
+      });
   }
+
+  // COPPA: verification banner shown when parent email is unverified.
+  function showVerifyBanner() {
+    if (document.getElementById('coppa-verify-banner')) return;
+    var b = document.createElement('div');
+    b.id = 'coppa-verify-banner';
+    b.style.cssText = 'background:rgba(255,184,0,.12);border:1px solid rgba(255,184,0,.4);border-radius:12px;padding:16px 20px;margin:0 0 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap';
+    b.innerHTML = '<span style="font-size:24px">📬</span>' +
+      '<div style="flex:1;min-width:200px"><strong>Verify your email</strong><br>' +
+      '<span style="font-size:13px;opacity:.8">Click the link we emailed you to unlock kid profiles.</span></div>' +
+      '<button class="btn" id="coppa-resend" style="white-space:nowrap">Resend email</button>';
+    var main = document.querySelector('.main') || document.body;
+    main.insertBefore(b, main.firstChild);
+    document.getElementById('coppa-resend').addEventListener('click', function () {
+      var btn = this; btn.disabled = true; btn.textContent = 'Sending…';
+      api('/api/consent/send-verification', { method: 'POST' }).then(function (d) {
+        btn.textContent = d.already_verified ? 'Already verified!' : 'Sent! Check your inbox.';
+        if (d.already_verified) setTimeout(function () { location.reload(); }, 1200);
+      }).catch(function () { btn.disabled = false; btn.textContent = 'Resend email'; alert('Could not send. Try again.'); });
+    });
+  }
+
+  // Check verification status on load; show banner if pending.
+  api('/api/consent/status').then(function (d) {
+    if (d && d.verified === false) showVerifyBanner();
+  }).catch(function () {});
 
   var AVATAR_COLORS = ['#00e5ff', '#a855f7', '#39ff14', '#ffb020', '#ff2e63', '#ff6b35'];
   var AVATAR_EMOJI = ['🦊', '🐱', '🐶', '🦁', '🐼', '🐸', '🦄', '🐙', '🚀', '⭐', '🎨', '⚽'];
@@ -233,6 +264,7 @@
       '<div style="display:flex;gap:10px;margin-top:20px">' +
       '<button class="btn" id="km-save" style="flex:1">' + (isEdit ? 'Save' : 'Add kid') + '</button>' +
       (isEdit ? '<button class="btn ghost" id="km-del" style="color:#ff2e63">Remove</button>' : '') +
+      (isEdit ? '<button class="btn ghost" id="km-wipe" style="color:#ffb800" title="Delete all of this kid\'s data (quiz answers, XP, comments, etc.)">Wipe data</button>' : '') +
       '<button class="btn ghost" id="km-cancel">Cancel</button></div></div>';
     document.body.appendChild(m);
     var selColor = kid.avatarColor || KID_COLORS[0], selEmoji = kid.avatarEmoji || KID_EMOJIS[0];
@@ -270,11 +302,28 @@
         // Save accessibility settings in background — don't block on it
         if (kidId) api('/api/kids/' + kidId + '/settings', { method: 'PUT', body: JSON.stringify(a11y) }).catch(function () {});
         location.reload();
-      }).catch(function () { alert('Could not save.'); });
+      }).catch(function (err) {
+        // COPPA: parent email not verified yet
+        if (err && err.consent_required) {
+          m.remove();
+          showVerifyBanner();
+          alert('Please verify your email before adding kid profiles. Check your inbox for the verification link.');
+        } else { alert('Could not save.'); }
+      });
     });
     if (isEdit) document.getElementById('km-del').addEventListener('click', function () {
       if (!confirm('Remove ' + kid.name + '?')) return;
       api('/api/kids/' + kid.id, { method: 'DELETE' }).then(function () { m.remove(); location.reload(); }).catch(function () { alert('Could not remove.'); });
+    });
+    if (isEdit) document.getElementById('km-wipe').addEventListener('click', function () {
+      var typed = prompt('Type "' + kid.name + '" to permanently delete all of their data (quiz answers, XP, reactions, comments, questions, chat messages, creations). This cannot be undone.');
+      if (typed !== kid.name) { if (typed !== null) alert('Names did not match. Nothing was deleted.'); return; }
+      api('/api/kids/' + kid.id + '/data', { method: 'DELETE' }).then(function (d) {
+        var s = d.deleted || {};
+        var total = Object.values(s).reduce(function (a, b) { return a + b; }, 0);
+        alert('Deleted ' + total + ' records for ' + kid.name + '.');
+        m.remove(); location.reload();
+      }).catch(function () { alert('Could not delete kid data.'); });
     });
   }
   var CHANNELS = ['ai','space','robotics','biotech','quantum','climate','engineering','math','cyber','gaming','music','stem','play'];

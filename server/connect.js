@@ -5,6 +5,11 @@ try { notifyFn = require('./notifications').notify; } catch (e) { /* notificatio
 function registerConnect(api, requireAuth, requireTeacher) {
   const { db } = require('./db');
 
+  // COPPA consent module — mounted here (before index.js defines POST /kids)
+  // so its api.use() gates run before the route handlers.
+  try { require('./consent').registerConsent(api, { db, requireAuth }); }
+  catch (e) { console.warn('[connect] consent module failed:', e.message); }
+
   // ---------- 1. PARENT-TEACHER MESSAGING ----------
   // GET /api/pt/threads — my threads (as parent or teacher)
   api.get('/pt/threads', requireAuth, (req, res) => {
