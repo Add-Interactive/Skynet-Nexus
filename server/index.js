@@ -1453,7 +1453,7 @@ api.get('/kids/:id/dashboard', requireAuth, (req, res) => {
       JOIN users u ON u.id = fm.user_id JOIN families f ON f.id = fm.family_id WHERE f.name = ?`).all(fam.name) : [];
     // Classrooms
     const classes = db.prepare(`SELECT c.id, c.name, u.display_name as teacher FROM classroom_students cs
-      JOIN classrooms c ON c.id = cs.classroom_id JOIN users u ON u.id = c.teacher_id WHERE cs.kid_id = ?`).all(kid.id);
+      JOIN classrooms c ON c.id = cs.classroom_id JOIN users u ON u.id = c.user_id WHERE cs.kid_id = ?`).all(kid.id);
     // Weekend Lab / STEM activities
     let activities = [];
     try { activities = db.prepare('SELECT * FROM lab_signups WHERE kid_id = ? ORDER BY created_at DESC LIMIT 10').all(kid.id); } catch (e) {}
@@ -1539,7 +1539,7 @@ api.get('/kids/:id/comments', requireAuth, (req, res) => {
     const rows = db.prepare(`SELECT r.id, r.body, r.created_at, d.title as discussion_title, d.id as discussion_id,
       d.article_id, d.article_cat FROM discussion_replies r JOIN discussions d ON d.id = r.discussion_id
       WHERE r.author_kid_id = ? ORDER BY r.created_at DESC LIMIT 100`).all(kid.id);
-    const qs = db.prepare(`SELECT id, question, answer, status, created_at, article_slug FROM correspondent_questions
+    const qs = db.prepare(`SELECT id, question, answer, status, created_at, channel FROM correspondent_questions
       WHERE kid_id = ? ORDER BY created_at DESC LIMIT 100`).all(kid.id);
     res.json({ replies: rows, questions: qs });
   } catch (e) { res.status(500).json({ error: 'failed: ' + e.message }); }
