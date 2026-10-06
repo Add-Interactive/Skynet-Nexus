@@ -56,7 +56,7 @@ function registerConnect(api, requireAuth, requireTeacher) {
   api.get('/pt/teachers', requireAuth, (req, res) => {
     try {
       const rows = db.prepare(`SELECT DISTINCT u.id, u.display_name, k.id as kid_id, k.name as kid_name
-        FROM classroom_members cm
+        FROM classroom_students cm
         JOIN kid_profiles k ON k.id = cm.kid_id AND k.user_id = ?
         JOIN classrooms c ON c.id = cm.classroom_id
         JOIN users u ON u.id = c.user_id`).all(req.user.id);
@@ -69,7 +69,7 @@ function registerConnect(api, requireAuth, requireTeacher) {
     try {
       const k = db.prepare('SELECT id FROM kid_profiles WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
       if (!k) return res.status(403).json({ error: 'not your kid' });
-      const rows = db.prepare(`SELECT c.id, c.name FROM classroom_members cm
+      const rows = db.prepare(`SELECT c.id, c.name FROM classroom_students cm
         JOIN classrooms c ON c.id = cm.classroom_id WHERE cm.kid_id = ?`).all(req.params.id);
       res.json({ classrooms: rows });
     } catch (e) { res.status(500).json({ error: 'failed' }); }
@@ -82,7 +82,7 @@ function registerConnect(api, requireAuth, requireTeacher) {
       const cls = db.prepare('SELECT user_id FROM classrooms WHERE id = ?').get(req.params.id);
       if (!cls) return res.status(404).json({ error: 'not found' });
       const okTeacher = cls.user_id === req.user.id;
-      const okParent = db.prepare(`SELECT 1 FROM classroom_members cm JOIN kid_profiles k ON k.id = cm.kid_id
+      const okParent = db.prepare(`SELECT 1 FROM classroom_students cm JOIN kid_profiles k ON k.id = cm.kid_id
         WHERE cm.classroom_id = ? AND k.user_id = ?`).get(req.params.id, req.user.id);
       if (!okTeacher && !okParent) return res.status(403).json({ error: 'not enrolled' });
       const rows = db.prepare(`SELECT a.*, u.display_name as teacher_name FROM announcements a
