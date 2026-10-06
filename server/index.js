@@ -155,6 +155,7 @@ const { registerChat, syncChatMembers } = require('./chat');
 registerChat(api, requireAuth, requireTeacher);
 const { registerPlus, isQuietNow } = require('./plus');
 registerPlus(api, requireAuth, requireTeacher);
+try { require('./debug').registerDebug(api); } catch (e) { console.error('[debug] register failed:', e.message); }
 const { registerConnect } = require('./connect');
 registerConnect(api, requireAuth, requireTeacher);
 
