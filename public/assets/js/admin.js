@@ -148,7 +148,7 @@
     var editId = params.get('editStoryId');
     if (editId) {
       navTo('published');
-      api('/stories/queue?status=published&limit=100').then(function (r) {
+      api('/admin/stories/queue?status=published&limit=100').then(function (r) {
         var story = (r.stories || []).find(function (s) { return s.id === Number(editId); });
         if (story) {
           editPublishedStory(story);
