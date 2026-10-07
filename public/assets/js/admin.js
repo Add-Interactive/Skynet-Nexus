@@ -2313,6 +2313,117 @@
     load();
   };
 
+  // ===== Console (admin quick actions + API explorer) =====
+  Views.console = function () {
+    main.innerHTML = '';
+    main.appendChild(h('<div class="admin-view-head"><h1>🔧 Console</h1><p>Quick admin actions and raw API access — same session, no devtools needed.</p></div>'));
+
+    // ---- Section 1: Quick Article Update ----
+    var sec1 = h(
+      '<section class="admin-card" style="margin-bottom:20px">' +
+        '<h2 style="margin-top:0">Quick Article Update</h2>' +
+        '<p class="hint" style="color:var(--text-mute);font-size:.8rem">Replace a published article\'s content. Only filled fields are sent (PATCH /api/admin/articles/:slug).</p>' +
+        '<div class="admin-form">' +
+          '<label>Article slug<input id="cu-slug" class="admin-input" placeholder="this-middle-schooler-s-longer-lasting-antacid…" /></label>' +
+          '<div class="admin-form-row">' +
+            '<label>Title<input id="cu-title" class="admin-input" /></label>' +
+            '<label>Subtitle<input id="cu-subtitle" class="admin-input" /></label>' +
+          '</div>' +
+          '<label>Excerpt<textarea id="cu-excerpt" rows="2"></textarea></label>' +
+          '<label>Hero image path<input id="cu-hero" class="admin-input" placeholder="/assets/img/channels/stem/…" /></label>' +
+          '<label>Body HTML<textarea id="cu-body" rows="8" style="font-family:monospace;font-size:.8rem"></textarea></label>' +
+          '<label>Kid take<textarea id="cu-kidtake" rows="3"></textarea></label>' +
+          '<div><button class="admin-btn admin-btn-primary" id="cu-go">Update Article</button></div>' +
+          '<pre id="cu-result" class="admin-console-result" hidden></pre>' +
+        '</div>' +
+      '</section>'
+    );
+    main.appendChild(sec1);
+
+    sec1.querySelector('#cu-go').addEventListener('click', function () {
+      var slug = sec1.querySelector('#cu-slug').value.trim();
+      var out = sec1.querySelector('#cu-result');
+      if (!slug) { toast('Enter an article slug first', true); return; }
+      var body = {};
+      var map = { 'cu-title': 'title', 'cu-subtitle': 'subtitle', 'cu-excerpt': 'excerpt', 'cu-hero': 'heroImage', 'cu-body': 'body', 'cu-kidtake': 'kidTake' };
+      Object.keys(map).forEach(function (id) {
+        var v = sec1.querySelector('#' + id).value.trim();
+        if (v) body[map[id]] = v;
+      });
+      if (!Object.keys(body).length) { toast('Fill at least one field to update', true); return; }
+      out.hidden = false;
+      out.textContent = 'Sending PATCH…';
+      api('/admin/articles/' + encodeURIComponent(slug), { method: 'PATCH', body: body })
+        .then(function (r) {
+          out.textContent = 'OK — article updated.\n' + JSON.stringify(r, null, 2).slice(0, 2000);
+          toast('Article updated');
+        })
+        .catch(function (e) {
+          out.textContent = 'ERROR (' + (e.status || '?') + '): ' + e.message;
+          toast(e.message, true);
+        });
+    });
+
+    // ---- Section 2: API Explorer ----
+    var sec2 = h(
+      '<section class="admin-card">' +
+        '<h2 style="margin-top:0">API Explorer</h2>' +
+        '<p class="hint" style="color:var(--text-mute);font-size:.8rem">Send any admin API request with your current session.</p>' +
+        '<div class="admin-form">' +
+          '<div class="admin-form-row">' +
+            '<label>Method<select id="ax-method">' +
+              '<option>GET</option><option>POST</option><option selected>PATCH</option><option>PUT</option><option>DELETE</option>' +
+            '</select></label>' +
+            '<label>API path<input id="ax-path" class="admin-input" placeholder="/api/admin/articles/some-slug" /></label>' +
+          '</div>' +
+          '<label>JSON request body (for POST / PATCH / PUT)<textarea id="ax-body" rows="6" style="font-family:monospace;font-size:.8rem" placeholder=\'{"title": "New title"}\'></textarea></label>' +
+          '<div><button class="admin-btn admin-btn-primary" id="ax-go">Execute</button></div>' +
+          '<div id="ax-status" style="font-weight:600;font-size:.85rem" hidden></div>' +
+          '<pre id="ax-result" class="admin-console-result" hidden></pre>' +
+        '</div>' +
+      '</section>'
+    );
+    main.appendChild(sec2);
+
+    sec2.querySelector('#ax-go').addEventListener('click', function () {
+      var method = sec2.querySelector('#ax-method').value;
+      var path = sec2.querySelector('#ax-path').value.trim();
+      var bodyText = sec2.querySelector('#ax-body').value.trim();
+      var statusEl = sec2.querySelector('#ax-status');
+      var out = sec2.querySelector('#ax-result');
+      if (!path) { toast('Enter an API path', true); return; }
+      if (path.charAt(0) !== '/') path = '/' + path;
+      var opts = { method: method };
+      if (bodyText && method !== 'GET' && method !== 'DELETE') {
+        try { opts.body = JSON.parse(bodyText); }
+        catch (e) { toast('Request body is not valid JSON: ' + e.message, true); return; }
+      }
+      statusEl.hidden = false;
+      statusEl.textContent = method + ' ' + path + ' …';
+      out.hidden = false;
+      out.textContent = 'Sending…';
+      // Raw fetch so we can show the real HTTP status even on errors
+      fetch(API + path.replace(/^\/api/, ''), {
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        method: method,
+        body: opts.body != null ? JSON.stringify(opts.body) : undefined
+      }).then(function (res) {
+        statusEl.textContent = method + ' ' + path + ' → HTTP ' + res.status;
+        statusEl.style.color = res.ok ? 'var(--ok, #4ade80)' : 'var(--err, #f87171)';
+        return res.text().then(function (t) {
+          var pretty = t;
+          try { pretty = JSON.stringify(JSON.parse(t), null, 2); } catch (e) {}
+          out.textContent = pretty.slice(0, 8000);
+        });
+      }).catch(function (e) {
+        statusEl.textContent = 'Network error';
+        statusEl.style.color = 'var(--err, #f87171)';
+        out.textContent = String(e && e.message || e);
+      });
+    });
+  };
+
   // ---------- Shared helpers ----------
   function ensureStaff() {
     if (State.staff && State.staff.length) return Promise.resolve(State.staff);
