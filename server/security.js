@@ -219,7 +219,7 @@ function registerSecurityRoutes(router, ctx) {
     }
     const list = blockIp(ip, reason, req.adminUser && req.adminUser.id);
     logSecurityEvent('ip_blocked', req, { ip, reason });
-    try { logAction(req.adminUser.id, 'security.block_ip', 'ip', ip, { reason }); } catch (e) {}
+    try { logAction(req.adminUser.id, 'security.block_ip', 'ip', ip, { reason }, getClientIp(req)); } catch (e) {}
     res.json({ ok: true, ips: list });
   });
 
@@ -229,7 +229,7 @@ function registerSecurityRoutes(router, ctx) {
     if (!ip) return res.status(400).json({ error: 'IP required.' });
     const list = unblockIp(ip);
     logSecurityEvent('ip_unblocked', req, { ip });
-    try { logAction(req.adminUser.id, 'security.unblock_ip', 'ip', ip, {}); } catch (e) {}
+    try { logAction(req.adminUser.id, 'security.unblock_ip', 'ip', ip, {}, getClientIp(req)); } catch (e) {}
     res.json({ ok: true, ips: list });
   });
 

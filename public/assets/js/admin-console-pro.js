@@ -211,6 +211,54 @@
     return { el: sec, check: check };
   }
 
+  function buildAuditLog() {
+    var sec = h(
+      '<section class="admin-card" style="margin-bottom:20px">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between">' +
+          '<h2 style="margin:0">📋 Audit Log</h2>' +
+          '<button class="admin-btn admin-btn-sm">↻ Refresh</button>' +
+        '</div>' +
+        '<p class="hint" style="color:var(--text-mute);font-size:.8rem">Recent admin actions — who did what, when, from where.</p>' +
+        '<table class="console-health-table"><thead><tr><th>Time</th><th>Admin</th><th>Action</th><th>Target</th><th>IP</th></tr></thead>' +
+        '<tbody><tr><td colspan="5" style="text-align:center;color:var(--text-mute)">Loading…</td></tr></tbody></table>' +
+      '</section>'
+    );
+    var tbody = sec.querySelector('tbody');
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+    function load(showToast) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-mute)">Loading…</td></tr>';
+      capi('/admin/actions?limit=50').then(function (d) {
+        var rows = (d && d.actions) || [];
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-mute)">No admin actions recorded yet.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = '';
+        rows.forEach(function (a) {
+          var tr = document.createElement('tr');
+          var when = a.createdAt ? new Date(a.createdAt + 'Z').toLocaleString() : '—';
+          var who = esc(a.userEmail || a.userDisplayName || ('#' + a.userId));
+          var target = esc((a.targetKind || '') + (a.targetId ? ':' + a.targetId : ''));
+          tr.innerHTML = '<td><small>' + esc(when) + '</small></td>' +
+            '<td><small>' + who + '</small></td>' +
+            '<td><code>' + esc(a.action) + '</code></td>' +
+            '<td><small>' + target + '</small></td>' +
+            '<td><small>' + esc(a.ipAddress || '—') + '</small></td>';
+          tbody.appendChild(tr);
+        });
+        if (showToast) toast('Audit log refreshed');
+      }).catch(function (e) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-mute)">Error: ' + esc(e.message) + '</td></tr>';
+      });
+    }
+    sec.querySelector('button').addEventListener('click', function () { load(true); });
+    return { el: sec, load: load };
+  }
+
   // Observe the main content area; inject when the Console view renders.
   // Reset the flag when navigating away so re-visiting the tab re-injects.
   function tryInject() {
@@ -222,9 +270,12 @@
     if (injected && main.querySelector('.console-task-grid')) return;
     injected = true;
     var hb = buildHealthBoard();
+    var al = buildAuditLog();
     main.insertBefore(buildTaskRunner(), main.firstChild);
     main.insertBefore(hb.el, main.children[1]);
+    main.insertBefore(al.el, main.children[2]);
     hb.check(false);
+    al.load(false);
   }
 
   // Watch for view changes

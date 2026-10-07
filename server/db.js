@@ -562,6 +562,10 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_security_events_ip ON security_events(ip);
 `);
 
+// Admin audit log: track IP address for accountability (added 2026-10-07).
+try { db.exec(`ALTER TABLE admin_actions ADD COLUMN ip_address TEXT`); }
+catch (e) { /* already exists */ }
+
 // ---------- Idempotent additive migrations (safe to run every boot) ----------
 function _hasColumn(table, col) {
   try {
@@ -1223,8 +1227,8 @@ const stmts = {
   listAgentMessages: db.prepare(`SELECT * FROM agent_messages WHERE staff_id = ? ORDER BY id ASC LIMIT ? OFFSET ?`),
 
   createAdminAction: db.prepare(`
-    INSERT INTO admin_actions (user_id, action, target_kind, target_id, meta)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO admin_actions (user_id, action, target_kind, target_id, meta, ip_address)
+    VALUES (?, ?, ?, ?, ?, ?)
   `),
   listAdminActions: db.prepare(`SELECT a.*, u.email AS user_email, u.display_name AS user_display_name FROM admin_actions a JOIN users u ON u.id = a.user_id ORDER BY a.id DESC LIMIT ? OFFSET ?`),
 
@@ -1425,6 +1429,7 @@ function toPublicAdminAction(row) {
     targetKind: row.target_kind,
     targetId: row.target_id,
     meta: parsedMeta,
+    ipAddress: row.ip_address || null,
     createdAt: row.created_at
   };
 }
@@ -2563,11 +2568,12 @@ module.exports = {
     return stmts.listAgentMessages.all(staffId, limit, offset).map(toPublicAgentMessage);
   },
 
-  createAdminAction({ userId, action, targetKind, targetId, meta }) {
+  createAdminAction({ userId, action, targetKind, targetId, meta, ipAddress }) {
     stmts.createAdminAction.run(
       userId, action, targetKind ?? null,
       targetId != null ? String(targetId) : null,
-      meta ? JSON.stringify(meta) : null
+      meta ? JSON.stringify(meta) : null,
+      ipAddress || null
     );
   },
   listAdminActions({ limit = 100, offset = 0 } = {}) {

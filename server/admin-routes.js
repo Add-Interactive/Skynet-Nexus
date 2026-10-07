@@ -51,9 +51,16 @@ function requireFullAdmin(req, res, next) {
   next();
 }
 
-function logAction(userId, action, targetKind, targetId, meta) {
-  try { db.createAdminAction({ userId, action, targetKind, targetId, meta }); }
+function logAction(userId, action, targetKind, targetId, meta, ipAddress) {
+  try { db.createAdminAction({ userId, action, targetKind, targetId, meta, ipAddress }); }
   catch (e) { console.warn('[admin] audit log failed:', e.message); }
+}
+
+function clientIp(req) {
+  const fwd = req.headers['x-forwarded-for'];
+  if (fwd) return String(fwd).split(',')[0].trim();
+  const ra = req.socket && req.socket.remoteAddress;
+  return (ra || 'unknown').toString().trim();
 }
 
 // Read the manifest safely.
@@ -1418,7 +1425,7 @@ router.patch('/articles/:slug', (req, res) => {
     articles[index] = Object.assign({}, entry, update);
     fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
 
-    logAction(req.adminUser.id, 'article.edit', 'article', entry.id, { fields: Object.keys(update) });
+    logAction(req.adminUser.id, 'article.edit', 'article', entry.id, { fields: Object.keys(update) }, clientIp(req));
     res.json({ ok: true, id: entry.id, slug: entry.slug });
   } catch (err) {
     res.status(500).json({ error: err.message });
