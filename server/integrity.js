@@ -25,7 +25,7 @@ const MONITORED_FILES = [
   'public/pages/admin.html',
   'public/assets/js/admin.js',
   'public/assets/js/app.js',
-  'public/assets/js/admin-security.js'
+  'public/assets/js/admin-security-team.js'
 ];
 
 const BASELINE_PATH = path.join(DATA_DIR, 'integrity-baseline.json');
@@ -144,3 +144,4 @@ module.exports = {
   rebaseline,
   registerIntegrityRoutes
 };
+

@@ -140,6 +140,11 @@ async function bootstrapHandler(req, res) {
   res.status(201).json({ ok: true, user: db.findUserById(user.id) });
 }
 
+// NEXUS SHIELD Security Team — patrol agent ingestion (machine-to-machine).
+// Key-guarded via NEWSROOM_API_KEY (x-newsroom-key), registered BEFORE
+// requireAdminRole so Gizmo's patrol agents can POST without a session.
+require('./security-team').registerPatrolRoutes(router);
+
 router.use(requireAdminRole);
 
 // -------------------- DASHBOARD --------------------
@@ -1569,3 +1574,4 @@ security.registerSecurityRoutes(router, { requireFullAdmin, logAction });
 threatIntel.registerThreatIntelRoutes(router, { requireFullAdmin, logAction });
 
 module.exports = router;
+
