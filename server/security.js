@@ -13,10 +13,13 @@
 //   scan_detected      rapid 404s from one IP (probable path scanning)
 //   ip_blocked         admin added an IP to the blocklist
 //   ip_unblocked       admin removed an IP from the blocklist
+//   integrity_violation monitored file changed/missing vs baseline
+//   integrity_rebaseline admin saved a new integrity baseline
 
 const path = require('path');
 const fs = require('fs');
 const { DATA_DIR } = require('./storage');
+const integrity = require('./integrity');
 
 // ---------------------------------------------------------------------------
 // Client IP
@@ -229,6 +232,9 @@ function registerSecurityRoutes(router, ctx) {
     try { logAction(req.adminUser.id, 'security.unblock_ip', 'ip', ip, {}); } catch (e) {}
     res.json({ ok: true, ips: list });
   });
+
+  // File integrity monitoring routes (server/integrity.js)
+  integrity.registerIntegrityRoutes(router, ctx);
 }
 
 module.exports = {
