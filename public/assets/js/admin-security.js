@@ -163,6 +163,15 @@
           '</div>' +
           '<div id="shield-blocklist" class="shield-blocklist"><div class="shield-empty">Loading blocklist…</div></div>' +
         '</section>' +
+
+        '<section class="shield-panel">' +
+          '<div class="shield-feed-head">' +
+            '<h2><span class="shield-pulse-dot"></span>FILE INTEGRITY</h2>' +
+            '<button class="shield-btn shield-btn-xs" id="shield-rebaseline">RE-BASELINE</button>' +
+          '</div>' +
+          '<div id="shield-integrity-status" class="shield-integrity-status"><div class="shield-empty">Verifying file checksums…</div></div>' +
+          '<div id="shield-integrity-files" class="shield-integrity-files"></div>' +
+        '</section>' +
       '</div>'
     );
     main.appendChild(root);
@@ -178,7 +187,9 @@
       blocked_ip: { label: 'BLOCKED_IP', cls: 'ev-danger' },
       scan_detected: { label: 'SCAN', cls: 'ev-danger' },
       ip_blocked: { label: 'IP_BLOCKED', cls: 'ev-ok' },
-      ip_unblocked: { label: 'IP_UNBLOCKED', cls: 'ev-info' }
+      ip_unblocked: { label: 'IP_UNBLOCKED', cls: 'ev-info' },
+      integrity_violation: { label: 'INTEGRITY', cls: 'ev-danger' },
+      integrity_rebaseline: { label: 'REBASELINE', cls: 'ev-info' }
     };
 
     function fmtTime(iso) {
@@ -272,6 +283,45 @@
         });
       }).catch(function () {});
     }
+    function loadIntegrity() {
+      return api('/admin/security/integrity').then(function (r) {
+        if (!active) return;
+        var statusEl = document.getElementById('shield-integrity-status');
+        var filesEl = document.getElementById('shield-integrity-files');
+        if (!statusEl || !filesEl) return;
+        var files = r.files || [];
+        var bad = files.filter(function (f) { return f.status !== 'ok'; });
+        if (r.baselineCreated) {
+          statusEl.innerHTML = '<div class="shield-integrity-banner int-warn">⚠ BASELINE CREATED — ' +
+            files.length + ' files fingerprinted. Future changes will raise alerts.</div>';
+        } else if (r.ok) {
+          statusEl.innerHTML = '<div class="shield-integrity-banner int-ok">✓ ALL FILES VERIFIED — ' +
+            files.length + ' checksums match baseline.</div>';
+        } else {
+          statusEl.innerHTML = '<div class="shield-integrity-banner int-bad">⛔ ' + bad.length +
+            ' OF ' + files.length + ' FILES CHANGED — possible tampering, investigate now.</div>';
+        }
+        filesEl.innerHTML = files.map(function (f) {
+          var badge = f.status === 'ok'
+            ? '<span class="int-badge int-ok">VERIFIED</span>'
+            : f.status === 'missing'
+              ? '<span class="int-badge int-bad">MISSING</span>'
+              : f.status === 'new'
+                ? '<span class="int-badge int-warn">NEW</span>'
+                : '<span class="int-badge int-bad">CHANGED</span>';
+          return '<div class="shield-iprow"><code>' + escHtml(f.path) + '</code>' + badge + '</div>';
+        }).join('');
+      }).catch(function () {
+        var statusEl = document.getElementById('shield-integrity-status');
+        if (statusEl) statusEl.innerHTML = '<div class="shield-empty">Integrity check unavailable.</div>';
+      });
+    }
+    function rebaseline() {
+      if (!window.confirm('Re-baseline file integrity?\n\nThis fingerprints all monitored files as the new trusted state. Only do this right after a legitimate deploy.')) return;
+      api('/admin/security/integrity/rebaseline', { method: 'POST' })
+        .then(function (r) { toast('Baseline updated — ' + r.files + ' files fingerprinted'); loadIntegrity(); })
+        .catch(function (e) { toast(e.message, true); });
+    }
     function refreshAll(withSweep) {
       if (withSweep) {
         var sw = document.getElementById('shield-sweep');
@@ -286,6 +336,7 @@
       loadSummary();
       loadEvents();
       loadBlocklist();
+      loadIntegrity();
     }
     function blockIp(ip, reason) {
       if (!ip) { toast('Enter an IP address', true); return; }
@@ -305,6 +356,8 @@
         document.getElementById('shield-reason').value.trim()
       );
     });
+    var rebaseBtn = document.getElementById('shield-rebaseline');
+    if (rebaseBtn) rebaseBtn.addEventListener('click', rebaseline);
     document.getElementById('shield-filters').addEventListener('click', function (e) {
       var b = e.target.closest('.shield-filter');
       if (!b) return;
