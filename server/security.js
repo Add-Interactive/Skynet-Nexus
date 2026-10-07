@@ -235,6 +235,10 @@ function registerSecurityRoutes(router, ctx) {
 
   // File integrity monitoring routes (server/integrity.js)
   integrity.registerIntegrityRoutes(router, ctx);
+
+  // NEXUS SHIELD Security Team — patrol reports, team chat, tickets
+  // (server/security-team.js). Same admin router + ctx.
+  require('./security-team').registerSecurityTeamRoutes(router, ctx);
 }
 
 module.exports = {
@@ -249,3 +253,4 @@ module.exports = {
   threatLevel,
   registerSecurityRoutes
 };
+
