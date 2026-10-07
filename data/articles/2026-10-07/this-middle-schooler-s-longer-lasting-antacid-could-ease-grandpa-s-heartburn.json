@@ -1,0 +1,44 @@
+{
+  "ageBand": "8+",
+  "author": "Nova Sterling",
+  "authorInit": "NS",
+  "authorRole": "STEM Correspondent",
+  "body": "<p>Imagine asking your computer a tricky homework question and getting an answer in seconds — without the computer ever talking to the internet. That future just got a lot closer.</p><p>Today in San Francisco, two of the biggest names in technology — Microsoft and NVIDIA — held a joint event to unveil a new kind of personal computer. The star of the show is called <strong>RTX Spark</strong>, a chip designed to run artificial intelligence programs directly on your desk instead of sending your questions off to a giant data center far away.</p><p>Both companies' top leaders took the stage together: Microsoft's Satya Nadella and NVIDIA's Jensen Huang. That almost never happens — it's like the captains of two rival soccer teams coaching one game together.</p><h2>What makes it special?</h2><p>A regular computer chip is like a good all-around athlete. The RTX Spark is more like a specialist trained for one big job: thinking. It packs a 20-core processor (the part that does general computing) together with a powerful graphics unit originally designed for video games — but now repurposed to run AI programs. It can hold up to 128 gigabytes of unified memory, which is like giving it a gigantic desk to spread out its work.</p><p>NVIDIA says the chip can perform up to one <em>petaflop</em> of AI calculations. A flop is a single math operation, so one petaflop means one <em>quadrillion</em> operations every second. That's a 1 followed by 15 zeros — per second.</p><h2>Why run AI at home?</h2><p>Most AI helpers today — the kind that write essays or answer questions — actually live in massive buildings full of computers called data centers. Your question travels over the internet, gets answered far away, and travels back. Running AI on your own computer means faster answers, more privacy (your questions never leave your desk), and it works even if your internet is slow.</p><p>One honest note for curious minds: while Microsoft and NVIDIA are American companies and designed these chips in the United States, the actual silicon is manufactured by a company called TSMC in Taiwan. Making chips is so specialized that only a few factories in the world can do it.</p><h2>What's coming next?</h2><p>Computer makers are already lining up. ASUS will show its RTX Spark laptop tomorrow, and companies like Lenovo and Acer have systems on the way. NVIDIA also announced a tiny desktop version called the DGX Spark — about the size of a thick book — launching October 23.</p><p>The bigger idea? Computers that don't just follow instructions but can actually help you think. Your desk might be about to get a whole lot smarter.</p>",
+  "cat": "stem",
+  "categoryLabel": "STEM",
+  "date": "2026-10-07",
+  "edition": "morning",
+  "emoji": "💻",
+  "excerpt": "Microsoft and NVIDIA teamed up to show off new computers that run artificial intelligence right on your desk — no internet supercomputer required.",
+  "familyDiscussion": [
+    "If your computer could answer questions without the internet, what would you ask it first?",
+    "Why do you think it's important that the article mentions where the chips are actually made?"
+  ],
+  "glossary": [
+    {
+      "term": "petaflop",
+      "definition": "One quadrillion (1,000,000,000,000,000) math operations per second — a measure of how fast a computer chip can think."
+    },
+    {
+      "term": "unified memory",
+      "definition": "Memory shared between the processor and graphics unit, so they can work together without waiting."
+    },
+    {
+      "term": "data center",
+      "definition": "A giant building full of computers that runs websites and AI programs for people over the internet."
+    }
+  ],
+  "id": "2026-10-07-this-middle-schooler-s-longer-lasting-antacid-could-ease-grandpa-s-heartburn",
+  "kidTake": "Two huge tech companies joined forces to build a computer chip that can run super-smart AI programs right on your desk — no internet needed! It's like giving your computer its own brain instead of borrowing one far away. The bosses of both companies shared a stage, which almost never happens.",
+  "slug": "this-middle-schooler-s-longer-lasting-antacid-could-ease-grandpa-s-heartburn",
+  "subtitle": "The new RTX Spark computers can run AI helpers without the cloud",
+  "tags": [
+    "computers",
+    "AI",
+    "Microsoft",
+    "NVIDIA",
+    "hardware"
+  ],
+  "title": "Your Next Computer Might Think: Microsoft and NVIDIA Unveil AI PCs That Run Smart Software Right on Your Desk",
+  "heroImage": "/assets/img/channels/stem/2026-10-07-agent-stem-morning-rtx-spark.jpg"
+}
