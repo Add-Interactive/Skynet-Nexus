@@ -10,6 +10,7 @@ const express = require('express');
 const db = require('./db');
 const { hashPassword, isValidPassword, isValidDisplayName, isValidEmail } = require('./auth');
 const { DATA_DIR } = require('./storage');
+const security = require('./security');
 
 const ROOT = path.resolve(__dirname, '..');
 const TMP_DIR = path.join(ROOT, '.tmp');
@@ -1552,5 +1553,8 @@ router.post('/correspondents/:slug/portrait', (req, res) => {
     res.status(500).json({ error: 'portrait upload failed: ' + e.message });
   }
 });
+
+// -------------- NEXUS SHIELD security monitor --------------
+security.registerSecurityRoutes(router, { requireFullAdmin, logAction });
 
 module.exports = router;

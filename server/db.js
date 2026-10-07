@@ -547,6 +547,19 @@ db.exec(`
 
   CREATE INDEX IF NOT EXISTS idx_social_platform_status ON social_drafts(platform, status);
   CREATE INDEX IF NOT EXISTS idx_social_drop ON social_drafts(drop_key);
+
+  CREATE TABLE IF NOT EXISTS security_events (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_type TEXT NOT NULL,
+    ip         TEXT,
+    user_id    INTEGER,
+    details    TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_security_events_type ON security_events(event_type);
+  CREATE INDEX IF NOT EXISTS idx_security_events_created ON security_events(created_at);
+  CREATE INDEX IF NOT EXISTS idx_security_events_ip ON security_events(ip);
 `);
 
 // ---------- Idempotent additive migrations (safe to run every boot) ----------
@@ -1231,7 +1244,44 @@ const stmts = {
     SELECT COUNT(*) AS n FROM users u
      WHERE lower(u.email) LIKE ? OR lower(u.display_name) LIKE ?`),
   countAdmins: db.prepare(`SELECT COUNT(*) AS n FROM users WHERE role = 'admin' OR roles LIKE '%"admin"%'`),
-  setAdminNotes: db.prepare(`UPDATE users SET admin_notes = ? WHERE id = ?`)
+  setAdminNotes: db.prepare(`UPDATE users SET admin_notes = ? WHERE id = ?`),
+
+  // ---------- NEXUS SHIELD security events ----------
+  insertSecurityEvent: db.prepare(`
+    INSERT INTO security_events (event_type, ip, user_id, details)
+    VALUES (?, ?, ?, ?)
+  `),
+  listSecurityEvents: db.prepare(`
+    SELECT id, event_type, ip, user_id, details, created_at
+      FROM security_events
+     WHERE (? IS NULL OR event_type = ?)
+     ORDER BY id DESC
+     LIMIT ? OFFSET ?
+  `),
+  securityCounts24h: db.prepare(`
+    SELECT event_type, COUNT(*) AS n
+      FROM security_events
+     WHERE created_at >= datetime('now', '-24 hours')
+     GROUP BY event_type
+  `),
+  securityCounts1h: db.prepare(`
+    SELECT event_type, COUNT(*) AS n
+      FROM security_events
+     WHERE created_at >= datetime('now', '-1 hour')
+     GROUP BY event_type
+  `),
+  securityTopIps: db.prepare(`
+    SELECT ip, COUNT(*) AS n
+      FROM security_events
+     WHERE created_at >= datetime('now', '-24 hours')
+       AND ip IS NOT NULL
+     GROUP BY ip
+     ORDER BY n DESC
+     LIMIT 10
+  `),
+  pruneSecurityEvents: db.prepare(`
+    DELETE FROM security_events WHERE created_at < datetime('now', '-30 days')
+  `)
 };
 
 function toPublicStaff(row) {
@@ -1378,6 +1428,7 @@ function toPublicAdminAction(row) {
     createdAt: row.created_at
   };
 }
+
 
 // ---------- Serializers ----------
 // Parse a user's roles into an array. Prefers the roles JSON column,
@@ -1670,6 +1721,25 @@ module.exports = {
   },
 
   deleteKid(id, userId) { return stmts.deleteKid.run(id, userId).changes > 0; },
+
+  // ---------- NEXUS SHIELD security events ----------
+  logSecurityEvent({ eventType, ip, userId, details }) {
+    stmts.insertSecurityEvent.run(eventType, ip || null, userId || null, details || null);
+  },
+  listSecurityEvents({ type, limit, offset }) {
+    return stmts.listSecurityEvents.all(type || null, type || null, limit, offset);
+  },
+  securitySummary() {
+    const last24h = {};
+    for (const r of stmts.securityCounts24h.all()) last24h[r.event_type] = r.n;
+    const lastHour = {};
+    for (const r of stmts.securityCounts1h.all()) lastHour[r.event_type] = r.n;
+    const topIps = stmts.securityTopIps.all().map(r => ({ ip: r.ip, count: r.n }));
+    return { last24h, lastHour, topIps };
+  },
+  pruneSecurityEvents() {
+    stmts.pruneSecurityEvents.run();
+  },
 
   // ---------- Gamification v1 ----------
   gamLevels: GAM_LEVELS,
