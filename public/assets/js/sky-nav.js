@@ -70,6 +70,7 @@ function renderSkyNav(base) {
     link(P('creators.html'), '🌟', 'Creators');
 
   var youHtml =
+    link(P('guide.html'), '🚀', 'Start Here') +
     link(P('profile.html'), '👤', 'Profile') +
     link(P('about.html'), '<span id="nav-info"></span>', 'About') +
     link(P('contact.html'), '<span id="nav-mail"></span>', 'Contact') +
