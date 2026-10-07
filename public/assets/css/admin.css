@@ -484,3 +484,136 @@
   padding: 20px;
 }
 .admin-card h2 { font-size: 1.1rem; font-weight: 700; }
+
+/* ============================================================
+   NEXUS SHIELD — Security Operations Center theme
+   Cinematic dark ops-center: deep navy, cyan/green glow, scanlines
+   ============================================================ */
+.shield-ops {
+  position: relative;
+  background: #0B1026;
+  border-radius: 12px;
+  padding: 24px;
+  color: #c8f6ff;
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow: hidden;
+  min-height: 80vh;
+}
+.shield-scanlines {
+  position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: repeating-linear-gradient(0deg, rgba(0,229,255,.025) 0 1px, transparent 1px 3px);
+}
+.shield-grid-bg {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(rgba(0,229,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.shield-ops > *:not(.shield-scanlines):not(.shield-grid-bg) { position: relative; z-index: 2; }
+
+.shield-banner {
+  display: flex; justify-content: space-between; align-items: center;
+  border: 1px solid rgba(0,229,255,.3); border-radius: 10px;
+  padding: 18px 24px; margin-bottom: 20px;
+  background: linear-gradient(135deg, rgba(0,229,255,.08), rgba(168,85,247,.08));
+  box-shadow: 0 0 30px rgba(0,229,255,.15);
+}
+.shield-banner-left { display: flex; align-items: center; gap: 16px; }
+.shield-emblem { font-size: 44px; filter: drop-shadow(0 0 12px #00e5ff); animation: shield-pulse 2.4s ease-in-out infinite; }
+@keyframes shield-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+.shield-title { margin: 0; font-size: 26px; letter-spacing: 4px; color: #00e5ff; text-shadow: 0 0 18px rgba(0,229,255,.7); font-weight: 800; }
+.shield-subtitle { margin: 4px 0 0; font-size: 11px; letter-spacing: 2px; color: #7dd3fc; opacity: .85; }
+.shield-gauge-wrap { text-align: center; }
+.shield-gauge {
+  width: 110px; height: 110px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 15px;
+  border: 3px solid #22c55e; color: #22c55e;
+  box-shadow: 0 0 24px rgba(34,197,94,.4), inset 0 0 18px rgba(34,197,94,.15);
+  transition: border-color .5s, color .5s, box-shadow .5s;
+}
+.shield-gauge.guarded { border-color: #f59e0b; color: #f59e0b; box-shadow: 0 0 24px rgba(245,158,11,.4), inset 0 0 18px rgba(245,158,11,.15); }
+.shield-gauge.elevated { border-color: #ef4444; color: #ef4444; box-shadow: 0 0 24px rgba(239,68,68,.5), inset 0 0 18px rgba(239,68,68,.2); animation: shield-pulse 1.2s ease-in-out infinite; }
+.shield-gauge-label { margin-top: 8px; font-size: 10px; letter-spacing: 2px; color: #7dd3fc; }
+
+.shield-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+.shield-stat {
+  border: 1px solid rgba(0,229,255,.25); border-radius: 8px; padding: 14px;
+  background: rgba(0,229,255,.04); text-align: center;
+  box-shadow: 0 0 16px rgba(0,229,255,.08);
+}
+.shield-stat-val { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700; color: #00e5ff; text-shadow: 0 0 12px rgba(0,229,255,.6); }
+.shield-stat-val.stat-flash { animation: stat-flash .6s ease; }
+@keyframes stat-flash { 0% { opacity: .2; } 100% { opacity: 1; } }
+.shield-stat-label { margin-top: 6px; font-size: 10px; letter-spacing: 1.5px; color: #7dd3fc; opacity: .8; }
+
+.shield-panels { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; margin-bottom: 20px; }
+.shield-panel {
+  border: 1px solid rgba(0,229,255,.25); border-radius: 8px; padding: 16px;
+  background: rgba(11,16,38,.7);
+}
+.shield-panel h2 { margin: 0 0 12px; font-size: 13px; letter-spacing: 2px; color: #00e5ff; display: flex; align-items: center; gap: 8px; }
+.shield-pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 10px #22c55e; animation: shield-pulse 1.6s ease-in-out infinite; display: inline-block; }
+.shield-feed-panel { margin-bottom: 20px; }
+#shield-radar { width: 100%; border-radius: 6px; background: rgba(0,20,40,.5); border: 1px solid rgba(0,229,255,.15); }
+.shield-radar-legend { margin-top: 8px; font-size: 11px; color: #7dd3fc; display: flex; gap: 16px; }
+.lg-threat { color: #f59e0b; } .lg-hit { color: #22c55e; } .lg-sweep { color: #00e5ff; }
+
+.shield-terminal {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7;
+  background: rgba(0,0,0,.45); border: 1px solid rgba(0,229,255,.2); border-radius: 6px;
+  padding: 12px 16px; max-height: 320px; overflow-y: auto; color: #a5f3fc;
+}
+.shield-ev { padding: 2px 0; border-bottom: 1px solid rgba(0,229,255,.06); }
+.shield-ev .ev-time { color: #64748b; margin-right: 10px; }
+.shield-ev .ev-tag { display: inline-block; min-width: 110px; font-weight: 700; margin-right: 10px; }
+.ev-warn .ev-tag { color: #f59e0b; } .ev-danger .ev-tag { color: #ef4444; }
+.ev-info .ev-tag { color: #38bdf8; } .ev-ok .ev-tag { color: #22c55e; }
+.shield-empty { color: #475569; font-style: italic; padding: 12px 0; }
+
+.shield-feed-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.shield-feed-head h2 { margin: 0; }
+.shield-filters { display: flex; gap: 6px; }
+.shield-filter {
+  background: transparent; border: 1px solid rgba(0,229,255,.3); color: #7dd3fc;
+  font-size: 10px; letter-spacing: 1px; padding: 5px 10px; border-radius: 4px; cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+}
+.shield-filter.active, .shield-filter:hover { background: rgba(0,229,255,.15); color: #00e5ff; border-color: #00e5ff; }
+.shield-sweep { height: 2px; background: linear-gradient(90deg, transparent, #00e5ff, transparent); margin-bottom: 8px; animation: sweep 1s linear infinite; }
+@keyframes sweep { 0% { opacity: .2; } 50% { opacity: 1; } 100% { opacity: .2; } }
+
+.shield-block-form { display: flex; gap: 8px; margin-bottom: 12px; }
+.shield-input {
+  flex: 1; background: rgba(0,0,0,.4); border: 1px solid rgba(0,229,255,.3);
+  color: #c8f6ff; padding: 9px 12px; border-radius: 6px; font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.shield-input:focus { outline: none; border-color: #00e5ff; box-shadow: 0 0 12px rgba(0,229,255,.3); }
+.shield-btn {
+  background: rgba(0,229,255,.12); border: 1px solid #00e5ff; color: #00e5ff;
+  padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: 700;
+  letter-spacing: 1px; font-size: 12px;
+}
+.shield-btn:hover { background: rgba(0,229,255,.25); box-shadow: 0 0 14px rgba(0,229,255,.4); }
+.shield-btn-danger { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,.1); }
+.shield-btn-danger:hover { background: rgba(239,68,68,.25); box-shadow: 0 0 14px rgba(239,68,68,.4); }
+.shield-btn-xs { padding: 4px 10px; font-size: 10px; }
+.shield-blocklist { display: flex; flex-direction: column; gap: 6px; }
+.shield-iprow {
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  background: rgba(239,68,68,.06); border: 1px solid rgba(239,68,68,.25);
+  border-radius: 6px; padding: 8px 12px; color: #fca5a5;
+}
+.shield-topips { display: flex; flex-direction: column; gap: 6px; }
+.shield-ipbar { display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+.shield-ip { color: #fbbf24; min-width: 130px; }
+.shield-ipcount { color: #7dd3fc; }
+
+@media (max-width: 900px) {
+  .shield-stats { grid-template-columns: repeat(2, 1fr); }
+  .shield-panels { grid-template-columns: 1fr; }
+  .shield-banner { flex-direction: column; gap: 16px; }
+}
