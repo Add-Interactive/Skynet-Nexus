@@ -257,11 +257,20 @@ function registerDebug(api) {
       const top = qa(`SELECT u.display_name as name, u.email as email, COUNT(e.id) as events
         FROM users u LEFT JOIN kid_profiles k ON k.user_id = u.id LEFT JOIN kid_xp_events e ON e.kid_id = k.id
         WHERE u.debug_group = ? GROUP BY u.id ORDER BY events DESC LIMIT 10`, group);
+      // Per-classroom activity for the dashboard's classroom comparison section.
+      // All-time counts (not per-day): discussions + replies + enrolled students.
+      const debugClassrooms = qa(`SELECT id, name FROM classrooms WHERE user_id IN (SELECT id FROM users WHERE debug_group = ?) ORDER BY id`, group);
+      const classroomActivity = debugClassrooms.map(c => {
+        const discussions = q(`SELECT COUNT(*) as n FROM discussions WHERE classroom_id = ?`, c.id).n || 0;
+        const replies = q(`SELECT COUNT(*) as n FROM discussion_replies WHERE discussion_id IN (SELECT id FROM discussions WHERE classroom_id = ?)`, c.id).n || 0;
+        const studentCount = q(`SELECT COUNT(*) as n FROM classroom_students WHERE classroom_id = ?`, c.id).n || 0;
+        return { classroomId: c.id, name: c.name, discussions, replies, studentCount };
+      });
       res.json({
         group, users: userIds.length, kids: kidIdList.length,
         families: db.prepare(`SELECT COUNT(*) as n FROM families WHERE created_by IN (${userIds.map(() => '?').join(',')})`).get(...userIds).n || 0,
         classrooms: db.prepare(`SELECT COUNT(*) as n FROM classrooms WHERE user_id IN (${userIds.map(() => '?').join(',')})`).get(...userIds).n || 0,
-        days: dayRows, topActive: top,
+        days: dayRows, topActive: top, classroomActivity,
       });
     } catch (e) {
       console.error('[debug/stats]', e.message);
