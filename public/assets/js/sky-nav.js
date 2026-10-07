@@ -72,7 +72,8 @@ function renderSkyNav(base) {
   var youHtml =
     link(P('profile.html'), '👤', 'Profile') +
     link(P('about.html'), '<span id="nav-info"></span>', 'About') +
-    link(P('contact.html'), '<span id="nav-mail"></span>', 'Contact');
+    link(P('contact.html'), '<span id="nav-mail"></span>', 'Contact') +
+    link(P('safety.html'), '\uD83D\uDEE1\uFE0F', 'Safety & Security');
 
   sb.innerHTML =
     section('do', 'Do', doHtml, true) +
@@ -250,7 +251,8 @@ function renderSkyFooter(base) {
     [P('profile.html'), '\uD83D\uDC64 Profile'],
     [P('about.html'), 'About'],
     [P('contact.html'), 'Contact'],
-    [P('privacy.html'), 'Privacy']
+    [P('privacy.html'), 'Privacy'],
+    [P('safety.html'), '\uD83D\uDEE1\uFE0F Safety & Security']
   ]);
   // Replace the old link columns (Channels/Company/Community) but keep the
   // brand block and the Network/partners column.
@@ -324,3 +326,4 @@ function renderSkyFooter(base) {
     boot();
   }
 })();
+
