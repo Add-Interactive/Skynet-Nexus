@@ -9,7 +9,7 @@ const crypto = require('crypto');
 const express = require('express');
 const session = require('express-session');
 
-// --- Tiny .env loader (no external dep) ---
+// .env loader
 (function loadEnvFile() {
   try {
     const envPath = path.resolve(__dirname, '..', '.env');
@@ -116,6 +116,15 @@ const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', 1); // Railway/reverse proxy: honor X-Forwarded-Proto for secure cookies.
 
+// Security headers
+app.use((req,res,next)=>{
+res.setHeader('X-Content-Type-Options','nosniff');
+res.setHeader('X-Frame-Options','SAMEORIGIN');
+res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');
+if(IS_PROD)res.setHeader('Strict-Transport-Security','max-age=31536000; includeSubDomains');
+res.setHeader('Content-Security-Policy',"default-src 'self';script-src 'self' 'unsafe-inline';style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;img-src 'self' data: blob:;media-src 'self' data: blob:;font-src 'self' data: https://fonts.gstatic.com;connect-src 'self';frame-ancestors 'self';base-uri 'self';form-action 'self'");
+next();});
+
 app.use(express.json({ limit: '3mb' })); // raised for pipeline artwork uploads (base64)
 app.use(express.urlencoded({ extended: false, limit: '256kb' }));
 
@@ -134,20 +143,16 @@ app.use(session({
   }
 }));
 
-// --- CORS Middleware to support file:// and cross-origin localhost testing ---
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin === 'null' || (origin && (origin.includes('localhost') || origin.includes('127.0.0.1')))) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key, X-Requested-With');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS');
-  }
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
+// CORS: localhost in dev only. Never allow origin 'null' with credentials.
+app.use((req,res,next)=>{
+const origin=req.headers.origin;
+if(!IS_PROD&&origin&&(origin.includes('localhost')||origin.includes('127.0.0.1'))){
+res.setHeader('Access-Control-Allow-Origin',origin);
+res.setHeader('Access-Control-Allow-Credentials','true');
+res.setHeader('Access-Control-Allow-Headers','Content-Type, X-Admin-Key, X-Requested-With');
+res.setHeader('Access-Control-Allow-Methods','GET, POST, PATCH, PUT, DELETE, OPTIONS');}
+if(req.method==='OPTIONS')return res.sendStatus(200);
+next();});
 
 // ------------- API routes -------------
 const api = express.Router();
@@ -996,9 +1001,7 @@ api.delete('/auth/account', requireAuth, rateLimit({ windowMs: 60_000, max: 4, k
   });
 });
 
-// POST /api/auth/password-reset — { email }
-// Always returns 200 (never reveal which emails exist). Emails the reset link
-// via the mailer; if email isn't configured, the mailer logs the link instead.
+// POST /api/auth/password-reset — { email } (always 200)
 api.post('/auth/password-reset', rateLimit({ windowMs: 15 * 60_000, max: 6, key: 'pwreset' }), async (req, res) => {
   const email = String((req.body && req.body.email) || '').trim().toLowerCase();
   if (isValidEmail(email)) {
@@ -1006,30 +1009,34 @@ api.post('/auth/password-reset', rateLimit({ windowMs: 15 * 60_000, max: 6, key:
     if (user) {
       const token = crypto.randomBytes(24).toString('hex');
       const expiresAt = Date.now() + 60 * 60 * 1000; // 1 hour
-      createPasswordReset({ userId: user.id, token, expiresAt });
+      // Store hash only.
+      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+      createPasswordReset({ userId: user.id, token: tokenHash, expiresAt });
       const link = `${SITE_ORIGIN}/pages/password-reset.html?token=${encodeURIComponent(token)}`;
       const mail = passwordResetEmail(link);
       const result = await sendMail({ to: email, subject: mail.subject, html: mail.html, text: mail.text });
       if (!result.ok) {
-        // Delivery unavailable/unconfigured — keep the link discoverable in logs.
-        console.log(`[skynet] password reset link for ${email}: ${link}`);
+        // Never log raw reset link.
+        console.log(`[skynet] password reset email failed for ${email} (link withheld from logs)`);
       }
     }
   }
   res.json({ ok: true, message: 'If that email exists, a reset link is on its way.' });
 });
 
-// POST /api/auth/password-reset/confirm — { token, newPassword }
+// POST /api/auth/password-reset/confirm
 api.post('/auth/password-reset/confirm', rateLimit({ windowMs: 15 * 60_000, max: 10, key: 'pwresetconfirm' }), async (req, res) => {
   const token = String((req.body && req.body.token) || '').trim();
   const newPassword = String((req.body && req.body.newPassword) || '');
   if (!token) return res.status(400).json({ error: 'Missing token.' });
   if (!isValidPassword(newPassword)) return res.status(400).json({ error: 'Password must be at least 8 characters.' });
-  const reset = findPasswordReset(token);
+  // Compare hash, not raw token.
+  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  const reset = findPasswordReset(tokenHash);
   if (!reset) return res.status(400).json({ error: 'Invalid or expired token.' });
   const hash = await hashPassword(newPassword);
   changePassword(reset.userId, hash);
-  markPasswordResetUsed(token);
+  markPasswordResetUsed(tokenHash);
   res.json({ ok: true, message: 'Password updated. You can sign in with your new password.' });
 });
 
@@ -1451,7 +1458,9 @@ api.delete('/newsroom/images/:filename', (req, res) => {
   const expected = process.env.NEWSROOM_API_KEY;
   if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
   if (String(req.headers['x-newsroom-key'] || '') !== expected) return res.status(401).json({ error: 'unauthorized' });
-  const dir = path.join(require('./storage').USERS_DIR, String(req.query.channel || ''));
+  const channel=String(req.query.channel||'');
+  if(!['skynet','ai','space','robotics','biotech','quantum','climate','engineering','math','cyber','gaming','music','stem','play','network'].includes(channel))return res.status(400).json({error:'invalid channel'});
+  const dir = path.join(require('./storage').USERS_DIR, channel);
   const filename = String(req.params.filename || '').replace(/[^a-zA-Z0-9_.-]/g, '');
   const fp = path.join(dir, filename);
   if (!filename || path.dirname(fp) !== dir || !fs.existsSync(fp)) return res.status(404).json({ error: 'not found' });
@@ -2204,11 +2213,11 @@ app.use('/data', express.static(DATA_DIR, {
 app.use('/assets/img/channels', (req, res, next) => {
   const { COMFY_PATH } = require('./sync-comfy-helper');
   const { USERS_DIR } = require('./storage');
-  
+
   const relPath = decodeURIComponent(req.path);
   const pathParts = relPath.replace(/^\/+/, '').split('/');
   const channel = pathParts[0];
-  
+
   if (channel) {
     const subPath = pathParts.slice(1).join('/');
     if (subPath) {
@@ -2222,14 +2231,14 @@ app.use('/assets/img/channels', (req, res, next) => {
           }
         }
       }
-      
+
       const userFilePath = path.join(USERS_DIR, channel, subPath);
       if (fs.existsSync(userFilePath) && fs.statSync(userFilePath).isFile()) {
         return res.sendFile(userFilePath);
       }
     }
   }
-  
+
   next();
 });
 
@@ -2284,7 +2293,7 @@ app.listen(PORT, () => {
   console.log(`[skynet] public:  ${PUBLIC_DIR}`);
   console.log(`[skynet] data:    ${DATA_DIR}`);
   console.log(`[skynet] session: ${IS_PROD ? 'secure' : 'insecure (dev)'} cookies`);
-  
+
   // Synchronize ComfyUI outputs on local development boot
   try {
     const { syncComfyImages } = require('./sync-comfy-helper');
@@ -2292,7 +2301,6 @@ app.listen(PORT, () => {
   } catch (e) {
     console.warn('[skynet] ComfyUI image sync skipped:', e.message);
   }
-  
 
   // Clear database submission queues on startup (commented out now that initial cleanup is complete)
   /*
@@ -2354,9 +2362,9 @@ app.listen(PORT, () => {
       const repoChannelsDir = path.join(ROOT, 'public', 'assets', 'img', 'channels');
       const channelsList = ['ai', 'biotech', 'climate', 'cyber', 'engineering', 'gaming', 'math', 'music', 'play', 'quantum', 'robotics', 'space', 'stem', 'network', 'skynet'];
       const channelImages = {};
-      
+
       const { COMFY_PATH } = require('./sync-comfy-helper');
-      
+
       function getImagesForChannel(ch) {
         const list = new Set();
         function walk(baseDir, currentSubdir = '') {
@@ -2372,10 +2380,10 @@ app.listen(PORT, () => {
             }
           });
         }
-        
+
         const repoPath = path.join(repoChannelsDir, ch);
         walk(repoPath);
-        
+
         if (COMFY_PATH && fs.existsSync(COMFY_PATH)) {
           const comfyDirs = fs.readdirSync(COMFY_PATH);
           const matchedDir = comfyDirs.find(d => d.toLowerCase() === ch.toLowerCase());
@@ -2385,11 +2393,11 @@ app.listen(PORT, () => {
         }
         return Array.from(list);
       }
-      
+
       channelsList.forEach(ch => {
         channelImages[ch] = getImagesForChannel(ch);
       });
-      
+
       function imageExists(ch, filename) {
         const p1 = path.join(repoChannelsDir, ch, filename);
         if (fs.existsSync(p1) && fs.statSync(p1).isFile()) return true;
@@ -2403,7 +2411,7 @@ app.listen(PORT, () => {
         }
         return false;
       }
-      
+
       // Update DB queued stories
       queued.forEach(row => {
         try {
@@ -2412,7 +2420,7 @@ app.listen(PORT, () => {
             const parts = payload.heroImage.replace('/assets/img/channels/', '').split('/');
             const ch = parts[0];
             const filename = parts.slice(1).join('/');
-            
+
             if (!imageExists(ch, filename)) {
               const list = channelImages[ch] || [];
               if (list.length > 0) {
@@ -2424,7 +2432,7 @@ app.listen(PORT, () => {
           }
         } catch (e) {}
       });
-      
+
       // Update manifest and article files in DATA_DIR
       if (fs.existsSync(manifestPath)) {
         const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
@@ -2435,7 +2443,7 @@ app.listen(PORT, () => {
               const parts = art.heroImage.replace('/assets/img/channels/', '').split('/');
               const ch = parts[0];
               const filename = parts.slice(1).join('/');
-              
+
               if (!imageExists(ch, filename)) {
                 const list = channelImages[ch] || [];
                 if (list.length > 0) {
@@ -2443,7 +2451,7 @@ app.listen(PORT, () => {
                   const newImg = `/assets/img/channels/${ch}/${rand}`;
                   art.heroImage = newImg;
                   manifestChanged = true;
-                  
+
                   const artFilePath = path.resolve(path.join(DATA_DIR, art.path.replace(/^data\//, '')));
                   if (fs.existsSync(artFilePath)) {
                     try {
@@ -2457,22 +2465,22 @@ app.listen(PORT, () => {
             }
           });
         }
-        
+
         // 3b. Self-healing: Resolve and repair duplicate heroImage usage across articles in persistent manifest
         try {
           const imageMap = {};
           let duplicateImagesChanged = false;
-          
+
           manifest.articles.forEach(art => {
             if (!art.heroImage) return;
             // Ignore pins / welcome articles
             if (art.id === '2026-07-01-welcome-to-skynet-nexus' || art.id === '2026-07-04-franklin-stem-excellence') return;
             if (art.heroImage.includes('skywelcome') || art.heroImage.includes('franklin_stem') || art.heroImage.includes('whitney_stem')) return;
-            
+
             if (!imageMap[art.heroImage]) imageMap[art.heroImage] = [];
             imageMap[art.heroImage].push(art);
           });
-          
+
           for (const [imgUrl, arts] of Object.entries(imageMap)) {
             if (arts.length > 1) {
               console.log(`[skynet] Self-healing: Found duplicate image use for "${imgUrl}" across ${arts.length} articles.`);
@@ -2486,11 +2494,11 @@ app.listen(PORT, () => {
                   const replacementList = filteredList.length > 0 ? filteredList : list;
                   const rand = replacementList[Math.floor(Math.random() * replacementList.length)];
                   const newImg = `/assets/img/channels/${ch}/${rand}`;
-                  
+
                   console.log(`  -> Reassigning [${art.id}]: ${art.heroImage} -> ${newImg}`);
                   art.heroImage = newImg;
                   duplicateImagesChanged = true;
-                  
+
                   const artFilePath = path.resolve(path.join(DATA_DIR, art.path.replace(/^data\//, '')));
                   if (fs.existsSync(artFilePath)) {
                     try {
@@ -2503,7 +2511,7 @@ app.listen(PORT, () => {
               }
             }
           }
-          
+
           if (duplicateImagesChanged) {
             fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
             console.log('[skynet] Self-healing: Successfully resolved duplicate images in persistent manifest.');
@@ -2525,7 +2533,7 @@ app.listen(PORT, () => {
           const uniqueArticles = [];
           const seenTitles = new Set();
           let removedCount = 0;
-          
+
           // Loop backwards to keep the latest published version of each title
           for (let i = manifest.articles.length - 1; i >= 0; i--) {
             const art = manifest.articles[i];
@@ -2544,7 +2552,7 @@ app.listen(PORT, () => {
               uniqueArticles.unshift(art);
             }
           }
-          
+
           if (removedCount > 0) {
             manifest.articles = uniqueArticles;
             fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
