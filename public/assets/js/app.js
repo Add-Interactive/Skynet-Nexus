@@ -2131,12 +2131,13 @@ function initArticlePage() {
       cl.innerHTML = '<div class="comment-empty" style="color:var(--text-mute);padding:16px 4px;font-size:.9rem">No comments yet — be the first to share a kind, on-topic thought.</div>';
       return;
     }
+    // SECURITY: escape all user-controlled comment fields to prevent XSS.
     cl.innerHTML = userComments.map(c =>
       '<div class="comment">' +
-        '<div class="author-avatar">' + c.av + '</div>' +
+        '<div class="author-avatar">' + rssEsc(c.av) + '</div>' +
         '<div class="comment-body">' +
-          '<div class="comment-head"><strong>' + c.name + '</strong><span class="time">' + c.time + '</span></div>' +
-          '<div class="comment-text">' + c.text + '</div>' +
+          '<div class="comment-head"><strong>' + rssEsc(c.name) + '</strong><span class="time">' + rssEsc(c.time) + '</span></div>' +
+          '<div class="comment-text">' + rssEsc(c.text) + '</div>' +
           '<div class="comment-actions"><button>Like</button><button>Reply</button></div>' +
         '</div>' +
       '</div>'
