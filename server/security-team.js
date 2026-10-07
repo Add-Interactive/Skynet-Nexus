@@ -49,6 +49,16 @@ function ensureSchema() {
   )`);
   d.exec(`CREATE INDEX IF NOT EXISTS idx_team_reports_agent_time
           ON security_team_reports(agent, created_at DESC)`);
+  d.exec(`CREATE TABLE IF NOT EXISTS security_alert_optins (
+    user_id INTEGER PRIMARY KEY,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  )`);
+  d.exec(`CREATE TABLE IF NOT EXISTS security_alert_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    agent TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    sent_at TEXT NOT NULL DEFAULT (datetime('now'))
+  )`);
   d.exec(`CREATE TABLE IF NOT EXISTS security_tickets (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     agent TEXT NOT NULL DEFAULT 'team',
@@ -336,6 +346,96 @@ function answerChat(agentParam, message, askedBy) {
   return { reply, agent };
 }
 
+// ---------- critical push alerts (opt-in, admins/editors only) ----------
+function alertOptedIn(userId) {
+  ensureSchema();
+  return !!db().prepare(
+    'SELECT 1 FROM security_alert_optins WHERE user_id = ?').get(userId);
+}
+
+function setAlertOptIn(userId, on) {
+  ensureSchema();
+  const d = db();
+  if (on) d.prepare('INSERT OR IGNORE INTO security_alert_optins (user_id) VALUES (?)').run(userId);
+  else d.prepare('DELETE FROM security_alert_optins WHERE user_id = ?').run(userId);
+}
+
+function alertSubscribers() {
+  ensureSchema();
+  const d = db();
+  const dbm = require('./db');
+  const optins = d.prepare('SELECT user_id FROM security_alert_optins').all()
+    .map(r => r.user_id);
+  if (!optins.length) return [];
+  const okIds = new Set();
+  for (const uid of optins) {
+    try {
+      const u = dbm.findUserById(uid);
+      if (!u) continue;
+      let roles = [];
+      try { roles = dbm.getUserRoles(uid) || []; }
+      catch (e) { roles = u.role ? [u.role] : []; }
+      if (roles.includes('admin') || roles.includes('editor')) okIds.add(uid);
+    } catch (e) {}
+  }
+  if (!okIds.size) return [];
+  return d.prepare(
+    'SELECT user_id, endpoint, p256dh, auth FROM push_subscriptions'
+  ).all().filter(s => okIds.has(s.user_id));
+}
+
+async function sendCriticalAlert(agent, summary) {
+  try {
+    ensureSchema();
+    const d = db();
+    // Dedup: at most one critical push per agent per 30 minutes.
+    const recent = d.prepare(
+      `SELECT 1 FROM security_alert_log
+        WHERE agent = ? AND kind = 'critical'
+          AND sent_at > datetime('now', '-30 minutes')`).get(agent);
+    if (recent) return { skipped: 'dedup' };
+    const subs = alertSubscribers();
+    if (!subs.length) return { skipped: 'no-subscribers' };
+    const push = require('./push');
+    const a = AGENTS[agent] || { name: agent };
+    const res = await push.sendToSubscriptions(subs, {
+      title: `\uD83D\uDEA8 SHIELD critical \u2014 ${a.name}`,
+      body: String(summary).slice(0, 160),
+      url: '/pages/admin.html',
+      tag: 'shield-critical-' + agent,
+    });
+    d.prepare(`INSERT INTO security_alert_log (agent, kind)
+               VALUES (?, 'critical')`).run(agent);
+    console.log(`[team] critical alert (${agent}): sent=${res.sent} failed=${res.failed}`);
+    return res;
+  } catch (e) {
+    console.warn('[team] critical alert failed:', e.message);
+    return { error: e.message };
+  }
+}
+
+async function sendResolvedAlert(agent, summary) {
+  try {
+    const subs = alertSubscribers();
+    if (!subs.length) return { skipped: 'no-subscribers' };
+    const push = require('./push');
+    const a = AGENTS[agent] || { name: agent };
+    const res = await push.sendToSubscriptions(subs, {
+      title: `\u2705 SHIELD resolved \u2014 ${a.name}`,
+      body: String(summary).slice(0, 160),
+      url: '/pages/admin.html',
+      tag: 'shield-resolved-' + agent,
+    });
+    db().prepare(`INSERT INTO security_alert_log (agent, kind)
+                  VALUES (?, 'resolved')`).run(agent);
+    console.log(`[team] resolved alert (${agent}): sent=${res.sent}`);
+    return res;
+  } catch (e) {
+    console.warn('[team] resolved alert failed:', e.message);
+    return { error: e.message };
+  }
+}
+
 // ---------- route registration ----------
 function registerSecurityTeamRoutes(router, ctx) {
   const { logAction } = ctx || {};
@@ -388,6 +488,41 @@ function registerSecurityTeamRoutes(router, ctx) {
     } catch (e) { res.status(500).json({ error: 'Failed to open ticket.' }); }
   });
 
+  // GET /api/admin/security/team/alerts/status — push state for this admin
+  router.get('/security/team/alerts/status', (req, res) => {
+    try {
+      const push = require('./push');
+      const uid = req.adminUser && req.adminUser.id;
+      const hasSub = uid ? !!db().prepare(
+        'SELECT 1 FROM push_subscriptions WHERE user_id = ? LIMIT 1').get(uid) : false;
+      res.json({
+        pushEnabled: push.isEnabled(),
+        hasSubscription: hasSub,
+        optedIn: uid ? alertOptedIn(uid) : false
+      });
+    } catch (e) { res.status(500).json({ error: 'Failed to load alert status.' }); }
+  });
+
+  // POST /api/admin/security/team/alerts/opt-in | opt-out
+  router.post('/security/team/alerts/opt-in', (req, res) => {
+    try {
+      const uid = req.adminUser && req.adminUser.id;
+      if (!uid) return res.status(401).json({ error: 'unauthorized' });
+      setAlertOptIn(uid, true);
+      try { logAction(uid, 'security.team_alerts_optin', 'user', String(uid), {}, security.getClientIp(req)); } catch (e) {}
+      res.json({ ok: true, optedIn: true });
+    } catch (e) { res.status(500).json({ error: 'Failed to opt in.' }); }
+  });
+  router.post('/security/team/alerts/opt-out', (req, res) => {
+    try {
+      const uid = req.adminUser && req.adminUser.id;
+      if (!uid) return res.status(401).json({ error: 'unauthorized' });
+      setAlertOptIn(uid, false);
+      try { logAction(uid, 'security.team_alerts_optout', 'user', String(uid), {}, security.getClientIp(req)); } catch (e) {}
+      res.json({ ok: true, optedIn: false });
+    } catch (e) { res.status(500).json({ error: 'Failed to opt out.' }); }
+  });
+
   // POST /api/admin/security/team/tickets/:id/answer { answer } — admin or Gizmo answers
   router.post('/security/team/tickets/:id/answer', (req, res) => {
     try {
@@ -413,9 +548,14 @@ function registerPatrolRoutes(router) {
     try {
       const { agent, status, summary, metrics, findings } = req.body || {};
       if (!AGENT_IDS.includes(agent)) return res.status(400).json({ error: 'Unknown agent.' });
+      const prev = latestReport(agent);
       const id = storeReport({ agent, status, summary, metrics, findings });
       if (status === 'critical') {
         try { security.logSecurityEvent('team_critical', req, { agent, summary: String(summary).slice(0, 200) }); } catch (e) {}
+        // Fire-and-forget: never delay the patrol POST on push delivery.
+        sendCriticalAlert(agent, summary).catch(() => {});
+      } else if (status === 'ok' && prev && prev.status === 'critical') {
+        sendResolvedAlert(agent, summary).catch(() => {});
       }
       res.json({ ok: true, id });
     } catch (e) { res.status(500).json({ error: 'Failed to store report.' }); }

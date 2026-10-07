@@ -26,7 +26,7 @@
 
   var teamState = null;      // latest /team/status
   var threatLevel = 'LOW';
-  var interceptedCount = 0;
+  var radarEvents = [];      // REAL security events plotted on the grid (no mock data)
   var currentFilter = '';
   var chatAgent = 'team';
   var chatBusy = false;
@@ -183,6 +183,7 @@
             '</div>' +
           '</div>' +
           '<div class="st-banner-right">' +
+            '<button class="st-alert-toggle" id="st-alert-toggle" title="Critical push alerts">🔔 ALERTS OFF</button>' +
             '<div class="st-agents-online"><span class="st-pulse-dot"></span><span id="st-online-count">—</span> AGENTS ON PATROL</div>' +
             '<div class="shield-gauge-wrap">' +
               '<div class="shield-gauge" id="shield-gauge"><span id="shield-gauge-level">—</span></div>' +
@@ -291,6 +292,7 @@
 
     wireChat();
     wireControls();
+    initAlertToggle();
     startClock();
 
     bootSequence(function () {
@@ -387,6 +389,8 @@
       threatLevel = s.threatLevel || 'LOW';
       renderGauge(threatLevel);
       renderTopIps(s.topIps || []);
+      // REAL intercepted count: blocked IPs + detected scans in the last 24h
+      setStat('st-intercepted', (h24.blocked_ip || 0) + (h24.scan_detected || 0));
     }).catch(function () {});
   }
 
@@ -412,6 +416,7 @@
       var feed = document.getElementById('shield-feed');
       if (!feed) return;
       var events = r.events || [];
+      setRadarEvents(events);
       if (!events.length) { feed.innerHTML = '<div class="shield-empty">No events match this filter.</div>'; return; }
       feed.innerHTML = events.map(function (e) {
         var m = TYPE_META[e.event_type] || { label: String(e.event_type).toUpperCase(), cls: 'ev-info' };
@@ -634,12 +639,51 @@
     });
   }
 
-  /* ---------- canvas: live interception grid (ported from SHIELD v1) ---------- */
+  /* ---------- canvas: live interception grid — REAL events only ----------
+     Every blip is a genuine security event from the server feed.
+     No simulated threats: an empty grid means a quiet site. */
+  var EV_COLORS = {
+    failed_login: 'ffb020',
+    admin_unauthorized: 'ffb020',
+    rate_limit: '00e5ff',
+    blocked_ip: 'ff2e63',
+    scan_detected: 'ff2e63',
+    ip_blocked: '39ff14',
+    ip_unblocked: '8b9bb8',
+    integrity_violation: 'ff2e63',
+    integrity_rebaseline: '8b9bb8',
+    team_critical: 'ff2e63'
+  };
+
+  function hashStr(str) {
+    var x = 0;
+    for (var i = 0; i < str.length; i++) { x = ((x << 5) - x + str.charCodeAt(i)) | 0; }
+    return Math.abs(x);
+  }
+  function eventAgeMin(e) {
+    try {
+      var t = new Date(String(e.created_at).replace(' ', 'T') + 'Z').getTime();
+      if (isNaN(t)) return 9999;
+      return (Date.now() - t) / 60000;
+    } catch (x) { return 9999; }
+  }
+  // Keep events from the last 60 minutes as radar blips.
+  function setRadarEvents(events) {
+    radarEvents = (events || []).map(function (e) {
+      var age = eventAgeMin(e);
+      return {
+        age: age,
+        angle: (hashStr(String(e.ip || e.event_type || '?')) % 360) * Math.PI / 180,
+        hue: EV_COLORS[e.event_type] || '8b9bb8',
+        intercepted: (e.event_type === 'blocked_ip' || e.event_type === 'scan_detected' || e.event_type === 'ip_blocked')
+      };
+    }).filter(function (b) { return b.age <= 60; });
+  }
+
   function drawRadar() {
     var canvas = document.getElementById('shield-radar');
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
-    var threats = [];
     var rings = [];
     var sweepAngle = 0;
 
@@ -651,15 +695,6 @@
     sizeCanvas();
     window.addEventListener('resize', sizeCanvas);
 
-    function spawnThreat() {
-      threats.push({
-        angle: Math.random() * Math.PI * 2,
-        dist: 1.05,
-        speed: 0.0018 + Math.random() * 0.003,
-        hue: Math.random() < 0.7 ? 'ff2e63' : 'ffb020',
-        wobble: Math.random() * Math.PI * 2
-      });
-    }
     function frame() {
       if (!active) return;
       var W = canvas.width, H = canvas.height;
@@ -704,37 +739,36 @@
       ctx.beginPath(); ctx.arc(cx, cy, R * 0.22, 0, Math.PI * 2); ctx.stroke();
       ctx.font = '22px serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('🛡️', cx, cy + 1);
+      ctx.fillText('\uD83D\uDEE1\uFE0F', cx, cy + 1);
 
       ctx.strokeStyle = 'rgba(57,255,20,0.35)';
       ctx.setLineDash([6, 6]);
       ctx.beginPath(); ctx.arc(cx, cy, R * 0.34, 0, Math.PI * 2); ctx.stroke();
       ctx.setLineDash([]);
 
-      var spawnRate = threatLevel === 'ELEVATED' ? 0.06 : threatLevel === 'GUARDED' ? 0.03 : 0.012;
-      if (Math.random() < spawnRate && threats.length < 24) spawnThreat();
-
-      threats = threats.filter(function (t) {
-        t.dist -= t.speed;
-        t.wobble += 0.03;
-        var wob = Math.sin(t.wobble) * 0.02;
-        var x = cx + Math.cos(t.angle + wob) * R * t.dist;
-        var y = cy + Math.sin(t.angle + wob) * R * t.dist;
-        if (t.dist <= 0.34) {
-          rings.push({ r: R * 0.34, alpha: 1 });
-          interceptedCount++;
-          var el = document.getElementById('st-intercepted');
-          if (el) el.textContent = interceptedCount;
-          return false;
-        }
-        var fade = Math.max(0.25, Math.min(1, (t.dist - 0.3) * 1.4));
-        var rr = parseInt(t.hue.slice(0, 2), 16), gg = parseInt(t.hue.slice(2, 4), 16), bb = parseInt(t.hue.slice(4, 4 + 2), 16);
+      // Plot REAL events: newer events sit farther out, age drifts them inward.
+      // Intercepted threats (blocked/scans) flash a green ring once, then fade.
+      var nowBlips = radarEvents;
+      for (var bi = 0; bi < nowBlips.length; bi++) {
+        var b = nowBlips[bi];
+        var frac = Math.max(0, 1 - b.age / 60);       // 1 = just now, 0 = 60m old
+        var dist = 0.34 + frac * 0.66;                // outer edge = freshest
+        var wob = Math.sin(Date.now() / 900 + b.angle * 3) * 0.015;
+        var x = cx + Math.cos(b.angle + wob) * R * dist;
+        var y = cy + Math.sin(b.angle + wob) * R * dist;
+        var fade = 0.25 + frac * 0.75;
+        var rr = parseInt(b.hue.slice(0, 2), 16),
+            gg = parseInt(b.hue.slice(2, 4), 16),
+            bb = parseInt(b.hue.slice(4, 6), 16);
         ctx.fillStyle = 'rgba(' + rr + ',' + gg + ',' + bb + ',' + fade.toFixed(3) + ')';
-        ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x, y, b.intercepted ? 5 : 3.5, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = 'rgba(255,255,255,' + (fade * 0.5).toFixed(3) + ')';
         ctx.beginPath(); ctx.arc(x, y, 1.5, 0, Math.PI * 2); ctx.fill();
-        return true;
-      });
+        if (b.intercepted && !b.rung) {
+          b.rung = true;
+          rings.push({ r: R * 0.34, alpha: 1 });
+        }
+      }
 
       rings = rings.filter(function (rg) {
         rg.r += 2.2; rg.alpha -= 0.03;
@@ -745,9 +779,87 @@
         return true;
       });
 
+      // "All quiet" watermark when there is genuinely nothing to show.
+      if (!nowBlips.length) {
+        ctx.fillStyle = 'rgba(139,155,184,0.55)';
+        ctx.font = '11px JetBrains Mono, monospace';
+        ctx.fillText('ALL QUIET — NO EVENTS IN THE LAST HOUR', cx, H - 14);
+      }
+
       rafId = requestAnimationFrame(frame);
     }
     frame();
+  }
+
+  /* ---------- critical push alerts (real opt-in, real devices) ---------- */
+  function urlB64ToU8(base64) {
+    var padding = '='.repeat((4 - base64.length % 4) % 4);
+    var b64 = (base64 + padding).replace(/\-/g, '+').replace(/_/g, '/');
+    var raw = window.atob(b64);
+    var out = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+  function setAlertBtn(on, busy) {
+    var b = document.getElementById('st-alert-toggle');
+    if (!b) return;
+    b.textContent = busy ? '🔔 …' : (on ? '🔔 ALERTS ON' : '🔕 ALERTS OFF');
+    b.classList.toggle('st-alert-on', !!on);
+  }
+  function initAlertToggle() {
+    var btn = document.getElementById('st-alert-toggle');
+    if (!btn) return;
+    api('/admin/security/team/alerts/status').then(function (st) {
+      if (!active) return;
+      btn._alertState = st;
+      setAlertBtn(!!st.optedIn);
+    }).catch(function () {});
+    btn.addEventListener('click', function () {
+      var st = btn._alertState || {};
+      if (st.optedIn) {
+        setAlertBtn(false, true);
+        api('/admin/security/team/alerts/opt-out', { method: 'POST' })
+          .then(function () { btn._alertState.optedIn = false; setAlertBtn(false); toast('Critical alerts off for this account.'); })
+          .catch(function (e) { setAlertBtn(true); toast(e.message, true); });
+        return;
+      }
+      enableAlerts(btn);
+    });
+  }
+  function enableAlerts(btn) {
+    if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+      toast('This browser does not support push notifications.', true);
+      return;
+    }
+    setAlertBtn(false, true);
+    function fail(msg) { setAlertBtn(false); toast(msg, true); }
+    Notification.requestPermission().then(function (perm) {
+      if (perm !== 'granted') { fail('Notification permission denied — alerts stay off.'); return; }
+      return navigator.serviceWorker.register('/sw.js').then(function (reg) {
+        return reg.pushManager.getSubscription().then(function (existing) {
+          if (existing) return existing;
+          return api('/push/vapid-key').then(function (vk) {
+            if (!vk.enabled || !vk.publicKey) { fail('Push is not configured on the server yet.'); throw new Error('stop'); }
+            return reg.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: urlB64ToU8(vk.publicKey)
+            });
+          });
+        });
+      }).then(function (sub) {
+        return api('/push/subscribe', { method: 'POST', body: { subscription: sub.toJSON() } });
+      }).then(function () {
+        return api('/admin/security/team/alerts/opt-in', { method: 'POST' });
+      }).then(function () {
+        btn._alertState = btn._alertState || {};
+        btn._alertState.optedIn = true;
+        btn._alertState.hasSubscription = true;
+        setAlertBtn(true);
+        toast('🔔 Critical alerts ON — this device will buzz on SHIELD criticals.');
+      }).catch(function (e) {
+        if (e && e.message !== 'stop') fail(e.message || 'Could not enable alerts.');
+      });
+    });
   }
 
   /* ---------- boot ---------- */
