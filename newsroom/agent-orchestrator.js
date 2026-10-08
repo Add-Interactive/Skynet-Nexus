@@ -1,1 +1,260 @@
-Ly8gbmV3c3Jvb20vYWdlbnQtb3JjaGVzdHJhdG9yLmpzCi8vIEdpem1vIE5ld3Nyb29tIHBpcGVsaW5lIHByb3RvY29sLgovLwovLyBIb3cgZGFpbHkgZWRpdGlvbnMgZ2V0IG1hZGUgKHJlcGxhY2VzIHRoZSBvbGQgT3BlbkNsYXcvQW50aWdyYXZpdHkgc2V0dXApOgovLwovLyAgIFQtNjAgbWluICBHaXptbydzIHNjaGVkdWxlciBzcGF3bnMgb25lIGNvcnJlc3BvbmRlbnQgc3ViYWdlbnQgcGVyIGNoYW5uZWwKLy8gICAgICAgICAgICAgKDEzIGNoYW5uZWxzKS4gRWFjaCBzdWJhZ2VudCByZWFkcyBpdHMgY2hhbm5lbCBicmllZiBpbgovLyAgICAgICAgICAgICBuZXdzcm9vbS9wcm9tcHRzLzxjaGFubmVsPi5tZCwgcmVzZWFyY2hlcyAxLTIgZnJlc2ggc3RvcmllcyB2aWEKLy8gICAgICAgICAgICAgQnJhdmUgU2VhcmNoLCBhbmQgcmV0dXJucyBhcnRpY2xlIEpTT04gaW4gdGhlIGhvdXNlIHNjaGVtYS4KLy8gICBULTQ1IG1pbiAgR2l6bW8gdmFsaWRhdGVzIGV2ZXJ5IGRyYWZ0IChzY2hlbWEgKyBraWQtc2FmZSBndWFyZHJhaWxzLCBzYW1lCi8vICAgICAgICAgICAgIHJ1bGVzIGFzIG5ld3Nyb29tL3B1Ymxpc2guanMpIGFuZCBmaWxlcyBpdCB0byB0aGUgcmV2aWV3IHF1ZXVlCi8vICAgICAgICAgICAgIHZpYSBQT1NUIC9hcGkvbmV3c3Jvb20vZHJhZnRzLCBzdGFtcGVkIGZvciB0aGUgdXBjb21pbmcgZHJvcC4KLy8gICBULTYwLi4wICAgVGhlIE5ld3MgRGlyZWN0b3IgcmV2aWV3cyBpbiB0aGUgUmV2aWV3IENvbnNvbGUKLy8gICAgICAgICAgICAgKG5ld3Nyb29tL2Rhc2hib2FyZC5odG1sKTogYXBwcm92ZSwgc3Bpa2UsIG9yIGxlYXZlIG5vdGVzLgovLyAgICAgICAgICAgICBOb3RlcyBsZWZ0IG9uIGEgZHJhZnQgYXJlIGFwcGxpZWQgb24gdGhlIGZpbmFsIHBhc3MuCi8vICAgVC0xNSBtaW4gIEZpbmFsIHBhc3M6IG5vdGVzIGFwcGxpZWQsIGRyYWZ0cyByZXZpc2VkLCBxdWV1ZSB1cGRhdGVkLgovLyAgIERyb3AgICAgICBzZXJ2ZXIvc2NoZWR1bGVyLmpzIHJlbGVhc2VzIHNjaGVkdWxlZCBzdG9yaWVzLiBBbnkgZHJhZnQgc3RpbGwKLy8gICAgICAgICAgICAgc2l0dGluZyB1bnJldmlld2VkIGF0IGRyb3AgdGltZSBhdXRvLXB1Ymxpc2hlcyAodGhlIGRpcmVjdG9yJ3MKLy8gICAgICAgICAgICAgcmV2aWV3IGlzIGEgY291cnRlc3ksIG5ldmVyIGEgYmxvY2tlcikuIFNwaWtlZCAocmVqZWN0ZWQpCi8vICAgICAgICAgICAgIHN0b3JpZXMgbmV2ZXIgYXV0by1wdWJsaXNoLgovLwovLyBUaGUgY29ycmVzcG9uZGVudCByb3N0ZXIgbGl2ZXMgaW4gbmV3c3Jvb20vYWdlbnRzLWNvbmZpZy5qcy4KCmNvbnN0IHBhdGggPSByZXF1aXJlKCdwYXRoJyk7CmNvbnN0IGZzID0gcmVxdWlyZSgnZnMnKTsKY29uc3QgeyBBR0VOVFMgfSA9IHJlcXVpcmUoJy4vYWdlbnRzLWNvbmZpZycpOwoKY29uc3QgRFJPUF9USU1FU19FVCA9IFsnNzoxNSBBTScsICcyOjE1IFBNJywgJzY6MTUgUE0nXTsKY29uc3QgRURJVElPTlMgPSB7IDc6ICdtb3JuaW5nJywgMTQ6ICdtaWRkYXknLCAxODogJ2V2ZW5pbmcnIH07CgovLyBUaGUgcHJvbXB0IHRlbXBsYXRlIGhhbmRlZCB0byBlYWNoIGNvcnJlc3BvbmRlbnQgc3ViYWdlbnQuCmZ1bmN0aW9uIGdlbmVyYXRlQWdlbnRQcm9tcHQoYWdlbnQsIGRyb3BzKSB7CiAgY29uc3QgYnJpZWZQYXRoID0gcGF0aC5qb2luKF9fZGlybmFtZSwgJ3Byb21wdHMnLCBgJHthZ2VudC5jaGFubmVsfS5tZGApOwogIGxldCBicmllZiA9ICcnOwogIHRyeSB7IGJyaWVmID0gZnMucmVhZEZpbGVTeW5jKGJyaWVmUGF0aCwgJ3V0ZjgnKTsgfQogIGNhdGNoIChlKSB7IGJyaWVmID0gJyhjaGFubmVsIGJyaWVmIG5vdCBmb3VuZCDigJQgdXNlIGhvdXNlIHN0eWxlKSc7IH0KCiAgcmV0dXJuIGBZb3UgYXJlICR7YWdlbnQuZGlzcGxheU5hbWV9LCAke2FnZW50LnJvbGV9IGZvciBTa3luZXQgTmV4dXMgTmV3cywgYSBmYW1pbHktZmlyc3QgbmV3cyBuZXR3b3JrIChhZ2VzIDUtNTAsIHBhcmVudC9jaGlsZCBjby1yZWFkaW5nKS4KCkNIQU5ORUwgQlJJRUY6CiR7YnJpZWZ9CgpZT1VSIEFTU0lHTk1FTlQg4oCUIGZpbGUgMS0yIGZyZXNoIHN0b3JpZXMgZm9yIHRoZSB1cGNvbWluZyBlZGl0aW9uKHMpOiAke2Ryb3BzLmpvaW4oJywgJyl9LgoKUmVzZWFyY2ggZWFjaCBzdG9yeSB3aXRoIHdlYiBzZWFyY2guIFVzZSBQUklNQVJZIHNvdXJjZXMgb25seSAodW5pdmVyc2l0aWVzLCBhZ2VuY2llcywgY29tcGV0aXRpb24gcmVzdWx0cywgb2ZmaWNpYWwgYW5ub3VuY2VtZW50cykuIE5vIG1hZGUtdXAgc3Rvcmllcywgbm8gdW52ZXJpZmlhYmxlIGNsYWltcy4gVG9kYXkncyBkYXRlIGNvbnRleHQgbWF0dGVycyDigJQgcHJlZmVyIHN0b3JpZXMgZnJvbSB0aGUgbGFzdCA3MiBob3Vycy4KCkZvciBlYWNoIHN0b3J5LCByZXR1cm4gT05FIHZhbGlkIGFydGljbGUgSlNPTiBvYmplY3Qgd2l0aDoKLSAidGl0bGUiOiBjYXRjaHksIHlvdXRoLWZpcnN0IGhlYWRsaW5lICh1bmRlciA4MCBjaGFycykKLSAiY2F0IjogIiR7YWdlbnQuY2hhbm5lbH0iCi0gImF1dGhvciI6ICIke2FnZW50LmRpc3BsYXlOYW1lfSIKLSAiYXV0aG9yUm9sZSI6ICIke2FnZW50LnJvbGV9IgotICJkYXRlIjogIllZWVktTU0tREQiICh0b2RheSkKLSAiZXhjZXJwdCI6IDEtMiBzZW50ZW5jZSBzdW1tYXJ5Ci0gImJvZHkiOiBjbGVhbiBIVE1MICg8cD4sIDxoMj4sIDxibG9ja3F1b3RlPiwgPHVsPiwgPGxpPiksIH40MDAgd29yZHMKLSAia2lkVGFrZSI6IDItMyBzZW50ZW5jZXMgYXQgYWdlLTggcmVhZGluZyBsZXZlbAotICJmYW1pbHlEaXNjdXNzaW9uIjogYXJyYXkgb2YgMisgb3Blbi1lbmRlZCBxdWVzdGlvbnMgcGFyZW50cyBjYW4gYXNrIGtpZHMKLSAiZ2xvc3NhcnkiOiBvcHRpb25hbCBhcnJheSBvZiB7dGVybSwgbWVhbmluZ30gZm9yIHRlY2huaWNhbCBzdG9yaWVzCi0gImFnZUJhbmQiOiAiNSsiLCAiOCsiLCBvciAiMTIrIgotICJzb3VyY2VzIjogYXJyYXkgb2Yge2xhYmVsLCB1cmx9IChwcmltYXJ5IHNvdXJjZXMgb25seSkKLSAiaGVyb0ltYWdlIjogIiIgKGxlYXZlIGJsYW5rIOKAlCB0aGUgbmV3c3Jvb20gYXR0YWNoZXMgYXJ0d29yaykKLSAidGFncyI6IGFycmF5IG9mIDItNSB0b3BpYyB0YWdzCgpHVUFSRFJBSUxTIChzdG9yaWVzIHZpb2xhdGluZyB0aGVzZSBhcmUgcmVqZWN0ZWQpOgotIFlvdXRoLWZpcnN0LCBpbnNwaXJpbmcsIG5vdCBzY2FyeS4gRmFtaWx5LXNhZmU6IG5vIHZpb2xlbmNlLCB3ZWFwb25zLCBwb2xpdGljcywgZHJ1Z3MuCi0gTm8gamFyZ29uIHdpdGhvdXQgZXhwbGFuYXRpb24uIEFjY2Vzc2libGUgbGFuZ3VhZ2UgdGhyb3VnaG91dC4KLSBFdmVyeSBmYWN0dWFsIGNsYWltIG11c3QgdHJhY2UgdG8gYSBzb3VyY2UgeW91IGFjdHVhbGx5IGZvdW5kLgoKUmV0dXJuIE9OTFkgdGhlIEpTT04gb2JqZWN0cywgb25lIHBlciBsaW5lIChKU09OTCkuIE5vIGNvbW1lbnRhcnksIG5vIG1hcmtkb3duIGZlbmNlcy5gOwp9CgoKLy8gVmFsaWRhdGUgdGhlIG9wdGlvbmFsIGB0cnlJdGAgb2JqZWN0OgovLyB7dHlwZTond2Vla2VuZC1sYWInfCdxdWl6JywgbGFiZWwsIHVybH0g4oCUIGxpbmtzIGEgc3RvcnkgdG8gYSBoYW5kcy1vbiBhY3Rpdml0eS4KZnVuY3Rpb24gdmFsaWRhdGVUcnlJdCh0cnlJdCkgewogIGNvbnN0IGVycm9ycyA9IFtdOwogIGlmICh0cnlJdCA9PSBudWxsKSByZXR1cm4gZXJyb3JzOwogIGlmICh0eXBlb2YgdHJ5SXQgIT09ICdvYmplY3QnIHx8IEFycmF5LmlzQXJyYXkodHJ5SXQpKSByZXR1cm4gWyd0cnlJdCBtdXN0IGJlIGFuIG9iamVjdCddOwogIGlmICghWyd3ZWVrZW5kLWxhYicsICdxdWl6J10uaW5jbHVkZXModHJ5SXQudHlwZSkpIGVycm9ycy5wdXNoKCd0cnlJdC50eXBlIG11c3QgYmUgd2Vla2VuZC1sYWJ8cXVpeicpOwogIGNvbnN0IG9rVXJsID0gdSA9PiB0eXBlb2YgdSA9PT0gJ3N0cmluZycgJiYgL15odHRwcz86XC9cLy9pLnRlc3QodS50cmltKCkpOwogIGlmICghb2tVcmwodHJ5SXQudXJsKSkgZXJyb3JzLnB1c2goJ3RyeUl0LnVybCBtdXN0IGJlIGFuIGh0dHAocykgVVJMJyk7CiAgY29uc3QgbGFiZWwgPSBTdHJpbmcodHJ5SXQubGFiZWwgfHwgJycpLnRyaW0oKTsKICBpZiAoIWxhYmVsKSBlcnJvcnMucHVzaCgndHJ5SXQubGFiZWwgcmVxdWlyZWQnKTsKICBlbHNlIGlmIChsYWJlbC5sZW5ndGggPiA4MCkgZXJyb3JzLnB1c2goJ3RyeUl0LmxhYmVsIG1heCA4MCBjaGFycycpOwogIHJldHVybiBlcnJvcnM7Cn0KCi8vIFZhbGlkYXRlIHRoZSBvcHRpb25hbCBgc291cmNlc2AgYXJyYXk6Ci8vIFt7dGl0bGUsIHVybCwgcHVibGlzaGVyP31dIOKAlCB0aXRsZSA8PSAxNTAgY2hhcnMsIHVybCBodHRwKHMpLCBwdWJsaXNoZXIgPD0gODAgY2hhcnMuCi8vIFRoZSBmaXJzdCBlbnRyeSBzaG91bGQgYmUgdGhlIG9yaWdpbmFsIHJlcG9ydGluZyB0aGUgc3Rvcnkgd2FzIHdyaXR0ZW4gZnJvbS4KLy8gKGFjY2VwdHMgbGVnYWN5IGBsYWJlbGAgYXMgYSB0aXRsZSBmYWxsYmFjaykKZnVuY3Rpb24gdmFsaWRhdGVTb3VyY2VzQXJyYXkoc291cmNlcykgewogIGNvbnN0IGVycm9ycyA9IFtdOwogIGlmIChzb3VyY2VzID09IG51bGwpIHJldHVybiBlcnJvcnM7CiAgaWYgKCFBcnJheS5pc0FycmF5KHNvdXJjZXMpKSByZXR1cm4gWydzb3VyY2VzIG11c3QgYmUgYW4gYXJyYXknXTsKICBpZiAoc291cmNlcy5sZW5ndGggPiA1KSBlcnJvcnMucHVzaCgnc291cmNlczogbWF4IDUgaXRlbXMgKGdvdCAnICsgc291cmNlcy5sZW5ndGggKyAnKScpOwogIGNvbnN0IG9rVXJsID0gdSA9PiB0eXBlb2YgdSA9PT0gJ3N0cmluZycgJiYgL15odHRwcz86XC9cLy9pLnRlc3QodS50cmltKCkpOwogIHNvdXJjZXMuZm9yRWFjaCgocywgaSkgPT4gewogICAgY29uc3QgdGFnID0gJ3NvdXJjZXNbJyArIGkgKyAnXSc7CiAgICBpZiAoIXMgfHwgdHlwZW9mIHMgIT09ICdvYmplY3QnKSB7IGVycm9ycy5wdXNoKHRhZyArICc6IG11c3QgYmUgYW4gb2JqZWN0Jyk7IHJldHVybjsgfQogICAgY29uc3QgdGl0bGUgPSBTdHJpbmcocy50aXRsZSB8fCBzLmxhYmVsIHx8ICcnKS50cmltKCk7CiAgICBpZiAoIXRpdGxlKSBlcnJvcnMucHVzaCh0YWcgKyAnOiB0aXRsZSByZXF1aXJlZCcpOwogICAgZWxzZSBpZiAodGl0bGUubGVuZ3RoID4gMTUwKSBlcnJvcnMucHVzaCh0YWcgKyAnOiB0aXRsZSBtYXggMTUwIGNoYXJzJyk7CiAgICBpZiAoIW9rVXJsKHMudXJsKSkgZXJyb3JzLnB1c2godGFnICsgJzogdXJsIG11c3QgYmUgYW4gaHR0cChzKSBVUkwnKTsKICAgIGNvbnN0IHB1YiA9IFN0cmluZyhzLnB1Ymxpc2hlciB8fCAnJykudHJpbSgpOwogICAgaWYgKHB1Yi5sZW5ndGggPiA4MCkgZXJyb3JzLnB1c2godGFnICsgJzogcHVibGlzaGVyIG1heCA4MCBjaGFycycpOwogIH0pOwogIHJldHVybiBlcnJvcnM7Cn0KCi8vIFZhbGlkYXRlIHRoZSBvcHRpb25hbCBgbWVkaWFgIGFycmF5IG9uIGEgZHJhZnQ6Ci8vIFt7dHlwZTonaW1hZ2UnfCd2aWRlbyd8J2xpbmsnLCB1cmwsIGNhcHRpb24sIGNyZWRpdCwgc291cmNlVXJsP31dCi8vIENhcHM6IG1heCA2IGl0ZW1zLCBodHRwKHMpIHVybHMsIGNhcHRpb24gPD0gMjAwIGNoYXJzLCBjcmVkaXQgPD0gMTIwIGNoYXJzLgovLyBLaWQtc2FmZSBndWFyZHJhaWwgYXBwbGllcyB0byBjYXB0aW9ucyB0b28uCmZ1bmN0aW9uIHZhbGlkYXRlTWVkaWFBcnJheShtZWRpYSkgewogIGNvbnN0IGVycm9ycyA9IFtdOwogIGlmIChtZWRpYSA9PSBudWxsKSByZXR1cm4gZXJyb3JzOwogIGlmICghQXJyYXkuaXNBcnJheShtZWRpYSkpIHJldHVybiBbJ21lZGlhIG11c3QgYmUgYW4gYXJyYXknXTsKICBpZiAobWVkaWEubGVuZ3RoID4gNikgZXJyb3JzLnB1c2goJ21lZGlhOiBtYXggNiBpdGVtcyAoZ290ICcgKyBtZWRpYS5sZW5ndGggKyAnKScpOwogIGNvbnN0IG9rVXJsID0gdSA9PiB0eXBlb2YgdSA9PT0gJ3N0cmluZycgJiYgL15odHRwcz86XC9cLy9pLnRlc3QodS50cmltKCkpOwogIGNvbnN0IGZsYWdnZWQgPSBbJ2tpbGxlZCcsICdtdXJkZXInLCAnc3VpY2lkZScsICd0ZXJyb3Jpc3QnLCAnYXNzYXVsdCcsICdyYXBlJywgJ292ZXJkb3NlJywgJ25hemknLCAnc2xhdmVyeScsICdndW4gJywgJ3Nob290aW5nJywgJ3dlYXBvbicsICdjb21iYXQnXTsKICBtZWRpYS5mb3JFYWNoKChtLCBpKSA9PiB7CiAgICBjb25zdCB0YWcgPSAnbWVkaWFbJyArIGkgKyAnXSc7CiAgICBpZiAoIW0gfHwgdHlwZW9mIG0gIT09ICdvYmplY3QnKSB7IGVycm9ycy5wdXNoKHRhZyArICc6IG11c3QgYmUgYW4gb2JqZWN0Jyk7IHJldHVybjsgfQogICAgaWYgKCFbJ2ltYWdlJywgJ3ZpZGVvJywgJ2xpbmsnXS5pbmNsdWRlcyhtLnR5cGUpKSBlcnJvcnMucHVzaCh0YWcgKyAnOiB0eXBlIG11c3QgYmUgaW1hZ2V8dmlkZW98bGluaycpOwogICAgaWYgKCFva1VybChtLnVybCkpIGVycm9ycy5wdXNoKHRhZyArICc6IHVybCBtdXN0IGJlIGFuIGh0dHAocykgVVJMJyk7CiAgICBpZiAobS5zb3VyY2VVcmwgJiYgIW9rVXJsKG0uc291cmNlVXJsKSkgZXJyb3JzLnB1c2godGFnICsgJzogc291cmNlVXJsIG11c3QgYmUgYW4gaHR0cChzKSBVUkwnKTsKICAgIGNvbnN0IGNhcCA9IFN0cmluZyhtLmNhcHRpb24gfHwgJycpLnRyaW0oKTsKICAgIGlmICghY2FwKSBlcnJvcnMucHVzaCh0YWcgKyAnOiBjYXB0aW9uIHJlcXVpcmVkJyk7CiAgICBlbHNlIGlmIChjYXAubGVuZ3RoID4gMjAwKSBlcnJvcnMucHVzaCh0YWcgKyAnOiBjYXB0aW9uIG1heCAyMDAgY2hhcnMnKTsKICAgIGNvbnN0IGNyZWQgPSBTdHJpbmcobS5jcmVkaXQgfHwgJycpLnRyaW0oKTsKICAgIGlmICghY3JlZCkgZXJyb3JzLnB1c2godGFnICsgJzogY3JlZGl0IHJlcXVpcmVkIChuYW1lIHRoZSBzb3VyY2UpJyk7CiAgICBlbHNlIGlmIChjcmVkLmxlbmd0aCA+IDEyMCkgZXJyb3JzLnB1c2godGFnICsgJzogY3JlZGl0IG1heCAxMjAgY2hhcnMnKTsKICAgIGNvbnN0IGhpdHMgPSBmbGFnZ2VkLmZpbHRlcih3ID0+IGNhcC50b0xvd2VyQ2FzZSgpLmluY2x1ZGVzKHcpKTsKICAgIGlmIChoaXRzLmxlbmd0aCkgZXJyb3JzLnB1c2godGFnICsgJzogS0lELVNBRkUgVklPTEFUSU9OIGluIGNhcHRpb246ICcgKyBoaXRzLmpvaW4oJywgJykpOwogIH0pOwogIHJldHVybiBlcnJvcnM7Cn0KCi8vIFZhbGlkYXRlIGEgZmlsZWQgZHJhZnQgYWdhaW5zdCB0aGUgaG91c2Ugc2NoZW1hICsga2lkLXNhZmUgZ3VhcmRyYWlscy4KLy8gTWlycm9ycyB0aGUgcnVsZXMgaW4gbmV3c3Jvb20vcHVibGlzaC5qcyBzbyBiYWQgZHJhZnRzIG5ldmVyIHJlYWNoIHRoZSBxdWV1ZS4KZnVuY3Rpb24gdmFsaWRhdGVEcmFmdChhcnRpY2xlKSB7CiAgY29uc3QgZXJyb3JzID0gW107CiAgaWYgKCFhcnRpY2xlLnRpdGxlKSBlcnJvcnMucHVzaCgndGl0bGUgcmVxdWlyZWQnKTsKICBpZiAoIWFydGljbGUuY2F0KSBlcnJvcnMucHVzaCgnY2F0IHJlcXVpcmVkJyk7CiAgaWYgKCFhcnRpY2xlLmJvZHkpIGVycm9ycy5wdXNoKCdib2R5IHJlcXVpcmVkIChIVE1MIHN0cmluZyknKTsKICBpZiAoIWFydGljbGUuZGF0ZSkgZXJyb3JzLnB1c2goJ2RhdGUgcmVxdWlyZWQgKFlZWVktTU0tREQpJyk7CiAgaWYgKCFhcnRpY2xlLmV4Y2VycHQpIGVycm9ycy5wdXNoKCdleGNlcnB0IHJlcXVpcmVkJyk7CiAgaWYgKCFhcnRpY2xlLmtpZFRha2UpIGVycm9ycy5wdXNoKCdraWRUYWtlIHJlcXVpcmVkICgyLTMgc2VudGVuY2VzLCB+YWdlIDggcmVhZGluZyBsZXZlbCknKTsKICBpZiAoIWFydGljbGUuZmFtaWx5RGlzY3Vzc2lvbiB8fCAhQXJyYXkuaXNBcnJheShhcnRpY2xlLmZhbWlseURpc2N1c3Npb24pIHx8IGFydGljbGUuZmFtaWx5RGlzY3Vzc2lvbi5sZW5ndGggPCAyKSB7CiAgICBlcnJvcnMucHVzaCgnZmFtaWx5RGlzY3Vzc2lvbiByZXF1aXJlZCAoYXJyYXkgb2YgMisgcXVlc3Rpb24gc3RyaW5ncyknKTsKICB9CiAgY29uc3QgdmFsaWRDYXRzID0gWydhaScsICdzcGFjZScsICdyb2JvdGljcycsICdiaW90ZWNoJywgJ3F1YW50dW0nLCAnY2xpbWF0ZScsICdlbmdpbmVlcmluZycsICdtYXRoJywgJ2N5YmVyJywgJ2dhbWluZycsICdtdXNpYycsICdzdGVtJywgJ3BsYXknXTsKICBpZiAoYXJ0aWNsZS5jYXQgJiYgIXZhbGlkQ2F0cy5pbmNsdWRlcyhhcnRpY2xlLmNhdCkpIGVycm9ycy5wdXNoKCdjYXQgbXVzdCBiZSBvbmUgb2Y6ICcgKyB2YWxpZENhdHMuam9pbignLCAnKSk7CgogIGNvbnN0IGZsYWdnZWQgPSBbJ2tpbGxlZCcsICdtdXJkZXInLCAnc3VpY2lkZScsICd0ZXJyb3Jpc3QnLCAnYXNzYXVsdCcsICdyYXBlJywgJ292ZXJkb3NlJywgJ25hemknLCAnc2xhdmVyeScsICdndW4nLCAnc2hvb3RpbmcnLCAnd2VhcG9uJywgJ2NvbWJhdCddOwogIGNvbnN0IGhheXN0YWNrID0gKFN0cmluZyhhcnRpY2xlLnRpdGxlIHx8ICcnKSArICcgJyArIFN0cmluZyhhcnRpY2xlLmJvZHkgfHwgJycpKS50b0xvd2VyQ2FzZSgpOwogIGNvbnN0IGVzY2FwZVJlID0gcyA9PiBzLnJlcGxhY2UoL1suKis/XiR7fSgpfFtcXVxcXS9nLCAnXFwkJicpOwogIGNvbnN0IGhpdHMgPSBmbGFnZ2VkLmZpbHRlcih3ID0+IG5ldyBSZWdFeHAoJ1xcYicgKyBlc2NhcGVSZSh3KSArICdzP1xcYicpLnRlc3QoaGF5c3RhY2spKTsKICBpZiAoaGl0cy5sZW5ndGgpIGVycm9ycy5wdXNoKCdLSUQtU0FGRSBWSU9MQVRJT046IGZsYWdnZWQgdGVybXM6ICcgKyBoaXRzLmpvaW4oJywgJykpOwoKICAvLyBIZXJvLWltYWdlIGdhdGUgKDIwMjYtMTAtMDUpOiBhIGRyYWZ0IHdpdGhvdXQgcmVhbCBhcnR3b3JrIHVzZWQgdG8gc2xpcCB0aHJvdWdoCiAgLy8gYW5kIHB1Ymxpc2ggd2l0aCBhbiBTVkcgcGxhY2Vob2xkZXIuIFJlamVjdCBpdCBhdCBmaWxpbmcgdGltZSBpbnN0ZWFkLgogIGNvbnN0IGhlcm8gPSBTdHJpbmcoYXJ0aWNsZS5oZXJvSW1hZ2UgfHwgJycpOwogIGlmICghaGVyby5zdGFydHNXaXRoKCcvYXNzZXRzL2ltZy8nKSkgewogICAgZXJyb3JzLnB1c2goJ2hlcm9JbWFnZSByZXF1aXJlZDogbXVzdCBiZSBhbiB1cGxvYWRlZCAvYXNzZXRzL2ltZy8uLi4gcGF0aCAobm8gbWlzc2luZyBvciBkYXRhOiBVUklzKScpOwogIH0KCiAgZXJyb3JzLnB1c2goLi4udmFsaWRhdGVNZWRpYUFycmF5KGFydGljbGUubWVkaWEpKTsKICBlcnJvcnMucHVzaCguLi52YWxpZGF0ZVNvdXJjZXNBcnJheShhcnRpY2xlLnNvdXJjZXMpKTsKICBlcnJvcnMucHVzaCguLi52YWxpZGF0ZVRyeUl0KGFydGljbGUudHJ5SXQpKTsKCiAgcmV0dXJuIGVycm9yczsKfQoKLy8gLS0tLSBHbG9zc2FyeS9zb3VyY2Ugc2hhcGUgd2FybmluZ3MgKDIwMjYtMTAtMDYpIC0tLS0KLy8gVGhlIE9jdCA2ICJ1bmRlZmluZWQiIGJ1ZzogZ2xvc3NhcnkgaXRlbXMgYXJyaXZlZCBhcyB7dGVybSwgZGVmaW5pdGlvbn0gd2hpbGUKLy8gdGhlIHJlbmRlcmVyIGV4cGVjdGVkIHt0ZXJtLCBtZWFuaW5nfSwgYW5kIHNvdXJjZXMgYXJyaXZlZCBhcyB7dGl0bGUsCi8vIHB1Ymxpc2hlciwgdXJsfSB3aGlsZSB0aGUgcmVuZGVyZXIgZXhwZWN0ZWQge2xhYmVsLCB1cmx9LiBUaGUgcmVuZGVyZXIgbm93Ci8vIGZhbGxzIGJhY2sgZ3JhY2VmdWxseSwgc28gdGhlc2UgYXJlIFdBUk5JTkdTLCBub3QgcmVqZWN0aW9ucyDigJQgdGhleSBmbGFnCi8vIHNoYXBlIGRyaWZ0IGZvciB0aGUgbmV3c3Jvb20gd2l0aG91dCBibG9ja2luZyBmaWxpbmcuCmZ1bmN0aW9uIGNoZWNrRHJhZnRTaGFwZXMoYXJ0aWNsZSkgewogIGNvbnN0IHdhcm5pbmdzID0gW107CiAgY29uc3QgZ2xvc3NhcnkgPSBhcnRpY2xlLmdsb3NzYXJ5OwogIGlmIChBcnJheS5pc0FycmF5KGdsb3NzYXJ5KSkgewogICAgZ2xvc3NhcnkuZm9yRWFjaCgoZywgaSkgPT4gewogICAgICBpZiAoIWcgfHwgdHlwZW9mIGcgIT09ICdvYmplY3QnKSB7IHdhcm5pbmdzLnB1c2goYGdsb3NzYXJ5WyR7aX1dOiBub3QgYW4gb2JqZWN0YCk7IHJldHVybjsgfQogICAgICBpZiAoIWcudGVybSkgd2FybmluZ3MucHVzaChgZ2xvc3NhcnlbJHtpfV06IG1pc3NpbmcgdGVybWApOwogICAgICBpZiAoIWcuZGVmaW5pdGlvbiAmJiAhZy5tZWFuaW5nKSB7CiAgICAgICAgd2FybmluZ3MucHVzaChgZ2xvc3NhcnlbJHtpfV0gKCIke2cudGVybSB8fCAnPyd9Iik6IGhhcyBuZWl0aGVyIGRlZmluaXRpb24gbm9yIG1lYW5pbmcg4oCUIHdpbGwgcmVuZGVyIGVtcHR5YCk7CiAgICAgIH0KICAgIH0pOwogIH0KICBjb25zdCBzb3VyY2VzID0gYXJ0aWNsZS5zb3VyY2VzOwogIGlmIChBcnJheS5pc0FycmF5KHNvdXJjZXMpKSB7CiAgICBzb3VyY2VzLmZvckVhY2goKHMsIGkpID0+IHsKICAgICAgaWYgKCFzIHx8IHR5cGVvZiBzICE9PSAnb2JqZWN0JykgeyB3YXJuaW5ncy5wdXNoKGBzb3VyY2VzWyR7aX1dOiBub3QgYW4gb2JqZWN0YCk7IHJldHVybjsgfQogICAgICBpZiAoIXMubGFiZWwgJiYgIXMudGl0bGUgJiYgIXMudXJsKSB7CiAgICAgICAgd2FybmluZ3MucHVzaChgc291cmNlc1ske2l9XTogbWlzc2luZyBsYWJlbC90aXRsZS91cmwg4oCUIGxpbmsgd2lsbCByZW5kZXIgZW1wdHlgKTsKICAgICAgfSBlbHNlIGlmICghcy51cmwpIHsKICAgICAgICB3YXJuaW5ncy5wdXNoKGBzb3VyY2VzWyR7aX1dICgiJHtzLmxhYmVsIHx8IHMudGl0bGUgfHwgJz8nfSIpOiBtaXNzaW5nIHVybGApOwogICAgICB9CiAgICB9KTsKICB9CiAgcmV0dXJuIHdhcm5pbmdzOwp9CgovLyAtLS0tIERyb3AtdGltZSBoZWxwZXJzIChBbWVyaWNhL05ld19Zb3JrKSAtLS0tCgpmdW5jdGlvbiBldFBhcnRzKGRhdGUgPSBuZXcgRGF0ZSgpKSB7CiAgY29uc3QgZm10ID0gbmV3IEludGwuRGF0ZVRpbWVGb3JtYXQoJ2VuLVVTJywgewogICAgdGltZVpvbmU6ICdBbWVyaWNhL05ld19Zb3JrJywgaG91cjEyOiBmYWxzZSwKICAgIHllYXI6ICdudW1lcmljJywgbW9udGg6ICcyLWRpZ2l0JywgZGF5OiAnMi1kaWdpdCcsCiAgICBob3VyOiAnMi1kaWdpdCcsIG1pbnV0ZTogJzItZGlnaXQnCiAgfSk7CiAgY29uc3QgcCA9IHt9OwogIGZvciAoY29uc3QgcGFydCBvZiBmbXQuZm9ybWF0VG9QYXJ0cyhkYXRlKSkgcFtwYXJ0LnR5cGVdID0gcGFydC52YWx1ZTsKICByZXR1cm4geyB5ZWFyOiArcC55ZWFyLCBtb250aDogK3AubW9udGgsIGRheTogK3AuZGF5LCBob3VyOiArKHAuaG91ciA9PT0gJzI0JyA/IDAgOiBwLmhvdXIpLCBtaW51dGU6ICtwLm1pbnV0ZSB9Owp9CgpmdW5jdGlvbiBldE9mZnNldE1pbnV0ZXMoZGF0ZSA9IG5ldyBEYXRlKCkpIHsKICBjb25zdCBwID0gZXRQYXJ0cyhkYXRlKTsKICBjb25zdCBhc1VUQyA9IERhdGUuVVRDKHAueWVhciwgcC5tb250aCAtIDEsIHAuZGF5LCBwLmhvdXIsIHAubWludXRlLCAwKTsKICByZXR1cm4gTWF0aC5yb3VuZCgoYXNVVEMgLSBkYXRlLmdldFRpbWUoKSkgLyA2MDAwMCk7Cn0KCmZ1bmN0aW9uIGV0RGF0ZVRvVXRjKHllYXIsIG1vbnRoLCBkYXksIGhvdXIsIG1pbnV0ZSA9IDApIHsKICBjb25zdCBndWVzcyA9IG5ldyBEYXRlKERhdGUuVVRDKHllYXIsIG1vbnRoIC0gMSwgZGF5LCBob3VyLCBtaW51dGUsIDApKTsKICByZXR1cm4gbmV3IERhdGUoZ3Vlc3MuZ2V0VGltZSgpIC0gZXRPZmZzZXRNaW51dGVzKGd1ZXNzKSAqIDYwMDAwKTsKfQoKLy8gVGhlIG5leHQgZHJvcCBpbnN0YW50IHN0cmljdGx5IGFmdGVyIGBmcm9tYC4KZnVuY3Rpb24gbmV4dERyb3AoZnJvbSA9IG5ldyBEYXRlKCkpIHsKICBjb25zdCBwID0gZXRQYXJ0cyhmcm9tKTsKICBmb3IgKGNvbnN0IGggb2YgWzcsIDE0LCAxOF0pIHsKICAgIGNvbnN0IGNhbmQgPSBldERhdGVUb1V0YyhwLnllYXIsIHAubW9udGgsIHAuZGF5LCBoLCAxNSk7CiAgICBpZiAoY2FuZC5nZXRUaW1lKCkgPiBmcm9tLmdldFRpbWUoKSkgcmV0dXJuIHsgYXQ6IGNhbmQsIGhvdXI6IGgsIGVkaXRpb246IEVESVRJT05TW2hdIH07CiAgfQogIGNvbnN0IHQgPSBuZXcgRGF0ZShmcm9tLmdldFRpbWUoKSArIDI0ICogMzYwMF8wMDApOwogIGNvbnN0IHRwID0gZXRQYXJ0cyh0KTsKICBjb25zdCBjYW5kID0gZXREYXRlVG9VdGModHAueWVhciwgdHAubW9udGgsIHRwLmRheSwgMTAsIDE1KTsKICByZXR1cm4geyBhdDogY2FuZCwgaG91cjogNywgZWRpdGlvbjogRURJVElPTlNbN10gfTsKfQoKLy8gQ29ycmVzcG9uZGVudHMgZmlsZSA2MCBtaW51dGVzIGJlZm9yZSB0aGUgZHJvcC4KZnVuY3Rpb24gYWdlbnRTcGF3blRpbWUoZnJvbSA9IG5ldyBEYXRlKCkpIHsKICBjb25zdCBuZCA9IG5leHREcm9wKGZyb20pOwogIHJldHVybiB7IGF0OiBuZXcgRGF0ZShuZC5hdC5nZXRUaW1lKCkgLSA2MCAqIDYwMDAwKSwgZHJvcDogbmQgfTsKfQoKbW9kdWxlLmV4cG9ydHMgPSB7CiAgdmFsaWRhdGVNZWRpYUFycmF5LAogIEFHRU5UUywKICBEUk9QX1RJTUVTX0VULAogIEVESVRJT05TLAogIGdlbmVyYXRlQWdlbnRQcm9tcHQsCiAgdmFsaWRhdGVEcmFmdCwKICBjaGVja0RyYWZ0U2hhcGVzLAogIG5leHREcm9wLAogIGFnZW50U3Bhd25UaW1lCn07Cg==
+// newsroom/agent-orchestrator.js
+// Gizmo Newsroom pipeline protocol.
+//
+// How daily editions get made (replaces the old OpenClaw/Antigravity setup):
+//
+//   T-60 min  Gizmo's scheduler spawns one correspondent subagent per channel
+//             (13 channels). Each subagent reads its channel brief in
+//             newsroom/prompts/<channel>.md, researches 1-2 fresh stories via
+//             Brave Search, and returns article JSON in the house schema.
+//   T-45 min  Gizmo validates every draft (schema + kid-safe guardrails, same
+//             rules as newsroom/publish.js) and files it to the review queue
+//             via POST /api/newsroom/drafts, stamped for the upcoming drop.
+//   T-60..0   The News Director reviews in the Review Console
+//             (newsroom/dashboard.html): approve, spike, or leave notes.
+//             Notes left on a draft are applied on the final pass.
+//   T-15 min  Final pass: notes applied, drafts revised, queue updated.
+//   Drop      server/scheduler.js releases scheduled stories. Any draft still
+//             sitting unreviewed at drop time auto-publishes (the director's
+//             review is a courtesy, never a blocker). Spiked (rejected)
+//             stories never auto-publish.
+//
+// The correspondent roster lives in newsroom/agents-config.js.
+
+const path = require('path');
+const fs = require('fs');
+const { AGENTS } = require('./agents-config');
+
+const DROP_TIMES_ET = ['7:15 AM', '2:15 PM', '6:15 PM'];
+const EDITIONS = { 7: 'morning', 14: 'midday', 18: 'evening' };
+
+// The prompt template handed to each correspondent subagent.
+function generateAgentPrompt(agent, drops) {
+  const briefPath = path.join(__dirname, 'prompts', `${agent.channel}.md`);
+  let brief = '';
+  try { brief = fs.readFileSync(briefPath, 'utf8'); }
+  catch (e) { brief = '(channel brief not found — use house style)'; }
+
+  return `You are ${agent.displayName}, ${agent.role} for Skynet Nexus News, a family-first news network (ages 5-50, parent/child co-reading).
+
+CHANNEL BRIEF:
+${brief}
+
+YOUR ASSIGNMENT — file 1-2 fresh stories for the upcoming edition(s): ${drops.join(', ')}.
+
+Research each story with web search. Use PRIMARY sources only (universities, agencies, competition results, official announcements). No made-up stories, no unverifiable claims. Today's date context matters — prefer stories from the last 72 hours.
+
+For each story, return ONE valid article JSON object with:
+- "title": catchy, youth-first headline (under 80 chars)
+- "cat": "${agent.channel}"
+- "author": "${agent.displayName}"
+- "authorRole": "${agent.role}"
+- "date": "YYYY-MM-DD" (today)
+- "excerpt": 1-2 sentence summary
+- "body": clean HTML (<p>, <h2>, <blockquote>, <ul>, <li>), ~400 words
+- "kidTake": 2-3 sentences at age-8 reading level
+- "familyDiscussion": array of 2+ open-ended questions parents can ask kids
+- "glossary": optional array of {term, meaning} for technical stories
+- "ageBand": "5+", "8+", or "12+"
+- "sources": array of {label, url} (primary sources only)
+- "heroImage": "" (leave blank — the newsroom attaches artwork)
+- "tags": array of 2-5 topic tags
+
+GUARDRAILS (stories violating these are rejected):
+- Youth-first, inspiring, not scary. Family-safe: no violence, weapons, politics, drugs.
+- No jargon without explanation. Accessible language throughout.
+- Every factual claim must trace to a source you actually found.
+
+Return ONLY the JSON objects, one per line (JSONL). No commentary, no markdown fences.`;
+}
+
+
+// Validate the optional `tryIt` object:
+// {type:'weekend-lab'|'quiz', label, url} — links a story to a hands-on activity.
+function validateTryIt(tryIt) {
+  const errors = [];
+  if (tryIt == null) return errors;
+  if (typeof tryIt !== 'object' || Array.isArray(tryIt)) return ['tryIt must be an object'];
+  if (!['weekend-lab', 'quiz'].includes(tryIt.type)) errors.push('tryIt.type must be weekend-lab|quiz');
+  const okUrl = u => typeof u === 'string' && /^https?:\/\//i.test(u.trim());
+  if (!okUrl(tryIt.url)) errors.push('tryIt.url must be an http(s) URL');
+  const label = String(tryIt.label || '').trim();
+  if (!label) errors.push('tryIt.label required');
+  else if (label.length > 80) errors.push('tryIt.label max 80 chars');
+  return errors;
+}
+
+// Validate the optional `sources` array:
+// [{title, url, publisher?}] — title <= 150 chars, url http(s), publisher <= 80 chars.
+// The first entry should be the original reporting the story was written from.
+// (accepts legacy `label` as a title fallback)
+function validateSourcesArray(sources) {
+  const errors = [];
+  if (sources == null) return errors;
+  if (!Array.isArray(sources)) return ['sources must be an array'];
+  if (sources.length > 5) errors.push('sources: max 5 items (got ' + sources.length + ')');
+  const okUrl = u => typeof u === 'string' && /^https?:\/\//i.test(u.trim());
+  sources.forEach((s, i) => {
+    const tag = 'sources[' + i + ']';
+    if (!s || typeof s !== 'object') { errors.push(tag + ': must be an object'); return; }
+    const title = String(s.title || s.label || '').trim();
+    if (!title) errors.push(tag + ': title required');
+    else if (title.length > 150) errors.push(tag + ': title max 150 chars');
+    if (!okUrl(s.url)) errors.push(tag + ': url must be an http(s) URL');
+    const pub = String(s.publisher || '').trim();
+    if (pub.length > 80) errors.push(tag + ': publisher max 80 chars');
+  });
+  return errors;
+}
+
+// Validate the optional `media` array on a draft:
+// [{type:'image'|'video'|'link', url, caption, credit, sourceUrl?}]
+// Caps: max 6 items, http(s) urls, caption <= 200 chars, credit <= 120 chars.
+// Kid-safe guardrail applies to captions too.
+function validateMediaArray(media) {
+  const errors = [];
+  if (media == null) return errors;
+  if (!Array.isArray(media)) return ['media must be an array'];
+  if (media.length > 6) errors.push('media: max 6 items (got ' + media.length + ')');
+  const okUrl = u => typeof u === 'string' && /^https?:\/\//i.test(u.trim());
+  const flagged = ['killed', 'murder', 'suicide', 'terrorist', 'assault', 'rape', 'overdose', 'nazi', 'slavery', 'gun ', 'shooting', 'weapon', 'combat'];
+  media.forEach((m, i) => {
+    const tag = 'media[' + i + ']';
+    if (!m || typeof m !== 'object') { errors.push(tag + ': must be an object'); return; }
+    if (!['image', 'video', 'link'].includes(m.type)) errors.push(tag + ': type must be image|video|link');
+    if (!okUrl(m.url)) errors.push(tag + ': url must be an http(s) URL');
+    if (m.sourceUrl && !okUrl(m.sourceUrl)) errors.push(tag + ': sourceUrl must be an http(s) URL');
+    const cap = String(m.caption || '').trim();
+    if (!cap) errors.push(tag + ': caption required');
+    else if (cap.length > 200) errors.push(tag + ': caption max 200 chars');
+    const cred = String(m.credit || '').trim();
+    if (!cred) errors.push(tag + ': credit required (name the source)');
+    else if (cred.length > 120) errors.push(tag + ': credit max 120 chars');
+    const hits = flagged.filter(w => cap.toLowerCase().includes(w));
+    if (hits.length) errors.push(tag + ': KID-SAFE VIOLATION in caption: ' + hits.join(', '));
+  });
+  return errors;
+}
+
+// Validate a filed draft against the house schema + kid-safe guardrails.
+// Mirrors the rules in newsroom/publish.js so bad drafts never reach the queue.
+function validateDraft(article) {
+  const errors = [];
+  if (!article.title) errors.push('title required');
+  if (!article.cat) errors.push('cat required');
+  if (!article.body) errors.push('body required (HTML string)');
+  if (!article.date) errors.push('date required (YYYY-MM-DD)');
+  if (!article.excerpt) errors.push('excerpt required');
+  if (!article.kidTake) errors.push('kidTake required (2-3 sentences, ~age 8 reading level)');
+  if (!article.familyDiscussion || !Array.isArray(article.familyDiscussion) || article.familyDiscussion.length < 2) {
+    errors.push('familyDiscussion required (array of 2+ question strings)');
+  }
+  const validCats = ['ai', 'space', 'robotics', 'biotech', 'quantum', 'climate', 'engineering', 'math', 'cyber', 'gaming', 'music', 'stem', 'play'];
+  if (article.cat && !validCats.includes(article.cat)) errors.push('cat must be one of: ' + validCats.join(', '));
+
+  const flagged = ['killed', 'murder', 'suicide', 'terrorist', 'assault', 'rape', 'overdose', 'nazi', 'slavery', 'gun', 'shooting', 'weapon', 'combat'];
+  const haystack = (String(article.title || '') + ' ' + String(article.body || '')).toLowerCase();
+  const escapeRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const hits = flagged.filter(w => new RegExp('\\b' + escapeRe(w) + 's?\\b').test(haystack));
+  if (hits.length) errors.push('KID-SAFE VIOLATION: flagged terms: ' + hits.join(', '));
+
+  // Hero-image gate (2026-10-05): a draft without real artwork used to slip through
+  // and publish with an SVG placeholder. Reject it at filing time instead.
+  const hero = String(article.heroImage || '');
+  if (!hero.startsWith('/assets/img/')) {
+    errors.push('heroImage required: must be an uploaded /assets/img/... path (no missing or data: URIs)');
+  }
+
+  errors.push(...validateMediaArray(article.media));
+  errors.push(...validateSourcesArray(article.sources));
+  errors.push(...validateTryIt(article.tryIt));
+
+  return errors;
+}
+
+// ---- Glossary/source shape warnings (2026-10-06) ----
+// The Oct 6 "undefined" bug: glossary items arrived as {term, definition} while
+// the renderer expected {term, meaning}, and sources arrived as {title,
+// publisher, url} while the renderer expected {label, url}. The renderer now
+// falls back gracefully, so these are WARNINGS, not rejections — they flag
+// shape drift for the newsroom without blocking filing.
+function checkDraftShapes(article) {
+  const warnings = [];
+  const glossary = article.glossary;
+  if (Array.isArray(glossary)) {
+    glossary.forEach((g, i) => {
+      if (!g || typeof g !== 'object') { warnings.push(`glossary[${i}]: not an object`); return; }
+      if (!g.term) warnings.push(`glossary[${i}]: missing term`);
+      if (!g.definition && !g.meaning) {
+        warnings.push(`glossary[${i}] ("${g.term || '?'}"): has neither definition nor meaning — will render empty`);
+      }
+    });
+  }
+  const sources = article.sources;
+  if (Array.isArray(sources)) {
+    sources.forEach((s, i) => {
+      if (!s || typeof s !== 'object') { warnings.push(`sources[${i}]: not an object`); return; }
+      if (!s.label && !s.title && !s.url) {
+        warnings.push(`sources[${i}]: missing label/title/url — link will render empty`);
+      } else if (!s.url) {
+        warnings.push(`sources[${i}] ("${s.label || s.title || '?'}"): missing url`);
+      }
+    });
+  }
+  return warnings;
+}
+
+// ---- Drop-time helpers (America/New_York) ----
+
+function etParts(date = new Date()) {
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York', hour12: false,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit'
+  });
+  const p = {};
+  for (const part of fmt.formatToParts(date)) p[part.type] = part.value;
+  return { year: +p.year, month: +p.month, day: +p.day, hour: +(p.hour === '24' ? 0 : p.hour), minute: +p.minute };
+}
+
+function etOffsetMinutes(date = new Date()) {
+  const p = etParts(date);
+  const asUTC = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, 0);
+  return Math.round((asUTC - date.getTime()) / 60000);
+}
+
+function etDateToUtc(year, month, day, hour, minute = 0) {
+  const guess = new Date(Date.UTC(year, month - 1, day, hour, minute, 0));
+  return new Date(guess.getTime() - etOffsetMinutes(guess) * 60000);
+}
+
+// The next drop instant strictly after `from`.
+function nextDrop(from = new Date()) {
+  const p = etParts(from);
+  for (const h of [7, 14, 18]) {
+    const cand = etDateToUtc(p.year, p.month, p.day, h, 15);
+    if (cand.getTime() > from.getTime()) return { at: cand, hour: h, edition: EDITIONS[h] };
+  }
+  const t = new Date(from.getTime() + 24 * 3600_000);
+  const tp = etParts(t);
+  const cand = etDateToUtc(tp.year, tp.month, tp.day, 10, 15);
+  return { at: cand, hour: 7, edition: EDITIONS[7] };
+}
+
+// Correspondents file 60 minutes before the drop.
+function agentSpawnTime(from = new Date()) {
+  const nd = nextDrop(from);
+  return { at: new Date(nd.at.getTime() - 60 * 60000), drop: nd };
+}
+
+module.exports = {
+  validateMediaArray,
+  AGENTS,
+  DROP_TIMES_ET,
+  EDITIONS,
+  generateAgentPrompt,
+  validateDraft,
+  checkDraftShapes,
+  nextDrop,
+  agentSpawnTime
+};
