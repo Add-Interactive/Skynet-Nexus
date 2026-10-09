@@ -1,12 +1,12 @@
 // AGI/ASI countdown predictions — loaded before app.js
-// Updated 2026-10-06. Source: public statements from each predictor.
+// Updated 2026-10-09. Source: public statements from each predictor.
 const AGI_PREDICTIONS = {
   elon: {
     name: 'Elon Musk',
     credits: 'Founder of xAI, Tesla, & SpaceX. Creator of Grok AI models. Co-founder of OpenAI. Directing massive GPU compute clusters.',
     date: new Date('2026-12-31T23:59:59'),
-    desc: 'Musk reaffirmed at Davos (Jan 2026) that AI will surpass individual human intelligence by end of 2026, and exceed all humans combined by 2030.',
-    link: 'https://www.livemint.com/news/quote-of-the-day-elon-musk-says-ai-will-surpass-human-intelligence-by-end-of-2026-what-it-means-11774942460100.html'
+    desc: 'Musk said in a July 2026 Economist interview that AI will exceed human intelligence "within just a few years" and could surpass the sum of all human intelligence by ~2031 — holding his end-of-2026 AGI call (Davos, Jan 2026).',
+    link: 'https://nypost.com/2026/07/26/tech/elon-musk-drops-wild-5-year-prediction-about-ai-and-humanity/'
   },
   jensen: {
     name: 'Jensen Huang',
@@ -26,8 +26,8 @@ const AGI_PREDICTIONS = {
     name: 'Dario Amodei',
     credits: 'CEO & Co-founder of Anthropic. Creator of Claude models. Former VP of Research at OpenAI. Pioneer in scale-based safety.',
     date: new Date('2027-06-30T23:59:59'),
-    desc: 'Dario Amodei expects AGI by 2025–2027, driven by scaling laws and transformer refinements.',
-    link: 'https://theagiclock.com/'
+    desc: 'Amodei warned in Sept 2026 the industry should slow down, saying within 6-12 months AI could lead swarms of agents able to "take over the entire internet" — keeping his AGI-by-2027 call intact.',
+    link: 'https://broadbandbreakfast.com/anthropic-ceo-dario-amodei-says-ai-industry-needs-to-slow-down-for-safety/'
   },
   leopold: {
     name: 'Leopold Aschenbrenner',
@@ -47,8 +47,8 @@ const AGI_PREDICTIONS = {
     name: 'Mustafa Suleyman',
     credits: 'CEO of Microsoft AI. Co-founder of Google DeepMind & Inflection AI (Pi). Pioneer in consumer AI agents.',
     date: new Date('2027-11-30T23:59:59'),
-    desc: 'Suleyman told the FT (May 2026) that AI will reach human-level performance on most professional computer tasks within 12-18 months.',
-    link: 'https://www.careertechinsight.in/2026/05/microsoft-ai-chief-suleyman-warning-office-jobs-automated-18-months.html'
+    desc: 'Suleyman told the FT (May 2026) that AI will reach human-level performance on most professional computer tasks within 12-18 months — but clarified in June 2026 he meant automating sub-tasks (emails, decks), not replacing entire jobs.',
+    link: 'https://cryptobriefing.com/microsoft-suleyman-clarifies-ai-automation-comments/'
   },
   ilya: {
     name: 'Ilya Sutskever',
@@ -67,9 +67,9 @@ const AGI_PREDICTIONS = {
   demis: {
     name: 'Demis Hassabis',
     credits: 'CEO & Co-founder of Google DeepMind. Led development of AlphaGo, AlphaFold, and Gemini models. Pioneer in reinforcement learning.',
-    date: new Date('2031-12-31T23:59:59'),
-    desc: 'Hassabis said at the Feb 2026 India AI Summit that AGI is \'on the horizon, maybe within the next five years.\'',
-    link: 'https://www.exchange4media.com/digital-news/agi-could-arrive-within-five-years-google-deepmind-ceo-demis-hassabis-152176.html'
+    date: new Date('2030-12-31T23:59:59'),
+    desc: 'Hassabis narrowed his window at a Stanford GSB fireside chat (May 2026): AGI "maybe 2030, plus or minus a year" — "standing in the foothills of the singularity."',
+    link: 'https://sherwood.news/tech/google-deepminds-hassabis-agi-is-3-to-4-years-away/'
   },
   carmack: {
     name: 'John Carmack',
@@ -131,8 +131,8 @@ const AGI_PREDICTIONS = {
     name: 'Bill Gates',
     credits: 'Co-founder of Microsoft & Gates Foundation. Prominent advisor and philanthropist guiding AI deployment in education and health.',
     date: new Date('2035-12-31T23:59:59'),
-    desc: 'Bill Gates expects AGI within the next 10 to 20 years, transforming global productivity.',
-    link: 'https://www.gatesnotes.com/The-Age-of-AI-Has-Begun'
+    desc: 'Gates reaffirmed on NBC\'s Meet the Press (Sept 2026) a ~20-year AI adjustment period, with AI agents gaining serious momentum now — keeping his 10-20 year AGI frame.',
+    link: 'https://www.thestreet.com/investing/stocks/bill-gates-makes-bold-predictions-on-the-future-of-humanity-and-ai'
   },
   kurzweil_asi: {
     name: 'Ray Kurzweil (ASI)',
