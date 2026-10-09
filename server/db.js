@@ -1834,7 +1834,7 @@ module.exports = {
     // One row per person per article: remove any existing, then insert (unless 'none').
     stmts.upsertReactionDelete.run(art, userId, kId);
     if (r !== 'none') stmts.insertReaction.run(art, userId, kId, r);
-    return this.getArticleReactions({ userId, kidId: kId, articleId: art });
+    return module.exports.getArticleReactions({ userId, kidId: kId, articleId: art });
   },
   getArticleReactions({ userId, kidId, articleId }) {
     const art = String(articleId || '').trim();
@@ -1978,13 +1978,13 @@ module.exports = {
   getCurrentPoll(userId) {
     const poll = stmts.findOpenPoll.get();
     if (!poll) return null;
-    const out = this.getPollWithOptions(poll.id);
+    const out = module.exports.getPollWithOptions(poll.id);
     out.votedOptionIds = userId ? stmts.listUserVotedOptions.all(poll.id, userId).map(r => r.option_id) : [];
     return out;
   },
   getLatestClosedPoll() {
     const poll = stmts.findLatestClosedPoll.get();
-    return poll ? this.getPollWithOptions(poll.id) : null;
+    return poll ? module.exports.getPollWithOptions(poll.id) : null;
   },
   votePoll({ pollId, userId, optionIds }) {
     const poll = stmts.findPollById.get(pollId);
@@ -1997,13 +1997,13 @@ module.exports = {
     if (!valid.length) return { error: 'Pick at least one option.' };
     stmts.deleteUserVotes.run(pollId, userId);
     for (const oid of valid) stmts.insertVote.run(pollId, oid, userId);
-    return this.getPollWithOptions(pollId);
+    return module.exports.getPollWithOptions(pollId);
   },
   closePoll(pollId) {
     const poll = stmts.findPollById.get(pollId);
     if (!poll) return null;
     stmts.closePollStmt.run(pollId);
-    return this.getPollWithOptions(pollId);
+    return module.exports.getPollWithOptions(pollId);
   },
 
   // ---------- Daily news quiz ----------
