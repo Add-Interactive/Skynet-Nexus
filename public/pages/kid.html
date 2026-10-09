@@ -116,7 +116,14 @@
     .then(render)
     .catch(function () { root.innerHTML = '<p style="text-align:center;padding:60px;color:#7c8898">Could not load your space.</p>'; });
 
-  function render(d) {
+  function streakFreezeBadge(d) {
+  var fz = d.streakFreeze;
+  if (!fz) return '';
+  if (fz.savedStreak) return '<span title="Your streak freeze saved your streak — one missed day, no harm done!">🧊 freeze used</span>';
+  if (fz.available) return '<span title="Streak freeze ready: miss a day and it saves your streak automatically.">🧊 freeze ready</span>';
+  return '';
+}
+function render(d) {
     var k = d.kid;
     document.title = k.name + "'s Space · Skynet Nexus";
     var lvl = Math.floor(d.xp / 100) + 1;
@@ -134,7 +141,7 @@
       '<div class="hero-info"><h1>Hey, ' + esc(k.name) + '! 👋</h1><span class="lvl">⚡ Level ' + lvl + ' · ' + d.xp + ' XP</span></div></div>';
     html += '<div class="quote" id="q-wrap">' + (k.quote ? '“' + esc(k.quote) + '” <span class="quote-edit" id="q-edit">✏️</span>' : '<span class="quote-edit" id="q-edit">＋ Add your quote — what inspires you?</span>') + '</div>';
     // XP bar
-    html += '<div class="xp-wrap"><div class="xp-top"><span>⚡ ' + d.xp + ' XP</span><span>🔥 ' + d.streak + ' day streak</span></div>' +
+    html += '<div class="xp-wrap"><div class="xp-top"><span>⚡ ' + d.xp + ' XP</span><span>🔥 ' + d.streak + ' day streak</span>' + streakFreezeBadge(d) + '</div>' +
       '<div class="xp-bar"><div class="xp-fill" style="width:' + xpInLvl + '%"></div></div></div>';
 
     // Reading goal ring
