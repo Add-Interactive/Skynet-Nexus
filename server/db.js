@@ -621,6 +621,16 @@ db.exec(`
     PRIMARY KEY (kid_id, badge_key)
   );
 `);
+// Streak freeze: one auto-applied freeze per streak (Duolingo-style).
+// A freeze bridges a single missed day; it replenishes when the streak breaks.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS streak_freezes (
+    kid_id INTEGER PRIMARY KEY REFERENCES kid_profiles(id) ON DELETE CASCADE,
+    freezes INTEGER NOT NULL DEFAULT 1,
+    frozen_gap TEXT,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+`);
 // Classroom system: teachers group student profiles into classes and run
 // threaded article/topic discussions with them.
 db.exec(`
@@ -857,6 +867,10 @@ const stmts = {
   kidArticleEvents: db.prepare(`SELECT event_type FROM kid_xp_events WHERE kid_id = ? AND article_id = ?`),
   storyDays: db.prepare(`SELECT DISTINCT date(created_at) AS d FROM kid_xp_events WHERE kid_id = ? AND event_type = 'story' ORDER BY d DESC`),
   kidBadges: db.prepare(`SELECT badge_key FROM kid_badges WHERE kid_id = ?`),
+  freezeGet: db.prepare(`SELECT freezes, frozen_gap FROM streak_freezes WHERE kid_id = ?`),
+  freezeInit: db.prepare(`INSERT OR IGNORE INTO streak_freezes (kid_id) VALUES (?)`),
+  freezeSet: db.prepare(`UPDATE streak_freezes SET freezes = ?, frozen_gap = ?, updated_at = datetime('now') WHERE kid_id = ?`),
+  freezeReset: db.prepare(`UPDATE streak_freezes SET freezes = 1, frozen_gap = NULL, updated_at = datetime('now') WHERE kid_id = ?`),
   insertBadge: db.prepare(`INSERT OR IGNORE INTO kid_badges (kid_id, badge_key) VALUES (?, ?)`),
   // Classrooms
   createClassroom: db.prepare(`INSERT INTO classrooms (user_id, name) VALUES (?, ?)`),
@@ -1582,25 +1596,49 @@ function gamLevelFor(xp) {
     progress: next ? Math.min(1, (xp - cur.xp) / (next.xp - cur.xp)) : 1,
   };
 }
-function gamStreak(kidId) {
+function prevDay(d) {
+  return new Date(new Date(d + 'T12:00:00Z').getTime() - 864e5).toISOString().slice(0, 10);
+}
+function getStreakFreeze(kidId) {
+  let row = stmts.freezeGet.get(kidId);
+  if (!row) { stmts.freezeInit.run(kidId); return { freezes: 1, frozen_gap: null }; }
+  return { freezes: row.freezes, frozen_gap: row.frozen_gap };
+}
+function gamStreakInner(kidId) {
   const days = stmts.storyDays.all(kidId).map(r => r.d);
-  if (!days.length) return 0;
+  if (!days.length) return { streak: 0, freezeUsed: false };
   const today = new Date().toISOString().slice(0, 10);
   const daySet = new Set(days);
   let cursor = daySet.has(today) ? today : null;
   if (!cursor) {
     // Allow yesterday: streak stays alive if the last read was yesterday.
     const y = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
-    if (!daySet.has(y)) return 0;
+    if (!daySet.has(y)) {
+      // Streak broken — replenish the freeze for the next streak.
+      stmts.freezeReset.run(kidId);
+      return { streak: 0, freezeUsed: false };
+    }
     cursor = y;
   }
-  let streak = 0;
-  while (daySet.has(cursor)) {
-    streak++;
-    cursor = new Date(new Date(cursor + 'T12:00:00Z').getTime() - 864e5).toISOString().slice(0, 10);
+  const fz = getStreakFreeze(kidId);
+  let streak = 0, freezeUsed = false;
+  for (;;) {
+    if (daySet.has(cursor)) {
+      streak++;
+    } else if (fz.frozen_gap === cursor) {
+      // Freeze already bridged this gap — keep bridging without consuming again.
+      freezeUsed = true;
+    } else if (fz.freezes > 0 && daySet.has(prevDay(cursor))) {
+      // Streak freeze auto-applies: bridge this single missed day, but only
+      // when more streak days lie beyond it (never burn it at the streak's end).
+      fz.freezes -= 1; fz.frozen_gap = cursor; freezeUsed = true;
+      stmts.freezeSet.run(fz.freezes, fz.frozen_gap, kidId);
+    } else break;
+    cursor = prevDay(cursor);
   }
-  return streak;
+  return { streak, freezeUsed };
 }
+function gamStreak(kidId) { return gamStreakInner(kidId).streak; }
 function gamCheckBadges(kidId, ctx) {
   // ctx: { stories, streak, articleSteps, articleCat }
   const earned = new Set(stmts.kidBadges.all(kidId).map(r => r.badge_key));
@@ -1626,13 +1664,15 @@ function gamCheckBadges(kidId, ctx) {
 function gamStatusFor(kidId, articleId) {
   const xp = stmts.sumXp.get(kidId).xp;
   const stories = stmts.storyCount.get(kidId).n;
-  const streak = gamStreak(kidId);
+  const { streak, freezeUsed } = gamStreakInner(kidId);
+  const fz = getStreakFreeze(kidId);
   const level = gamLevelFor(xp);
   const badges = stmts.kidBadges.all(kidId).map(r => r.badge_key);
   const defs = gamBadgeDefs();
   const earned = articleId ? stmts.kidArticleEvents.all(kidId, String(articleId)).map(r => r.event_type) : [];
   return {
     xp, level, streak, stories,
+    streakFreeze: { available: fz.freezes > 0, savedStreak: freezeUsed },
     badges: defs.map(d => ({ ...d, earned: badges.includes(d.key) })),
     badgeCount: badges.length, badgeTotal: defs.length,
     earnedSteps: earned,
