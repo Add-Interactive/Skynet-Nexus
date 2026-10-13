@@ -18,35 +18,57 @@
     #topbar{top:0;left:0;right:0;display:flex;align-items:center;gap:12px;padding:12px 18px;background:linear-gradient(180deg,rgba(2,4,10,.85),transparent)}
     #topbar .title{font:800 1rem "JetBrains Mono",monospace;letter-spacing:.18em;color:#bff3ff;text-shadow:0 0 12px rgba(0,229,255,.6)}
     #topbar .sub{font:600 .66rem "JetBrains Mono",monospace;letter-spacing:.14em;color:var(--text-mute)}
-    .warp{display:flex;gap:6px;margin-left:auto;align-items:center}
-    .warp span{font:600 .62rem "JetBrains Mono",monospace;color:var(--text-mute);letter-spacing:.1em}
-    .wbtn{font:700 .72rem "JetBrains Mono",monospace;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.3);color:var(--text);border-radius:8px;padding:6px 10px;cursor:pointer}
-    .wbtn.on{background:var(--accent);color:#04121a;border-color:var(--accent)}
+    .topright{display:flex;gap:8px;margin-left:auto;align-items:center}
     #vrbtn{display:none;font:700 .72rem "JetBrains Mono",monospace;background:#7c6cff;border:0;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer}
     #backbtn{font:700 .72rem Inter,sans-serif;color:var(--text-dim);text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:8px 12px;background:rgba(10,16,30,.6)}
-    #missions{left:14px;top:76px;width:230px;background:rgba(4,8,18,.78);border:1px solid rgba(0,229,255,.22);border-radius:14px;padding:14px 16px;backdrop-filter:blur(6px)}
-    #missions h3{margin:0 0 4px;font:700 .68rem "JetBrains Mono",monospace;letter-spacing:.22em;color:var(--accent)}
-    #missions .mp{font-size:.72rem;color:var(--text-mute);margin:0 0 10px}
+    #iconrail{left:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px}
+    .rbtn{width:42px;height:42px;border-radius:10px;background:rgba(4,8,18,.8);border:1px solid rgba(0,229,255,.25);color:var(--text-dim);font-size:1.15rem;cursor:pointer}
+    .rbtn.on{background:rgba(0,229,255,.16);border-color:var(--accent);color:#fff;box-shadow:0 0 12px rgba(0,229,255,.35)}
+    #sidepanel{left:62px;top:76px;bottom:86px;width:264px;background:rgba(4,8,18,.88);border:1px solid rgba(0,229,255,.22);border-radius:14px;backdrop-filter:blur(8px);display:flex;flex-direction:column;overflow:hidden;transform:translateX(-120%);transition:transform .25s ease;pointer-events:none}
+    #sidepanel.open{transform:none;pointer-events:auto}
+    #sidepanel .tabs{display:flex;border-bottom:1px solid rgba(0,229,255,.15)}
+    #sidepanel .tab{flex:1;background:none;border:0;color:var(--text-mute);font:700 .62rem "JetBrains Mono",monospace;letter-spacing:.14em;padding:12px 4px;cursor:pointer}
+    #sidepanel .tab.on{color:var(--accent);box-shadow:inset 0 -2px 0 var(--accent)}
+    .tabpage{display:none;padding:14px 16px;overflow-y:auto}
+    .tabpage.on{display:block}
+    #searchbox{width:100%;box-sizing:border-box;background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.3);border-radius:8px;color:var(--text);font:600 .8rem Inter,sans-serif;padding:9px 12px;outline:none;pointer-events:auto}
+    #searchbox:focus{border-color:var(--accent)}
+    .sr{display:flex;gap:8px;align-items:center;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.05);font-size:.8rem;color:var(--text-dim);cursor:pointer;pointer-events:auto}
+    .sr:hover{background:rgba(0,229,255,.08);color:var(--text)}
+    .sr .dot{font-size:.7rem}
+    .sr-empty{padding:12px 6px;font-size:.78rem;color:var(--text-mute)}
     .mission{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid rgba(255,255,255,.06);font-size:.8rem;line-height:1.4;color:var(--text-dim)}
     .mission .em{font-size:1.15rem;filter:grayscale(1);opacity:.45}
     .mission.done{color:var(--text)}
     .mission.done .em{filter:none;opacity:1}
     .mission.done .mt{text-decoration:line-through;text-decoration-color:rgba(0,229,255,.5)}
-    #factcard{right:14px;top:76px;width:270px;background:rgba(4,8,18,.85);border:1px solid rgba(0,229,255,.25);border-radius:14px;padding:16px 18px;backdrop-filter:blur(6px);display:none}
-    #factcard.show{display:block}
-    #factcard .fk{font:700 .62rem "JetBrains Mono",monospace;letter-spacing:.2em;color:var(--accent);margin-bottom:6px}
-    #factcard h3{margin:0 0 8px;font-size:1.05rem}
-    #factcard p{margin:0 0 8px;font-size:.86rem;line-height:1.6;color:var(--text-dim)}
-    #factcard .falt{font:600 .72rem "JetBrains Mono",monospace;color:var(--text-mute)}
-    #factcard .fx{position:absolute;top:8px;right:12px;background:none;border:0;color:var(--text-mute);font-size:1.1rem;cursor:pointer}
-    #hint{bottom:14px;left:50%;transform:translateX(-50%);font:600 .72rem "JetBrains Mono",monospace;letter-spacing:.08em;color:var(--text-mute);background:rgba(4,8,18,.7);border:1px solid rgba(0,229,255,.18);padding:8px 18px;border-radius:20px;white-space:nowrap}
-    #spacetime-note{bottom:52px;left:50%;transform:translateX(-50%);font:600 .62rem "JetBrains Mono",monospace;letter-spacing:.14em;color:#67e8f9;background:rgba(4,8,18,.55);border:1px solid rgba(0,229,255,.14);padding:6px 16px;border-radius:16px;white-space:nowrap;opacity:.85}
+    #sidepanel .mp{font-size:.72rem;color:var(--text-mute);margin:0 0 10px}
+    .fleetrow{display:flex;gap:10px;align-items:center;padding:7px 2px;font-size:.78rem;color:var(--text-dim);border-bottom:1px solid rgba(255,255,255,.05)}
+    .fleetrow .dot{font-size:.8rem}
+    .fleetrow small{margin-left:auto;color:var(--text-mute);font-family:"JetBrains Mono",monospace;font-size:.66rem}
+    #infopanel{right:14px;top:76px;width:288px;max-height:calc(100% - 190px);overflow-y:auto;background:rgba(4,8,18,.9);border:1px solid rgba(0,229,255,.25);border-radius:14px;padding:16px 18px;backdrop-filter:blur(8px);display:none;pointer-events:none}
+    #infopanel.show{display:block;pointer-events:auto}
+    #infopanel .fk{font:700 .62rem "JetBrains Mono",monospace;letter-spacing:.2em;color:var(--accent);margin-bottom:6px}
+    #infopanel h3{margin:0 0 10px;font-size:1.05rem;word-break:break-word}
+    #infopanel .fx{position:absolute;top:8px;right:12px;background:none;border:0;color:var(--text-mute);font-size:1.1rem;cursor:pointer}
+    .datagrid{border:1px solid rgba(0,229,255,.15);border-radius:8px;overflow:hidden;margin-bottom:12px}
+    .drow{display:flex;justify-content:space-between;gap:8px;padding:7px 12px;font:600 .72rem "JetBrains Mono",monospace;background:rgba(0,229,255,.03)}
+    .drow:nth-child(even){background:rgba(0,229,255,.07)}
+    .drow .dk{color:var(--text-mute);letter-spacing:.1em}
+    .drow .dv{color:#bff3ff;text-align:right}
+    #infop{margin:0;font-size:.84rem;line-height:1.6;color:var(--text-dim)}
+    #timebar{bottom:14px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:rgba(4,8,18,.85);border:1px solid rgba(0,229,255,.22);border-radius:14px;padding:8px 14px;backdrop-filter:blur(6px);pointer-events:auto}
+    #pausebtn{width:36px;height:36px;border-radius:9px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.35);color:var(--text);font-size:1rem;cursor:pointer}
+    #simclock{font:700 .74rem "JetBrains Mono",monospace;letter-spacing:.06em;color:#bff3ff;white-space:nowrap}
+    #timebar .warp{display:flex;gap:6px;align-items:center}
+    .wbtn{font:700 .72rem "JetBrains Mono",monospace;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.3);color:var(--text);border-radius:8px;padding:7px 11px;cursor:pointer}
+    .wbtn.on{background:var(--accent);color:#04121a;border-color:var(--accent)}
     #satlabel{position:fixed;z-index:9;pointer-events:none;font:700 .68rem "JetBrains Mono",monospace;color:#04121a;background:#bff3ff;padding:3px 10px;border-radius:12px;display:none;white-space:nowrap;box-shadow:0 0 14px rgba(0,229,255,.7)}
     #loading{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;background:#02040a;font:700 .8rem "JetBrains Mono",monospace;letter-spacing:.2em;color:var(--accent)}
     #loading .spin{font-size:2.4rem;animation:spin 2.4s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
     #toast{position:fixed;z-index:30;top:70px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00e5ff,#a855f7);color:#04121a;font-weight:800;font-size:.9rem;padding:12px 24px;border-radius:14px;display:none;box-shadow:0 8px 30px rgba(0,229,255,.4)}
-    @media (max-width:760px){#missions{display:none}#factcard{width:220px;right:8px}}
+    @media (max-width:760px){#sidepanel{left:58px;width:232px}#infopanel{width:220px;right:8px}#simclock{display:none}}
     @media (prefers-reduced-motion:reduce){#loading .spin{animation:none}}
   </style>
 </head>
@@ -59,38 +81,54 @@
       <div class="title">MISSION CONTROL 3D</div>
       <div class="sub">GOD'S EYE VIEW · <span id="satcount">—</span> SATELLITES TRACKED</div>
     </div>
-    <div class="warp">
-      <span>TIME</span>
-      <button class="wbtn on" data-warp="1">1×</button>
-      <button class="wbtn" data-warp="60">60×</button>
-      <button class="wbtn" data-warp="600">600×</button>
+    <div class="topright">
       <button id="vrbtn">🥽 Enter VR</button>
       <a id="backbtn" href="space-center.html">← Center</a>
     </div>
   </div>
 
-  <div class="hud" id="missions">
-    <h3>◈ MISSION LOG</h3>
-    <p class="mp">Complete missions to earn badges, cadet!</p>
-    <div id="mission-list"></div>
-    <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);font:600 .62rem 'JetBrains Mono',monospace;letter-spacing:.06em;color:var(--text-mute);line-height:2">
-      <div style="color:var(--accent);letter-spacing:.2em;margin-bottom:4px">◈ FLEETS</div>
-      <div><span style="color:#ffe27a">●</span> ISS <span style="color:#ff9d7a">●</span> TIANGONG <span style="color:#c4b5fd">●</span> HUBBLE</div>
-      <div><span style="color:#00e5ff">●</span> SPACEX <span style="color:#a855f7">●</span> ONEWEB <span style="color:#ffb020">●</span> AMAZON</div>
-      <div><span style="color:#ff7ab8">●</span> IRIDIUM <span style="color:#38d17c">●</span> WEATHER <span style="color:#9beaff">●</span> OTHERS</div>
+  <div class="hud" id="iconrail">
+    <button class="rbtn on" data-tab="search" title="Search satellites">🔍</button>
+    <button class="rbtn" data-tab="missions" title="Missions">◈</button>
+    <button class="rbtn" data-tab="fleets" title="Fleet colors">🛰</button>
+  </div>
+
+  <div class="hud open" id="sidepanel">
+    <div class="tabs">
+      <button class="tab on" data-tab="search">SEARCH</button>
+      <button class="tab" data-tab="missions">MISSIONS</button>
+      <button class="tab" data-tab="fleets">FLEETS</button>
+    </div>
+    <div class="tabpage on" id="page-search">
+      <input id="searchbox" placeholder="Search satellites… (e.g. ISS)" autocomplete="off"/>
+      <div id="searchresults"></div>
+    </div>
+    <div class="tabpage" id="page-missions">
+      <p class="mp">Complete missions to earn badges, cadet!</p>
+      <div id="mission-list"></div>
+    </div>
+    <div class="tabpage" id="page-fleets">
+      <div id="fleet-list"></div>
     </div>
   </div>
 
-  <div class="hud" id="factcard">
-    <button class="fx" id="factx" aria-label="Close">×</button>
-    <div class="fk" id="factk">SATELLITE</div>
-    <h3 id="factt">—</h3>
-    <p id="factp">—</p>
-    <div class="falt" id="facta"></div>
+  <div class="hud" id="infopanel">
+    <button class="fx" id="infox" aria-label="Close">×</button>
+    <div class="fk" id="infok">SATELLITE</div>
+    <h3 id="infot">—</h3>
+    <div class="datagrid" id="infodata"></div>
+    <p id="infop">—</p>
   </div>
 
-  <div class="hud" id="hint">DRAG to spin · SCROLL to zoom · CLICK a satellite or launch pad</div>
-  <div class="hud" id="spacetime-note">🌀 THE GRID IS SPACETIME — EARTH'S GRAVITY BENDS IT INTO A WELL</div>
+  <div class="hud" id="timebar">
+    <button id="pausebtn" title="Pause / resume time">⏸</button>
+    <div id="simclock">—</div>
+    <div class="warp">
+      <button class="wbtn on" data-warp="1">1×</button>
+      <button class="wbtn" data-warp="60">60×</button>
+      <button class="wbtn" data-warp="600">600×</button>
+    </div>
+  </div>
   <div id="satlabel"></div>
   <div id="toast"></div>
 
@@ -318,16 +356,119 @@
     }
     renderMissions();
 
-    // fact card
-    var factcard = document.getElementById('factcard');
-    function showFact(kind, title, body, alt) {
-      document.getElementById('factk').textContent = kind;
-      document.getElementById('factt').textContent = title;
-      document.getElementById('factp').textContent = body;
-      document.getElementById('facta').textContent = alt || '';
-      factcard.classList.add('show');
+    // ---- KeepTrack-style UI: icon rail, slide-out panel, info panel, time bar ----
+    var infopanel = document.getElementById('infopanel');
+    var sidepanel = document.getElementById('sidepanel');
+    var frameNo = 0, paused = false, selKind = null, warpBeforePause = 1;
+    function cssColor(hex) { return '#' + hex.toString(16).padStart(6, '0'); }
+    function escapeHtml(x) { return String(x).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    var FLEET_NAMES = { iss: 'ISS', tiangong: 'TIANGONG', hubble: 'HUBBLE', spacex: 'SPACEX · STARLINK', oneweb: 'ONEWEB', kuiper: 'AMAZON · KUIPER', iridium: 'IRIDIUM', noaa: 'WEATHER · NOAA', def: 'OTHERS' };
+    function fleetName(co) { return FLEET_NAMES[co] || 'OTHERS'; }
+
+    // icon rail + tabs
+    function openTab(tab) {
+      document.querySelectorAll('.rbtn').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-tab') === tab); });
+      document.querySelectorAll('#sidepanel .tab').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-tab') === tab); });
+      document.querySelectorAll('.tabpage').forEach(function (x) { x.classList.toggle('on', x.id === 'page-' + tab); });
+      sidepanel.classList.add('open');
     }
-    document.getElementById('factx').onclick = function () { factcard.classList.remove('show'); selected = null; };
+    document.querySelectorAll('.rbtn').forEach(function (b) {
+      b.onclick = function () {
+        var tab = b.getAttribute('data-tab');
+        if (b.classList.contains('on') && sidepanel.classList.contains('open')) {
+          sidepanel.classList.remove('open'); b.classList.remove('on'); return;
+        }
+        openTab(tab);
+        if (tab === 'search') document.getElementById('searchbox').focus();
+      };
+    });
+    document.querySelectorAll('#sidepanel .tab').forEach(function (b) {
+      b.onclick = function () { openTab(b.getAttribute('data-tab')); };
+    });
+
+    // satellite search
+    var satById = {};
+    var searchbox = document.getElementById('searchbox'), searchresults = document.getElementById('searchresults');
+    searchbox.addEventListener('input', function () {
+      var q = searchbox.value.trim().toLowerCase();
+      if (q.length < 2) { searchresults.innerHTML = q ? '<div class="sr-empty">Type a few letters…</div>' : ''; return; }
+      var hits = sats.filter(function (sp) { return sp.userData.name.toLowerCase().indexOf(q) !== -1; }).slice(0, 8);
+      searchresults.innerHTML = hits.length ? hits.map(function (sp) {
+        var u = sp.userData;
+        return '<div class="sr" data-id="' + u.id + '"><span class="dot" style="color:' + cssColor(COMPANY_COLORS[u.co]) + '">●</span><span>' + escapeHtml(u.name) + '</span></div>';
+      }).join('') : '<div class="sr-empty">No satellites match "' + escapeHtml(q) + '"</div>';
+      searchresults.querySelectorAll('.sr').forEach(function (el) {
+        el.onclick = function () { var sp = satById[el.getAttribute('data-id')]; if (sp) selectSat(sp); };
+      });
+    });
+
+    // live orbital data readout
+    function satLiveData(sp, date) {
+      try {
+        var pv = satellite.propagate(sp.userData.rec, date);
+        if (!pv || !pv.position || !pv.velocity) return null;
+        var r = Math.sqrt(pv.position.x * pv.position.x + pv.position.y * pv.position.y + pv.position.z * pv.position.z);
+        var v = Math.sqrt(pv.velocity.x * pv.velocity.x + pv.velocity.y * pv.velocity.y + pv.velocity.z * pv.velocity.z);
+        return { alt: r - 6371, vel: v, period: 2 * Math.PI / sp.userData.rec.no };
+      } catch (e) { return null; }
+    }
+    function rowsHtml(rows) {
+      return rows.map(function (r) { return '<div class="drow"><span class="dk">' + r[0] + '</span><span class="dv">' + r[1] + '</span></div>'; }).join('');
+    }
+    function satRows(sp) {
+      var u = sp.userData, rows = [['NORAD ID', u.id], ['FLEET', fleetName(u.co)]];
+      var ld = satLiveData(sp, simDate());
+      if (ld) {
+        rows.push(['ALTITUDE', Math.round(ld.alt).toLocaleString() + ' km']);
+        rows.push(['VELOCITY', ld.vel.toFixed(2) + ' km/s']);
+        rows.push(['PERIOD', ld.period.toFixed(1) + ' min']);
+      }
+      return rows;
+    }
+    function showInfo(kind, title, rows, body) {
+      document.getElementById('infok').textContent = kind;
+      document.getElementById('infot').textContent = title;
+      document.getElementById('infodata').innerHTML = rowsHtml(rows);
+      document.getElementById('infop').textContent = body || '';
+      infopanel.classList.add('show');
+    }
+    document.getElementById('infox').onclick = function () { infopanel.classList.remove('show'); selected = null; selKind = null; };
+    function selectSat(sp) {
+      var u = sp.userData;
+      selected = sp;
+      if (u.isPad) {
+        selKind = 'pad';
+        showInfo('LAUNCH PAD', u.pad.n, [['TYPE', 'LAUNCH SITE']], u.pad.d + ' Tap a pad when it glows red — a launch is close!');
+        complete('m-pad', 'Visit a launch pad!');
+        return;
+      }
+      selKind = 'sat';
+      var f = FACTS[COMPANY_FACT[u.co] || 'def'];
+      var nm = u.name.length > 28 ? u.name.slice(0, 28) + '…' : u.name;
+      showInfo(u.tag === 'iss' ? 'SPACE STATION' : u.tag ? u.tag.toUpperCase() : 'SATELLITE', f.t === 'Satellite' ? nm : f.t, satRows(sp), f.p);
+      clickedIds.add(u.id);
+      if (u.tag === 'iss') complete('m-iss', 'Say hello to the ISS!');
+      if (u.tag === 'tiangong') complete('m-tiangong', 'Find Tiangong!');
+      if (u.tag === 'hubble') complete('m-hubble', 'Spot Hubble!');
+      if (clickedIds.size >= 5) complete('m-five', 'Meet 5 satellites!');
+    }
+    function renderFleets() {
+      var counts = {};
+      sats.forEach(function (sp) { var c = sp.userData.co; counts[c] = (counts[c] || 0) + 1; });
+      var order = ['iss', 'tiangong', 'hubble', 'spacex', 'oneweb', 'kuiper', 'iridium', 'noaa', 'def'];
+      document.getElementById('fleet-list').innerHTML = order.map(function (c) {
+        if (!counts[c]) return '';
+        return '<div class="fleetrow"><span class="dot" style="color:' + cssColor(COMPANY_COLORS[c]) + '">●</span>' + fleetName(c) + '<small>' + counts[c] + '</small></div>';
+      }).join('');
+    }
+
+    // pause / resume
+    document.getElementById('pausebtn').onclick = function () {
+      warpStartOffset = simDate().getTime(); warpStart = Date.now();
+      if (paused) { warp = warpBeforePause; } else { warpBeforePause = warp; warp = 0; }
+      paused = !paused;
+      this.textContent = paused ? '▶' : '⏸';
+    };
 
     // custom orbit controls
     var rotX = 0.35, targetRotX = 0.35, spinAccum = 0;
@@ -357,37 +498,23 @@
       ptr.x = (e.clientX / innerWidth) * 2 - 1; ptr.y = -(e.clientY / innerHeight) * 2 + 1;
       ray.setFromCamera(ptr, camera);
       var hits = ray.intersectObjects(satGroup.children.concat(padMeshes));
-      if (!hits.length) { factcard.classList.remove('show'); selected = null; return; }
-      var u = hits[0].object.userData;
-      if (u.isPad) {
-        selected = hits[0].object;
-        showFact('LAUNCH PAD', u.pad.n, u.pad.d, 'Tap a pad when it glows red — a launch is close!');
-        complete('m-pad', 'Visit a launch pad!');
-        return;
-      }
-      selected = hits[0].object;
-      var f = FACTS[COMPANY_FACT[u.co] || 'def'];
-      var nm = u.name.length > 28 ? u.name.slice(0, 28) + '…' : u.name;
-      showFact(u.tag === 'iss' ? 'SPACE STATION' : u.tag ? u.tag.toUpperCase() : 'SATELLITE', f.t === 'Satellite' ? nm : f.t, f.p, 'NORAD #' + u.id);
-      clickedIds.add(u.id);
-      if (u.tag === 'iss') complete('m-iss', 'Say hello to the ISS!');
-      if (u.tag === 'tiangong') complete('m-tiangong', 'Find Tiangong!');
-      if (u.tag === 'hubble') complete('m-hubble', 'Spot Hubble!');
-      if (clickedIds.size >= 5) complete('m-five', 'Meet 5 satellites!');
+      if (!hits.length) { infopanel.classList.remove('show'); selected = null; selKind = null; return; }
+      selectSat(hits[0].object);
     });
 
-    // time warp
-    var warp = 1, warpBase = Date.now();
+    // time warp — simulated clock starts at real now, preserved across warp changes
+    var warp = 1, warpStart = Date.now(), warpStartOffset = Date.now();
+    function simDate() { return new Date(warpStartOffset + (Date.now() - warpStart) * warp); }
     document.querySelectorAll('.wbtn').forEach(function (b) {
       b.onclick = function () {
         document.querySelectorAll('.wbtn').forEach(function (x) { x.classList.remove('on'); });
         b.classList.add('on');
-        warpBase = Date.now(); warp = +b.getAttribute('data-warp'); simOffset = simOffset; // keep continuity
-        warpStart = Date.now(); warpStartOffset = simOffset;
+        if (paused) { paused = false; document.getElementById('pausebtn').textContent = '⏸'; }
+        warpStartOffset = simDate().getTime();
+        warpStart = Date.now();
+        warp = +b.getAttribute('data-warp');
       };
     });
-    var simOffset = 0, warpStart = Date.now(), warpStartOffset = 0;
-    function simDate() { return new Date(warpStartOffset + (Date.now() - warpStart) * warp); }
 
     // VR
     if ('xr' in navigator) {
@@ -402,27 +529,6 @@
           }).catch(function () {});
         };
       }).catch(function () {});
-    }
-
-    // orbit trails for heroes
-    var trails = {};
-    function buildTrail(sp, color) {
-      var pts = [], now = simDate();
-      for (var m = -50; m <= 50; m += 2) {
-        var d = new Date(now.getTime() + m * 60000);
-        var pv = null;
-        try {
-          var p = satellite.propagate(sp.userData.rec, d);
-          if (p && p.position) {
-            var gd = satellite.eciToGeodetic(p.position, satellite.gstime(d));
-            pts.push(llToVec3(gd.latitude * 180 / Math.PI, gd.longitude * 180 / Math.PI, gd.height));
-          }
-        } catch (e) {}
-      }
-      var g = new THREE.BufferGeometry().setFromPoints(pts);
-      var line = new THREE.Line(g, new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.55 }));
-      world.add(line);
-      return line;
     }
 
     // pad launch urgency from the launch board snapshot
@@ -448,14 +554,13 @@
       list.forEach(function (s) {
         try {
           var rec = satellite.twoline2satrec(s.l1, s.l2);
-          addSat(rec, s.n.trim(), s.tag, s.id);
+          var sp = addSat(rec, s.n.trim(), s.tag, s.id);
+          if (sp) satById[s.id] = sp;
           shown++;
         } catch (e) {}
       });
       document.getElementById('satcount').textContent = shown;
-      Object.keys(heroSats).forEach(function (k) {
-        trails[k] = buildTrail(heroSats[k], k === 'iss' ? 0xffe27a : k === 'tiangong' ? 0xff9d7a : 0xc4b5fd);
-      });
+      renderFleets();
       markUrgentPads();
       document.getElementById('loading').style.display = 'none';
       animate();
@@ -475,8 +580,15 @@
           var p = propagate(sats[i], now);
           if (p) sats[i].position.copy(p);
         }
-        // pads pulse
+        // sim clock + live info refresh
         var t = performance.now() / 1000;
+        if (++frameNo % 15 === 0) {
+          var sd = simDate();
+          document.getElementById('simclock').textContent = sd.toISOString().slice(0, 19).replace('T', ' ') + ' UTC';
+          if (selKind === 'sat' && selected && infopanel.classList.contains('show'))
+            document.getElementById('infodata').innerHTML = rowsHtml(satRows(selected));
+        }
+        // pads pulse
         padMeshes.forEach(function (pm, idx) {
           var urgent = pm.userData.urgent;
           var s = 0.05 * (1 + 0.25 * Math.sin(t * (urgent ? 6 : 2) + idx));
