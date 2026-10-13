@@ -447,6 +447,12 @@
         return { alt: r - 6371, vel: v, period: 2 * Math.PI / sp.userData.rec.no };
       } catch (e) { return null; }
     }
+    function satOrbitShape(sp) {
+      try {
+        var rec = sp.userData.rec, n0 = rec.no / 60, a = Math.pow(398600.8 / (n0 * n0), 1 / 3), e = rec.ecco;
+        return { incl: rec.inclo * 180 / Math.PI, apogee: a * (1 + e) - 6371, perigee: a * (1 - e) - 6371 };
+      } catch (err) { return null; }
+    }
     function rowsHtml(rows) {
       return rows.map(function (r) { return '<div class="drow"><span class="dk">' + r[0] + '</span><span class="dv">' + r[1] + '</span></div>'; }).join('');
     }
@@ -458,6 +464,12 @@
         rows.push(['SPEED', ld.vel.toFixed(2) + ' km/s']);
         rows.push(['PERIOD', ld.period.toFixed(1) + ' min']);
         rows.push(['ORBIT', ld.alt > 34000 ? 'GEO' : ld.alt > 2000 ? 'MEO' : 'LEO']);
+      }
+      var shape = satOrbitShape(sp);
+      if (shape) {
+        rows.push(['INCLINATION', shape.incl.toFixed(1) + '°']);
+        rows.push(['APOGEE', Math.round(shape.apogee).toLocaleString() + ' km']);
+        rows.push(['PERIGEE', Math.round(shape.perigee).toLocaleString() + ' km']);
       }
       return rows;
     }
@@ -692,8 +704,9 @@
         var now = simDate();
         // sun
         sun.position.copy(sunDirection(now).multiplyScalar(10));
-        // satellites
+        // satellites (staggered: 1/3 per frame keeps 1000+ sats at full speed)
         for (var i = 0; i < sats.length; i++) {
+          if ((i + frameNo) % 3 !== 0) continue;
           var p = propagate(sats[i], now);
           if (p) sats[i].position.copy(p);
         }
