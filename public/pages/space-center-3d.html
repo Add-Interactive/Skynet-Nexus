@@ -567,11 +567,34 @@
     // custom orbit controls
     var rotX = 0.35, targetRotX = 0.35, spinAccum = 0;
     var dragging = false, px = 0, py = 0;
-    canvas.addEventListener('pointerdown', function (e) { dragging = true; px = e.clientX; py = e.clientY; moved = 0; });
-    addEventListener('pointerup', function () { dragging = false; });
-    addEventListener('pointercancel', function () { dragging = false; });
+    var pointers = {}, pinchStart = 0, pinched = false;
+    canvas.addEventListener('pointerdown', function (e) {
+      pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+      var n = Object.keys(pointers).length;
+      if (n === 2) {
+        var pts = Object.keys(pointers).map(function (k) { return pointers[k]; });
+        pinchStart = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+        pinched = true; dragging = false;
+      } else if (n === 1) { pinched = false; dragging = true; px = e.clientX; py = e.clientY; moved = 0; }
+    });
+    function endPointer(e) {
+      delete pointers[e.pointerId];
+      var keys = Object.keys(pointers);
+      if (keys.length === 1) { px = pointers[keys[0]].x; py = pointers[keys[0]].y; dragging = true; pinchStart = 0; }
+      else if (keys.length === 0) { dragging = false; pinchStart = 0; }
+    }
+    addEventListener('pointerup', endPointer);
+    addEventListener('pointercancel', endPointer);
     var moved = 0;
     addEventListener('pointermove', function (e) {
+      if (pointers[e.pointerId]) { pointers[e.pointerId].x = e.clientX; pointers[e.pointerId].y = e.clientY; }
+      var keys = Object.keys(pointers);
+      if (keys.length === 2 && pinchStart > 0) {
+        var pts = [pointers[keys[0]], pointers[keys[1]]];
+        var d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+        if (d > 0) { camGoalDist = Math.max(1.15, Math.min(8, camGoalDist * (pinchStart / d))); pinchStart = d; }
+        return;
+      }
       if (!dragging) return;
       var dx = e.clientX - px, dy = e.clientY - py;
       moved += Math.abs(dx) + Math.abs(dy);
@@ -590,6 +613,7 @@
     var ray = new THREE.Raycaster(), ptr = new THREE.Vector2(), selected = null;
     var label = document.getElementById('satlabel');
     canvas.addEventListener('click', function (e) {
+      if (pinched) { pinched = false; return; } // pinch-release, not a tap
       if (moved > 8) return; // was a drag
       ptr.x = (e.clientX / innerWidth) * 2 - 1; ptr.y = -(e.clientY / innerHeight) * 2 + 1;
       ray.setFromCamera(ptr, camera);
