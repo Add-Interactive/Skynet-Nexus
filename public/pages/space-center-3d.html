@@ -20,6 +20,7 @@
     #topbar .sub{font:600 .66rem "JetBrains Mono",monospace;letter-spacing:.14em;color:var(--text-mute)}
     .topright{display:flex;gap:8px;margin-left:auto;align-items:center}
     #vrbtn{display:none;font:700 .72rem "JetBrains Mono",monospace;background:#7c6cff;border:0;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer}
+    #arbtn{display:none;font:700 .72rem "JetBrains Mono",monospace;background:#00b8a9;border:0;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer}
     #backbtn{font:700 .72rem Inter,sans-serif;color:var(--text-dim);text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:8px 12px;background:rgba(10,16,30,.6)}
     #iconrail{left:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px}
     .rbtn{width:42px;height:42px;border-radius:10px;background:rgba(4,8,18,.8);border:1px solid rgba(0,229,255,.25);color:var(--text-dim);font-size:1.15rem;cursor:pointer}
@@ -94,6 +95,7 @@
     </div>
     <div class="topright">
       <button id="vrbtn">🥽 Enter VR</button>
+      <button id="arbtn">📲 AR</button>
       <a id="backbtn" href="space-center.html">← Center</a>
     </div>
   </div>
@@ -198,7 +200,8 @@
       { id: 'm-search', em: '🔍', t: 'Find a satellite with search' },
       { id: 'm-filter', em: '🎛️', t: 'Hide a fleet with the filter' },
       { id: 'm-pause', em: '⏸️', t: 'Pause time' },
-      { id: 'm-closeup', em: '🔎', t: 'Zoom in close on a satellite' }
+      { id: 'm-closeup', em: '🔎', t: 'Zoom in close on a satellite' },
+      { id: 'm-ar', em: '📲', t: 'Place Earth on your table in AR' }
     ];
 
     var canvas = document.getElementById('scene');
@@ -569,6 +572,7 @@
     var dragging = false, px = 0, py = 0;
     var pointers = {}, pinchStart = 0, pinched = false;
     canvas.addEventListener('pointerdown', function (e) {
+      if (arMode) return;
       pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
       var n = Object.keys(pointers).length;
       if (n === 2) {
@@ -613,6 +617,7 @@
     var ray = new THREE.Raycaster(), ptr = new THREE.Vector2(), selected = null;
     var label = document.getElementById('satlabel');
     canvas.addEventListener('click', function (e) {
+      if (arMode) return;
       if (pinched) { pinched = false; return; } // pinch-release, not a tap
       if (moved > 8) return; // was a drag
       ptr.x = (e.clientX / innerWidth) * 2 - 1; ptr.y = -(e.clientY / innerHeight) * 2 + 1;
@@ -683,6 +688,46 @@
       }).catch(function () {});
     }
 
+    // AR — tabletop mode (Android Chrome with ARCore)
+    var arMode = false, arPlaced = false, arGroup = null, reticle = null, hitTestSource = null, hitTestRequested = false;
+    if ('xr' in navigator) {
+      navigator.xr.isSessionSupported('immersive-ar').then(function (ok) {
+        if (!ok) return;
+        var ab = document.getElementById('arbtn');
+        ab.style.display = 'inline-block';
+        ab.onclick = function () {
+          navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['hit-test'] }).then(function (session) {
+            renderer.xr.setSession(session);
+            arMode = true; arPlaced = false; hitTestRequested = false; hitTestSource = null;
+            arGroup = new THREE.Group(); scene.add(arGroup); arGroup.add(world);
+            world.scale.setScalar(0.18); // tabletop Earth, ~36 cm across
+            reticle = new THREE.Mesh(
+              new THREE.RingGeometry(0.06, 0.075, 32),
+              new THREE.MeshBasicMaterial({ color: 0x00e5ff, side: THREE.DoubleSide, transparent: true, opacity: 0.9 })
+            );
+            reticle.rotation.x = -Math.PI / 2; reticle.visible = false; scene.add(reticle);
+            var controller = renderer.xr.getController(0);
+            var onSelect = function () {
+              if (arMode && !arPlaced && reticle && reticle.visible) {
+                arGroup.position.copy(reticle.position);
+                arPlaced = true; reticle.visible = false;
+                ab.textContent = '📲 AR — tap ✕ in system UI to exit';
+                complete('m-ar', 'Place Earth on your table in AR!');
+              }
+            };
+            controller.addEventListener('select', onSelect);
+            session.addEventListener('end', function () {
+              arMode = false; arPlaced = false; hitTestSource = null;
+              controller.removeEventListener('select', onSelect);
+              if (reticle) { scene.remove(reticle); reticle = null; }
+              if (arGroup) { scene.add(world); world.scale.setScalar(1); world.position.set(0, 0, 0); scene.remove(arGroup); arGroup = null; }
+              ab.textContent = '📲 AR';
+            });
+            ab.textContent = '📲 Point at a table, then tap';
+          }).catch(function () {});
+        };
+      }).catch(function () {});
+    }
     // orbit trails for heroes
     // pad launch urgency from the launch board snapshot
     function markUrgentPads() {
@@ -727,9 +772,27 @@
 
     var clock = new THREE.Clock();
     function animate() {
-      renderer.setAnimationLoop(function () {
+      renderer.setAnimationLoop(function (time, frame) {
         var dt = Math.min(clock.getDelta(), 0.1);
         var now = simDate();
+        // AR hit-test: move the reticle over real-world surfaces until placed
+        if (arMode && renderer.xr.isPresenting && frame) {
+          var session = renderer.xr.getSession();
+          if (!hitTestRequested) {
+            hitTestRequested = true;
+            session.requestReferenceSpace('viewer').then(function (viewerSpace) {
+              session.requestHitTestSource({ space: viewerSpace }).then(function (src) { hitTestSource = src; });
+            }).catch(function () {});
+          }
+          if (hitTestSource && !arPlaced && reticle) {
+            var hits = frame.getHitTestResults(hitTestSource);
+            if (hits.length > 0) {
+              var pose = hits[0].getPose(renderer.xr.getReferenceSpace());
+              reticle.visible = true;
+              reticle.position.set(pose.transform.position.x, pose.transform.position.y, pose.transform.position.z);
+            } else reticle.visible = false;
+          }
+        }
         // sun
         sun.position.copy(sunDirection(now).multiplyScalar(10));
         // satellites (staggered: 1/3 per frame keeps 1000+ sats at full speed)
@@ -758,8 +821,8 @@
         // smooth tilt
         rotX += (targetRotX - rotX) * 0.08;
         world.rotation.x = rotX;
-        // selected label
-        if (selected) {
+        // selected label (hidden in AR)
+        if (selected && !arMode) {
           var v = selected.position.clone().applyMatrix4(world.matrixWorld).project(camera);
           if (v.z < 1) {
             label.style.display = 'block';
