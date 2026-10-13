@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Space Center — Skynet Nexus</title>
+  <title>Space Center — Mission Control — Skynet Nexus</title>
   <meta name="description" content="Mission control for curious kids: live rocket launch countdowns, student projects flying to space, and the race to the Moon and Mars."/>
   <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg"/>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap"/>
   <link rel="stylesheet" href="../assets/css/style.css"/>
   <link rel="stylesheet" href="/assets/css/auth.css"/>
   <meta property="og:type" content="website"/>
   <meta property="og:site_name" content="Skynet Nexus"/>
-  <meta property="og:title" content="Space Center — Skynet Nexus"/>
+  <meta property="og:title" content="Space Center — Mission Control — Skynet Nexus"/>
   <meta property="og:description" content="Countdowns to every big launch, student projects flying to space, and the race to the Moon and Mars — for curious kids."/>
   <meta property="og:url" content="https://skynet-nexus-production.up.railway.app/pages/space-center.html"/>
   <meta property="og:image" content="https://skynet-nexus-production.up.railway.app/assets/img/og-cover.png"/>
@@ -19,59 +19,92 @@
   <link rel="canonical" href="https://skynet-nexus-production.up.railway.app/pages/space-center.html"/>
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png"/>
   <style>
-    .sc-hero{background:radial-gradient(1200px 500px at 50% -10%,rgba(0,229,255,.14),transparent),linear-gradient(180deg,#0b1026,#0a0e17);border:1px solid var(--border);border-radius:20px;padding:40px 28px;margin:22px 0 30px;text-align:center;overflow:hidden;position:relative}
-    .sc-hero .kicker{margin-bottom:8px}
-    .sc-hero h1{margin:0 0 10px;font-size:2.2rem;letter-spacing:-.01em}
-    .sc-hero p{color:var(--text-dim);max-width:640px;margin:0 auto;line-height:1.6}
-    .sc-hero-emoji{font-size:2.8rem;margin-bottom:6px}
+    body{background:#04060d}
+    #starfield{position:fixed;inset:0;z-index:-1;pointer-events:none}
+    .mc-wrap{position:relative}
+    /* status line */
+    .mc-statusline{display:flex;align-items:center;gap:10px;justify-content:center;font:700 .74rem "JetBrains Mono",monospace;letter-spacing:.22em;color:var(--text-mute);margin-bottom:14px}
+    .mc-live{display:inline-flex;align-items:center;gap:6px;color:#ff3b5c;animation:blink 1.8s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+    /* hero console */
+    .sc-hero{background:radial-gradient(1000px 480px at 50% -10%,rgba(0,229,255,.16),transparent),linear-gradient(180deg,rgba(10,16,38,.92),rgba(4,6,13,.94));border:1px solid rgba(0,229,255,.22);border-radius:20px;padding:44px 28px 34px;margin:22px 0 8px;text-align:center;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(0,229,255,.08),inset 0 0 80px rgba(0,229,255,.03)}
+    .sc-hero::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,255,255,.012) 3px 4px)}
+    .sc-hero .kicker{margin-bottom:8px;letter-spacing:.3em}
+    .sc-hero h1{margin:0 0 10px;font-size:2.6rem;letter-spacing:.12em;font-weight:800;background:linear-gradient(180deg,#fff,#9beaff);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 40px rgba(0,229,255,.25)}
+    .sc-hero p{color:var(--text-dim);max-width:620px;margin:0 auto 26px;line-height:1.6}
+    .mc-next{max-width:640px;margin:0 auto;background:rgba(0,10,20,.6);border:1px solid rgba(0,229,255,.28);border-radius:14px;padding:20px 22px;box-shadow:inset 0 0 30px rgba(0,229,255,.05)}
+    .mc-next-label{font:700 .7rem "JetBrains Mono",monospace;letter-spacing:.3em;color:var(--accent);margin-bottom:6px}
+    .mc-next-name{font-size:1.25rem;font-weight:700;margin-bottom:14px}
+    .mc-clock{display:flex;gap:10px;justify-content:center;margin-bottom:12px}
+    .mc-cell{background:#02040a;border:1px solid rgba(0,229,255,.25);border-radius:10px;min-width:74px;padding:10px 6px;box-shadow:inset 0 2px 12px rgba(0,0,0,.7)}
+    .mc-cell span{display:block;font:800 1.9rem/1 "JetBrains Mono",monospace;color:#bff3ff;text-shadow:0 0 14px rgba(0,229,255,.7)}
+    .mc-cell label{font:600 .6rem "JetBrains Mono",monospace;letter-spacing:.2em;color:var(--text-mute)}
+    .mc-go{font:700 .82rem "JetBrains Mono",monospace;letter-spacing:.14em;color:#38d17c}
+    .mc-go.hold{color:#ffb020}.mc-go.wait{color:var(--text-mute)}
+    /* ticker */
+    .mc-ticker{margin:10px 0 6px;overflow:hidden;border-top:1px solid rgba(0,229,255,.14);border-bottom:1px solid rgba(0,229,255,.14);background:rgba(0,12,24,.5)}
+    .mc-ticker-inner{font:600 .74rem "JetBrains Mono",monospace;letter-spacing:.08em;color:var(--text-dim);padding:9px 4px;white-space:nowrap;text-align:center}
+    .mc-ticker-inner b{color:var(--accent)}
+    /* sections */
     .sc-section{margin:34px 0}
-    .sc-section-head{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
-    .sc-section-head h2{margin:0;font-size:1.4rem}
+    .sc-section-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+    .sc-section-head h2{margin:0;font-size:1.25rem;letter-spacing:.04em}
+    .sc-section-head .mc-tag{font:700 .62rem "JetBrains Mono",monospace;letter-spacing:.2em;color:#04121a;background:var(--accent);border-radius:4px;padding:3px 8px}
     .sc-section-sub{color:var(--text-dim);font-size:.92rem;margin:0 0 16px;line-height:1.55;max-width:720px}
     .sc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
-    .sc-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:transform .18s ease,border-color .18s ease}
-    .sc-card:hover{transform:translateY(-3px);border-color:var(--accent)}
+    /* console cards */
+    .sc-card{background:linear-gradient(180deg,rgba(16,24,48,.85),rgba(8,12,26,.9));border:1px solid rgba(0,229,255,.16);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;position:relative}
+    .sc-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--pc,#00e5ff);box-shadow:0 0 12px var(--pc,#00e5ff);opacity:.85}
+    .sc-card:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 8px 30px rgba(0,229,255,.12)}
     .sc-card-img{width:100%;height:150px;object-fit:cover;display:block;background:#0b1026}
     .sc-card-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:8px;flex:1}
-    .sc-provider{display:inline-flex;align-items:center;gap:8px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+    .sc-sysrow{display:flex;align-items:center;justify-content:space-between}
+    .sc-provider{display:inline-flex;align-items:center;gap:8px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
     .sc-provider .dot{width:9px;height:9px;border-radius:50%;background:var(--pc,#00e5ff);box-shadow:0 0 8px var(--pc,#00e5ff)}
+    .sc-sys{font:700 .62rem "JetBrains Mono",monospace;letter-spacing:.14em;display:inline-flex;align-items:center;gap:6px}
+    .sc-sys .sdot{width:8px;height:8px;border-radius:50%}
+    .sc-sys.go{color:#38d17c}.sc-sys.go .sdot{background:#38d17c;box-shadow:0 0 8px #38d17c;animation:blink 2s infinite}
+    .sc-sys.hold{color:#ffb020}.sc-sys.hold .sdot{background:#ffb020;box-shadow:0 0 8px #ffb020}
+    .sc-sys.wait{color:var(--text-mute)}.sc-sys.wait .sdot{background:#5a6a85}
     .sc-card-body h3{margin:0;font-size:1.05rem;line-height:1.35}
-    .sc-count{font:700 1.5rem/1.2 "JetBrains Mono",monospace;color:var(--accent);letter-spacing:.02em}
-    .sc-count small{font:600 .72rem Inter,sans-serif;color:var(--text-mute);display:block;letter-spacing:.05em}
-    .sc-net{font-size:.82rem;color:var(--text-mute)}
+    .sc-count{font:700 1.45rem/1.2 "JetBrains Mono",monospace;color:#bff3ff;letter-spacing:.02em;text-shadow:0 0 12px rgba(0,229,255,.5)}
+    .sc-count small{font:600 .66rem "JetBrains Mono",monospace;color:var(--text-mute);display:block;letter-spacing:.24em;margin-bottom:2px}
+    .sc-net{font-size:.82rem;color:var(--text-mute);font-family:"JetBrains Mono",monospace}
     .sc-blurb{background:rgba(0,229,255,.06);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:10px 14px;font-size:.9rem;line-height:1.55}
     .sc-blurb strong{color:var(--accent);display:block;margin-bottom:2px;font-size:.85rem}
-    .sc-meta{font-size:.8rem;color:var(--text-dim);display:flex;flex-wrap:wrap;gap:6px 14px}
+    .sc-meta{font-size:.78rem;color:var(--text-dim);display:flex;flex-wrap:wrap;gap:6px 14px;font-family:"JetBrains Mono",monospace}
     .sc-actions{margin-top:auto;padding-top:6px;display:flex;gap:10px;flex-wrap:wrap}
     .sc-btn{display:inline-block;padding:9px 16px;border-radius:10px;background:var(--accent);color:#04121a;font-weight:700;font-size:.88rem;text-decoration:none}
-    .sc-btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+    .sc-btn.ghost{background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.3);color:var(--text)}
     .sc-btn.live{background:#ff3b5c;color:#fff;animation:pulse 1.6s infinite}
     @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,59,92,.5)}50%{box-shadow:0 0 0 8px rgba(255,59,92,0)}}
-    .sc-live-badge{display:inline-block;background:#ff3b5c;color:#fff;font-size:.7rem;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:.08em}
-    .sc-video{position:relative;padding-bottom:56.25%;height:0;border-radius:12px;overflow:hidden;background:#000;margin-top:4px}
+    .sc-live-badge{display:inline-block;background:#ff3b5c;color:#fff;font-size:.7rem;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:.08em;animation:blink 1.4s infinite}
+    .sc-video{position:relative;padding-bottom:56.25%;height:0;border-radius:12px;overflow:hidden;background:#000;margin-top:4px;border:1px solid rgba(255,59,92,.4)}
     .sc-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-    .sc-note{font-size:.8rem;color:var(--text-mute);margin-top:10px}
-    .sc-player{border-left:4px solid var(--pc,#00e5ff)}
+    .sc-note{font-size:.8rem;color:var(--text-mute);margin-top:10px;font-family:"JetBrains Mono",monospace}
+    .sc-player{--pc:var(--pc,#00e5ff)}
     .sc-player .sc-target{font-size:.85rem;line-height:1.5}
     .sc-player .sc-target b{color:var(--text)}
-    .sc-odds{background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(0,229,255,.08));border:1px solid var(--border);border-radius:16px;padding:20px 22px;margin-top:16px}
+    .sc-odds{background:linear-gradient(135deg,rgba(168,85,247,.14),rgba(0,229,255,.08));border:1px solid rgba(0,229,255,.2);border-radius:16px;padding:20px 22px;margin-top:16px}
     .sc-odds h3{margin:0 0 8px}
     .sc-odds p{margin:6px 0;line-height:1.6;font-size:.92rem}
-    .sc-odds .pct{font:700 1.3rem "JetBrains Mono",monospace;color:var(--accent)}
+    .sc-odds .pct{font:700 1.3rem "JetBrains Mono",monospace;color:var(--accent);text-shadow:0 0 10px rgba(0,229,255,.5)}
     .sc-story-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-    .sc-story{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;display:block}
+    .sc-story{background:linear-gradient(180deg,rgba(16,24,48,.85),rgba(8,12,26,.9));border:1px solid rgba(0,229,255,.14);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;display:block}
     .sc-story:hover{border-color:var(--accent)}
     .sc-story img{width:100%;height:120px;object-fit:cover;display:block}
     .sc-story div{padding:10px 14px 14px}
     .sc-story h4{margin:0 0 4px;font-size:.92rem;line-height:1.35}
     .sc-story p{margin:0;font-size:.8rem;color:var(--text-dim)}
-    .sc-empty{text-align:center;padding:36px 20px;color:var(--text-dim);border:1px dashed var(--border);border-radius:16px}
-    .sc-skel{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;min-height:280px;animation:skel 1.4s infinite alternate}
+    .sc-empty{text-align:center;padding:36px 20px;color:var(--text-dim);border:1px dashed rgba(0,229,255,.25);border-radius:16px;font-family:"JetBrains Mono",monospace;font-size:.85rem}
+    .sc-skel{background:rgba(16,24,48,.7);border:1px solid rgba(0,229,255,.12);border-radius:14px;min-height:280px;animation:skel 1.4s infinite alternate}
     @keyframes skel{from{opacity:.5}to{opacity:.9}}
-    @media (max-width:640px){.sc-hero h1{font-size:1.7rem}.sc-count{font-size:1.25rem}}
+    @media (max-width:640px){.sc-hero h1{font-size:1.8rem}.sc-count{font-size:1.2rem}.mc-cell{min-width:60px}.mc-cell span{font-size:1.5rem}}
+    @media (prefers-reduced-motion:reduce){.mc-live,.sc-sys.go .sdot,.sc-live-badge,.sc-btn.live{animation:none}#starfield{display:none}}
   </style>
 </head>
 <body>
+  <canvas id="starfield" aria-hidden="true"></canvas>
 
   <header class="topbar">
     <div class="topbar-inner">
@@ -100,18 +133,31 @@
     </div>
   </header>
 
-  <main class="wrap" style="max-width:1100px;margin:0 auto;padding:0 20px 40px">
+  <main class="wrap mc-wrap" style="max-width:1100px;margin:0 auto;padding:0 20px 40px">
 
     <section class="sc-hero">
-      <div class="sc-hero-emoji">🚀</div>
-      <div class="kicker">Skynet Nexus · Space Center</div>
-      <h1>Mission Control for Curious Kids</h1>
-      <p>Every rocket launch, countdown clock, and student experiment heading to space — plus the race to the Moon and Mars. Built for future engineers, astronauts, and space explorers.</p>
+      <div class="mc-statusline"><span class="mc-live">● LIVE</span><span id="mc-tracked">TRACKING — LAUNCHES</span></div>
+      <div class="kicker">Skynet Nexus · Mission Control</div>
+      <h1>SPACE CENTER</h1>
+      <p>You are standing in mission control. Every rocket on Earth preparing to launch, every student experiment riding one, and the race to the Moon and Mars — on the big board, right here.</p>
+      <div class="mc-next">
+        <div class="mc-next-label">▲ Next launch</div>
+        <div class="mc-next-name" id="mc-name">Acquiring telemetry…</div>
+        <div class="mc-clock">
+          <div class="mc-cell"><span id="mc-d">--</span><label>Days</label></div>
+          <div class="mc-cell"><span id="mc-h">--</span><label>Hrs</label></div>
+          <div class="mc-cell"><span id="mc-m">--</span><label>Min</label></div>
+          <div class="mc-cell"><span id="mc-s">--</span><label>Sec</label></div>
+        </div>
+        <div class="mc-go wait" id="mc-go">▸ Awaiting telemetry…</div>
+      </div>
     </section>
 
+    <div class="mc-ticker"><div class="mc-ticker-inner" id="mc-ticker">▸ Initializing mission board…</div></div>
+
     <section class="sc-section" id="launches">
-      <div class="sc-section-head"><h2>🛰️ Launching Soon</h2></div>
-      <p class="sc-section-sub">Live countdowns to the next rockets leaving Earth — SpaceX, NASA, Blue Origin, Rocket Lab, and space agencies around the world. Times shown in your timezone.</p>
+      <div class="sc-section-head"><span class="mc-tag">BOARD 01</span><h2>Launch Manifest</h2></div>
+      <p class="sc-section-sub">Every rocket preparing to leave Earth — SpaceX, NASA, Blue Origin, Rocket Lab, and space agencies around the world. Times shown in your timezone.</p>
       <div class="sc-grid" id="launch-grid">
         <div class="sc-skel"></div><div class="sc-skel"></div><div class="sc-skel"></div>
       </div>
@@ -119,16 +165,16 @@
     </section>
 
     <section class="sc-section" id="students">
-      <div class="sc-section-head"><h2>🎒 Student Projects in Space</h2></div>
-      <p class="sc-section-sub">Real experiments designed by students — riding real rockets right now. Click through and follow their missions.</p>
+      <div class="sc-section-head"><span class="mc-tag">BOARD 02</span><h2>Student Payloads</h2></div>
+      <p class="sc-section-sub">Real experiments designed by students — riding real rockets right now. Follow their missions.</p>
       <div class="sc-grid" id="student-grid">
         <div class="sc-skel"></div><div class="sc-skel"></div>
       </div>
     </section>
 
     <section class="sc-section" id="moonmars">
-      <div class="sc-section-head"><h2>🌙 To the Moon &amp; Beyond</h2></div>
-      <p class="sc-section-sub">When will people live on the Moon — and who lands on Mars first? Here's what each major player says they're aiming for, plus our honest read on the odds.</p>
+      <div class="sc-section-head"><span class="mc-tag">BOARD 03</span><h2>Deep Space Objectives</h2></div>
+      <p class="sc-section-sub">When will people live on the Moon — and who lands on Mars first? Each major player's stated targets, plus our honest read on the odds.</p>
       <div class="sc-grid" id="player-grid">
         <div class="sc-skel"></div><div class="sc-skel"></div>
       </div>
@@ -136,7 +182,7 @@
     </section>
 
     <section class="sc-section" id="stories">
-      <div class="sc-section-head"><h2>📰 Latest Space Stories</h2></div>
+      <div class="sc-section-head"><span class="mc-tag">BOARD 04</span><h2>Space Desk Reports</h2></div>
       <p class="sc-section-sub">From our space correspondent — kid-safe reporting on what's happening up there.</p>
       <div class="sc-story-grid" id="story-grid"></div>
     </section>
@@ -156,6 +202,7 @@
           <li><a href="robotics.html">Robotics</a></li>
           <li><a href="play.html">Play &amp; Design</a></li>
           <li><a href="music.html">Music</a></li>
+          <li><a href="space-center.html">Space Center</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -203,6 +250,34 @@
   <script>
   (function () {
     'use strict';
+    /* ---------- starfield ---------- */
+    (function starfield() {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var cv = document.getElementById('starfield'), ctx = cv.getContext('2d'), stars = [], W, H, raf;
+      function resize() { W = cv.width = innerWidth; H = cv.height = innerHeight; }
+      function init() {
+        resize(); stars = [];
+        var n = Math.min(220, Math.floor(W * H / 9000));
+        for (var i = 0; i < n; i++) stars.push({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.4 + .3, p: Math.random() * Math.PI * 2, s: .4 + Math.random() * 1.2 });
+      }
+      function draw(t) {
+        ctx.clearRect(0, 0, W, H);
+        for (var i = 0; i < stars.length; i++) {
+          var st = stars[i], tw = .35 + .65 * Math.abs(Math.sin(t / 1000 * st.s + st.p));
+          ctx.globalAlpha = tw * .9; ctx.fillStyle = '#cfeaff';
+          ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, 6.283); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        raf = requestAnimationFrame(draw);
+      }
+      init(); raf = requestAnimationFrame(draw);
+      addEventListener('resize', init);
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) cancelAnimationFrame(raf); else raf = requestAnimationFrame(draw);
+      });
+    })();
+
+    /* ---------- launch board ---------- */
     var LL2 = 'https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=15';
     var CACHE_KEY = 'sc-launches-v1', CACHE_MS = 10 * 60 * 1000;
     var PROVIDER_COLORS = {
@@ -225,18 +300,14 @@
       return m ? m[1] : null;
     }
     function fmtNet(iso) {
-      try {
-        var d = new Date(iso);
-        return d.toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-      } catch (e) { return iso; }
+      try { return new Date(iso).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); }
+      catch (e) { return iso; }
     }
     function blurbFor(launch, blurbs) {
       var hay = ((launch.name || '') + ' ' + (launch.mission || '') + ' ' + (launch.provider || '')).toLowerCase();
       for (var i = 0; i < blurbs.blurbs.length; i++) {
         var b = blurbs.blurbs[i];
-        for (var j = 0; j < b.keywords.length; j++) {
-          if (hay.indexOf(b.keywords[j].toLowerCase()) !== -1) return b;
-        }
+        for (var j = 0; j < b.keywords.length; j++) if (hay.indexOf(b.keywords[j].toLowerCase()) !== -1) return b;
       }
       return blurbs['default'];
     }
@@ -244,22 +315,39 @@
       var p = (l.netPrecision || '').toLowerCase();
       return p.indexOf('second') !== -1 || p.indexOf('minute') !== -1 || p.indexOf('hour') !== -1;
     }
-    var timers = [];
+    function sysStatus(l) {
+      var s = (l.status || '').toLowerCase();
+      if (/success|liftoff|in flight|launched/.test(s)) return { cls: 'go', txt: 'LIFTOFF ✓' };
+      if (/hold/.test(s)) return { cls: 'hold', txt: 'HOLD' };
+      if (/go/.test(s)) return { cls: 'go', txt: 'GO FOR LAUNCH' };
+      if (/tbd|to be|to be determined|to be confirmed/.test(s)) return { cls: 'wait', txt: 'TBD' };
+      return { cls: 'wait', txt: (l.status || 'STANDING BY').toUpperCase().slice(0, 18) };
+    }
+    var heroNet = 0, heroPrecise = true;
     function tick() {
       var now = Date.now();
       document.querySelectorAll('[data-net]').forEach(function (el) {
-        var net = +el.getAttribute('data-net');
-        var diff = net - now;
+        var diff = (+el.getAttribute('data-net')) - now;
         if (diff <= 0) { el.innerHTML = '<small>STATUS</small>LIFTOFF! 🎉'; return; }
         var d = Math.floor(diff / 86400000), h = Math.floor(diff / 3600000) % 24,
             m = Math.floor(diff / 60000) % 60, s = Math.floor(diff / 1000) % 60;
         function p(n) { return String(n).padStart(2, '0'); }
         el.innerHTML = '<small>T-MINUS</small>' + (d > 0 ? d + 'd ' : '') + p(h) + ':' + p(m) + ':' + p(s);
       });
+      if (heroNet) {
+        var diff = heroNet - now, D = document.getElementById('mc-d'), H = document.getElementById('mc-h'),
+            M = document.getElementById('mc-m'), S = document.getElementById('mc-s');
+        if (diff <= 0) { D.textContent = H.textContent = M.textContent = S.textContent = '00'; }
+        else {
+          D.textContent = String(Math.floor(diff / 86400000)).padStart(2, '0');
+          H.textContent = String(Math.floor(diff / 3600000) % 24).padStart(2, '0');
+          M.textContent = String(Math.floor(diff / 60000) % 60).padStart(2, '0');
+          S.textContent = String(Math.floor(diff / 1000) % 60).padStart(2, '0');
+        }
+      }
     }
     function launchCard(l, blurbs) {
-      var b = blurbFor(l, blurbs);
-      var color = providerColor(l.provider);
+      var b = blurbFor(l, blurbs), color = providerColor(l.provider), sys = sysStatus(l);
       var netMs = new Date(l.net).getTime();
       var countHtml = preciseEnough(l)
         ? '<div class="sc-count" data-net="' + netMs + '"><small>T-MINUS</small>--:--:--</div>'
@@ -273,13 +361,14 @@
         var ch = (blurbs.providerChannels && blurbs.providerChannels[l.provider]) || 'https://www.youtube.com/results?search_query=' + encodeURIComponent(l.provider + ' launch live');
         watchHtml = '<a class="sc-btn ghost" href="' + esc(ch) + '" target="_blank" rel="noopener">▶ ' + esc(l.provider) + ' on YouTube</a>';
       }
-      return '<article class="sc-card">'
-        + (l.image ? '<img class="sc-card-img" src="' + esc(l.image) + '" alt="' + esc(l.name) + '" loading="lazy"/>' : '')
+      return '<article class="sc-card" style="--pc:' + color + '">'
+        + (l.image ? '<img class="sc-card-img" src="' + esc(l.image) + '" alt="' + esc(l.name) + '" loading="lazy" onerror="this.style.display=\'none\'"/>' : '')
         + '<div class="sc-card-body">'
-        + '<span class="sc-provider" style="--pc:' + color + '"><span class="dot"></span>' + esc(l.provider || 'Spaceflight') + '</span>'
+        + '<div class="sc-sysrow"><span class="sc-provider" style="--pc:' + color + '"><span class="dot"></span>' + esc(l.provider || 'Spaceflight') + '</span>'
+        + '<span class="sc-sys ' + sys.cls + '"><span class="sdot"></span>' + esc(sys.txt) + '</span></div>'
         + '<h3>' + esc(l.name) + '</h3>'
         + countHtml
-        + '<div class="sc-net">🗓 ' + esc(fmtNet(l.net)) + (l.status && l.status !== 'Go for Launch' ? ' · ' + esc(l.status) : '') + '</div>'
+        + '<div class="sc-net">🗓 ' + esc(fmtNet(l.net)) + '</div>'
         + '<div class="sc-blurb"><strong>' + esc(b.title) + '</strong>' + esc(b.text) + '</div>'
         + '<div class="sc-meta">' + (l.pad ? '<span>📍 ' + esc(l.pad) + '</span>' : '') + (l.missionType ? '<span>🎯 ' + esc(l.missionType) + '</span>' : '') + '</div>'
         + '<div class="sc-actions">' + watchHtml + '</div>'
@@ -295,8 +384,7 @@
           missionType: r.mission_type || (r.mission && r.mission.type) || '',
           pad: (typeof r.pad === 'string' ? r.pad : (r.pad && r.pad.name)) || '',
           location: r.location || ((r.pad && r.pad.location && r.pad.location.name) || ''),
-          image: r.image || '', webcastLive: !!r.webcast_live,
-          videoUrl: vids[0] || '', webcastUrl: vids[0] || ''
+          image: r.image || '', webcastLive: !!r.webcast_live, videoUrl: vids[0] || '', webcastUrl: vids[0] || ''
         };
       });
     }
@@ -308,54 +396,68 @@
           webcastLive: false, videoUrl: '', webcastUrl: '' };
       });
     }
+    function setHero(next) {
+      var name = document.getElementById('mc-name'), go = document.getElementById('mc-go');
+      if (!next) { name.textContent = 'No launches on the board'; go.className = 'mc-go wait'; go.textContent = '▸ STANDING BY'; return; }
+      name.textContent = next.name + ' · ' + next.provider;
+      heroNet = new Date(next.net).getTime(); heroPrecise = preciseEnough(next);
+      var sys = sysStatus(next);
+      go.className = 'mc-go ' + (sys.cls === 'go' ? '' : sys.cls);
+      go.textContent = sys.cls === 'go' ? '▸ ALL SYSTEMS GO' : '▸ ' + sys.txt;
+    }
+    function setTicker(list) {
+      var now = Date.now();
+      var upcoming = list.filter(function (l) { return new Date(l.net).getTime() > now; });
+      var providers = {};
+      list.forEach(function (l) { if (l.provider) providers[l.provider] = 1; });
+      var next = upcoming.sort(function (a, b) { return new Date(a.net) - new Date(b.net); })[0];
+      document.getElementById('mc-tracked').textContent = 'TRACKING ' + upcoming.length + ' LAUNCHES';
+      document.getElementById('mc-ticker').innerHTML = '▸ NEXT UP: <b>' + esc(next ? next.name : '—') + '</b>'
+        + ' &nbsp;▸ PROVIDERS ON THE BOARD: <b>' + Object.keys(providers).length + '</b>'
+        + ' &nbsp;▸ CREWED STATIONS: <b>ISS · TIANGONG</b>'
+        + ' &nbsp;▸ STATUS: <b>ALL KIDS CLEARED FOR LAUNCH</b> 🚀';
+    }
+    var timers = [];
     function renderLaunches(list, blurbs, note) {
       var grid = document.getElementById('launch-grid');
       var now = Date.now();
       var upcoming = list.filter(function (l) { return new Date(l.net).getTime() > now - 6 * 3600000; })
-        .sort(function (a, b) { return new Date(a.net) - new Date(b.net); }).slice(0, 12);
-      if (!upcoming.length) {
-        grid.innerHTML = '<div class="sc-empty">No launches on the board right now — check back soon. Rockets are always being prepared!</div>';
-      } else {
-        grid.innerHTML = upcoming.map(function (l) { return launchCard(l, blurbs); }).join('');
-      }
+        .sort(function (a, b) { return new Date(a.net) - new Date(b.net); });
+      setHero(upcoming.filter(function (l) { return new Date(l.net).getTime() > now; })[0]);
+      setTicker(list);
+      var show = upcoming.slice(0, 12);
+      grid.innerHTML = show.length ? show.map(function (l) { return launchCard(l, blurbs); }).join('')
+        : '<div class="sc-empty">▸ NO LAUNCHES ON THE BOARD — CHECK BACK SOON</div>';
       document.getElementById('launch-note').textContent = note || '';
-      tick();
-      timers.forEach(clearInterval); timers = [];
-      timers.push(setInterval(tick, 1000));
+      tick(); timers.forEach(clearInterval); timers = [setInterval(tick, 1000)];
     }
     function loadLaunches(blurbs) {
       var cached = null;
-      try {
-        var c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
-        if (c && Date.now() - c.ts < CACHE_MS) cached = c.data;
-      } catch (e) {}
+      try { var c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null'); if (c && Date.now() - c.ts < CACHE_MS) cached = c.data; } catch (e) {}
       function useFallback(why) {
         fetch('../data/space-center/launches-fallback.json', { cache: 'no-store' })
           .then(function (r) { return r.json(); })
-          .then(function (snap) {
-            renderLaunches(normalizeSnapshot(snap), blurbs,
-              'Showing our latest saved launch board (' + (snap.updated || 'recent') + '). ' + (why || ''));
-          })
+          .then(function (snap) { renderLaunches(normalizeSnapshot(snap), blurbs, '▸ Saved board (' + (snap.updated || 'recent') + '). ' + (why || '')); })
           .catch(function () {
-            document.getElementById('launch-grid').innerHTML = '<div class="sc-empty">The launch board is temporarily offline — our space correspondent is fixing the antenna. 📡</div>';
+            document.getElementById('launch-grid').innerHTML = '<div class="sc-empty">▸ BOARD OFFLINE — FIXING THE ANTENNA 📡</div>';
+            setHero(null);
           });
       }
-      if (cached) { renderLaunches(normalize(cached), blurbs, 'Live launch data · updated just now'); return; }
+      if (cached) { renderLaunches(normalize(cached), blurbs, '▸ LIVE DATA · AUTO-REFRESHING'); return; }
       fetch(LL2, { cache: 'no-store' })
         .then(function (r) { if (!r.ok) throw new Error('ll2 ' + r.status); return r.json(); })
         .then(function (api) {
           if (!api.results) throw new Error('bad shape');
           try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: api })); } catch (e) {}
-          renderLaunches(normalize(api), blurbs, 'Live launch data · times update automatically');
+          renderLaunches(normalize(api), blurbs, '▸ LIVE DATA · AUTO-REFRESHING');
         })
-        .catch(function () { useFallback('Live data is taking a coffee break —'); });
+        .catch(function () { useFallback('Live feed resting —'); });
     }
     function renderStudents(data) {
-      var grid = document.getElementById('student-grid');
-      var ps = (data && data.projects) || [];
-      if (!ps.length) { grid.innerHTML = '<div class="sc-empty">Student missions are being loaded…</div>'; return; }
+      var grid = document.getElementById('student-grid'), ps = (data && data.projects) || [];
+      if (!ps.length) { grid.innerHTML = '<div class="sc-empty">▸ LOADING STUDENT MISSIONS…</div>'; return; }
       grid.innerHTML = ps.map(function (p) {
-        return '<article class="sc-card"><div class="sc-card-body">'
+        return '<article class="sc-card" style="--pc:#a855f7"><div class="sc-card-body">'
           + '<span class="sc-provider" style="--pc:#a855f7"><span class="dot"></span>' + esc(p.org) + '</span>'
           + '<h3>' + esc(p.name) + '</h3>'
           + '<p style="margin:0;font-size:.9rem;line-height:1.6;color:var(--text-dim)">' + esc(p.kidFriendly) + '</p>'
@@ -365,9 +467,8 @@
       }).join('');
     }
     function renderMoonMars(data) {
-      var grid = document.getElementById('player-grid');
-      var ps = (data && data.players) || [];
-      if (!ps.length) { grid.innerHTML = '<div class="sc-empty">The Moon &amp; Mars board is being built…</div>'; return; }
+      var grid = document.getElementById('player-grid'), ps = (data && data.players) || [];
+      if (!ps.length) { grid.innerHTML = '<div class="sc-empty">▸ BUILDING DEEP SPACE BOARD…</div>'; return; }
       var colors = ['#00e5ff', '#4d7cff', '#7c6cff', '#38d17c', '#ff5c5c', '#ffb020'];
       grid.innerHTML = ps.map(function (p, i) {
         return '<article class="sc-card sc-player" style="--pc:' + colors[i % colors.length] + '"><div class="sc-card-body">'
@@ -377,8 +478,7 @@
           + '</div></article>';
       }).join('');
       if (data.gizmoOdds) {
-        var box = document.getElementById('odds-box');
-        box.hidden = false;
+        var box = document.getElementById('odds-box'); box.hidden = false;
         box.innerHTML = '<h3>🤖 Gizmo\u2019s honest odds <span style="font-weight:400;font-size:.8rem;color:var(--text-mute)">(my estimates — not the players\u2019 claims)</span></h3>'
           + '<p><span class="pct">' + esc(data.gizmoOdds.moonBase30yrPct || '') + '</span> ' + esc(data.gizmoOdds.moonBase30yr || '') + '</p>'
           + '<p><span class="pct">' + esc(data.gizmoOdds.marsCrew30yrPct || '') + '</span> ' + esc(data.gizmoOdds.marsCrew30yr || '') + '</p>'
@@ -390,17 +490,14 @@
         .then(function (r) { return r.json(); })
         .then(function (m) {
           var arts = (m.articles || []).filter(function (a) { return a && a.cat === 'space'; })
-            .sort(function (a, b) { return new Date(b.publishedAt || b.date || 0) - new Date(a.publishedAt || a.date || 0); })
-            .slice(0, 6);
+            .sort(function (a, b) { return new Date(b.publishedAt || b.date || 0) - new Date(a.publishedAt || a.date || 0); }).slice(0, 6);
           var grid = document.getElementById('story-grid');
-          if (!arts.length) { grid.innerHTML = '<div class="sc-empty">Space stories are on the way.</div>'; return; }
-          grid.innerHTML = arts.map(function (a) {
+          grid.innerHTML = arts.length ? arts.map(function (a) {
             return '<a class="sc-story" href="article.html?id=' + esc(a.id) + '">'
               + (a.heroImage ? '<img src="' + esc(a.heroImage) + '" alt="" loading="lazy"/>' : '')
               + '<div><h4>' + esc(a.title) + '</h4><p>' + esc(a.excerpt || '') + '</p></div></a>';
-          }).join('');
-        })
-        .catch(function () {});
+          }).join('') : '<div class="sc-empty">▸ SPACE REPORTS INCOMING</div>';
+        }).catch(function () {});
     }
     Promise.all([
       fetch('../data/space-center/launch-blurbs.json').then(function (r) { return r.json(); }).catch(function () { return null; }),
@@ -408,10 +505,7 @@
       fetch('../data/space-center/moon-mars.json').then(function (r) { return r.json(); }).catch(function () { return null; })
     ]).then(function (res) {
       var blurbs = res[0] || { blurbs: [], 'default': { title: 'Up, Up, and Away!', text: 'A rocket is heading to space. Every launch brings the future a little closer.' }, providerChannels: {} };
-      loadLaunches(blurbs);
-      renderStudents(res[1]);
-      renderMoonMars(res[2]);
-      renderStories();
+      loadLaunches(blurbs); renderStudents(res[1]); renderMoonMars(res[2]); renderStories();
     });
   })();
   </script>
