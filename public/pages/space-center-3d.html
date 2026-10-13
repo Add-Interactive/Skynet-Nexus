@@ -65,6 +65,10 @@
     #timebar .warp{display:flex;gap:6px;align-items:center}
     .wbtn{font:700 .72rem "JetBrains Mono",monospace;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.3);color:var(--text);border-radius:8px;padding:7px 11px;cursor:pointer}
     .wbtn.on{background:var(--accent);color:#04121a;border-color:var(--accent)}
+    #trackchip{top:64px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:8px;font:700 .68rem "JetBrains Mono",monospace;letter-spacing:.1em;color:#bff3ff;background:rgba(4,8,18,.85);border:1px solid rgba(0,229,255,.35);padding:7px 8px 7px 14px;border-radius:20px;box-shadow:0 0 18px rgba(0,229,255,.25)}
+    #trackchip.show{display:flex}
+    #trackchip b{color:#fff}
+    #trackx{background:rgba(0,229,255,.12);border:1px solid rgba(0,229,255,.35);color:var(--text);border-radius:50%;width:24px;height:24px;font-size:.7rem;cursor:pointer;line-height:1}
     #hoverlabel{position:fixed;z-index:9;pointer-events:none;font:700 .68rem "JetBrains Mono",monospace;color:#04121a;background:#bff3ff;padding:3px 10px;border-radius:12px;display:none;white-space:nowrap;box-shadow:0 0 14px rgba(0,229,255,.7)}
     .quickfly{display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
     .quickfly span{font:700 .6rem "JetBrains Mono",monospace;letter-spacing:.14em;color:var(--text-mute)}
@@ -143,6 +147,7 @@
   </div>
   <div id="satlabel"></div>
   <div id="hoverlabel"></div>
+  <div class="hud" id="trackchip">🛰 TRACKING <b id="trackname">—</b><button id="trackx" title="Stop tracking">✕</button></div>
   <div id="toast"></div>
 
   <script type="module">
@@ -189,7 +194,11 @@
       { id: 'm-hubble', em: '🔭', t: 'Spot the Hubble telescope' },
       { id: 'm-five', em: '✨', t: 'Meet 5 different satellites' },
       { id: 'm-pad', em: '🚀', t: 'Visit a launch pad' },
-      { id: 'm-spin', em: '🌍', t: 'Spin Earth all the way around' }
+      { id: 'm-spin', em: '🌍', t: 'Spin Earth all the way around' },
+      { id: 'm-search', em: '🔍', t: 'Find a satellite with search' },
+      { id: 'm-filter', em: '🎛️', t: 'Hide a fleet with the filter' },
+      { id: 'm-pause', em: '⏸️', t: 'Pause time' },
+      { id: 'm-closeup', em: '🔎', t: 'Zoom in close on a satellite' }
     ];
 
     var canvas = document.getElementById('scene');
@@ -206,8 +215,19 @@
     var camDist = 3.26, camGoalDist = 3.26;        // smoothed / desired distance
     var camDir = new THREE.Vector3(0, 0.6, 3.2).normalize(); // view direction
     var focusSat = null, _sv = new THREE.Vector3();
-    function flyTo(sp) { focusSat = sp; camGoalDist = sp.userData.isPad ? 0.9 : 0.5; }
-    function flyHome() { focusSat = null; camGoal.set(0, 0, 0); camGoalDist = 3.26; }
+    function flyTo(sp) {
+      focusSat = sp; camGoalDist = sp.userData.isPad ? 0.9 : 0.5;
+      var u = sp.userData;
+      document.getElementById('trackname').textContent = u.isPad ? u.pad.n : (u.name.length > 24 ? u.name.slice(0, 24) + '…' : u.name);
+      document.getElementById('trackchip').classList.add('show');
+    }
+    function flyHome() {
+      focusSat = null; camGoal.set(0, 0, 0); camGoalDist = 3.26;
+      document.getElementById('trackchip').classList.remove('show');
+    }
+    document.getElementById('trackx').onclick = function () {
+      infopanel.classList.remove('show'); selected = null; selKind = null; clearOrbit(); flyHome();
+    };
 
     var world = new THREE.Group(); scene.add(world); // everything spinnable lives here
     var R = 1;
@@ -415,7 +435,7 @@
         return '<div class="sr" data-id="' + u.id + '"><span class="dot" style="color:' + cssColor(COMPANY_COLORS[u.co]) + '">●</span><span>' + escapeHtml(u.name) + '</span></div>';
       }).join('') : '<div class="sr-empty">No satellites match "' + escapeHtml(q) + '"</div>';
       searchresults.querySelectorAll('.sr').forEach(function (el) {
-        el.onclick = function () { var sp = satById[el.getAttribute('data-id')]; if (sp) selectSat(sp); };
+        el.onclick = function () { var sp = satById[el.getAttribute('data-id')]; if (sp) { selectSat(sp); complete('m-search', 'Find a satellite with search!'); } };
       });
     });
     function satLiveData(sp, date) {
@@ -517,6 +537,7 @@
         infopanel.classList.remove('show'); selected = null; selKind = null; clearOrbit(); flyHome();
       }
       renderFleets();
+      complete('m-filter', 'Hide a fleet with the filter!');
     });
     document.querySelectorAll('[data-fly]').forEach(function (b) {
       b.onclick = function () {
@@ -526,7 +547,7 @@
     });
     document.getElementById('pausebtn').onclick = function () {
       warpStartOffset = simDate().getTime(); warpStart = Date.now();
-      if (paused) { warp = warpBeforePause; } else { warpBeforePause = warp; warp = 0; }
+      if (paused) { warp = warpBeforePause; } else { warpBeforePause = warp; warp = 0; complete('m-pause', 'Pause time!'); }
       paused = !paused;
       this.textContent = paused ? '▶' : '⏸';
     };
@@ -707,6 +728,8 @@
             label.textContent = u.isPad ? '🚀 ' + u.pad.n : '🛰 ' + (u.name.length > 24 ? u.name.slice(0, 24) + '…' : u.name);
           } else label.style.display = 'none';
         } else label.style.display = 'none';
+        // close-up mission: zoomed right into a tracked satellite
+        if (focusSat && !focusSat.userData.isPad && camGoalDist < 0.35) complete('m-closeup', 'Zoom in close on a satellite!');
         // idle auto-rotate after 10s of no interaction
         if (!dragging && !focusSat && !renderer.xr.isPresenting && performance.now() - lastInteract > 10000) {
           world.rotation.y += dt * 0.02;
