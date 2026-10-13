@@ -677,7 +677,11 @@
     }
 
     // load satellites
-    fetch('../assets/data/space-center/tle-snapshot.json').then(function (r) { return r.json(); }).then(function (snap) {
+    Promise.all([
+      fetch('../assets/data/space-center/tle-snapshot-a.json').then(function (r) { return r.json(); }),
+      fetch('../assets/data/space-center/tle-snapshot-b.json').then(function (r) { return r.json(); })
+    ]).then(function (parts) {
+      var snap = { sats: (parts[0].sats || []).concat(parts[1].sats || []) };
       var list = snap.sats || [];
       var shown = 0;
       list.forEach(function (s) {
