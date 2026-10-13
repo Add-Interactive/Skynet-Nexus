@@ -376,18 +376,18 @@
       if (clickedIds.size >= 5) complete('m-five', 'Meet 5 satellites!');
     });
 
-    // time warp
-    var warp = 1, warpBase = Date.now();
+    // time warp — simulated clock starts at real now, preserved across warp changes
+    var warp = 1, warpStart = Date.now(), warpStartOffset = Date.now();
+    function simDate() { return new Date(warpStartOffset + (Date.now() - warpStart) * warp); }
     document.querySelectorAll('.wbtn').forEach(function (b) {
       b.onclick = function () {
         document.querySelectorAll('.wbtn').forEach(function (x) { x.classList.remove('on'); });
         b.classList.add('on');
-        warpBase = Date.now(); warp = +b.getAttribute('data-warp'); simOffset = simOffset; // keep continuity
-        warpStart = Date.now(); warpStartOffset = simOffset;
+        warpStartOffset = simDate().getTime();
+        warpStart = Date.now();
+        warp = +b.getAttribute('data-warp');
       };
     });
-    var simOffset = 0, warpStart = Date.now(), warpStartOffset = 0;
-    function simDate() { return new Date(warpStartOffset + (Date.now() - warpStart) * warp); }
 
     // VR
     if ('xr' in navigator) {
@@ -405,26 +405,6 @@
     }
 
     // orbit trails for heroes
-    var trails = {};
-    function buildTrail(sp, color) {
-      var pts = [], now = simDate();
-      for (var m = -50; m <= 50; m += 2) {
-        var d = new Date(now.getTime() + m * 60000);
-        var pv = null;
-        try {
-          var p = satellite.propagate(sp.userData.rec, d);
-          if (p && p.position) {
-            var gd = satellite.eciToGeodetic(p.position, satellite.gstime(d));
-            pts.push(llToVec3(gd.latitude * 180 / Math.PI, gd.longitude * 180 / Math.PI, gd.height));
-          }
-        } catch (e) {}
-      }
-      var g = new THREE.BufferGeometry().setFromPoints(pts);
-      var line = new THREE.Line(g, new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.55 }));
-      world.add(line);
-      return line;
-    }
-
     // pad launch urgency from the launch board snapshot
     function markUrgentPads() {
       fetch('../assets/data/space-center/launches-fallback.json').then(function (r) { return r.json(); }).then(function (snap) {
@@ -453,9 +433,6 @@
         } catch (e) {}
       });
       document.getElementById('satcount').textContent = shown;
-      Object.keys(heroSats).forEach(function (k) {
-        trails[k] = buildTrail(heroSats[k], k === 'iss' ? 0xffe27a : k === 'tiangong' ? 0xff9d7a : 0xc4b5fd);
-      });
       markUrgentPads();
       document.getElementById('loading').style.display = 'none';
       animate();
