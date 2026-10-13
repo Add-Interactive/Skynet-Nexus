@@ -88,12 +88,12 @@
   </div>
 
   <div class="hud" id="iconrail">
-    <button class="rbtn on" data-tab="search" title="Search satellites">🔍</button>
+    <button class="rbtn" data-tab="search" title="Search satellites">🔍</button>
     <button class="rbtn" data-tab="missions" title="Missions">◈</button>
     <button class="rbtn" data-tab="fleets" title="Fleet colors">🛰</button>
   </div>
 
-  <div class="hud open" id="sidepanel">
+  <div class="hud" id="sidepanel">
     <div class="tabs">
       <button class="tab on" data-tab="search">SEARCH</button>
       <button class="tab" data-tab="missions">MISSIONS</button>
@@ -187,6 +187,14 @@
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.01, 100);
     camera.position.set(0, 0.6, 3.2);
+    // ---- full camera navigation: orbit target + fly-to-satellite ----
+    var camTarget = new THREE.Vector3(0, 0, 0);   // smoothed look-at point
+    var camGoal = new THREE.Vector3(0, 0, 0);     // desired look-at point
+    var camDist = 3.26, camGoalDist = 3.26;        // smoothed / desired distance
+    var camDir = new THREE.Vector3(0, 0.6, 3.2).normalize(); // view direction
+    var focusSat = null, _sv = new THREE.Vector3();
+    function flyTo(sp) { focusSat = sp; camGoalDist = sp.userData.isPad ? 0.9 : 0.5; }
+    function flyHome() { focusSat = null; camGoal.set(0, 0, 0); camGoalDist = 3.26; }
 
     var world = new THREE.Group(); scene.add(world); // everything spinnable lives here
     var R = 1;
@@ -414,7 +422,7 @@
       var ld = satLiveData(sp, simDate());
       if (ld) {
         rows.push(['ALTITUDE', Math.round(ld.alt).toLocaleString() + ' km']);
-        rows.push(['VELOCITY', ld.vel.toFixed(2) + ' km/s']);
+        rows.push(['SPEED', ld.vel.toFixed(2) + ' km/s']);
         rows.push(['PERIOD', ld.period.toFixed(1) + ' min']);
       }
       return rows;
@@ -426,10 +434,11 @@
       document.getElementById('infop').textContent = body || '';
       infopanel.classList.add('show');
     }
-    document.getElementById('infox').onclick = function () { infopanel.classList.remove('show'); selected = null; selKind = null; };
+    document.getElementById('infox').onclick = function () { infopanel.classList.remove('show'); selected = null; selKind = null; flyHome(); };
     function selectSat(sp) {
       var u = sp.userData;
       selected = sp;
+      flyTo(sp);
       if (u.isPad) {
         selKind = 'pad';
         showInfo('LAUNCH PAD', u.pad.n, [['TYPE', 'LAUNCH SITE']], u.pad.d + ' Tap a pad when it glows red — a launch is close!');
@@ -479,7 +488,8 @@
     });
     canvas.addEventListener('wheel', function (e) {
       e.preventDefault();
-      camera.position.z = Math.max(1.6, Math.min(8, camera.position.z + e.deltaY * 0.002));
+      var lo = focusSat ? 0.18 : 1.7; // zoom right into a satellite when focused
+      camGoalDist = Math.max(lo, Math.min(8, camGoalDist + e.deltaY * 0.002));
     }, { passive: false });
 
     // picking
@@ -490,7 +500,7 @@
       ptr.x = (e.clientX / innerWidth) * 2 - 1; ptr.y = -(e.clientY / innerHeight) * 2 + 1;
       ray.setFromCamera(ptr, camera);
       var hits = ray.intersectObjects(satGroup.children.concat(padMeshes));
-      if (!hits.length) { infopanel.classList.remove('show'); selected = null; selKind = null; return; }
+      if (!hits.length) { infopanel.classList.remove('show'); selected = null; selKind = null; flyHome(); return; }
       selectSat(hits[0].object);
     });
 
@@ -604,6 +614,14 @@
             label.textContent = u.isPad ? '🚀 ' + u.pad.n : '🛰 ' + (u.name.length > 24 ? u.name.slice(0, 24) + '…' : u.name);
           } else label.style.display = 'none';
         } else label.style.display = 'none';
+        // camera navigation (skipped in VR — headset drives the camera)
+        if (!renderer.xr.isPresenting) {
+          if (focusSat) { focusSat.getWorldPosition(_sv); camGoal.copy(_sv); }
+          camTarget.lerp(camGoal, 0.1);
+          camDist += (camGoalDist - camDist) * 0.12;
+          camera.position.copy(camTarget).addScaledVector(camDir, camDist);
+          camera.lookAt(camTarget);
+        }
         renderer.render(scene, camera);
       });
     }
