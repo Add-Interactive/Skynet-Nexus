@@ -435,7 +435,7 @@
       var cached = null;
       try { var c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null'); if (c && Date.now() - c.ts < CACHE_MS) cached = c.data; } catch (e) {}
       function useFallback(why) {
-        fetch('../data/space-center/launches-fallback.json', { cache: 'no-store' })
+        fetch('../assets/data/space-center/launches-fallback.json', { cache: 'no-store' })
           .then(function (r) { return r.json(); })
           .then(function (snap) { renderLaunches(normalizeSnapshot(snap), blurbs, '▸ Saved board (' + (snap.updated || 'recent') + '). ' + (why || '')); })
           .catch(function () {
@@ -500,9 +500,9 @@
         }).catch(function () {});
     }
     Promise.all([
-      fetch('../data/space-center/launch-blurbs.json').then(function (r) { return r.json(); }).catch(function () { return null; }),
-      fetch('../data/space-center/student-projects.json').then(function (r) { return r.json(); }).catch(function () { return null; }),
-      fetch('../data/space-center/moon-mars.json').then(function (r) { return r.json(); }).catch(function () { return null; })
+      fetch('../assets/data/space-center/launch-blurbs.json').then(function (r) { return r.json(); }).catch(function () { return null; }),
+      fetch('../assets/data/space-center/student-projects.json').then(function (r) { return r.json(); }).catch(function () { return null; }),
+      fetch('../assets/data/space-center/moon-mars.json').then(function (r) { return r.json(); }).catch(function () { return null; })
     ]).then(function (res) {
       var blurbs = res[0] || { blurbs: [], 'default': { title: 'Up, Up, and Away!', text: 'A rocket is heading to space. Every launch brings the future a little closer.' }, providerChannels: {} };
       loadLaunches(blurbs); renderStudents(res[1]); renderMoonMars(res[2]); renderStories();
