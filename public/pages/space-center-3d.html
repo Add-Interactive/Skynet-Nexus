@@ -46,6 +46,8 @@
     .fleetrow{display:flex;gap:10px;align-items:center;padding:7px 2px;font-size:.78rem;color:var(--text-dim);border-bottom:1px solid rgba(255,255,255,.05)}
     .fleetrow .dot{font-size:.8rem}
     .fleetrow small{margin-left:auto;color:var(--text-mute);font-family:"JetBrains Mono",monospace;font-size:.66rem}
+    .fleetrow{cursor:pointer;pointer-events:auto}
+    .fleetrow.off{opacity:.32}
     #infopanel{right:14px;top:76px;width:288px;max-height:calc(100% - 190px);overflow-y:auto;background:rgba(4,8,18,.9);border:1px solid rgba(0,229,255,.25);border-radius:14px;padding:16px 18px;backdrop-filter:blur(8px);display:none;pointer-events:none}
     #infopanel.show{display:block;pointer-events:auto}
     #infopanel .fk{font:700 .62rem "JetBrains Mono",monospace;letter-spacing:.2em;color:var(--accent);margin-bottom:6px}
@@ -424,6 +426,7 @@
         rows.push(['ALTITUDE', Math.round(ld.alt).toLocaleString() + ' km']);
         rows.push(['SPEED', ld.vel.toFixed(2) + ' km/s']);
         rows.push(['PERIOD', ld.period.toFixed(1) + ' min']);
+        rows.push(['ORBIT', ld.alt > 34000 ? 'GEO' : ld.alt > 2000 ? 'MEO' : 'LEO']);
       }
       return rows;
     }
@@ -434,18 +437,20 @@
       document.getElementById('infop').textContent = body || '';
       infopanel.classList.add('show');
     }
-    document.getElementById('infox').onclick = function () { infopanel.classList.remove('show'); selected = null; selKind = null; flyHome(); };
+    document.getElementById('infox').onclick = function () { infopanel.classList.remove('show'); selected = null; selKind = null; clearOrbit(); flyHome(); };
     function selectSat(sp) {
       var u = sp.userData;
       selected = sp;
       flyTo(sp);
       if (u.isPad) {
         selKind = 'pad';
+        clearOrbit();
         showInfo('LAUNCH PAD', u.pad.n, [['TYPE', 'LAUNCH SITE']], u.pad.d + ' Tap a pad when it glows red — a launch is close!');
         complete('m-pad', 'Visit a launch pad!');
         return;
       }
       selKind = 'sat';
+      drawOrbit(sp);
       var f = FACTS[COMPANY_FACT[u.co] || 'def'];
       var nm = u.name.length > 28 ? u.name.slice(0, 28) + '…' : u.name;
       showInfo(u.tag === 'iss' ? 'SPACE STATION' : u.tag ? u.tag.toUpperCase() : 'SATELLITE', f.t === 'Satellite' ? nm : f.t, satRows(sp), f.p);
@@ -455,15 +460,53 @@
       if (u.tag === 'hubble') complete('m-hubble', 'Spot Hubble!');
       if (clickedIds.size >= 5) complete('m-five', 'Meet 5 satellites!');
     }
+    // full orbit path for the selected satellite (drawn correctly now the clock is real)
+    var orbitLine = null;
+    function clearOrbit() {
+      if (orbitLine) { world.remove(orbitLine); orbitLine.geometry.dispose(); orbitLine.material.dispose(); orbitLine = null; }
+    }
+    function drawOrbit(sp) {
+      clearOrbit();
+      var ld = satLiveData(sp, simDate());
+      if (!ld) return;
+      var periodMs = ld.period * 60000, now = simDate().getTime(), pts = [], N = 128;
+      for (var i = 0; i <= N; i++) {
+        try {
+          var pv = satellite.propagate(sp.userData.rec, new Date(now + (i / N) * periodMs));
+          if (pv && pv.position) {
+            var gd = satellite.eciToGeodetic(pv.position, satellite.gstime(new Date(now + (i / N) * periodMs)));
+            pts.push(llToVec3(gd.latitude * 180 / Math.PI, gd.longitude * 180 / Math.PI, gd.height));
+          }
+        } catch (e) {}
+      }
+      if (pts.length < 2) return;
+      orbitLine = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(pts),
+        new THREE.LineBasicMaterial({ color: 0xbff3ff, transparent: true, opacity: 0.45 })
+      );
+      world.add(orbitLine);
+    }
+    var hiddenFleets = {};
     function renderFleets() {
       var counts = {};
       sats.forEach(function (sp) { var c = sp.userData.co; counts[c] = (counts[c] || 0) + 1; });
       var order = ['iss', 'tiangong', 'hubble', 'spacex', 'oneweb', 'kuiper', 'iridium', 'noaa', 'def'];
       document.getElementById('fleet-list').innerHTML = order.map(function (c) {
         if (!counts[c]) return '';
-        return '<div class="fleetrow"><span class="dot" style="color:' + cssColor(COMPANY_COLORS[c]) + '">●</span>' + fleetName(c) + '<small>' + counts[c] + '</small></div>';
+        return '<div class="fleetrow' + (hiddenFleets[c] ? ' off' : '') + '" data-co="' + c + '"><span class="dot" style="color:' + cssColor(COMPANY_COLORS[c]) + '">●</span>' + fleetName(c) + '<small>' + counts[c] + '</small></div>';
       }).join('');
     }
+    document.getElementById('fleet-list').addEventListener('click', function (e) {
+      var row = e.target.closest ? e.target.closest('.fleetrow') : null;
+      if (!row) return;
+      var co = row.getAttribute('data-co');
+      hiddenFleets[co] = !hiddenFleets[co];
+      sats.forEach(function (sp) { if (sp.userData.co === co) sp.visible = !hiddenFleets[co]; });
+      if (hiddenFleets[co] && selected && !selected.userData.isPad && selected.userData.co === co) {
+        infopanel.classList.remove('show'); selected = null; selKind = null; clearOrbit(); flyHome();
+      }
+      renderFleets();
+    });
     document.getElementById('pausebtn').onclick = function () {
       warpStartOffset = simDate().getTime(); warpStart = Date.now();
       if (paused) { warp = warpBeforePause; } else { warpBeforePause = warp; warp = 0; }
@@ -500,7 +543,7 @@
       ptr.x = (e.clientX / innerWidth) * 2 - 1; ptr.y = -(e.clientY / innerHeight) * 2 + 1;
       ray.setFromCamera(ptr, camera);
       var hits = ray.intersectObjects(satGroup.children.concat(padMeshes));
-      if (!hits.length) { infopanel.classList.remove('show'); selected = null; selKind = null; flyHome(); return; }
+      if (!hits.length) { infopanel.classList.remove('show'); selected = null; selKind = null; clearOrbit(); flyHome(); return; }
       selectSat(hits[0].object);
     });
 
