@@ -40,6 +40,7 @@
     #factcard .falt{font:600 .72rem "JetBrains Mono",monospace;color:var(--text-mute)}
     #factcard .fx{position:absolute;top:8px;right:12px;background:none;border:0;color:var(--text-mute);font-size:1.1rem;cursor:pointer}
     #hint{bottom:14px;left:50%;transform:translateX(-50%);font:600 .72rem "JetBrains Mono",monospace;letter-spacing:.08em;color:var(--text-mute);background:rgba(4,8,18,.7);border:1px solid rgba(0,229,255,.18);padding:8px 18px;border-radius:20px;white-space:nowrap}
+    #spacetime-note{bottom:52px;left:50%;transform:translateX(-50%);font:600 .62rem "JetBrains Mono",monospace;letter-spacing:.14em;color:#67e8f9;background:rgba(4,8,18,.55);border:1px solid rgba(0,229,255,.14);padding:6px 16px;border-radius:16px;white-space:nowrap;opacity:.85}
     #satlabel{position:fixed;z-index:9;pointer-events:none;font:700 .68rem "JetBrains Mono",monospace;color:#04121a;background:#bff3ff;padding:3px 10px;border-radius:12px;display:none;white-space:nowrap;box-shadow:0 0 14px rgba(0,229,255,.7)}
     #loading{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;background:#02040a;font:700 .8rem "JetBrains Mono",monospace;letter-spacing:.2em;color:var(--accent)}
     #loading .spin{font-size:2.4rem;animation:spin 2.4s linear infinite}
@@ -89,6 +90,7 @@
   </div>
 
   <div class="hud" id="hint">DRAG to spin · SCROLL to zoom · CLICK a satellite or launch pad</div>
+  <div class="hud" id="spacetime-note">🌀 THE GRID IS SPACETIME — EARTH'S GRAVITY BENDS IT INTO A WELL</div>
   <div id="satlabel"></div>
   <div id="toast"></div>
 
@@ -180,6 +182,49 @@
       })(), transparent: true, depthWrite: false
     }));
     glow.scale.setScalar(2.55); world.add(glow);
+    // ---- spacetime grid: gravity-well warped lattice ----
+    // Earth's mass bends the fabric of space — the grid dips into a funnel
+    // around the planet, with faint ripples radiating outward.
+    var GRID_N = 56, GRID_HALF = 3.5, GRID_Y = -1.45;
+    function gridWell(r) { return -1.05 * Math.exp(-Math.pow(r / 1.4, 2)); }
+    var gridCount = (GRID_N + 1) * GRID_N * 2 * 2;
+    var gp = new Float32Array(gridCount * 3), gc = new Float32Array(gridCount * 3), gb = new Float32Array(gridCount * 2);
+    (function buildGrid() {
+      var gi = 0, ci = 0, bi = 0;
+      function vert(x, z) {
+        var r = Math.sqrt(x * x + z * z);
+        var y = GRID_Y + gridWell(r);
+        gp[gi++] = x; gp[gi++] = y; gp[gi++] = z;
+        var k = 0.30 + 0.70 * Math.exp(-r / 2.2); // brighter near the planet
+        gc[ci++] = 0.1 * k; gc[ci++] = 0.9 * k; gc[ci++] = 1.0 * k;
+        gb[bi++] = y; gb[bi++] = r;
+      }
+      for (var a = 0; a <= GRID_N; a++) {
+        var c = -GRID_HALF + (a / GRID_N) * GRID_HALF * 2;
+        for (var b = 0; b < GRID_N; b++) {
+          var c0 = -GRID_HALF + (b / GRID_N) * GRID_HALF * 2;
+          var c1 = -GRID_HALF + ((b + 1) / GRID_N) * GRID_HALF * 2;
+          vert(c0, c); vert(c1, c);
+          vert(c, c0); vert(c, c1);
+        }
+      }
+    })();
+    var gridGeo = new THREE.BufferGeometry();
+    gridGeo.setAttribute('position', new THREE.BufferAttribute(gp, 3));
+    gridGeo.setAttribute('color', new THREE.BufferAttribute(gc, 3));
+    var spacetime = new THREE.LineSegments(gridGeo, new THREE.LineBasicMaterial({
+      vertexColors: true, transparent: true, opacity: 0.55,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    }));
+    world.add(spacetime);
+    function rippleGrid(t) {
+      var arr = gridGeo.attributes.position.array;
+      for (var vi = 0; vi < gridCount; vi++) {
+        var y0 = gb[vi * 2], r = gb[vi * 2 + 1];
+        arr[vi * 3 + 1] = y0 + 0.035 * Math.sin(5.5 * r - 3.2 * t) * Math.exp(-r / 3);
+      }
+      gridGeo.attributes.position.needsUpdate = true;
+    }
     var sun = new THREE.DirectionalLight(0xffffff, 1.6); scene.add(sun);
     scene.add(new THREE.AmbientLight(0x334455, 0.7));
 
@@ -438,6 +483,8 @@
           pm.scale.setScalar(s);
           pm.material.color.setHex(urgent ? 0xff3b5c : 0xffb020);
         });
+        // spacetime grid ripples
+        rippleGrid(t);
         // smooth tilt
         rotX += (targetRotX - rotX) * 0.08;
         world.rotation.x = rotX;
