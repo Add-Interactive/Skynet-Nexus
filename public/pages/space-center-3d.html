@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Mission Control 3D — Space Center — Skynet Nexus</title>
+  <meta name="description" content="God's eye view of Earth: track the real ISS, Tiangong, Hubble and 170 satellites live, complete missions, and visit launch pads — in 3D."/>
+  <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap"/>
+  <link rel="stylesheet" href="../assets/css/style.css"/>
+  <script type="importmap">{ "imports": { "three": "../vendor/three/three.module.min.js" } }</script>
+  <script src="../vendor/satellite/satellite.min.js"></script>
+  <style>
+    html,body{margin:0;height:100%;overflow:hidden;background:#02040a;font-family:Inter,sans-serif}
+    #scene{position:fixed;inset:0}
+    .hud{position:fixed;z-index:10;pointer-events:none}
+    .hud a,.hud button{pointer-events:auto}
+    #topbar{top:0;left:0;right:0;display:flex;align-items:center;gap:12px;padding:12px 18px;background:linear-gradient(180deg,rgba(2,4,10,.85),transparent)}
+    #topbar .title{font:800 1rem "JetBrains Mono",monospace;letter-spacing:.18em;color:#bff3ff;text-shadow:0 0 12px rgba(0,229,255,.6)}
+    #topbar .sub{font:600 .66rem "JetBrains Mono",monospace;letter-spacing:.14em;color:var(--text-mute)}
+    .warp{display:flex;gap:6px;margin-left:auto;align-items:center}
+    .warp span{font:600 .62rem "JetBrains Mono",monospace;color:var(--text-mute);letter-spacing:.1em}
+    .wbtn{font:700 .72rem "JetBrains Mono",monospace;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.3);color:var(--text);border-radius:8px;padding:6px 10px;cursor:pointer}
+    .wbtn.on{background:var(--accent);color:#04121a;border-color:var(--accent)}
+    #vrbtn{display:none;font:700 .72rem "JetBrains Mono",monospace;background:#7c6cff;border:0;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer}
+    #backbtn{font:700 .72rem Inter,sans-serif;color:var(--text-dim);text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:8px 12px;background:rgba(10,16,30,.6)}
+    #missions{left:14px;top:76px;width:230px;background:rgba(4,8,18,.78);border:1px solid rgba(0,229,255,.22);border-radius:14px;padding:14px 16px;backdrop-filter:blur(6px)}
+    #missions h3{margin:0 0 4px;font:700 .68rem "JetBrains Mono",monospace;letter-spacing:.22em;color:var(--accent)}
+    #missions .mp{font-size:.72rem;color:var(--text-mute);margin:0 0 10px}
+    .mission{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid rgba(255,255,255,.06);font-size:.8rem;line-height:1.4;color:var(--text-dim)}
+    .mission .em{font-size:1.15rem;filter:grayscale(1);opacity:.45}
+    .mission.done{color:var(--text)}
+    .mission.done .em{filter:none;opacity:1}
+    .mission.done .mt{text-decoration:line-through;text-decoration-color:rgba(0,229,255,.5)}
+    #factcard{right:14px;top:76px;width:270px;background:rgba(4,8,18,.85);border:1px solid rgba(0,229,255,.25);border-radius:14px;padding:16px 18px;backdrop-filter:blur(6px);display:none}
+    #factcard.show{display:block}
+    #factcard .fk{font:700 .62rem "JetBrains Mono",monospace;letter-spacing:.2em;color:var(--accent);margin-bottom:6px}
+    #factcard h3{margin:0 0 8px;font-size:1.05rem}
+    #factcard p{margin:0 0 8px;font-size:.86rem;line-height:1.6;color:var(--text-dim)}
+    #factcard .falt{font:600 .72rem "JetBrains Mono",monospace;color:var(--text-mute)}
+    #factcard .fx{position:absolute;top:8px;right:12px;background:none;border:0;color:var(--text-mute);font-size:1.1rem;cursor:pointer}
+    #hint{bottom:14px;left:50%;transform:translateX(-50%);font:600 .72rem "JetBrains Mono",monospace;letter-spacing:.08em;color:var(--text-mute);background:rgba(4,8,18,.7);border:1px solid rgba(0,229,255,.18);padding:8px 18px;border-radius:20px;white-space:nowrap}
+    #satlabel{position:fixed;z-index:9;pointer-events:none;font:700 .68rem "JetBrains Mono",monospace;color:#04121a;background:#bff3ff;padding:3px 10px;border-radius:12px;display:none;white-space:nowrap;box-shadow:0 0 14px rgba(0,229,255,.7)}
+    #loading{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;background:#02040a;font:700 .8rem "JetBrains Mono",monospace;letter-spacing:.2em;color:var(--accent)}
+    #loading .spin{font-size:2.4rem;animation:spin 2.4s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    #toast{position:fixed;z-index:30;top:70px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00e5ff,#a855f7);color:#04121a;font-weight:800;font-size:.9rem;padding:12px 24px;border-radius:14px;display:none;box-shadow:0 8px 30px rgba(0,229,255,.4)}
+    @media (max-width:760px){#missions{display:none}#factcard{width:220px;right:8px}}
+    @media (prefers-reduced-motion:reduce){#loading .spin{animation:none}}
+  </style>
+</head>
+<body>
+  <div id="loading"><div class="spin">🛰️</div><div>ACQUIRING SATELLITES…</div></div>
+  <canvas id="scene"></canvas>
+
+  <div class="hud" id="topbar">
+    <div>
+      <div class="title">MISSION CONTROL 3D</div>
+      <div class="sub">GOD'S EYE VIEW · <span id="satcount">—</span> SATELLITES TRACKED</div>
+    </div>
+    <div class="warp">
+      <span>TIME</span>
+      <button class="wbtn on" data-warp="1">1×</button>
+      <button class="wbtn" data-warp="60">60×</button>
+      <button class="wbtn" data-warp="600">600×</button>
+      <button id="vrbtn">🥽 Enter VR</button>
+      <a id="backbtn" href="space-center.html">← Center</a>
+    </div>
+  </div>
+
+  <div class="hud" id="missions">
+    <h3>◈ MISSION LOG</h3>
+    <p class="mp">Complete missions to earn badges, cadet!</p>
+    <div id="mission-list"></div>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);font:600 .62rem 'JetBrains Mono',monospace;letter-spacing:.06em;color:var(--text-mute);line-height:2">
+      <div style="color:var(--accent);letter-spacing:.2em;margin-bottom:4px">◈ FLEETS</div>
+      <div><span style="color:#ffe27a">●</span> ISS <span style="color:#ff9d7a">●</span> TIANGONG <span style="color:#c4b5fd">●</span> HUBBLE</div>
+      <div><span style="color:#00e5ff">●</span> SPACEX <span style="color:#a855f7">●</span> ONEWEB <span style="color:#ffb020">●</span> AMAZON</div>
+      <div><span style="color:#ff7ab8">●</span> IRIDIUM <span style="color:#38d17c">●</span> WEATHER <span style="color:#9beaff">●</span> OTHERS</div>
+    </div>
+  </div>
+
+  <div class="hud" id="factcard">
+    <button class="fx" id="factx" aria-label="Close">×</button>
+    <div class="fk" id="factk">SATELLITE</div>
+    <h3 id="factt">—</h3>
+    <p id="factp">—</p>
+    <div class="falt" id="facta"></div>
+  </div>
+
+  <div class="hud" id="hint">DRAG to spin · SCROLL to zoom · CLICK a satellite or launch pad</div>
+  <div id="satlabel"></div>
+  <div id="toast"></div>
+
+  <script type="module">
+    import * as THREE from 'three';
+
+    var FACTS = {
+      iss: { t: 'International Space Station', p: 'The ISS is as big as a football field! Six astronauts live there, circling Earth every 90 minutes — that\'s 16 sunrises and sunsets every single day.' },
+      tiangong: { t: 'Tiangong Space Station', p: 'Tiangong means "Heavenly Palace" — it\'s China\'s space station. Three astronauts live and work there, running science experiments high above Earth.' },
+      hubble: { t: 'Hubble Space Telescope', p: 'Hubble has taken over 1.5 million pictures of space! It helped scientists figure out how old the universe is — about 13.8 billion years.' },
+      starlink: { t: 'Starlink Satellite', p: 'This satellite beams internet down to places cables can\'t reach — ships at sea, airplanes, and remote villages. Thousands of them work together like a team!' },
+      noaa: { t: 'Weather Satellite', p: 'Weather satellites stare at Earth around the clock, tracking hurricanes and storms so forecasters can warn people in time to stay safe.' },
+      def: { t: 'Satellite', p: 'This satellite is working hard above Earth — beaming signals, taking pictures of our planet, or doing science experiments in space!' },
+      oneweb: { t: 'OneWeb Satellite', p: 'OneWeb satellites beam internet to schools, airplanes, and ships — a whole team of them circling Earth together!' },
+      kuiper: { t: 'Kuiper Satellite', p: 'Amazon\'s Kuiper satellites are building a space-internet network for homes and villages that don\'t have good connections yet.' },
+      iridium: { t: 'Iridium Satellite', p: 'Iridium satellites carry phone calls and texts from the most remote places on Earth — even the middle of the ocean!' }
+    };
+    function companyOf(name, tag) {
+      var n = (name || '').toUpperCase();
+      if (tag === 'iss') return 'iss';
+      if (tag === 'tiangong') return 'tiangong';
+      if (tag === 'hubble') return 'hubble';
+      if (n.indexOf('STARLINK') !== -1) return 'spacex';
+      if (n.indexOf('ONEWEB') !== -1) return 'oneweb';
+      if (n.indexOf('KUIPER') !== -1) return 'kuiper';
+      if (n.indexOf('IRIDIUM') !== -1) return 'iridium';
+      if (tag === 'noaa' || n.indexOf('GOES') !== -1 || n.indexOf('METOP') !== -1) return 'noaa';
+      return 'def';
+    }
+    var COMPANY_COLORS = { iss: 0xffe27a, tiangong: 0xff9d7a, hubble: 0xc4b5fd, spacex: 0x00e5ff, oneweb: 0xa855f7, kuiper: 0xffb020, iridium: 0xff7ab8, noaa: 0x38d17c, def: 0x9beaff };
+    var COMPANY_FACT = { iss: 'iss', tiangong: 'tiangong', hubble: 'hubble', spacex: 'starlink', oneweb: 'oneweb', kuiper: 'kuiper', iridium: 'iridium', noaa: 'noaa', def: 'def' };
+    var PADS = [
+      { n: 'Kennedy LC-39A', lat: 28.608, lon: -80.604, d: 'Where astronauts launch to the Moon and the space station!', k: ['39a', 'kennedy'] },
+      { n: 'Cape Canaveral SLC-40', lat: 28.562, lon: -80.577, d: 'SpaceX\'s busiest launch pad — rockets lift off here almost every week.', k: ['slc-40', 'cape canaveral'] },
+      { n: 'Vandenberg SLC-4E', lat: 34.632, lon: -120.611, d: 'California\'s spaceport — rockets here fly south over the ocean to polar orbits.', k: ['4e', 'vandenberg'] },
+      { n: 'Starbase, Texas', lat: 25.997, lon: -97.155, d: 'Home of Starship, the biggest rocket ever built. Mars starts here!', k: ['starbase', 'boca chica'] },
+      { n: 'Mahia, New Zealand', lat: -39.083, lon: 177.867, d: 'Rocket Lab\'s launch site — small Electron rockets carry small satellites to space.', k: ['mahia', 'lc-1'] },
+      { n: 'Kourou, French Guiana', lat: 5.236, lon: -52.768, d: 'Europe\'s spaceport, near the equator — Earth\'s spin gives rockets an extra push here!', k: ['kourou', 'ela'] },
+      { n: 'Tanegashima, Japan', lat: 30.375, lon: 130.957, d: 'Japan\'s beautiful island spaceport, launching H3 rockets and Moon missions.', k: ['tanegashima'] },
+      { n: 'Jiuquan, China', lat: 40.957, lon: 100.298, d: 'China\'s historic launch site in the Gobi Desert — astronauts ride Long March rockets from here.', k: ['jiuquan'] }
+    ];
+    var MISSIONS = [
+      { id: 'm-iss', em: '🛰️', t: 'Say hello to the ISS — click it!' },
+      { id: 'm-tiangong', em: '🏮', t: 'Find China\'s station, Tiangong' },
+      { id: 'm-hubble', em: '🔭', t: 'Spot the Hubble telescope' },
+      { id: 'm-five', em: '✨', t: 'Meet 5 different satellites' },
+      { id: 'm-pad', em: '🚀', t: 'Visit a launch pad' },
+      { id: 'm-spin', em: '🌍', t: 'Spin Earth all the way around' }
+    ];
+
+    var canvas = document.getElementById('scene');
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.xr.enabled = true;
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.01, 100);
+    camera.position.set(0, 0.6, 3.2);
+
+    var world = new THREE.Group(); scene.add(world); // everything spinnable lives here
+    var R = 1;
+
+    // stars
+    (function () {
+      var g = new THREE.BufferGeometry(), pos = new Float32Array(1200 * 3);
+      for (var i = 0; i < 1200; i++) {
+        var v = new THREE.Vector3().randomDirection().multiplyScalar(40);
+        pos[i * 3] = v.x; pos[i * 3 + 1] = v.y; pos[i * 3 + 2] = v.z;
+      }
+      g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      scene.add(new THREE.Points(g, new THREE.PointsMaterial({ color: 0xcfeaff, size: 0.06, sizeAttenuation: true, transparent: true, opacity: 0.85 })));
+    })();
+
+    // earth
+    var earth = new THREE.Mesh(
+      new THREE.SphereGeometry(R, 64, 64),
+      new THREE.MeshPhongMaterial({ map: new THREE.TextureLoader().load('../assets/img/earth-blue-marble-1024.jpg') })
+    );
+    world.add(earth);
+    // atmosphere glow
+    var glow = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: (function () {
+        var c = document.createElement('canvas'); c.width = c.height = 256;
+        var x = c.getContext('2d'), gr = x.createRadialGradient(128, 128, 100, 128, 128, 128);
+        gr.addColorStop(0, 'rgba(0,229,255,0)'); gr.addColorStop(0.82, 'rgba(0,229,255,0)');
+        gr.addColorStop(0.92, 'rgba(0,229,255,0.35)'); gr.addColorStop(1, 'rgba(0,229,255,0)');
+        x.fillStyle = gr; x.fillRect(0, 0, 256, 256);
+        return new THREE.CanvasTexture(c);
+      })(), transparent: true, depthWrite: false
+    }));
+    glow.scale.setScalar(2.55); world.add(glow);
+    var sun = new THREE.DirectionalLight(0xffffff, 1.6); scene.add(sun);
+    scene.add(new THREE.AmbientLight(0x334455, 0.7));
+
+    function llToVec3(lat, lon, altKm) {
+      var phi = (90 - lat) * Math.PI / 180, theta = (lon + 180) * Math.PI / 180;
+      var r = R * (1 + altKm / 6371);
+      return new THREE.Vector3(-r * Math.sin(phi) * Math.cos(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(theta));
+    }
+    function sunDirection(date) {
+      // subsolar point approximation
+      var jd = date.getTime() / 86400000 + 2440587.5, n = jd - 2451545.0;
+      var L = (280.460 + 0.9856474 * n) % 360, g = (357.528 + 0.9856003 * n) % 360 * Math.PI / 180;
+      var lambda = (L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g)) * Math.PI / 180;
+      var eps = 23.439 * Math.PI / 180;
+      var dec = Math.asin(Math.sin(eps) * Math.sin(lambda));
+      var gmst = (18.697374558 + 24.06570982441908 * (jd - 2451545.0)) % 24;
+      var lon = ((L - gmst * 15 + 540) % 360) - 180;
+      return llToVec3(dec * 180 / Math.PI, lon, 0).normalize();
+    }
+
+    // satellite dot texture
+    var dotTex = (function () {
+      var c = document.createElement('canvas'); c.width = c.height = 64;
+      var x = c.getContext('2d'), gr = x.createRadialGradient(32, 32, 2, 32, 32, 30);
+      gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.4, 'rgba(0,229,255,0.9)'); gr.addColorStop(1, 'rgba(0,229,255,0)');
+      x.fillStyle = gr; x.fillRect(0, 0, 64, 64);
+      return new THREE.CanvasTexture(c);
+    })();
+
+    var sats = [], satGroup = new THREE.Group(); world.add(satGroup);
+    var heroSats = {};
+    var clickedIds = new Set();
+
+    function addSat(rec, name, tag, id) {
+      var co = companyOf(name, tag);
+      var mat = new THREE.SpriteMaterial({ map: dotTex, transparent: true, depthWrite: false, color: COMPANY_COLORS[co] });
+      var sp = new THREE.Sprite(mat);
+      var sz = (co === 'iss' || co === 'tiangong' || co === 'hubble') ? 0.038 : co === 'def' ? 0.018 : 0.024;
+      sp.scale.setScalar(sz);
+      sp.userData = { rec: rec, name: name, tag: tag, id: id, co: co };
+      satGroup.add(sp); sats.push(sp);
+      if (tag === 'iss' || tag === 'tiangong' || tag === 'hubble') heroSats[tag] = sp;
+      return sp;
+    }
+
+    function propagate(sp, date) {
+      try {
+        var pv = satellite.propagate(sp.userData.rec, date);
+        if (!pv || !pv.position) return null;
+        var gd = satellite.eciToGeodetic(pv.position, satellite.gstime(date));
+        return llToVec3(gd.latitude * 180 / Math.PI, gd.longitude * 180 / Math.PI, gd.height);
+      } catch (e) { return null; }
+    }
+
+    // launch pads
+    var padMeshes = [];
+    var padTexC = new THREE.CanvasTexture((function () {
+      var c = document.createElement('canvas'); c.width = c.height = 64;
+      var x = c.getContext('2d'); x.fillStyle = '#ffb020';
+      x.beginPath(); x.moveTo(32, 6); x.lineTo(44, 40); x.lineTo(32, 34); x.lineTo(20, 40); x.closePath(); x.fill();
+      x.fillRect(28, 34, 8, 18);
+      return c;
+    })());
+    PADS.forEach(function (p) {
+      var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: padTexC, transparent: true, depthWrite: false }));
+      sp.scale.setScalar(0.05);
+      sp.position.copy(llToVec3(p.lat, p.lon, 30));
+      sp.userData = { pad: p, isPad: true };
+      world.add(sp); padMeshes.push(sp);
+    });
+
+    // missions
+    var done = {};
+    try { done = JSON.parse(localStorage.getItem('sc3d-missions') || '{}'); } catch (e) {}
+    function renderMissions() {
+      document.getElementById('mission-list').innerHTML = MISSIONS.map(function (m) {
+        return '<div class="mission' + (done[m.id] ? ' done' : '') + '"><span class="em">' + m.em + '</span><span class="mt">' + m.t + '</span></div>';
+      }).join('');
+    }
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = '🏅 Mission complete: ' + msg;
+      t.style.display = 'block';
+      setTimeout(function () { t.style.display = 'none'; }, 2600);
+    }
+    function complete(id, label) {
+      if (done[id]) return;
+      done[id] = 1;
+      try { localStorage.setItem('sc3d-missions', JSON.stringify(done)); } catch (e) {}
+      renderMissions(); toast(label);
+    }
+    renderMissions();
+
+    // fact card
+    var factcard = document.getElementById('factcard');
+    function showFact(kind, title, body, alt) {
+      document.getElementById('factk').textContent = kind;
+      document.getElementById('factt').textContent = title;
+      document.getElementById('factp').textContent = body;
+      document.getElementById('facta').textContent = alt || '';
+      factcard.classList.add('show');
+    }
+    document.getElementById('factx').onclick = function () { factcard.classList.remove('show'); selected = null; };
+
+    // custom orbit controls
+    var rotX = 0.35, targetRotX = 0.35, spinAccum = 0;
+    var dragging = false, px = 0, py = 0;
+    canvas.addEventListener('pointerdown', function (e) { dragging = true; px = e.clientX; py = e.clientY; moved = 0; });
+    addEventListener('pointerup', function () { dragging = false; });
+    var moved = 0;
+    addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      var dx = e.clientX - px, dy = e.clientY - py;
+      moved += Math.abs(dx) + Math.abs(dy);
+      world.rotation.y += dx * 0.005; spinAccum += Math.abs(dx * 0.005);
+      targetRotX = Math.max(-1.2, Math.min(1.2, targetRotX + dy * 0.004));
+      px = e.clientX; py = e.clientY;
+      if (spinAccum > Math.PI * 2) complete('m-spin', 'Spin Earth all the way around!');
+    });
+    canvas.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      camera.position.z = Math.max(1.6, Math.min(8, camera.position.z + e.deltaY * 0.002));
+    }, { passive: false });
+
+    // picking
+    var ray = new THREE.Raycaster(), ptr = new THREE.Vector2(), selected = null;
+    var label = document.getElementById('satlabel');
+    canvas.addEventListener('click', function (e) {
+      if (moved > 8) return; // was a drag
+      ptr.x = (e.clientX / innerWidth) * 2 - 1; ptr.y = -(e.clientY / innerHeight) * 2 + 1;
+      ray.setFromCamera(ptr, camera);
+      var hits = ray.intersectObjects(satGroup.children.concat(padMeshes));
+      if (!hits.length) { factcard.classList.remove('show'); selected = null; return; }
+      var u = hits[0].object.userData;
+      if (u.isPad) {
+        selected = hits[0].object;
+        showFact('LAUNCH PAD', u.pad.n, u.pad.d, 'Tap a pad when it glows red — a launch is close!');
+        complete('m-pad', 'Visit a launch pad!');
+        return;
+      }
+      selected = hits[0].object;
+      var f = FACTS[COMPANY_FACT[u.co] || 'def'];
+      var nm = u.name.length > 28 ? u.name.slice(0, 28) + '…' : u.name;
+      showFact(u.tag === 'iss' ? 'SPACE STATION' : u.tag ? u.tag.toUpperCase() : 'SATELLITE', f.t === 'Satellite' ? nm : f.t, f.p, 'NORAD #' + u.id);
+      clickedIds.add(u.id);
+      if (u.tag === 'iss') complete('m-iss', 'Say hello to the ISS!');
+      if (u.tag === 'tiangong') complete('m-tiangong', 'Find Tiangong!');
+      if (u.tag === 'hubble') complete('m-hubble', 'Spot Hubble!');
+      if (clickedIds.size >= 5) complete('m-five', 'Meet 5 satellites!');
+    });
+
+    // time warp
+    var warp = 1, warpBase = Date.now();
+    document.querySelectorAll('.wbtn').forEach(function (b) {
+      b.onclick = function () {
+        document.querySelectorAll('.wbtn').forEach(function (x) { x.classList.remove('on'); });
+        b.classList.add('on');
+        warpBase = Date.now(); warp = +b.getAttribute('data-warp'); simOffset = simOffset; // keep continuity
+        warpStart = Date.now(); warpStartOffset = simOffset;
+      };
+    });
+    var simOffset = 0, warpStart = Date.now(), warpStartOffset = 0;
+    function simDate() { return new Date(warpStartOffset + (Date.now() - warpStart) * warp); }
+
+    // VR
+    if ('xr' in navigator) {
+      navigator.xr.isSessionSupported('immersive-vr').then(function (ok) {
+        if (!ok) return;
+        var vb = document.getElementById('vrbtn');
+        vb.style.display = 'inline-block';
+        vb.onclick = function () {
+          navigator.xr.requestSession('immersive-vr', { optionalFeatures: ['local-floor'] }).then(function (s) {
+            renderer.xr.setSession(s);
+            vb.textContent = '🥽 In VR — look around!';
+          }).catch(function () {});
+        };
+      }).catch(function () {});
+    }
+
+    // orbit trails for heroes
+    var trails = {};
+    function buildTrail(sp, color) {
+      var pts = [], now = simDate();
+      for (var m = -50; m <= 50; m += 2) {
+        var d = new Date(now.getTime() + m * 60000);
+        var pv = null;
+        try {
+          var p = satellite.propagate(sp.userData.rec, d);
+          if (p && p.position) {
+            var gd = satellite.eciToGeodetic(p.position, satellite.gstime(d));
+            pts.push(llToVec3(gd.latitude * 180 / Math.PI, gd.longitude * 180 / Math.PI, gd.height));
+          }
+        } catch (e) {}
+      }
+      var g = new THREE.BufferGeometry().setFromPoints(pts);
+      var line = new THREE.Line(g, new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.55 }));
+      world.add(line);
+      return line;
+    }
+
+    // pad launch urgency from the launch board snapshot
+    function markUrgentPads() {
+      fetch('../assets/data/space-center/launches-fallback.json').then(function (r) { return r.json(); }).then(function (snap) {
+        var now = Date.now();
+        (snap.launches || []).forEach(function (l) {
+          var t = new Date(l.net).getTime() - now;
+          if (t > 0 && t < 30 * 3600000) {
+            var hay = ((l.pad || '') + ' ' + (l.location || '')).toLowerCase();
+            padMeshes.forEach(function (pm) {
+              if (pm.userData.pad.k.some(function (k) { return hay.indexOf(k) !== -1; })) pm.userData.urgent = true;
+            });
+          }
+        });
+      }).catch(function () {});
+    }
+
+    // load satellites
+    fetch('../assets/data/space-center/tle-snapshot.json').then(function (r) { return r.json(); }).then(function (snap) {
+      var list = snap.sats || [];
+      var shown = 0;
+      list.forEach(function (s) {
+        try {
+          var rec = satellite.twoline2satrec(s.l1, s.l2);
+          addSat(rec, s.n.trim(), s.tag, s.id);
+          shown++;
+        } catch (e) {}
+      });
+      document.getElementById('satcount').textContent = shown;
+      Object.keys(heroSats).forEach(function (k) {
+        trails[k] = buildTrail(heroSats[k], k === 'iss' ? 0xffe27a : k === 'tiangong' ? 0xff9d7a : 0xc4b5fd);
+      });
+      markUrgentPads();
+      document.getElementById('loading').style.display = 'none';
+      animate();
+    }).catch(function () {
+      document.getElementById('loading').innerHTML = '<div>📡</div><div>SIGNAL LOST — PLEASE RELOAD</div>';
+    });
+
+    var clock = new THREE.Clock();
+    function animate() {
+      renderer.setAnimationLoop(function () {
+        var dt = Math.min(clock.getDelta(), 0.1);
+        var now = simDate();
+        // sun
+        sun.position.copy(sunDirection(now).multiplyScalar(10));
+        // satellites
+        for (var i = 0; i < sats.length; i++) {
+          var p = propagate(sats[i], now);
+          if (p) sats[i].position.copy(p);
+        }
+        // pads pulse
+        var t = performance.now() / 1000;
+        padMeshes.forEach(function (pm, idx) {
+          var urgent = pm.userData.urgent;
+          var s = 0.05 * (1 + 0.25 * Math.sin(t * (urgent ? 6 : 2) + idx));
+          pm.scale.setScalar(s);
+          pm.material.color.setHex(urgent ? 0xff3b5c : 0xffb020);
+        });
+        // smooth tilt
+        rotX += (targetRotX - rotX) * 0.08;
+        world.rotation.x = rotX;
+        // selected label
+        if (selected) {
+          var v = selected.position.clone().applyMatrix4(world.matrixWorld).project(camera);
+          if (v.z < 1) {
+            label.style.display = 'block';
+            label.style.left = ((v.x * 0.5 + 0.5) * innerWidth + 14) + 'px';
+            label.style.top = ((-v.y * 0.5 + 0.5) * innerHeight - 14) + 'px';
+            var u = selected.userData;
+            label.textContent = u.isPad ? '🚀 ' + u.pad.n : '🛰 ' + (u.name.length > 24 ? u.name.slice(0, 24) + '…' : u.name);
+          } else label.style.display = 'none';
+        } else label.style.display = 'none';
+        renderer.render(scene, camera);
+      });
+    }
+    addEventListener('resize', function () {
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+    });
+  </script>
+</body>
+</html>
