@@ -21,14 +21,7 @@
     .topright{display:flex;gap:8px;margin-left:auto;align-items:center}
     #vrbtn{display:none;font:700 .72rem "JetBrains Mono",monospace;background:#7c6cff;border:0;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer}
     #arbtn{display:none;font:700 .72rem "JetBrains Mono",monospace;background:#00b8a9;border:0;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer}
-    #ar-overlay{display:none;position:fixed;inset:0;z-index:60;pointer-events:none}
-    #ar-taplayer{position:absolute;inset:0;pointer-events:auto;background:transparent}
-    #ar-hud{position:absolute;left:12px;right:12px;bottom:14px;pointer-events:auto;background:rgba(4,10,22,.88);border:1px solid rgba(0,229,255,.4);border-radius:14px;padding:10px 14px;font:400 .78rem "JetBrains Mono",monospace;color:#cfefff;box-shadow:0 0 24px rgba(0,229,255,.25)}
-    #ar-hud .row{display:flex;align-items:center;gap:10px;margin-top:8px}
-    #ar-hud button{background:rgba(0,229,255,.14);border:1px solid rgba(0,229,255,.4);color:#eaffff;border-radius:8px;padding:7px 12px;font:700 .72rem "JetBrains Mono",monospace;cursor:pointer}
-    #ar-hud input[type=range]{flex:1;accent-color:#00e5ff}
-    #ar-satinfo{color:#fff;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    #ar-satinfo small{display:block;color:#8fd8ef;font-weight:400}
+    #arstatus{display:none;font:600 .68rem "JetBrains Mono",monospace;color:#7df3ff;letter-spacing:.06em}
     #backbtn{font:700 .72rem Inter,sans-serif;color:var(--text-dim);text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:8px 12px;background:rgba(10,16,30,.6)}
     #iconrail{left:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px}
     .rbtn{width:42px;height:42px;border-radius:10px;background:rgba(4,8,18,.8);border:1px solid rgba(0,229,255,.25);color:var(--text-dim);font-size:1.15rem;cursor:pointer}
@@ -104,6 +97,7 @@
     <div class="topright">
       <button id="vrbtn">🥽 Enter VR</button>
       <button id="arbtn">📲 AR</button>
+      <span id="arstatus"></span>
       <a id="backbtn" href="space-center.html">← Center</a>
     </div>
   </div>
@@ -157,18 +151,6 @@
   </div>
   <div id="satlabel"></div>
   <div id="hoverlabel"></div>
-  <div id="ar-overlay">
-    <div id="ar-taplayer"></div>
-    <div id="ar-hud">
-      <div>📲 <b>TABLETOP EARTH</b> — tap a satellite to inspect it</div>
-      <div id="ar-satinfo">No satellite selected<small>alt — · speed —</small></div>
-      <div class="row">
-        <button id="ar-move">📍 Move</button>
-        <input id="ar-scale" type="range" min="8" max="32" value="18" title="Earth size">
-        <button id="ar-exit">✕ Exit</button>
-      </div>
-    </div>
-  </div>
   <div class="hud" id="trackchip">🛰 TRACKING <b id="trackname">—</b><button id="trackx" title="Stop tracking">✕</button></div>
   <div id="toast"></div>
 
@@ -708,21 +690,33 @@
       }).catch(function () {});
     }
 
-    // AR — tabletop mode (Android Chrome with ARCore)
-    var arMode = false, arPlaced = false, arMoveMode = false, arGroup = null, reticle = null,
-        hitTestSource = null, hitTestRequested = false, arLabels = [], arHasOverlay = false;
-    function makeNameSprite(text) {
-      var c = document.createElement('canvas'); c.width = 512; c.height = 112;
+    // AR — tabletop mode (Android Chrome with ARCore). Proven pattern: no DOM overlay,
+    // placement via select events, tap always does something, Back button exits.
+    var arMode = false, arPlaced = false, arGroup = null, reticle = null, crosshair = null,
+        hitTestSource = null, hitTestRequested = false, arLabels = [], arInfoSprite = null,
+        arInfoTimer = 0, arWatchdog = 0;
+    function arStatus(msg) {
+      var el = document.getElementById('arstatus');
+      el.style.display = 'inline-block'; el.textContent = msg;
+    }
+    function makeLabelSprite(lines) {
+      var c = document.createElement('canvas'); c.width = 512; c.height = 64 + (lines.length - 1) * 56;
       var g = c.getContext('2d');
-      g.fillStyle = 'rgba(3,10,22,0.82)';
-      if (g.roundRect) { g.beginPath(); g.roundRect(6, 14, 500, 84, 40); g.fill(); }
-      else g.fillRect(6, 14, 500, 84);
-      g.strokeStyle = '#00e5ff'; g.lineWidth = 4; g.stroke();
-      g.fillStyle = '#eaffff'; g.font = 'bold 44px monospace'; g.textAlign = 'center'; g.textBaseline = 'middle';
-      g.fillText(text, 256, 58);
+      g.fillStyle = 'rgba(3,10,22,0.85)';
+      if (g.roundRect) { g.beginPath(); g.roundRect(6, 8, 500, c.height - 16, 36); g.fill(); }
+      else g.fillRect(6, 8, 500, c.height - 16);
+      g.strokeStyle = '#00e5ff'; g.lineWidth = 4;
+      if (g.roundRect) { g.beginPath(); g.roundRect(6, 8, 500, c.height - 16, 36); g.stroke(); }
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      lines.forEach(function (ln, i) {
+        g.font = (i === 0 ? 'bold 44px' : '32px') + ' monospace';
+        g.fillStyle = i === 0 ? '#eaffff' : '#8fd8ef';
+        g.fillText(ln, 256, 52 + i * 56);
+      });
       var tex = new THREE.CanvasTexture(c);
       var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
-      sp.scale.set(0.42, 0.092, 1);
+      var w = 0.5, h = w * c.height / 512;
+      sp.scale.set(w, h, 1); sp.renderOrder = 999;
       return sp;
     }
     function arPickSat(clientX, clientY) {
@@ -735,43 +729,57 @@
       }
       return best;
     }
-    function arShowSat(sp) {
-      var u = sp.userData, el = document.getElementById('ar-satinfo');
-      if (u.isPad) { el.innerHTML = '🚀 ' + u.pad.n + '<small>launch pad — not a satellite</small>'; return; }
-      var ld = satLiveData(sp);
-      el.innerHTML = '🛰 ' + u.name + '<small>' + ld.alt.toLocaleString() + ' km · ' + ld.spd.toFixed(1) + ' km/s · ' + u.id + '</small>';
+    function arShowInfo(sp) {
+      if (arInfoSprite && arInfoSprite.parent) arInfoSprite.parent.remove(arInfoSprite);
+      var u = sp.userData, lines;
+      if (u.isPad) lines = ['🚀 ' + u.pad.n];
+      else { var ld = satLiveData(sp); lines = ['🛰 ' + u.name, Math.round(ld.alt).toLocaleString() + ' km · ' + ld.spd.toFixed(1) + ' km/s']; }
+      arInfoSprite = makeLabelSprite(lines);
+      arInfoSprite.position.set(0, 0.14, 0);
+      sp.add(arInfoSprite);
+      clearTimeout(arInfoTimer);
+      arInfoTimer = setTimeout(function () {
+        if (arInfoSprite && arInfoSprite.parent) arInfoSprite.parent.remove(arInfoSprite);
+        arInfoSprite = null;
+      }, 6000);
     }
-    function arPlaceAtReticle() {
+    function arPlace() {
       if (reticle && reticle.visible) {
         arGroup.position.copy(reticle.position);
-        arPlaced = true; reticle.visible = false; arMoveMode = false;
-        document.getElementById('ar-move').textContent = '📍 Move';
-        complete('m-ar', 'Place Earth on your table in AR!');
+      } else {
+        // no surface found — float the Earth 1.2 m in front of the viewer
+        var cp = new THREE.Vector3(), cd = new THREE.Vector3();
+        camera.getWorldPosition(cp); camera.getWorldDirection(cd);
+        arGroup.position.copy(cp).addScaledVector(cd, 1.2);
+        arGroup.position.y -= 0.3;
       }
+      arPlaced = true;
+      if (reticle) reticle.visible = false;
+      if (crosshair) crosshair.visible = true;
+      complete('m-ar', 'Place Earth on your table in AR!');
+      arStatus('AR: placed — point at a satellite + tap to inspect · Back exits');
     }
-    function endAR() {
-      arMode = false; arPlaced = false; arMoveMode = false; hitTestSource = null; arHasOverlay = false;
-      document.getElementById('ar-overlay').style.display = 'none';
+    function endAR(reason) {
+      clearTimeout(arWatchdog);
+      arMode = false; arPlaced = false; hitTestSource = null;
+      clearTimeout(arInfoTimer); arInfoSprite = null;
       arLabels.forEach(function (l) { if (l.parent) l.parent.remove(l); }); arLabels = [];
+      if (crosshair) { scene.remove(crosshair); crosshair = null; }
       if (reticle) { scene.remove(reticle); reticle = null; }
       if (arGroup) { scene.add(world); world.scale.setScalar(1); world.position.set(0, 0, 0); scene.remove(arGroup); arGroup = null; }
       var ab = document.getElementById('arbtn'); if (ab) ab.textContent = '📲 AR';
+      arStatus(reason || 'AR: session ended');
     }
     if ('xr' in navigator) {
       navigator.xr.isSessionSupported('immersive-ar').then(function (ok) {
-        if (!ok) return;
+        if (!ok) { arStatus('AR: not supported on this device'); return; }
         var ab = document.getElementById('arbtn');
         ab.style.display = 'inline-block';
         ab.onclick = function () {
-          var overlayRoot = document.getElementById('ar-overlay');
-          navigator.xr.requestSession('immersive-ar', {
-            requiredFeatures: ['hit-test'],
-            optionalFeatures: ['dom-overlay'],
-            domOverlay: { root: overlayRoot }
-          }).then(function (session) {
+          arStatus('AR: starting — point at a table, move phone slowly, tap to place · Back exits');
+          navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['hit-test'] }).then(function (session) {
             renderer.xr.setSession(session);
-            arMode = true; arPlaced = false; arMoveMode = false; hitTestRequested = false; hitTestSource = null;
-            arHasOverlay = !!(session.domOverlayState);
+            arMode = true; arPlaced = false; hitTestRequested = false; hitTestSource = null;
             arGroup = new THREE.Group(); scene.add(arGroup); arGroup.add(world);
             world.scale.setScalar(0.18); // tabletop Earth, ~36 cm across
             reticle = new THREE.Mesh(
@@ -779,31 +787,36 @@
               new THREE.MeshBasicMaterial({ color: 0x00e5ff, side: THREE.DoubleSide, transparent: true, opacity: 0.9 })
             );
             reticle.rotation.x = -Math.PI / 2; reticle.visible = false; scene.add(reticle);
+            // crosshair: point phone at a satellite, tap to inspect
+            scene.add(camera);
+            crosshair = new THREE.Mesh(
+              new THREE.RingGeometry(0.008, 0.012, 24),
+              new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.85, depthTest: false })
+            );
+            crosshair.position.set(0, 0, -0.8); crosshair.renderOrder = 1000; crosshair.visible = false;
+            camera.add(crosshair);
             // floating name tags on the heroes (AR only)
             [['iss', 'ISS'], ['tiangong', 'TIANGONG'], ['hubble', 'HUBBLE']].forEach(function (pair) {
               var hero = heroSats[pair[0]];
-              if (hero) { var lab = makeNameSprite(pair[1]); lab.position.set(0, 0.09, 0); hero.add(lab); arLabels.push(lab); }
+              if (hero) { var lab = makeLabelSprite([pair[1]]); lab.position.set(0, 0.09, 0); hero.add(lab); arLabels.push(lab); }
             });
-            overlayRoot.style.display = 'block';
-            document.getElementById('ar-satinfo').innerHTML = 'No satellite selected<small>alt — · speed —</small>';
             var controller = renderer.xr.getController(0);
-            var onSelect = function () { if (arMode && !arHasOverlay) arPlaceAtReticle(); };
+            var onSelect = function () {
+              if (!arMode) return;
+              if (!arPlaced) { arPlace(); return; }
+              var sp = arPickSat(innerWidth / 2, innerHeight / 2);
+              if (sp) arShowInfo(sp);
+            };
             controller.addEventListener('select', onSelect);
-            document.getElementById('ar-taplayer').onclick = function (e) {
-              if (!arMode || !arHasOverlay) return;
-              if (!arPlaced || arMoveMode) { arPlaceAtReticle(); return; }
-              var sp = arPickSat(e.clientX, e.clientY);
-              if (sp) arShowSat(sp);
-            };
-            document.getElementById('ar-move').onclick = function () {
-              arMoveMode = !arMoveMode;
-              this.textContent = arMoveMode ? '✅ Tap table…' : '📍 Move';
-            };
-            document.getElementById('ar-scale').oninput = function () { world.scale.setScalar(this.value / 100); };
-            document.getElementById('ar-exit').onclick = function () { var s2 = renderer.xr.getSession(); if (s2) s2.end(); };
-            session.addEventListener('end', function () { controller.removeEventListener('select', onSelect); endAR(); });
-            ab.textContent = '📲 Point at a table, then tap';
-          }).catch(function () {});
+            session.addEventListener('end', function () { controller.removeEventListener('select', onSelect); endAR('AR: ended — tap AR to go again'); });
+            arWatchdog = setTimeout(function () {
+              if (arMode && !renderer.xr.isPresenting) {
+                try { session.end(); } catch (e) {}
+                endAR('AR: failed to start — exited safely, try again');
+              }
+            }, 15000);
+            ab.textContent = '📲 AR active…';
+          }).catch(function () { arStatus('AR: could not start (cancelled?)'); });
         };
       }).catch(function () {});
     }
