@@ -364,8 +364,6 @@
     function escapeHtml(x) { return String(x).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
     var FLEET_NAMES = { iss: 'ISS', tiangong: 'TIANGONG', hubble: 'HUBBLE', spacex: 'SPACEX · STARLINK', oneweb: 'ONEWEB', kuiper: 'AMAZON · KUIPER', iridium: 'IRIDIUM', noaa: 'WEATHER · NOAA', def: 'OTHERS' };
     function fleetName(co) { return FLEET_NAMES[co] || 'OTHERS'; }
-
-    // icon rail + tabs
     function openTab(tab) {
       document.querySelectorAll('.rbtn').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-tab') === tab); });
       document.querySelectorAll('#sidepanel .tab').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-tab') === tab); });
@@ -385,8 +383,6 @@
     document.querySelectorAll('#sidepanel .tab').forEach(function (b) {
       b.onclick = function () { openTab(b.getAttribute('data-tab')); };
     });
-
-    // satellite search
     var satById = {};
     var searchbox = document.getElementById('searchbox'), searchresults = document.getElementById('searchresults');
     searchbox.addEventListener('input', function () {
@@ -401,8 +397,6 @@
         el.onclick = function () { var sp = satById[el.getAttribute('data-id')]; if (sp) selectSat(sp); };
       });
     });
-
-    // live orbital data readout
     function satLiveData(sp, date) {
       try {
         var pv = satellite.propagate(sp.userData.rec, date);
@@ -461,8 +455,6 @@
         return '<div class="fleetrow"><span class="dot" style="color:' + cssColor(COMPANY_COLORS[c]) + '">●</span>' + fleetName(c) + '<small>' + counts[c] + '</small></div>';
       }).join('');
     }
-
-    // pause / resume
     document.getElementById('pausebtn').onclick = function () {
       warpStartOffset = simDate().getTime(); warpStart = Date.now();
       if (paused) { warp = warpBeforePause; } else { warpBeforePause = warp; warp = 0; }
@@ -531,6 +523,7 @@
       }).catch(function () {});
     }
 
+    // orbit trails for heroes
     // pad launch urgency from the launch board snapshot
     function markUrgentPads() {
       fetch('../assets/data/space-center/launches-fallback.json').then(function (r) { return r.json(); }).then(function (snap) {
