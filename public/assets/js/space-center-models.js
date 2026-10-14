@@ -3,6 +3,7 @@
    Model files live in ../assets/models/ (pushed via local git, not the PR).
    Missing files degrade cleanly: the dot stays, nothing breaks. */
 import { GLTFLoader } from '../../vendor/three/addons/loaders/GLTFLoader.js';
+import './space-center-destinations.js'; // Moon + Mars destinations, landing history pins, night-side city lights
 
 const MODEL_BASE = '../assets/models/';
 const SHOW_DIST = 1.0;      // camera-to-satellite distance under which the model appears
