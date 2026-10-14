@@ -122,7 +122,7 @@ res.setHeader('X-Content-Type-Options','nosniff');
 res.setHeader('X-Frame-Options','SAMEORIGIN');
 res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');
 if(IS_PROD)res.setHeader('Strict-Transport-Security','max-age=31536000; includeSubDomains');
-res.setHeader('Content-Security-Policy',"default-src 'self';script-src 'self' 'unsafe-inline';style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;img-src 'self' data: blob:;media-src 'self' data: blob:;font-src 'self' data: https://fonts.gstatic.com;connect-src 'self';frame-ancestors 'self';base-uri 'self';form-action 'self'");
+res.setHeader('Content-Security-Policy',"default-src 'self';script-src 'self' 'unsafe-inline';style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;img-src 'self' data: blob: https://upload.wikimedia.org https://thespacedevs-prod.nyc3.digitaloceanspaces.com;media-src 'self' data: blob:;font-src 'self' data: https://fonts.gstatic.com;connect-src 'self' https://ll.thespacedevs.com;frame-src 'self' https://www.youtube-nocookie.com https://player.vimeo.com;frame-ancestors 'self';base-uri 'self';form-action 'self'");
 next();});
 
 app.use(express.json({ limit: '3mb' })); // raised for pipeline artwork uploads (base64)
