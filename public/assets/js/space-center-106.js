@@ -17,6 +17,7 @@
       document.body.appendChild(a); a.click();
       setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 800);
       B.toast('\uD83D\uDCC5 Calendar file downloaded!');
+      B.complete('m-cal', 'Saved an event to your calendar!');
     }
     document.getElementById('page-launches').addEventListener('click', function (e) {
       var b = e.target.closest('[data-ics-lid]'); if (!b) return;
@@ -172,6 +173,7 @@
         document.getElementById('debris-kessler').hidden = !debrisOn;
         this.textContent = debrisOn ? '\uD83D\uDFE0 Hide debris layer' : '\uD83D\uDFE0 Show debris layer';
         B.toast(debrisOn ? 'Debris layer on \u2014 orange = space junk' : 'Debris layer off');
+        if (debrisOn) B.complete('m-debris', 'Turned on the debris layer!');
       };
       document.getElementById('debris-zones').onclick = function () { B.openTab('zones'); };
 
@@ -221,6 +223,7 @@
               '<div class="pcount">' + (ms < 0 ? '\uD83D\uDEF0\uFE0F Overhead right now \u2014 go outside!' : '\u23F0 ' + T.countdown(ms) + ' \u2014 go outside!') + '</div>' +
               '<div class="trow"><button class="tbtn" data-ics-train="' + i + '">\uD83D\uDCC5 Add to calendar</button></div></div>';
           }).join('') : '<p class="tsub">No fresh trains in the next 48h \u2014 check back after a Starlink launch!</p>';
+          if (groups.length) B.complete('m-train', 'Spotted a Starlink train!');
         } catch (e) { box.innerHTML = '<p class="tsub">Train scan hiccup \u2014 try again.</p>'; }
       }
 

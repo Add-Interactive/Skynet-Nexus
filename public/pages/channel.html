@@ -82,6 +82,7 @@
         <span class="kicker"><span id="channel-icon">📡</span> <span id="channel-label">Channel</span></span>
         <h1 id="channel-title">Channel</h1>
         <p>The next generation's breakthroughs — curious, restrained, and family-safe. Every story includes a Kid Take and Family Discussion questions.</p>
+        <p id="space-blurb" style="display:none">Command Center is live: track 1,082 satellites in 3D, see tonight's flyovers over your house, take guided tours, and explore orbit zones.</p>
         <a id="command-center-btn" href="space-center.html" style="display:none;margin-top:14px;padding:11px 22px;border-radius:10px;background:var(--accent);color:#04121a;font-weight:800;text-decoration:none;box-shadow:0 0 18px rgba(0,229,255,.35)">🚀 Open Command Center</a>
       </section>
 
@@ -222,7 +223,7 @@
     };
     Object.keys(NAV).forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = NAV[id]; });
     initChannelPage('../');
-    (function(){try{if(new URLSearchParams(location.search).get('c')==='space'){var b=document.getElementById('command-center-btn');if(b)b.style.display='inline-block';}}catch(e){}})();
+    (function(){try{if(new URLSearchParams(location.search).get('c')==='space'){var b=document.getElementById('command-center-btn');if(b)b.style.display='inline-block';var s=document.getElementById('space-blurb');if(s)s.style.display='block';}}catch(e){}})();
   </script>
 
   <script src="/assets/js/auth.js" defer></script>
