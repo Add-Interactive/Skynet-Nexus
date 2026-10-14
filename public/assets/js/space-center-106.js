@@ -318,3 +318,44 @@
       }
   T.afterPasses = renderTrains;
 })();
+
+/* PR-107: search aliases — kids can find "hubble" even though the catalog calls it "HST".
+   Replaces the inline search handler (via clone-swap) with one that also matches
+   encyclopedia profile names/keys, and shows the friendly name under the result. */
+(function sc107SearchAliases(){
+  function init(){
+    var B = window.__scB; if(!B || !B.sats) return false;
+    var sb = document.getElementById('searchbox'), sr = document.getElementById('searchresults');
+    if(!sb || !sr || sb.dataset.aliasSearch) return true;
+    var nb = sb.cloneNode(true); nb.dataset.aliasSearch = '1';
+    sb.parentNode.replaceChild(nb, sb);
+    nb.addEventListener('input', function(){
+      var q = nb.value.trim().toLowerCase();
+      if(q.length < 2){ sr.innerHTML = q ? '<div class="sr-empty">Type a few letters\u2026</div>' : ''; return; }
+      var hits = [], sats = B.sats;
+      for(var i = 0; i < sats.length && hits.length < 8; i++){
+        var sp = sats[i], u = sp.userData || {};
+        var hay = String(u.name || '').toLowerCase(), p = null, alias = '';
+        try{ p = B.findSatProfile(u); }catch(e){ p = null; }
+        if(p) alias = ' ' + String(p.name || '').toLowerCase() + ' ' + (p.keys || []).join(' ').toLowerCase();
+        if(hay.indexOf(q) !== -1 || alias.indexOf(q) !== -1) hits.push({ sp: sp, p: p });
+      }
+      sr.innerHTML = hits.length ? hits.map(function(h){
+        var u = h.sp.userData || {}, col = '#9beaff';
+        try{ col = h.sp.material.color.getStyle(); }catch(e){}
+        var sub = (h.p && h.p.name && String(h.p.name).toLowerCase() !== String(u.name || '').toLowerCase())
+          ? ' <small style="opacity:.6">' + B.escapeHtml(h.p.name) + '</small>' : '';
+        return '<div class="sr" data-id="' + u.id + '"><span class="dot" style="color:' + col + '">\u25cf</span><span>' + B.escapeHtml(u.name) + sub + '</span></div>';
+      }).join('') : '<div class="sr-empty">No satellites match "' + B.escapeHtml(q) + '"</div>';
+      sr.querySelectorAll('.sr').forEach(function(el){
+        el.onclick = function(){ var sp = B.satById[el.getAttribute('data-id')]; if(sp) B.selectSat(sp); };
+      });
+    });
+    return true;
+  }
+  var tries = 0;
+  (function wait(){
+    if(init()) return;
+    if(++tries < 40) setTimeout(wait, 300);
+  })();
+})();
