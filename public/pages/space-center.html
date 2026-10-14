@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Space Center — Mission Control — Skynet Nexus</title>
-  <meta name="description" content="God's eye view of Earth: track the real ISS, Tiangong, Hubble and 1,082 satellites live, complete missions, and visit launch pads — in 3D."/>
+  <meta name="description" content="Track 1,082 satellites live in 3D — photo profiles, guided tours, tonight’s flyover predictions, an orbit lab and orbit zones."/>
   <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg"/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap"/>
   <link rel="stylesheet" href="../assets/css/style.css"/>
@@ -153,6 +153,8 @@
     #sidepanel .toolhead{font:700 .62rem "JetBrains Mono",monospace;letter-spacing:.14em;color:var(--accent);margin:12px 0 6px}
     #sidepanel .toolhead:first-child{margin-top:0}
     #sidepanel .tsub{font-size:.72rem;color:var(--text-mute);margin:0 0 10px;line-height:1.5}
+.wn-item{display:flex;gap:8px;align-items:flex-start;font-size:.74rem;color:var(--text);margin:0 0 8px;line-height:1.45;background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.14);border-radius:10px;padding:8px 10px}
+.wn-item b{color:#fff}
     .trow{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
     .tbtn{flex:1;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.25);color:#dff6ff;border-radius:9px;padding:8px 6px;font-size:.72rem;font-weight:700;cursor:pointer;white-space:nowrap}
     .tbtn:hover{background:rgba(0,229,255,.16)}
@@ -249,6 +251,7 @@
     <button class="rbtn" data-tab="stem" title="STEM missions">🎓</button>
     <button class="rbtn" data-tab="science" title="Science satellites">🔬</button>
     <button class="rbtn" data-tab="tours" title="Guided tours">🎬</button>
+    <button class="rbtn" data-tab="whatsnew" title="What's new">✨</button>
   </div>
 
   <div class="hud" id="sidepanel">
@@ -266,6 +269,7 @@
       <button class="tab" data-tab="stem">🎓 STEM</button>
       <button class="tab" data-tab="science">🔬 SCIENCE</button>
       <button class="tab" data-tab="tours">🎬 TOURS</button>
+      <button class="tab" data-tab="whatsnew">✨ WHAT'S NEW</button>
     </div>
     <div class="tabpage on" id="page-search">
       <div class="quickfly"><span>QUICK FLY</span>
@@ -408,6 +412,16 @@
       <p class="tsub">Sit back and ride! Pick a tour and the camera flies you from stop to stop while your guide tells each story.</p>
       <div id="tour-list"></div>
     </div>
+    <div class="tabpage" id="page-whatsnew">
+      <div class="toolhead">✨ WHAT'S NEW</div>
+      <p class="tsub">Fresh upgrades to your Mission Control:</p>
+      <div class="wn-item">📸 <span><b>Photo encyclopedia</b> — tap any satellite, station, rocket or pad for its photo + story.</span></div>
+      <div class="wn-item">🔭 <span><b>See It Tonight</b> — real flyover predictions for your sky.</span></div>
+      <div class="wn-item">🛠️ <span><b>Orbit Lab</b> — build your own satellite.</span></div>
+      <div class="wn-item">🗺️ <span><b>Orbit Zones</b> — how humanity divides up space.</span></div>
+      <div class="wn-item">🎓 <span><b>STEM Missions</b> + 🔬 <b>Science</b> — student-built sats and the great space telescopes.</span></div>
+      <div class="wn-item">🎬 <span><b>Tours</b> · 🟠 <b>Debris</b> · ⚖️ <b>Compare</b> · 🚂 <b>Trains</b> · 📅 <b>Calendar</b> — guided tours, junk-spotting, satellite showdowns, Starlink trains & one-tap calendar saves.</span></div>
+    </div>
   </div>
 
   <div class="hud" id="infopanel">
@@ -537,7 +551,15 @@
       { id: 'm-pause', em: '⏸️', t: 'Pause time' },
       { id: 'm-closeup', em: '🔎', t: 'Zoom in close on a satellite' },
       { id: 'm-ar', em: '📲', t: 'Place Earth on your table in AR' },
-      { id: 'm-tour', em: '🎬', t: 'Take a guided tour' }
+      { id: 'm-tour', em: '🎬', t: 'Take a guided tour' },
+      { id: 'm-tonight', em: '🔭', t: 'Find tonight\'s next flyover' },
+      { id: 'm-orbitlab', em: '🛠\uFE0F', t: 'Build a satellite in Orbit Lab' },
+      { id: 'm-zones', em: '🗺\uFE0F', t: 'Open the Orbit Zones guide' },
+      { id: 'm-stem', em: '🎓', t: 'Visit a STEM mission' },
+      { id: 'm-science', em: '🔬', t: 'Meet a space telescope' },
+      { id: 'm-debris', em: '🟠', t: 'Turn on the debris layer' },
+      { id: 'm-cal', em: '📅', t: 'Save a pass to your calendar' },
+      { id: 'm-train', em: '🚂', t: 'Spot a Starlink train' }
     ];
 
     var canvas = document.getElementById('scene');
@@ -1572,8 +1594,8 @@
           else toast('Isolating ' + n + ' ' + isolateTag + ' mission' + (n > 1 ? 's' : '') + ' \u2014 tap again to restore');
         }
       }
-      document.getElementById('iso-stem').onclick = function () { setIsolate('stem'); };
-      document.getElementById('iso-science').onclick = function () { setIsolate('science'); };
+      document.getElementById('iso-stem').onclick = function () { setIsolate('stem'); complete('m-stem', 'Visited a STEM mission!'); };
+      document.getElementById('iso-science').onclick = function () { setIsolate('science'); complete('m-science', 'Met a space telescope!'); };
 
       // ---------- PART D/E: browse cards ----------
       var MT_LABEL = {
@@ -1804,7 +1826,7 @@
       var lastPassData = null;
       function computePasses() {
         var obs = getObserver();
-        if (!obs) { toast('Set your location first!'); return; }
+        if (!obs) { toast('Set your location first!'); return; } complete('m-tonight', 'Checked tonight\u2019s flyovers!');
         document.getElementById('pass-list').innerHTML = '<p class="tsub">\uD83D\uDD2D Scanning the skies\u2026</p>';
         setTimeout(function () {
           var now = new Date(), out = [];
@@ -1904,8 +1926,8 @@
         labAngle += (2 * Math.PI) * (100 / labPeriodMs);
         labUpdateDot();
       }, 100);
-      document.getElementById('lab-alt').addEventListener('input', labUpdate);
-      document.getElementById('lab-inc').addEventListener('input', labUpdate);
+      document.getElementById('lab-alt').addEventListener('input', function(){ complete('m-orbitlab', 'Built a satellite in Orbit Lab!'); labUpdate(); });
+      document.getElementById('lab-inc').addEventListener('input', function(){ complete('m-orbitlab', 'Built a satellite in Orbit Lab!'); labUpdate(); });
       var PRESETS = { iss: [420, 51.6], gps: [20200, 55], geo: [35786, 0], molniya: [20190, 63.4] };
       document.querySelectorAll('[data-preset]').forEach(function (b) {
         b.onclick = function () {
@@ -1929,7 +1951,7 @@
             zoneObjs[key].geometry.dispose(); zoneObjs[key].material.dispose();
             zoneObjs[key] = null; b.classList.remove('on');
           } else {
-            zoneObjs[key] = make(); world.add(zoneObjs[key]); b.classList.add('on');
+            zoneObjs[key] = make(); world.add(zoneObjs[key]); b.classList.add('on'); complete('m-zones', 'Explored the orbit zones!');
           }
         };
       }
