@@ -578,6 +578,7 @@
     var camGoal = new THREE.Vector3(0, 0, 0);     // desired look-at point
     var camDist = 3.26, camGoalDist = 3.26;        // smoothed / desired distance
     var camDir = new THREE.Vector3(0, 0.6, 3.2).normalize(); // view direction
+    var _orbQ = new THREE.Quaternion(), _upY = new THREE.Vector3(0, 1, 0), _right = new THREE.Vector3(), _camDirPrev = new THREE.Vector3(); // orbit-around-model temps
     var focusSat = null, _sv = new THREE.Vector3();
     function flyTo(sp) {
       focusSat = sp; camGoalDist = sp.userData.isPad ? 0.9 : 0.5;
@@ -997,20 +998,32 @@ window.__scB = {
       if (keys.length === 2 && pinchStart > 0) {
         var pts = [pointers[keys[0]], pointers[keys[1]]];
         var d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-        if (d > 0) { camGoalDist = Math.max(1.15, Math.min(8, camGoalDist * (pinchStart / d))); pinchStart = d; }
+        if (d > 0) { camGoalDist = Math.max(focusSat ? 0.06 : 1.15, Math.min(8, camGoalDist * (pinchStart / d))); pinchStart = d; }
         return;
       }
       if (!dragging) return;
       var dx = e.clientX - px, dy = e.clientY - py;
       moved += Math.abs(dx) + Math.abs(dy);
-      world.rotation.y += dx * 0.005; spinAccum += Math.abs(dx * 0.005);
-      targetRotX = Math.max(-1.2, Math.min(1.2, targetRotX + dy * 0.004));
+      if (focusSat && window.__scB && window.__scB.modelShowing) {
+        // orbit the camera around the close-up 3D model instead of spinning the world
+        _orbQ.setFromAxisAngle(_upY, -dx * 0.005);
+        camDir.applyQuaternion(_orbQ);
+        _camDirPrev.copy(camDir);
+        _right.crossVectors(camDir, _upY).normalize();
+        _orbQ.setFromAxisAngle(_right, -dy * 0.004);
+        camDir.applyQuaternion(_orbQ).normalize();
+        var polar = Math.acos(Math.max(-1, Math.min(1, camDir.y)));
+        if (polar < 0.15 || polar > Math.PI - 0.15) camDir.copy(_camDirPrev); // keep the camera off the poles
+      } else {
+        world.rotation.y += dx * 0.005; spinAccum += Math.abs(dx * 0.005);
+        targetRotX = Math.max(-1.2, Math.min(1.2, targetRotX + dy * 0.004));
+      }
       px = e.clientX; py = e.clientY;
       if (spinAccum > Math.PI * 2) complete('m-spin', 'Spin Earth all the way around!');
     });
     canvas.addEventListener('wheel', function (e) {
       e.preventDefault();
-      var lo = focusSat ? 0.18 : 1.7; // zoom right into a satellite when focused
+      var lo = focusSat ? 0.06 : 1.7; // zoom right into a satellite when focused
       camGoalDist = Math.max(lo, Math.min(8, camGoalDist + e.deltaY * 0.002));
     }, { passive: false });
 
