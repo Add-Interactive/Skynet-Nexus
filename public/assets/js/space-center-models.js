@@ -150,14 +150,14 @@ function detach() {
   clearHint();
 }
 
-const _v1 = { p: null, q: null }; // lazy vectors
+const _v1 = { p: null, q: null, w: null }; // lazy vectors
 const _m = { m: null };
 
 function tick() {
   const b = B();
   if (!b || !b.sats) { requestAnimationFrame(tick); return; }
   if (!_v1.p) {
-    _v1.p = new b.THREE.Vector3(); _v1.q = new b.THREE.Vector3();
+    _v1.p = new b.THREE.Vector3(); _v1.q = new b.THREE.Vector3(); _v1.w = new b.THREE.Vector3();
     _m.m = new b.THREE.Matrix4();
   }
   const sel = b.selected;
@@ -184,11 +184,15 @@ function tick() {
     }
   }
 
+  // sel.position is local to the tilted/spun `world` group; the camera and the
+  // scene-rooted model group live in scene space — compare in world space.
+  sel.getWorldPosition(_v1.w);
+
   // LOD: model only when the camera is close; otherwise the dot.
   // (never force the dot visible — fleet filters hide sats themselves)
   let show = false;
   if (cur.group && !cur.failed) {
-    const d = b.camera.position.distanceTo(sel.position);
+    const d = b.camera.position.distanceTo(_v1.w);
     show = d < SHOW_DIST;
   }
   try {
@@ -201,7 +205,7 @@ function tick() {
     g.visible = show;
     if (show) {
       // orient long axis along velocity, "up" away from Earth
-      _v1.p.copy(sel.position);
+      _v1.p.copy(_v1.w);
       if (cur.last) {
         _v1.q.copy(_v1.p).sub(cur.last);
         if (_v1.q.lengthSq() > 1e-10) {
@@ -212,7 +216,7 @@ function tick() {
         }
       }
       cur.last = (cur.last || new b.THREE.Vector3()).copy(_v1.p);
-      g.position.copy(sel.position);
+      g.position.copy(_v1.w);
     }
   }
   requestAnimationFrame(tick);
