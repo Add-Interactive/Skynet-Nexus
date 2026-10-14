@@ -674,6 +674,7 @@
       gridGeo.attributes.position.needsUpdate = true;
     }
     var sun = new THREE.DirectionalLight(0xffffff, 1.6); scene.add(sun);
+    var _sunQ = new THREE.Quaternion(), _sunDir = new THREE.Vector3();
     scene.add(new THREE.AmbientLight(0x334455, 0.7));
 
     function llToVec3(lat, lon, altKm) {
@@ -1503,8 +1504,12 @@ window.__scB = {
             } else reticle.visible = false;
           }
         }
-        // sun
-        sun.position.copy(sunDirection(now).multiplyScalar(10));
+        // sun — sunDirection() is in the world's local frame (same as llToVec3);
+        // rotate into scene space so the terminator stays accurate while Earth spins/tilts
+        _sunDir.copy(sunDirection(now));
+        world.getWorldQuaternion(_sunQ);
+        _sunDir.applyQuaternion(_sunQ);
+        sun.position.copy(_sunDir.multiplyScalar(10));
         // satellites (staggered: 1/3 per frame keeps 1000+ sats at full speed)
         for (var i = 0; i < sats.length; i++) {
           if ((i + frameNo) % 3 !== 0) continue;
