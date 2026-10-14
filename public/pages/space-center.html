@@ -19,8 +19,8 @@
     #topbar .title{font:800 1rem "JetBrains Mono",monospace;letter-spacing:.18em;color:#bff3ff;text-shadow:0 0 12px rgba(0,229,255,.6)}
     #topbar .sub{font:600 .66rem "JetBrains Mono",monospace;letter-spacing:.14em;color:var(--text-mute)}
     .topright{display:flex;gap:8px;margin-left:auto;align-items:center}
-    #vrbtn{display:none;font:700 .72rem "JetBrains Mono",monospace;background:#7c6cff;border:0;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer}
-    #arbtn{display:none;font:700 .72rem "JetBrains Mono",monospace;background:#00b8a9;border:0;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer}
+    .ticon{display:none;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#fff;font-size:1.05rem;line-height:1;padding:0;cursor:pointer;backdrop-filter:blur(6px);transition:transform .15s,background .15s;align-items:center;justify-content:center}.ticon:hover{background:rgba(255,255,255,.16);transform:scale(1.08)}.ticon.on{background:rgba(255,255,255,.22);transform:scale(1.08)}#vrbtn.ticon{border-color:rgba(124,108,255,.55);box-shadow:0 0 10px rgba(124,108,255,.25)}#arbtn.ticon{border-color:rgba(0,184,169,.55);box-shadow:0 0 10px rgba(0,184,169,.25)}#arskybtn.ticon{border-color:rgba(96,165,250,.55);box-shadow:0 0 10px rgba(96,165,250,.25)}
+    
     #arstatus{display:none;font:600 .68rem "JetBrains Mono",monospace;color:#7df3ff;letter-spacing:.06em}
     #backbtn{font:700 .72rem Inter,sans-serif;color:var(--text-dim);text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:8px 12px;background:rgba(10,16,30,.6)}
     #iconrail{left:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px}
@@ -52,6 +52,8 @@
     .fleetrow.off{opacity:.32}
     #infopanel{right:14px;top:76px;width:288px;max-height:calc(100% - 190px);overflow-y:auto;background:rgba(4,8,18,.9);border:1px solid rgba(0,229,255,.25);border-radius:14px;padding:16px 18px;backdrop-filter:blur(8px);display:none;pointer-events:none}
     #infopanel.show{display:block;pointer-events:auto}
+    #infopanel.min #infoprof,#infopanel.min #infodata,#infopanel.min #infop,#infopanel.min #cmpzone{display:none}
+    #infopanel.min{padding-top:12px;padding-bottom:12px;cursor:pointer}
     #infopanel .fk{font:700 .62rem "JetBrains Mono",monospace;letter-spacing:.2em;color:var(--accent);margin-bottom:6px}
     #infopanel h3{margin:0 0 10px;font-size:1.05rem;word-break:break-word}
     #infopanel .fx{position:absolute;top:8px;right:12px;background:none;border:0;color:var(--text-mute);font-size:1.1rem;cursor:pointer}
@@ -216,7 +218,7 @@
     .cmprow span{color:var(--text-mute);flex:0 0 auto}
     .cmprow b{color:#eaffff;text-align:right;word-break:break-word}
     .cmpline{font-size:.78rem;color:#ffe27a;margin:8px 0;font-weight:700;line-height:1.5}
-    #arskybtn{display:none;font:700 .72rem "JetBrains Mono",monospace;background:#7c6cff;border:0;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer}
+    
   </style>
 </head>
 <body>
@@ -229,9 +231,9 @@
       <div class="sub">MISSION CONTROL · <span id="satcount">—</span> SATELLITES TRACKED LIVE</div>
     </div>
     <div class="topright">
-      <button id="vrbtn">🥽 Enter VR</button>
-      <button id="arbtn">📲 AR</button>
-      <button id="arskybtn">📱 Sky</button>
+      <button id="vrbtn" class="ticon" title="Enter VR" aria-label="Enter VR">🥽</button>
+      <button id="arbtn" class="ticon" title="Tabletop AR" aria-label="Tabletop AR">📲</button>
+      <button id="arskybtn" class="ticon" title="Sky pointer AR" aria-label="Sky pointer AR">📱</button>
       <span id="arstatus"></span>
       <a id="backbtn" href="../index.html">← Home</a>
     </div>
@@ -426,6 +428,7 @@
 
   <div class="hud" id="infopanel">
     <button class="fx" id="infox" aria-label="Close">×</button>
+    <button class="fx" id="infomin" aria-label="Minimize" title="Minimize" style="right:40px">—</button>
     <div class="fk" id="infok">SATELLITE</div>
     <h3 id="infot">—</h3>
     <div id="infoprof"></div>
@@ -698,14 +701,19 @@
     var heroSats = {};
     var clickedIds = new Set();
     var lastLaunchList = [];
-    window.__scB = {
+        function closeSidepanel() {
+      var sp2 = document.getElementById('sidepanel');
+      if (sp2) sp2.classList.remove('open');
+      document.querySelectorAll('.rbtn.on').forEach(function (b) { b.classList.remove('on'); });
+    }
+window.__scB = {
       get sats() { return sats; }, get satById() { return satById; },
       get padMeshes() { return padMeshes; }, get heroSats() { return heroSats; },
       get profById() { return profById; }, get selected() { return selected; },
       get world() { return world; }, get camera() { return camera; },
       get scene() { return scene; }, get renderer() { return renderer; },
       get infopanel() { return infopanel; }, get lastLaunches() { return lastLaunchList; },
-      selectSat, showInfo, flyTo, flyHome, toast, openTab, complete, escapeHtml, simDate,
+      selectSat, showInfo, flyTo, flyHome, toast, openTab, complete, escapeHtml, simDate, closeSidepanel,
       findSatProfile, satLiveData, satRows, satOrbitShape, fleetName, profileCardHtml,
       makeLabelSprite, arStatus, THREE, satellite,
       cmp: {}, wireCompare: null, renderCompare: null, tools: null
@@ -856,16 +864,24 @@
       document.getElementById('infoprof').innerHTML = profHtml || '';
       document.getElementById('infodata').innerHTML = rowsHtml(rows);
       document.getElementById('infop').textContent = body || '';
+      infopanel.classList.remove('min');
       infopanel.classList.add('show');
       if (window.__scB && window.__scB.wireCompare) window.__scB.wireCompare(kind);
     }
 
     document.getElementById('infox').onclick = function () { infopanel.classList.remove('show'); selected = null; selKind = null; clearOrbit(); flyHome(); };
+    document.getElementById('infomin').onclick = function (e) { e.stopPropagation(); infopanel.classList.add('min'); };
+    infopanel.addEventListener('click', function () { if (infopanel.classList.contains('min')) infopanel.classList.remove('min'); });
+    document.getElementById('trackchip').addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('#trackx')) return;
+      if (infopanel.classList.contains('min')) { infopanel.classList.remove('min'); infopanel.classList.add('show'); }
+    });
     function selectSat(sp) {
       var u = sp.userData;
       var __b = window.__scB;
       if (__b && __b.cmp.pick && !u.isPad && sp !== __b.cmp.a && __b.cmp.a && __b.renderCompare) { __b.cmp.pick = false; __b.renderCompare(__b.cmp.a, sp); return; }
       selected = sp;
+      closeSidepanel();
       flyTo(sp);
       if (u.isPad) {
         selKind = 'pad'; selProf = null;
@@ -1264,7 +1280,7 @@
       navigator.xr.isSessionSupported('immersive-vr').then(function (ok) {
         if (!ok) return;
         var vb = document.getElementById('vrbtn');
-        vb.style.display = 'inline-block';
+        vb.style.display = 'inline-flex';
         vb.onclick = function () {
           navigator.xr.requestSession('immersive-vr', { optionalFeatures: ['local-floor'] }).then(function (s) {
             renderer.xr.setSession(s);
@@ -1352,14 +1368,14 @@
       if (crosshair) { scene.remove(crosshair); crosshair = null; }
       if (reticle) { scene.remove(reticle); reticle = null; }
       if (arGroup) { scene.add(world); world.scale.setScalar(1); world.position.set(0, 0, 0); scene.remove(arGroup); arGroup = null; }
-      var ab = document.getElementById('arbtn'); if (ab) ab.textContent = '📲 AR';
+      var ab = document.getElementById('arbtn'); if (ab) ab.textContent = '📲';
       arStatus(reason || 'AR: session ended');
     }
     if ('xr' in navigator) {
       navigator.xr.isSessionSupported('immersive-ar').then(function (ok) {
         if (!ok) { arStatus('AR: not supported on this device'); return; }
         var ab = document.getElementById('arbtn');
-        ab.style.display = 'inline-block';
+        ab.style.display = 'inline-flex';
         ab.onclick = function () {
           arStatus('AR: starting — point at a table, move phone slowly, tap to place · Back exits');
           navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['hit-test'] }).then(function (session) {
@@ -1524,6 +1540,7 @@
           camTarget.lerp(camGoal, 0.1);
           camDist += (camGoalDist - camDist) * 0.12;
           camera.position.copy(camTarget).addScaledVector(camDir, camDist);
+          if (camera.position.lengthSq() < 1.3225) camera.position.setLength(1.15); // earth R=1: never go inside
           camera.lookAt(camTarget);
         }
         renderer.render(scene, camera);
