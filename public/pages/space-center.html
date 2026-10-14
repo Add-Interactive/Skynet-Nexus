@@ -194,6 +194,27 @@
     .chiprow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
     .fchip{background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.22);color:#cfeeff;border-radius:16px;padding:5px 11px;font-size:.68rem;cursor:pointer}
     .fchip.on{background:rgba(0,229,255,.25);color:#fff}
+
+    /* ---- PR #106: tours / compare / debris / sky ---- */
+    #tourbar{position:fixed;left:50%;transform:translateX(-50%);bottom:86px;width:min(540px,calc(100vw - 32px));background:rgba(4,8,18,.94);border:1px solid rgba(0,229,255,.35);border-radius:14px;padding:12px 16px;z-index:60;box-shadow:0 0 24px rgba(0,229,255,.25)}
+    #tourbar-title{font:700 .72rem "JetBrains Mono",monospace;letter-spacing:.12em;color:var(--accent)}
+    #tourbar-line{font-size:.85rem;color:#eaffff;margin:8px 0;line-height:1.55}
+    #tourbar-dots{margin:6px 0}
+    .tdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:rgba(0,229,255,.25);margin-right:6px}
+    .tdot.on{background:#00e5ff;box-shadow:0 0 8px #00e5ff}
+    .tourcard{background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.2);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+    .tourcard .tname{font-weight:800;color:#fff}
+    .tourcard .tdesc{font-size:.74rem;color:#bfe3f2;margin:4px 0;line-height:1.5}
+    .cmpgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0}
+    .cmpcol{background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.18);border-radius:10px;padding:8px;min-width:0}
+    .cmpname{font-weight:800;font-size:.74rem;color:#fff;margin-bottom:6px;word-break:break-word}
+    .cmpimg{width:100%;border-radius:8px;margin-bottom:6px}
+    .cmpnoimg{font-size:2rem;text-align:center;margin-bottom:6px}
+    .cmprow{display:flex;justify-content:space-between;gap:6px;font-size:.64rem;padding:3px 0;border-top:1px solid rgba(0,229,255,.12)}
+    .cmprow span{color:var(--text-mute);flex:0 0 auto}
+    .cmprow b{color:#eaffff;text-align:right;word-break:break-word}
+    .cmpline{font-size:.78rem;color:#ffe27a;margin:8px 0;font-weight:700;line-height:1.5}
+    #arskybtn{display:none;font:700 .72rem "JetBrains Mono",monospace;background:#7c6cff;border:0;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer}
   </style>
 </head>
 <body>
@@ -208,6 +229,7 @@
     <div class="topright">
       <button id="vrbtn">🥽 Enter VR</button>
       <button id="arbtn">📲 AR</button>
+      <button id="arskybtn">📱 Sky</button>
       <span id="arstatus"></span>
       <a id="backbtn" href="../index.html">← Home</a>
     </div>
@@ -226,6 +248,7 @@
     <button class="rbtn" data-tab="zones" title="Orbit zones">🗺️</button>
     <button class="rbtn" data-tab="stem" title="STEM missions">🎓</button>
     <button class="rbtn" data-tab="science" title="Science satellites">🔬</button>
+    <button class="rbtn" data-tab="tours" title="Guided tours">🎬</button>
   </div>
 
   <div class="hud" id="sidepanel">
@@ -242,6 +265,7 @@
       <button class="tab" data-tab="zones">ZONES</button>
       <button class="tab" data-tab="stem">🎓 STEM</button>
       <button class="tab" data-tab="science">🔬 SCIENCE</button>
+      <button class="tab" data-tab="tours">🎬 TOURS</button>
     </div>
     <div class="tabpage on" id="page-search">
       <div class="quickfly"><span>QUICK FLY</span>
@@ -257,6 +281,14 @@
       <div id="mission-list"></div>
     </div>
     <div class="tabpage" id="page-fleets">
+      <div class="toolhead">🛰️ FLEET COLORS</div>
+      <div class="trow"><button class="tbtn" id="debris-toggle" style="flex:1">🟠 Show debris layer</button></div>
+      <div class="tsub" id="debris-count"></div>
+      <div class="zsec" id="debris-kessler" hidden>
+        <h4>💥 THE KESSLER PROBLEM</h4>
+        <p>Imagine one crash in space shattering a satellite into a thousand pieces — and each piece smashing another satellite. Scientists call this chain reaction the <b>Kessler syndrome</b>: dominoes in orbit! The orange dots are real tracked junk: dead rocket stages and shattered bits. That's why old satellites are steered to burn up safely, or parked in graveyard orbits.</p>
+        <div class="trow"><button class="tbtn" id="debris-zones">🗺️ See how parking works</button></div>
+      </div>
       <div id="fleet-list"></div>
     </div>
     <div class="tabpage" id="page-launches">
@@ -294,6 +326,9 @@
       <div class="trow"><button class="tbtn" id="pass-go" style="flex:1">✨ Find my passes</button></div>
       <div id="pass-next"></div>
       <div id="pass-list"></div>
+      <div class="toolhead">🚂 STARLINK TRAINS</div>
+      <p class="tsub">Right after launch, Starlink satellites fly in a line — the famous "string of pearls" gliding across the sky! They spread out over a few weeks, so catch a train while it's fresh.</p>
+      <div id="train-list"><p class="tsub">Find your passes above to scan for trains.</p></div>
     </div>
     <div class="tabpage" id="page-orbitlab">
       <div class="toolhead">🛠️ ORBIT LAB</div>
@@ -368,6 +403,11 @@
       <div class="trow"><button class="tbtn" id="iso-science" style="flex:1">🔬 Isolate science satellites in 3D</button></div>
       <div id="science-grid"></div>
     </div>
+    <div class="tabpage" id="page-tours">
+      <div class="toolhead">🎬 GUIDED TOURS</div>
+      <p class="tsub">Sit back and ride! Pick a tour and the camera flies you from stop to stop while your guide tells each story.</p>
+      <div id="tour-list"></div>
+    </div>
   </div>
 
   <div class="hud" id="infopanel">
@@ -377,6 +417,7 @@
     <div id="infoprof"></div>
     <div class="datagrid" id="infodata"></div>
     <p id="infop">—</p>
+    <div id="cmpzone"></div>
   </div>
 
   <div class="hud" id="timebar">
@@ -392,6 +433,17 @@
   <div id="hoverlabel"></div>
   <div class="hud" id="trackchip">🛰 TRACKING <b id="trackname">—</b><button id="trackx" title="Stop tracking">✕</button></div>
   <div id="toast"></div>
+  <div id="tourbar" style="display:none">
+    <div id="tourbar-title">🎬 TOUR</div>
+    <div id="tourbar-dots"></div>
+    <p id="tourbar-line"></p>
+    <div class="trow">
+      <button class="tbtn" id="tour-prev">◀ Prev</button>
+      <button class="tbtn" id="tour-next">Next ▶</button>
+      <button class="tbtn" id="tour-skip">⏹ End tour</button>
+    </div>
+    <label class="tsub" style="display:block;margin-top:8px"><input type="checkbox" id="tour-auto" checked/> Auto-advance every 8 seconds</label>
+  </div>
 
   <script type="module">
     import * as THREE from 'three';
@@ -484,7 +536,8 @@
       { id: 'm-filter', em: '🎛️', t: 'Hide a fleet with the filter' },
       { id: 'm-pause', em: '⏸️', t: 'Pause time' },
       { id: 'm-closeup', em: '🔎', t: 'Zoom in close on a satellite' },
-      { id: 'm-ar', em: '📲', t: 'Place Earth on your table in AR' }
+      { id: 'm-ar', em: '📲', t: 'Place Earth on your table in AR' },
+      { id: 'm-tour', em: '🎬', t: 'Take a guided tour' }
     ];
 
     var canvas = document.getElementById('scene');
@@ -622,6 +675,20 @@
     var sats = [], satGroup = new THREE.Group(); world.add(satGroup);
     var heroSats = {};
     var clickedIds = new Set();
+    var lastLaunchList = [];
+    window.__scB = {
+      get sats() { return sats; }, get satById() { return satById; },
+      get padMeshes() { return padMeshes; }, get heroSats() { return heroSats; },
+      get profById() { return profById; }, get selected() { return selected; },
+      get world() { return world; }, get camera() { return camera; },
+      get scene() { return scene; }, get renderer() { return renderer; },
+      get infopanel() { return infopanel; }, get lastLaunches() { return lastLaunchList; },
+      selectSat, showInfo, flyTo, flyHome, toast, openTab, complete, escapeHtml, simDate,
+      findSatProfile, satLiveData, satRows, satOrbitShape, fleetName, profileCardHtml,
+      makeLabelSprite, arStatus, THREE, satellite,
+      cmp: {}, wireCompare: null, renderCompare: null, tools: null
+    };
+
 
     function addSat(rec, name, tag, id) {
       var co = companyOf(name, tag);
@@ -695,7 +762,7 @@
       document.querySelectorAll('.rbtn').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-tab') === tab); });
       document.querySelectorAll('#sidepanel .tab').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-tab') === tab); });
       document.querySelectorAll('.tabpage').forEach(function (x) { x.classList.toggle('on', x.id === 'page-' + tab); });
-      sidepanel.classList.toggle('wide', ['launches', 'students', 'moonmars', 'stories', 'tonight', 'orbitlab', 'zones', 'stem', 'science'].indexOf(tab) !== -1);
+      sidepanel.classList.toggle('wide', ['launches', 'students', 'moonmars', 'stories', 'tonight', 'orbitlab', 'zones', 'stem', 'science', 'tours'].indexOf(tab) !== -1);
       sidepanel.classList.add('open');
       if (typeof loadContent === 'function') loadContent(tab);
     }
@@ -768,10 +835,14 @@
       document.getElementById('infodata').innerHTML = rowsHtml(rows);
       document.getElementById('infop').textContent = body || '';
       infopanel.classList.add('show');
+      if (window.__scB && window.__scB.wireCompare) window.__scB.wireCompare(kind);
     }
+
     document.getElementById('infox').onclick = function () { infopanel.classList.remove('show'); selected = null; selKind = null; clearOrbit(); flyHome(); };
     function selectSat(sp) {
       var u = sp.userData;
+      var __b = window.__scB;
+      if (__b && __b.cmp.pick && !u.isPad && sp !== __b.cmp.a && __b.cmp.a && __b.renderCompare) { __b.cmp.pick = false; __b.renderCompare(__b.cmp.a, sp); return; }
       selected = sp;
       flyTo(sp);
       if (u.isPad) {
@@ -1058,10 +1129,11 @@
         + '<div class="sc-net">🗓 ' + esc(fmtNet(l.net)) + '</div>'
         + '<div class="sc-blurb"><strong>' + esc(b.title) + '</strong>' + esc(b.text) + '</div>'
         + '<div class="sc-meta">' + (l.pad ? '<span>📍 ' + esc(l.pad) + '</span>' : '') + (l.missionType ? '<span>🎯 ' + esc(l.missionType) + '</span>' : '') + '</div>'
-        + '<div class="sc-actions">' + watchHtml + '</div>'
+        + '<div class="sc-actions">' + watchHtml + '<button class="sc-btn ghost" data-ics-lid="' + esc(l.id || '') + '">\uD83D\uDCC5 Add to calendar</button></div>'
         + '</div></article>';
     }
     function renderLaunches(list, blurbs, note) {
+      lastLaunchList = list;
       var now = Date.now();
       var upcoming = list.filter(function (l) { return new Date(l.net).getTime() > now - 6 * 3600000; })
         .sort(function (a, b) { return new Date(a.net) - new Date(b.net); });
@@ -1179,6 +1251,7 @@
         };
       }).catch(function () {});
     }
+
 
     // AR — tabletop mode (Android Chrome with ARCore). Proven pattern: no DOM overlay,
     // placement via select events, tap always does something, Back button exits.
@@ -1744,6 +1817,7 @@
           });
           lastPassData = { data: out };
           renderPasses();
+          if (window.__scB.tools.afterPasses) window.__scB.tools.afterPasses(obs, now);
         }, 30);
       }
       function renderPasses() {
@@ -1762,6 +1836,7 @@
             '<div class="pdet">Flies ' + compass(p.riseAz) + ' \u2192 ' + compass(p.setAz) +
             ' \u00B7 peaks ' + Math.round(p.maxEl) + '\u00B0 up \u00B7 ' + brightWord(p.maxEl) + '</div>' +
             '<div class="pcount">' + (ms < 0 ? '\uD83D\uDEF0\uFE0F Overhead right now \u2014 go outside!' : '\u23F0 ' + countdown(ms) + ' \u2014 go outside!') + '</div>' +
+            '<div class="trow"><button class="tbtn" data-ics-pass="' + escapeHtml(d.label) + '">\uD83D\uDCC5 Add to calendar</button></div>' +
             (more ? '<div class="pmore">Also:<br>' + more + '</div>' : '') + '</div>';
         }).join('');
         document.getElementById('pass-list').innerHTML = html;
@@ -1873,7 +1948,13 @@
         return t;
       });
 
+
+      window.__scB.tools = {
+        findPasses, getObserver, fmtT, countdown, compass, satLook, obsGeo,
+        get lastPassData() { return lastPassData; }, afterPasses: null
+      };
       // ---------- init ----------
+
       updateObsLabel();
       labUpdate();
       var profIv = setInterval(function () {
@@ -1881,5 +1962,6 @@
       }, 400);
     })();
   </script>
+  <script defer src="../assets/js/space-center-106.js"></script>
 </body>
 </html>
