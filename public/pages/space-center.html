@@ -149,6 +149,51 @@
 .sc-empty{text-align:center;padding:36px 20px;color:var(--text-dim);border:1px dashed rgba(0,229,255,.25);border-radius:16px;font-family:"JetBrains Mono",monospace;font-size:.85rem}
 .sc-count{font-size:1.2rem}
 .sc-sys.go .sdot,.sc-live-badge,.sc-btn.live{animation:none}
+    /* ---- PR #105: See It Tonight / Orbit Lab / Zones / STEM / Science ---- */
+    #sidepanel .toolhead{font:700 .62rem "JetBrains Mono",monospace;letter-spacing:.14em;color:var(--accent);margin:12px 0 6px}
+    #sidepanel .toolhead:first-child{margin-top:0}
+    #sidepanel .tsub{font-size:.72rem;color:var(--text-mute);margin:0 0 10px;line-height:1.5}
+    .trow{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+    .tbtn{flex:1;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.25);color:#dff6ff;border-radius:9px;padding:8px 6px;font-size:.72rem;font-weight:700;cursor:pointer;white-space:nowrap}
+    .tbtn:hover{background:rgba(0,229,255,.16)}
+    .tbtn.on{background:rgba(0,229,255,.28);border-color:var(--accent);box-shadow:0 0 10px rgba(0,229,255,.35)}
+    .tinput,.tselect{width:100%;background:rgba(0,0,0,.35);border:1px solid rgba(0,229,255,.25);color:#eaf7ff;border-radius:8px;padding:8px;font-size:.75rem;margin-bottom:6px}
+    .tselect option{background:#06121f}
+    .passcard{background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.2);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+    .passcard .pname{font-weight:800;font-size:.85rem;color:#fff}
+    .passcard .pwhen{font:700 .72rem "JetBrains Mono",monospace;color:var(--accent);margin:4px 0}
+    .passcard .pdet{font-size:.72rem;color:#bfe3f2;line-height:1.55}
+    .passcard .pcount{font-size:.78rem;font-weight:800;color:#ffe27a;margin-top:6px}
+    .passcard .pmore{font-size:.68rem;color:var(--text-mute);margin-top:6px;line-height:1.6}
+    .sliderow{margin:10px 0}
+    .sliderow label{display:flex;justify-content:space-between;font-size:.72rem;color:#bfe3f2;margin-bottom:4px}
+    .sliderow label b{color:#fff;font-family:"JetBrains Mono",monospace}
+    .sliderow input[type=range]{width:100%;accent-color:#00e5ff}
+    .labread{background:rgba(0,0,0,.3);border:1px solid rgba(0,229,255,.18);border-radius:10px;padding:10px 12px;margin:8px 0;font-size:.74rem;line-height:1.7;color:#cfe9f5}
+    .labread b{color:#fff}
+    .labread .zone{font:800 .8rem "JetBrains Mono",monospace;color:var(--accent);letter-spacing:.1em}
+    .zonelegend{display:flex;align-items:center;gap:8px;font-size:.74rem;color:#cfe9f5;margin:6px 0}
+    .zonelegend .sw{width:14px;height:14px;border-radius:4px;flex:0 0 auto}
+    .zsec{margin:10px 0}
+    .zsec h4{margin:0 0 4px;font-size:.82rem;color:#fff}
+    .zsec p{margin:0 0 8px;font-size:.72rem;line-height:1.6;color:#b9d9e8}
+    .zsec .zalt{font:700 .66rem "JetBrains Mono",monospace;color:var(--accent)}
+    .stcard{background:rgba(255,255,255,.03);border:1px solid rgba(0,229,255,.16);border-radius:10px;padding:10px 12px;margin-bottom:10px}
+    .stcard img{width:100%;border-radius:8px;margin-bottom:8px;display:block}
+    .stcard h4{margin:0 0 2px;font-size:.85rem;color:#fff}
+    .stcard .smeta{font-size:.66rem;color:var(--text-mute);margin-bottom:6px;line-height:1.5}
+    .stcard p{font-size:.72rem;line-height:1.55;color:#c6e2f0;margin:0 0 6px}
+    .stcard .pfact{font-size:.7rem;color:#ffe9a8;background:rgba(255,226,122,.07);border-radius:8px;padding:6px 8px;margin-bottom:6px;line-height:1.5}
+    .tagchip{display:inline-block;font:700 .6rem "JetBrains Mono",monospace;letter-spacing:.06em;border-radius:20px;padding:3px 9px;margin:0 4px 4px 0}
+    .tag-student{background:rgba(0,229,255,.15);color:#7df3ff;border:1px solid rgba(0,229,255,.4)}
+    .tag-class{background:rgba(168,85,247,.15);color:#d8b4fe;border:1px solid rgba(168,85,247,.4)}
+    .tag-citizen{background:rgba(56,209,124,.15);color:#7dffa8;border:1px solid rgba(56,209,124,.4)}
+    .tag-retired{background:rgba(255,90,90,.14);color:#ff9a9a;border:1px solid rgba(255,90,90,.45)}
+    .tag-active{background:rgba(56,209,124,.12);color:#7dffa8;border:1px solid rgba(56,209,124,.35)}
+    .find3d{width:100%;margin-top:2px}
+    .chiprow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+    .fchip{background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.22);color:#cfeeff;border-radius:16px;padding:5px 11px;font-size:.68rem;cursor:pointer}
+    .fchip.on{background:rgba(0,229,255,.25);color:#fff}
   </style>
 </head>
 <body>
@@ -176,6 +221,11 @@
     <button class="rbtn" data-tab="students" title="Student payloads">🧪</button>
     <button class="rbtn" data-tab="moonmars" title="Moon & Mars">🌙</button>
     <button class="rbtn" data-tab="stories" title="Space desk reports">📰</button>
+    <button class="rbtn" data-tab="tonight" title="See it tonight">🔭</button>
+    <button class="rbtn" data-tab="orbitlab" title="Orbit lab">🛠️</button>
+    <button class="rbtn" data-tab="zones" title="Orbit zones">🗺️</button>
+    <button class="rbtn" data-tab="stem" title="STEM missions">🎓</button>
+    <button class="rbtn" data-tab="science" title="Science satellites">🔬</button>
   </div>
 
   <div class="hud" id="sidepanel">
@@ -187,6 +237,11 @@
       <button class="tab" data-tab="students">STUDENTS</button>
       <button class="tab" data-tab="moonmars">MOON+MARS</button>
       <button class="tab" data-tab="stories">STORIES</button>
+      <button class="tab" data-tab="tonight">TONIGHT</button>
+      <button class="tab" data-tab="orbitlab">ORBIT LAB</button>
+      <button class="tab" data-tab="zones">ZONES</button>
+      <button class="tab" data-tab="stem">🎓 STEM</button>
+      <button class="tab" data-tab="science">🔬 SCIENCE</button>
     </div>
     <div class="tabpage on" id="page-search">
       <div class="quickfly"><span>QUICK FLY</span>
@@ -221,6 +276,97 @@
     <div class="tabpage" id="page-stories">
       <p class="mp">Latest space reports from the Newsroom.</p>
       <div id="story-grid"><div class="sc-empty">▸ SPACE REPORTS INCOMING</div></div>
+    </div>
+    <div class="tabpage" id="page-tonight">
+      <div class="toolhead">🔭 SEE IT TONIGHT</div>
+      <p class="tsub">Real satellites you can spot from your backyard! We compute when the brightest ones fly over <b>your</b> sky in the next 48 hours.</p>
+      <div class="toolhead">YOUR LOCATION</div>
+      <div class="trow">
+        <button class="tbtn" id="geo-btn">📍 Use my location</button>
+      </div>
+      <select class="tselect" id="city-sel"><option value="">— pick a city —</option></select>
+      <div class="trow">
+        <input class="tinput" id="lat-in" placeholder="Latitude (e.g. 40.7)" inputmode="decimal" style="flex:1"/>
+        <input class="tinput" id="lon-in" placeholder="Longitude (e.g. -74.0)" inputmode="decimal" style="flex:1"/>
+      </div>
+      <div class="trow"><button class="tbtn" id="loc-set">Set location</button></div>
+      <div class="tsub" id="obs-label">No location set yet.</div>
+      <div class="trow"><button class="tbtn" id="pass-go" style="flex:1">✨ Find my passes</button></div>
+      <div id="pass-next"></div>
+      <div id="pass-list"></div>
+    </div>
+    <div class="tabpage" id="page-orbitlab">
+      <div class="toolhead">🛠️ ORBIT LAB</div>
+      <p class="tsub">Build your own satellite! Drag the sliders and watch its orbit change around Earth — in 3D and in numbers.</p>
+      <div class="sliderow">
+        <label>Altitude <b id="alt-val">420 km</b></label>
+        <input type="range" id="lab-alt" min="200" max="36000" step="10" value="420"/>
+      </div>
+      <div class="sliderow">
+        <label>Inclination <b id="inc-val">51.6°</b></label>
+        <input type="range" id="lab-inc" min="0" max="98" step="0.5" value="51.6"/>
+      </div>
+      <div class="toolhead">PRESETS</div>
+      <div class="trow">
+        <button class="tbtn" data-preset="iss">ISS</button>
+        <button class="tbtn" data-preset="gps">GPS</button>
+        <button class="tbtn" data-preset="geo">TV sat</button>
+        <button class="tbtn" data-preset="molniya">Molniya</button>
+      </div>
+      <div class="labread" id="lab-read"></div>
+      <p class="tsub" id="lab-note"></p>
+    </div>
+    <div class="tabpage" id="page-zones">
+      <div class="toolhead">🗺️ ORBIT ZONES</div>
+      <p class="tsub">Space isn't one big empty place — humanity has divided the sky above Earth into <b>neighborhoods</b>, each with its own residents and rules. Here's how it all works!</p>
+      <div class="toolhead">SEE THE ZONES IN 3D</div>
+      <div class="trow">
+        <button class="tbtn" id="zone-leo">LEO shell</button>
+        <button class="tbtn" id="zone-meo">MEO shell</button>
+        <button class="tbtn" id="zone-geo">GEO ring</button>
+      </div>
+      <div class="zonelegend"><span class="sw" style="background:#00e5ff"></span>LEO — where stations & Starlink live</div>
+      <div class="zonelegend"><span class="sw" style="background:#a855f7"></span>MEO — where GPS lives</div>
+      <div class="zonelegend"><span class="sw" style="background:#ffb020"></span>GEO — the TV/weather parking ring</div>
+      <div class="toolhead">THE NEIGHBORHOODS</div>
+      <div class="zsec"><h4>🛰️ LEO — Low Earth Orbit <span class="zalt">200 – 2,000 km</span></h4>
+      <p>The busy downtown! The ISS, China's Tiangong station, the Hubble telescope, Starlink's thousands of internet satellites, and most Earth-photo satellites all crowd in here. It's close, so cameras see Earth in amazing detail and signals are fast — but air drag means satellites need rocket boosts to stay up, and it's getting crowded.</p></div>
+      <div class="zsec"><h4>🧭 MEO — Medium Earth Orbit <span class="zalt">2,000 – 35,786 km</span></h4>
+      <p>The navigation highway. GPS (American), Galileo (European) and GLONASS (Russian) satellites live around 20,000 km up, where each one can see a huge area of Earth. Your phone figures out where you are by timing signals from at least four of them!</p></div>
+      <div class="zsec"><h4>📡 GEO — Geostationary Orbit <span class="zalt">35,786 km</span></h4>
+      <p>The magic parking ring! At exactly 35,786 km above the equator, a satellite circles Earth at the same speed Earth spins — so it hovers over one spot forever. TV satellites beam your shows down from here, and weather satellites stare at the same storms all day. There's only ONE such ring, so parking spots are precious.</p></div>
+      <div class="zsec"><h4>🌀 HEO — Highly Elliptical Orbit</h4>
+      <p>The stretched loops! Some satellites fly long oval orbits that swoop low and swing far out — like Russia's Molniya satellites, which hang high over the North Pole for hours to serve places GEO satellites can't see well.</p></div>
+      <div class="zsec"><h4>🪦 Graveyard orbit <span class="zalt">~300 km above GEO</span></h4>
+      <p>Space's retirement home. When a GEO satellite runs out of fuel, it can't come home (it's far too high to fall back). Instead it's pushed ~300 km higher into a quiet zone where it will drift, harmless, for thousands of years.</p></div>
+      <div class="toolhead">WHO DECIDES WHO PARKS WHERE?</div>
+      <div class="zsec"><p><b>🅿️ The ITU hands out parking spots.</b> The International Telecommunication Union (part of the United Nations) assigns slots on the GEO ring plus the radio frequencies each satellite may use — like numbered parking spaces, because two satellites too close together would shout over each other on the radio!</p>
+      <p><b>📜 Countries license launches.</b> In the US, the FCC (and others) must approve every launch and every radio signal. Other countries have their own space agencies doing the same job.</p>
+      <p><b>📋 Everyone registers.</b> By international treaty, every country logs its satellites with UNOOSA, the UN Office for Outer Space Affairs — a public guest-book for everything humans put in orbit.</p>
+      <p><b>⚠️ You can't just launch anywhere</b> because orbits are shared roads: a wrong move risks smashing into someone else's satellite or adding to the cloud of space junk.</p></div>
+      <div class="toolhead">WHAT HAPPENS AT THE END?</div>
+      <div class="zsec"><p><b>🔥 Low satellites burn up.</b> Old LEO satellites are steered into the atmosphere, where they vaporize in a fiery streak — the cleanest goodbye.</p>
+      <p><b>🪦 High satellites move out.</b> GEO satellites too high to fall back get pushed to the graveyard orbit instead.</p>
+      <p><b>💥 Kessler syndrome.</b> Scientists worry that if junk keeps piling up, one crash could shatter satellites into thousands of pieces, causing more crashes in a chain reaction — like dominoes in space. That's why cleaning up and careful parking matter!</p></div>
+      <p class="tsub">🔗 <a href="https://en.wikipedia.org/wiki/List_of_orbits" target="_blank" rel="noopener" style="color:var(--accent)">Learn more on Wikipedia ↗</a></p>
+    </div>
+    <div class="tabpage" id="page-stem">
+      <div class="toolhead">🎓 STEM MISSIONS</div>
+      <p class="tsub">Satellites built by <b>students like you</b> — plus missions that link classrooms and citizen scientists to space. Proof you don't need a PhD to reach orbit!</p>
+      <div class="trow"><button class="tbtn" id="iso-stem" style="flex:1">🎓 Isolate STEM missions in 3D</button></div>
+      <div class="chiprow" id="stem-chips">
+        <button class="fchip on" data-mt="all">All</button>
+        <button class="fchip" data-mt="student-built">🎓 Student-built</button>
+        <button class="fchip" data-mt="classroom-link">🏫 Classroom link</button>
+        <button class="fchip" data-mt="citizen-science">🔬 Citizen science</button>
+      </div>
+      <div id="stem-grid"></div>
+    </div>
+    <div class="tabpage" id="page-science">
+      <div class="toolhead">🔬 SCIENCE SATELLITES</div>
+      <p class="tsub">Space telescopes and Earth detectives! These satellites study black holes, hunt new planets, and take Earth's temperature.</p>
+      <div class="trow"><button class="tbtn" id="iso-science" style="flex:1">🔬 Isolate science satellites in 3D</button></div>
+      <div id="science-grid"></div>
     </div>
   </div>
 
@@ -287,13 +433,18 @@
       var days = Math.floor(ms / 86400000), yrs = Math.floor(days / 365.25), rem = Math.floor(days - yrs * 365.25);
       return yrs > 0 ? yrs + ' yrs, ' + rem + ' days' : days + ' days';
     }
+    function whereNowHtml(x) { return escapeHtml(x); }
     function profileCardHtml(p, ageLabel) {
       var h = '';
       if (p.image) h += '<img class="pimg" src="' + p.image + '" alt="' + escapeHtml(p.name) + '" loading="lazy" onerror="this.style.display=\'none\'"/>';
       if (p.imageCredit) h += '<div class="pcredit">' + escapeHtml(p.imageCredit) + '</div>';
-      h += rowsHtml([['BUILDER', p.builder || '\u2014'], ['LAUNCHED', p.launchYear || '\u2014'],
+      var _rows = [['BUILDER', p.builder || '\u2014'], ['LAUNCHED', p.launchYear || '\u2014'],
         [ageLabel || 'TIME IN ORBIT', '<span class="p-age">' + timeInOrbit(p) + '</span>'],
-        ['DESIGN LIFE', p.designLife || '\u2014']]);
+        ['DESIGN LIFE', p.designLife || '\u2014']];
+      if (p.missionType) _rows.push(['MISSION TYPE', { 'student-built': '\uD83C\uDF93 Student-built', 'classroom-link': '\uD83C\uDFEB Classroom link', 'citizen-science': '\uD83D\uDD2C Citizen science' }[p.missionType] || p.missionType]);
+      if (p.status === 'retired') _rows.push(['STATUS', '\uD83D\uDD34 Retired']);
+      if (p.whereNow) _rows.push(['WHERE NOW', whereNowHtml(p.whereNow)]);
+      h += rowsHtml(_rows);
       if (p.funFact) h += '<div class="pfact">\uD83C\uDF1F <b>Fun fact:</b> ' + escapeHtml(p.funFact) + '</div>';
       if (p.learnMore) h += '<a class="pmore" href="' + p.learnMore + '" target="_blank" rel="noopener">Learn more on Wikipedia \u2197</a>';
       return h;
@@ -544,7 +695,7 @@
       document.querySelectorAll('.rbtn').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-tab') === tab); });
       document.querySelectorAll('#sidepanel .tab').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-tab') === tab); });
       document.querySelectorAll('.tabpage').forEach(function (x) { x.classList.toggle('on', x.id === 'page-' + tab); });
-      sidepanel.classList.toggle('wide', ['launches', 'students', 'moonmars', 'stories'].indexOf(tab) !== -1);
+      sidepanel.classList.toggle('wide', ['launches', 'students', 'moonmars', 'stories', 'tonight', 'orbitlab', 'zones', 'stem', 'science'].indexOf(tab) !== -1);
       sidepanel.classList.add('open');
       if (typeof loadContent === 'function') loadContent(tab);
     }
@@ -1288,6 +1439,447 @@
       camera.updateProjectionMatrix();
       renderer.setSize(innerWidth, innerHeight);
     });
+    // ==================== PR #105: TOOLS (See It Tonight / Orbit Lab / Zones / STEM / Science) ====================
+    (function () {
+      'use strict';
+      var MU = 398600.4418, RE = 6371;
+
+      // ---------- shared orbital math ----------
+      function zoneOf(altKm) {
+        if (altKm < 2000) return 'LEO';
+        if (Math.abs(altKm - 35786) <= 100) return 'GEO';
+        if (altKm < 35700) return 'MEO';
+        return 'HEO';
+      }
+      function periodMin(altKm) { var a = RE + altKm; return 2 * Math.PI * Math.sqrt(Math.pow(a, 3) / MU) / 60; }
+      function speedKms(altKm) { var a = RE + altKm; return Math.sqrt(MU / a); }
+      function fmtPeriod(min) {
+        if (min < 120) return Math.round(min) + ' minutes';
+        var h = min / 60;
+        if (h < 48) return h.toFixed(1) + ' hours';
+        return (h / 24).toFixed(1) + ' days';
+      }
+      function compass(az) {
+        if (az == null || isNaN(az)) return '?';
+        var dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+        return dirs[Math.round((((az % 360) + 360) % 360) / 45) % 8];
+      }
+
+      // ---------- PART D/E: tag -> tracked-sat matching ----------
+      var tagSatCache = {};
+      function satsForTag(tag) {
+        if (!OBJPROF) return new Set();
+        if (tagSatCache[tag]) return tagSatCache[tag];
+        var ids = new Set(), nameIdx = {};
+        sats.forEach(function (sp) { nameIdx[normKey(sp.userData.name)] = sp; });
+        Object.keys(OBJPROF.profiles || {}).forEach(function (pid) {
+          var p = OBJPROF.profiles[pid];
+          if ((p.tags || []).indexOf(tag) === -1) return;
+          (p.keys || []).forEach(function (k) {
+            var sp = satById[k] || nameIdx[normKey(k)];
+            if (sp) ids.add(sp.userData.id);
+          });
+        });
+        tagSatCache[tag] = ids;
+        return ids;
+      }
+      var isolateTag = null;
+      function setIsolate(tag) {
+        isolateTag = (isolateTag === tag) ? null : tag;
+        var ids = isolateTag ? satsForTag(isolateTag) : null, n = 0;
+        sats.forEach(function (sp) {
+          var on = !isolateTag || ids.has(sp.userData.id);
+          sp.material.opacity = on ? 1 : 0.07;
+          if (on && isolateTag) n++;
+        });
+        document.getElementById('iso-stem').classList.toggle('on', isolateTag === 'stem');
+        document.getElementById('iso-science').classList.toggle('on', isolateTag === 'science');
+        if (isolateTag) {
+          if (n === 0) toast('No ' + isolateTag + ' satellites in today\u2019s tracking set \u2014 explore their story cards below!');
+          else toast('Isolating ' + n + ' ' + isolateTag + ' mission' + (n > 1 ? 's' : '') + ' \u2014 tap again to restore');
+        }
+      }
+      document.getElementById('iso-stem').onclick = function () { setIsolate('stem'); };
+      document.getElementById('iso-science').onclick = function () { setIsolate('science'); };
+
+      // ---------- PART D/E: browse cards ----------
+      var MT_LABEL = {
+        'student-built': ['\uD83C\uDF93 Student-built', 'tag-student'],
+        'classroom-link': ['\uD83C\uDFEB Classroom link', 'tag-class'],
+        'citizen-science': ['\uD83D\uDD2C Citizen science', 'tag-citizen']
+      };
+      function browseCard(p) {
+        var h = '<div class="stcard">';
+        if (p.image) h += '<img src="' + p.image + '" alt="' + escapeHtml(p.name) + '" loading="lazy" onerror="this.style.display=\'none\'"/>';
+        h += '<h4>' + escapeHtml(p.name) + '</h4><div>';
+        if (p.missionType && MT_LABEL[p.missionType]) h += '<span class="tagchip ' + MT_LABEL[p.missionType][1] + '">' + MT_LABEL[p.missionType][0] + '</span>';
+        if (p.status === 'retired') h += '<span class="tagchip tag-retired">\uD83D\uDD34 RETIRED</span>';
+        else if (p.type === 'science') h += '<span class="tagchip tag-active">\uD83D\uDFE2 ACTIVE</span>';
+        h += '</div>';
+        h += '<div class="smeta">' + escapeHtml(p.builder || '') + (p.launchYear ? ' \u00B7 Launched ' + p.launchYear : '') + (p.whereNow ? ' \u00B7 Now: ' + escapeHtml(p.whereNow) : '') + '</div>';
+        h += '<p>' + escapeHtml(p.blurb || '') + '</p>';
+        if (p.funFact) h += '<div class="pfact">\u2B50 <b>Fun fact:</b> ' + escapeHtml(p.funFact) + '</div>';
+        var sp = null;
+        (p.keys || []).forEach(function (k) { if (!sp) sp = satById[k]; });
+        if (sp) h += '<button class="tbtn find3d" data-find="' + p.pid + '">\uD83D\uDEF0\uFE0F Find in 3D</button>';
+        if (p.learnMore) h += '<div style="margin-top:6px"><a class="pmore" href="' + p.learnMore + '" target="_blank" rel="noopener">Learn more \u2197</a></div>';
+        return h + '</div>';
+      }
+      function gridFind(e) {
+        var b = e.target.closest ? e.target.closest('[data-find]') : null;
+        if (!b || !OBJPROF) return;
+        var p = OBJPROF.profiles[b.getAttribute('data-find')];
+        if (!p) return;
+        var sp = null;
+        (p.keys || []).forEach(function (k) { if (!sp) sp = satById[k]; });
+        if (sp) selectSat(sp);
+      }
+      function renderStemGrid(filter) {
+        var el = document.getElementById('stem-grid');
+        if (!el || !OBJPROF) return;
+        var list = Object.keys(OBJPROF.profiles).map(function (k) { return OBJPROF.profiles[k]; })
+          .filter(function (p) { return p.type === 'student' && (!filter || filter === 'all' || p.missionType === filter); });
+        el.innerHTML = list.map(browseCard).join('') || '<p class="tsub">No missions in this group yet.</p>';
+      }
+      function renderScienceGrid() {
+        var el = document.getElementById('science-grid');
+        if (!el || !OBJPROF) return;
+        var list = Object.keys(OBJPROF.profiles).map(function (k) { return OBJPROF.profiles[k]; })
+          .filter(function (p) { return p.type === 'science'; });
+        list.sort(function (a, b) { return (a.status === 'retired' ? 1 : 0) - (b.status === 'retired' ? 1 : 0); });
+        el.innerHTML = list.map(browseCard).join('');
+      }
+      document.getElementById('stem-grid').addEventListener('click', gridFind);
+      document.getElementById('science-grid').addEventListener('click', gridFind);
+      document.querySelectorAll('#stem-chips .fchip').forEach(function (c) {
+        c.onclick = function () {
+          document.querySelectorAll('#stem-chips .fchip').forEach(function (x) { x.classList.remove('on'); });
+          c.classList.add('on');
+          renderStemGrid(c.getAttribute('data-mt'));
+        };
+      });
+
+      // ---------- PART A: See It Tonight ----------
+      var CITIES = [
+        ['New York', 40.71, -74.0], ['Los Angeles', 34.05, -118.24], ['Chicago', 41.88, -87.63],
+        ['Houston', 29.76, -95.37], ['San Francisco', 37.77, -122.42], ['Seattle', 47.61, -122.33],
+        ['Miami', 25.76, -80.19], ['Denver', 39.74, -104.99], ['Boston', 42.36, -71.06],
+        ['Washington DC', 38.91, -77.04], ['Atlanta', 33.75, -84.39], ['Dallas', 32.78, -96.8],
+        ['Phoenix', 33.45, -112.07], ['Honolulu', 21.31, -157.86], ['Anchorage', 61.22, -149.9],
+        ['Toronto', 43.65, -79.38], ['Vancouver', 49.28, -123.12], ['Montreal', 45.5, -73.57],
+        ['Mexico City', 19.43, -99.13], ['Havana', 23.11, -82.37], ['Bogot\u00E1', 4.71, -74.07],
+        ['Lima', -12.05, -77.04], ['S\u00E3o Paulo', -23.55, -46.63], ['Buenos Aires', -34.6, -58.38],
+        ['Santiago', -33.45, -70.67], ['Reykjavik', 64.15, -21.94], ['London', 51.51, -0.13],
+        ['Paris', 48.86, 2.35], ['Madrid', 40.42, -3.7], ['Rome', 41.9, 12.5],
+        ['Berlin', 52.52, 13.4], ['Amsterdam', 52.37, 4.9], ['Stockholm', 59.33, 18.07],
+        ['Warsaw', 52.23, 21.01], ['Athens', 37.98, 23.73], ['Istanbul', 41.01, 28.98],
+        ['Moscow', 55.76, 37.62], ['Cairo', 30.04, 31.24], ['Lagos', 6.52, 3.38],
+        ['Nairobi', -1.29, 36.82], ['Johannesburg', -26.2, 28.05], ['Dubai', 25.2, 55.27],
+        ['Riyadh', 24.71, 46.68], ['Tehran', 35.69, 51.39], ['Karachi', 24.86, 67.01],
+        ['Mumbai', 19.08, 72.88], ['Delhi', 28.61, 77.21], ['Dhaka', 23.81, 90.41],
+        ['Bangkok', 13.76, 100.5], ['Singapore', 1.35, 103.82], ['Jakarta', -6.21, 106.85],
+        ['Manila', 14.6, 120.98], ['Hong Kong', 22.32, 114.17], ['Beijing', 39.9, 116.4],
+        ['Shanghai', 31.23, 121.47], ['Seoul', 37.57, 126.98], ['Tokyo', 35.68, 139.69],
+        ['Sydney', -33.87, 151.21], ['Melbourne', -37.81, 144.96], ['Auckland', -36.85, 174.76]
+      ];
+      var citySel = document.getElementById('city-sel');
+      CITIES.forEach(function (c) {
+        var o = document.createElement('option');
+        o.value = c[1] + ',' + c[2]; o.textContent = c[0];
+        citySel.appendChild(o);
+      });
+      function getObserver() {
+        try {
+          var o = JSON.parse(localStorage.getItem('scObserver') || 'null');
+          if (o && isFinite(o.lat) && isFinite(o.lon)) return o;
+        } catch (e) {}
+        return null;
+      }
+      function setObserver(lat, lon, name) {
+        var o = { lat: +lat, lon: +lon, name: name || (lat + ', ' + lon) };
+        try { localStorage.setItem('scObserver', JSON.stringify(o)); } catch (e) {}
+        updateObsLabel();
+      }
+      function updateObsLabel() {
+        var o = getObserver();
+        document.getElementById('obs-label').textContent = o ?
+          ('\uD83D\uDCCD ' + o.name + ' (' + o.lat.toFixed(2) + '\u00B0, ' + o.lon.toFixed(2) + '\u00B0)') :
+          'No location set yet.';
+      }
+      document.getElementById('geo-btn').onclick = function () {
+        if (!navigator.geolocation) { toast('Geolocation not available \u2014 pick a city instead'); return; }
+        toast('Locating you\u2026');
+        navigator.geolocation.getCurrentPosition(function (pos) {
+          setObserver(pos.coords.latitude, pos.coords.longitude, 'My location');
+          computePasses();
+        }, function () { toast('Location blocked \u2014 pick a city instead'); });
+      };
+      citySel.onchange = function () {
+        if (!citySel.value) return;
+        var parts = citySel.value.split(',');
+        setObserver(+parts[0], +parts[1], citySel.options[citySel.selectedIndex].text);
+        computePasses();
+      };
+      document.getElementById('loc-set').onclick = function () {
+        var la = parseFloat(document.getElementById('lat-in').value),
+            lo = parseFloat(document.getElementById('lon-in').value);
+        if (!isFinite(la) || !isFinite(lo) || Math.abs(la) > 90 || Math.abs(lo) > 180) {
+          toast('Enter a valid latitude (-90..90) and longitude (-180..180)'); return;
+        }
+        setObserver(la, lo, 'Custom spot');
+        computePasses();
+      };
+      function sunEci(date) {
+        var jd = date.getTime() / 86400000 + 2440587.5, n = jd - 2451545.0;
+        var L = (280.460 + 0.9856474 * n) * Math.PI / 180, g = (357.528 + 0.9856003 * n) * Math.PI / 180;
+        var lam = L + (1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g)) * Math.PI / 180;
+        var eps = (23.439 - 0.0000004 * n) * Math.PI / 180;
+        return new THREE.Vector3(Math.cos(lam), Math.cos(eps) * Math.sin(lam), Math.sin(eps) * Math.sin(lam));
+      }
+      function obsGeo(lat, lon) {
+        // satellite.js ecfToLookAngles wants the observer as geodetic {longitude, latitude, height}
+        return { longitude: lon * Math.PI / 180, latitude: lat * Math.PI / 180, height: 0 };
+      }
+      function sunElevObs(lat, lon, date, sv) {
+        var dec = Math.asin(Math.max(-1, Math.min(1, sv.z))), ra = Math.atan2(sv.y, sv.x);
+        var H = satellite.gstime(date) + lon * Math.PI / 180 - ra, phi = lat * Math.PI / 180;
+        return Math.asin(Math.sin(phi) * Math.sin(dec) + Math.cos(phi) * Math.cos(dec) * Math.cos(H));
+      }
+      function satLook(rec, date, obsE) {
+        var pv;
+        try { pv = satellite.propagate(rec, date); } catch (e) { return null; }
+        if (!pv || !pv.position) return null;
+        var ecf, look;
+        try {
+          ecf = satellite.eciToEcf(pv.position, satellite.gstime(date));
+          look = satellite.ecfToLookAngles(obsE, ecf);
+        } catch (e) { return null; }
+        return { el: look.elevation * 180 / Math.PI, az: look.azimuth * 180 / Math.PI, pos: pv.position };
+      }
+      function isSunlit(eciKm, sv) {
+        var d = eciKm.x * sv.x + eciKm.y * sv.y + eciKm.z * sv.z;
+        if (d > 0) return true;
+        var px = eciKm.x - sv.x * d, py = eciKm.y - sv.y * d, pz = eciKm.z - sv.z * d;
+        return Math.sqrt(px * px + py * py + pz * pz) > RE;
+      }
+      function passVisible(rec, t, obs, obsE, sv) {
+        var L = satLook(rec, t, obsE);
+        if (!L || L.el < 15) return null;
+        if (sunElevObs(obs.lat, obs.lon, t, sv) > -6 * Math.PI / 180) return null;
+        if (!isSunlit(L.pos, sv)) return null;
+        return L;
+      }
+      function refineEdge(rec, obs, obsE, tLo, tHi, rising) {
+        var step = 10000;
+        if (rising) {
+          for (var tt = tLo.getTime(); tt <= tHi.getTime(); tt += step) {
+            var t = new Date(tt), sv = sunEci(t), L = passVisible(rec, t, obs, obsE, sv);
+            if (L) return { t: t, az: L.az };
+          }
+        } else {
+          for (var t2 = tHi.getTime(); t2 >= tLo.getTime(); t2 -= step) {
+            var tB = new Date(t2), svB = sunEci(tB), LB = passVisible(rec, tB, obs, obsE, svB);
+            if (LB) return { t: tB, az: LB.az };
+          }
+        }
+        var Lf = satLook(rec, rising ? tHi : tLo, obsE);
+        return { t: rising ? tHi : tLo, az: Lf ? Lf.az : null };
+      }
+      function findPasses(rec, obs, t0, hours) {
+        var obsE = obsGeo(obs.lat, obs.lon), step = 60000,
+            N = Math.floor(hours * 3600000 / step), passes = [], cur = null, i, t, L, sv;
+        for (i = 0; i <= N; i++) {
+          t = new Date(t0.getTime() + i * step);
+          sv = sunEci(t);
+          L = passVisible(rec, t, obs, obsE, sv);
+          if (L && !cur) cur = { riseT: t, maxEl: L.el, maxT: t };
+          else if (L && cur) { if (L.el > cur.maxEl) { cur.maxEl = L.el; cur.maxT = t; } }
+          else if (!L && cur) {
+            var rs = refineEdge(rec, obs, obsE, new Date(cur.riseT.getTime() - step), cur.riseT, true);
+            var st = refineEdge(rec, obs, obsE, cur.riseT, t, false);
+            cur.riseT = rs.t; cur.riseAz = rs.az; cur.setT = st.t; cur.setAz = st.az;
+            var bt = cur.maxT, be = cur.maxEl;
+            for (var k = -6; k <= 6; k++) {
+              var tt = new Date(cur.maxT.getTime() + k * 10000), svk = sunEci(tt), Lk = passVisible(rec, tt, obs, obsE, svk);
+              if (Lk && Lk.el > be) { be = Lk.el; bt = tt; }
+            }
+            cur.maxEl = be; cur.maxT = bt;
+            passes.push(cur); cur = null;
+          }
+        }
+        if (cur) { cur.setT = new Date(t0.getTime() + hours * 3600000); cur.setAz = null; passes.push(cur); }
+        return passes.filter(function (p) { return p.maxEl >= 15; });
+      }
+      function brightWord(el) { return el > 60 ? 'very bright \uD83C\uDF1F' : el > 30 ? 'bright \u2728' : 'faint \uD83D\uDD2D'; }
+      function fmtT(d) {
+        return d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) + ' ' +
+               d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      }
+      function countdown(ms) {
+        if (ms < 0) return 'happening now';
+        var m = Math.floor(ms / 60000), h = Math.floor(m / 60);
+        m = m % 60;
+        return h > 0 ? ('in ' + h + 'h ' + m + 'm') : ('in ' + m + 'm');
+      }
+      var passTargets = [
+        { label: 'ISS', get: function () { return heroSats.iss || satById['25544']; } },
+        { label: 'Tiangong', get: function () { return heroSats.tiangong || satById['48274']; } },
+        { label: 'Hubble', get: function () { return heroSats.hubble || satById['20580']; } },
+        { label: 'Terra', get: function () { return satById['25994']; } },
+        { label: 'Aqua', get: function () { return satById['27424']; } }
+      ];
+      var lastPassData = null;
+      function computePasses() {
+        var obs = getObserver();
+        if (!obs) { toast('Set your location first!'); return; }
+        document.getElementById('pass-list').innerHTML = '<p class="tsub">\uD83D\uDD2D Scanning the skies\u2026</p>';
+        setTimeout(function () {
+          var now = new Date(), out = [];
+          passTargets.forEach(function (tg) {
+            var sp = tg.get();
+            if (!sp) return;
+            var passes = [];
+            try { passes = findPasses(sp.userData.rec, obs, now, 48); } catch (e) {}
+            out.push({ label: tg.label, passes: passes });
+          });
+          lastPassData = { data: out };
+          renderPasses();
+        }, 30);
+      }
+      function renderPasses() {
+        if (!lastPassData) return;
+        var nowMs = Date.now(), next = null;
+        var html = lastPassData.data.map(function (d) {
+          if (!d.passes.length)
+            return '<div class="passcard"><div class="pname">' + d.label + '</div><div class="pdet">No visible passes in the next 48h from your spot. Try again tomorrow!</div></div>';
+          var p = d.passes[0], ms = p.riseT.getTime() - nowMs;
+          if (!next || p.riseT < next.riseT) next = { label: d.label, riseT: p.riseT };
+          var more = d.passes.slice(1, 3).map(function (q) {
+            return fmtT(q.riseT) + ' (' + compass(q.riseAz) + ' \u2192 ' + compass(q.setAz) + ', ' + Math.round(q.maxEl) + '\u00B0)';
+          }).join('<br>');
+          return '<div class="passcard"><div class="pname">\uD83D\uDEF0\uFE0F ' + d.label + '</div>' +
+            '<div class="pwhen">' + fmtT(p.riseT) + '</div>' +
+            '<div class="pdet">Flies ' + compass(p.riseAz) + ' \u2192 ' + compass(p.setAz) +
+            ' \u00B7 peaks ' + Math.round(p.maxEl) + '\u00B0 up \u00B7 ' + brightWord(p.maxEl) + '</div>' +
+            '<div class="pcount">' + (ms < 0 ? '\uD83D\uDEF0\uFE0F Overhead right now \u2014 go outside!' : '\u23F0 ' + countdown(ms) + ' \u2014 go outside!') + '</div>' +
+            (more ? '<div class="pmore">Also:<br>' + more + '</div>' : '') + '</div>';
+        }).join('');
+        document.getElementById('pass-list').innerHTML = html;
+        document.getElementById('pass-next').innerHTML = next ?
+          '<div class="passcard" style="border-color:#ffe27a"><div class="pcount">\u2B50 Next up: ' + next.label + ' ' + countdown(next.riseT.getTime() - nowMs) + '</div></div>' : '';
+      }
+      document.getElementById('pass-go').onclick = computePasses;
+      setInterval(function () { if (lastPassData) renderPasses(); }, 30000);
+
+      // ---------- PART B: Orbit Lab ----------
+      var labRing = null, labDot = null, labAngle = 0, labPeriodMs = 0;
+      var X_AXIS = null;
+      function labUpdate() {
+        var alt = +document.getElementById('lab-alt').value, inc = +document.getElementById('lab-inc').value;
+        document.getElementById('alt-val').textContent = alt.toLocaleString() + ' km';
+        document.getElementById('inc-val').textContent = inc.toFixed(1) + '\u00B0';
+        if (!X_AXIS) X_AXIS = new THREE.Vector3(1, 0, 0);
+        var r = R * (1 + alt / RE);
+        if (labRing) { world.remove(labRing); labRing.geometry.dispose(); labRing.material.dispose(); }
+        if (labDot) { world.remove(labDot); labDot.material.dispose(); }
+        var pts = [];
+        for (var i = 0; i <= 128; i++) {
+          var a = i / 128 * Math.PI * 2;
+          pts.push(new THREE.Vector3(Math.cos(a) * r, 0, Math.sin(a) * r));
+        }
+        labRing = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts),
+          new THREE.LineBasicMaterial({ color: 0x7df3ff, transparent: true, opacity: 0.85 }));
+        labRing.rotation.x = inc * Math.PI / 180;
+        world.add(labRing);
+        labDot = new THREE.Sprite(new THREE.SpriteMaterial({ map: dotTex, color: 0xffe27a, transparent: true, depthWrite: false }));
+        labDot.scale.setScalar(0.05);
+        world.add(labDot);
+        labPeriodMs = periodMin(alt) * 60000;
+        labUpdateDot();
+        var z = zoneOf(alt), T = periodMin(alt), v = speedKms(alt);
+        var who = {
+          LEO: 'The busy downtown \u2014 the ISS, Tiangong, Hubble, Starlink and Earth-photo satellites all live here.',
+          MEO: 'The navigation highway \u2014 GPS, Galileo and GLONASS guide your phone from here.',
+          GEO: 'The magic parking ring \u2014 TV and weather satellites hover over one spot forever.',
+          HEO: 'The stretched loops \u2014 special missions that swing far out and swoop back in.'
+        }[z];
+        var cons = alt < 300 ? '\u26A0\uFE0F Too low! Air drag would burn your satellite up within months.' :
+          alt < 600 ? 'Low and fast \u2014 it needs rocket boosts to stay up, just like the ISS.' :
+          alt < 2000 ? 'Safe LEO cruising \u2014 but watch out, it\u2019s crowded up here!' :
+          alt < 35700 ? 'MEO cruising \u2014 fewer neighbors, but harsher radiation.' :
+          z === 'GEO' ? '\u2728 Perfect parking! It hovers over one spot on Earth forever.' :
+          'Way out high \u2014 slow, lonely, and hard to reach.';
+        document.getElementById('lab-read').innerHTML =
+          '<div class="zone">' + z + '</div>' +
+          '<div>\u23F1\uFE0F <b>Orbital period:</b> ' + fmtPeriod(T) + '</div>' +
+          '<div>\uD83D\uDCA8 <b>Speed:</b> ' + v.toFixed(2) + ' km/s</div>' +
+          '<div>\uD83C\uDFE0 <b>Who lives here:</b> ' + who + '</div>' +
+          '<div>' + cons + '</div>';
+      }
+      function labUpdateDot() {
+        if (!labRing || !labDot) return;
+        var alt = +document.getElementById('lab-alt').value, inc = +document.getElementById('lab-inc').value;
+        var r = R * (1 + alt / RE);
+        var p = new THREE.Vector3(Math.cos(labAngle) * r, 0, Math.sin(labAngle) * r);
+        p.applyAxisAngle(X_AXIS, inc * Math.PI / 180);
+        labDot.position.copy(p);
+      }
+      setInterval(function () {
+        if (!labRing || !labPeriodMs) return;
+        labAngle += (2 * Math.PI) * (100 / labPeriodMs);
+        labUpdateDot();
+      }, 100);
+      document.getElementById('lab-alt').addEventListener('input', labUpdate);
+      document.getElementById('lab-inc').addEventListener('input', labUpdate);
+      var PRESETS = { iss: [420, 51.6], gps: [20200, 55], geo: [35786, 0], molniya: [20190, 63.4] };
+      document.querySelectorAll('[data-preset]').forEach(function (b) {
+        b.onclick = function () {
+          var pr = PRESETS[b.getAttribute('data-preset')];
+          if (!pr) return;
+          document.getElementById('lab-alt').value = pr[0];
+          document.getElementById('lab-inc').value = pr[1];
+          labUpdate();
+          document.getElementById('lab-note').textContent = b.getAttribute('data-preset') === 'molniya' ?
+            'Note: a real Molniya flies a stretched ellipse \u2014 this shows its average height (the 12-hour period matches!).' : '';
+        };
+      });
+
+      // ---------- PART C: zone shells ----------
+      var zoneObjs = {};
+      function zoneToggle(key, make) {
+        var b = document.getElementById('zone-' + key);
+        b.onclick = function () {
+          if (zoneObjs[key]) {
+            world.remove(zoneObjs[key]);
+            zoneObjs[key].geometry.dispose(); zoneObjs[key].material.dispose();
+            zoneObjs[key] = null; b.classList.remove('on');
+          } else {
+            zoneObjs[key] = make(); world.add(zoneObjs[key]); b.classList.add('on');
+          }
+        };
+      }
+      zoneToggle('leo', function () {
+        return new THREE.Mesh(new THREE.SphereGeometry(R * (1 + 2000 / RE), 48, 32),
+          new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.05, depthWrite: false }));
+      });
+      zoneToggle('meo', function () {
+        return new THREE.Mesh(new THREE.SphereGeometry(R * (1 + 20200 / RE), 48, 32),
+          new THREE.MeshBasicMaterial({ color: 0xa855f7, transparent: true, opacity: 0.035, depthWrite: false }));
+      });
+      zoneToggle('geo', function () {
+        var t = new THREE.Mesh(new THREE.TorusGeometry(R * (1 + 35786 / RE), 0.012, 8, 160),
+          new THREE.MeshBasicMaterial({ color: 0xffb020, transparent: true, opacity: 0.55, depthWrite: false }));
+        t.rotation.x = Math.PI / 2;
+        return t;
+      });
+
+      // ---------- init ----------
+      updateObsLabel();
+      labUpdate();
+      var profIv = setInterval(function () {
+        if (OBJPROF) { clearInterval(profIv); renderStemGrid('all'); renderScienceGrid(); }
+      }, 400);
+    })();
   </script>
 </body>
 </html>
