@@ -608,10 +608,14 @@
       scene.add(new THREE.Points(g, new THREE.PointsMaterial({ color: 0xcfeaff, size: 0.06, sizeAttenuation: true, transparent: true, opacity: 0.85 })));
     })();
 
-    // earth
+    // earth (4096px + max anisotropy for sharp close-ups; falls back to the 1024 file until the 4096 one is pushed)
+    var earthTex = new THREE.TextureLoader().load('../assets/img/earth-blue-marble-4096.jpg', undefined, undefined,
+      function () { earth.material.map = new THREE.TextureLoader().load('../assets/img/earth-blue-marble-1024.jpg');
+        earth.material.map.anisotropy = renderer.capabilities.getMaxAnisotropy(); earth.material.needsUpdate = true; });
+    earthTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
     var earth = new THREE.Mesh(
       new THREE.SphereGeometry(R, 64, 64),
-      new THREE.MeshPhongMaterial({ map: new THREE.TextureLoader().load('../assets/img/earth-blue-marble-1024.jpg') })
+      new THREE.MeshPhongMaterial({ map: earthTex })
     );
     world.add(earth);
     // atmosphere glow
