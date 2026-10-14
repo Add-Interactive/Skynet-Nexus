@@ -3,6 +3,7 @@
  "profiles": {
   "iss": {
    "name": "International Space Station",
+   "model": "iss",
    "type": "station",
    "keys": [
     "25544",
@@ -21,6 +22,7 @@
   },
   "tiangong": {
    "name": "Tiangong Space Station",
+   "model": "proc:tiangong",
    "type": "station",
    "keys": [
     "48274",
@@ -42,6 +44,7 @@
   },
   "hubble": {
    "name": "Hubble Space Telescope",
+   "model": "hubble",
    "type": "satellite",
    "keys": [
     "20580",
@@ -62,6 +65,7 @@
   },
   "starlink": {
    "name": "Starlink Satellite",
+   "model": "proc:starlink",
    "type": "satellite",
    "keys": [],
    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Starlink_01.webp/960px-Starlink_01.webp",
@@ -139,6 +143,7 @@
   },
   "terra": {
    "name": "Terra",
+   "model": "terra",
    "type": "science",
    "keys": [
     "25994",
@@ -159,6 +164,7 @@
   },
   "aqua": {
    "name": "Aqua",
+   "model": "aqua",
    "type": "science",
    "keys": [
     "27424",
@@ -347,6 +353,7 @@
   },
   "jwst": {
    "name": "James Webb Space Telescope",
+   "model": "jwst",
    "type": "satellite",
    "keys": [
     "jwst",
@@ -364,6 +371,7 @@
   },
   "chandra": {
    "name": "Chandra X-ray Observatory",
+   "model": "chandra",
    "type": "science",
    "keys": [
     "chandra"
@@ -1122,6 +1130,7 @@
   },
   "fermi": {
    "name": "Fermi Gamma-ray Space Telescope",
+   "model": "fermi",
    "type": "science",
    "keys": [
     "fermi"
