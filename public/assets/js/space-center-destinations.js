@@ -18,11 +18,12 @@
 
 var b = null, T = null;
 var tries = 0;
-(function wait() {
+function wait() {
   b = window.__scB || null;
   if (b && b.scene && b.camera && b.renderer && b.THREE && b.flyTo && b.flyHome && b.showInfo && b.simDate && b.openTab) { init(); return; }
   if (++tries < 120) setTimeout(wait, 250);
-})();
+}
+setTimeout(wait, 0);
 
 /* ---------------- math ---------------- */
 var EPS = 23.4393 * Math.PI / 180; // obliquity
