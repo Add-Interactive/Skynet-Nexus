@@ -93,6 +93,41 @@
     .sky-reg-wrap .sky-auth-card { flex: none; }
     .sky-auth-page--split .footer { width: 100%; }
 
+
+    /* Space Center teaser card */
+    .sky-teaser {
+      position: relative; border: 1px solid rgba(168,85,247,.4); border-radius: 14px; overflow: hidden;
+      background: radial-gradient(120% 150% at 18% 0%, #1b1440 0%, #0B1026 55%, #05070f 100%);
+      box-shadow: 0 20px 60px rgba(0,0,0,.5); margin-bottom: 24px; padding: 20px 18px;
+    }
+    .sky-teaser-stars { position: absolute; inset: 0; pointer-events: none; }
+    .sky-teaser-stars i { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fff; animation: skyTw 2.8s ease-in-out infinite; }
+    @keyframes skyTw { 0%,100% { opacity: .2; } 50% { opacity: 1; } }
+    .sky-teaser-orbit {
+      position: absolute; right: 30px; top: 50%; width: 84px; height: 84px; margin-top: -42px;
+      border: 1px dashed rgba(0,229,255,.45); border-radius: 50%; pointer-events: none;
+      animation: skyOrbit 7s linear infinite;
+    }
+    .sky-teaser-orbit b {
+      position: absolute; left: 50%; top: -4px; width: 8px; height: 8px; margin-left: -4px;
+      border-radius: 50%; background: #00e5ff; box-shadow: 0 0 12px #00e5ff;
+    }
+    @keyframes skyOrbit { to { transform: rotate(360deg); } }
+    .sky-teaser-body { position: relative; max-width: 78%; }
+    .sky-teaser-body h3 { margin: 0 0 8px; font: 800 19px/1.3 Inter, sans-serif; color: #fff; }
+    .sky-teaser-body p { margin: 0 0 14px; font: 400 14px/1.6 Inter, sans-serif; color: var(--muted, #9fb0c3); }
+    .sky-teaser-body p b { color: #00e5ff; }
+    .sky-teaser-cta {
+      display: inline-block; padding: 11px 22px; border-radius: 10px; background: var(--accent, #00e5ff);
+      color: #04121a; font: 800 14px/1 Inter, sans-serif; text-decoration: none;
+      box-shadow: 0 0 18px rgba(0,229,255,.35);
+    }
+    .sky-teaser-cta:hover { filter: brightness(1.1); }
+    @media (max-width: 560px) {
+      .sky-teaser-orbit { display: none; }
+      .sky-teaser-body { max-width: none; }
+    }
+
     @media (max-width: 940px) {
       .sky-reg-wrap { flex-direction: column; gap: 36px; align-items: stretch; }
       .sky-reg-info { max-width: none; }
@@ -140,6 +175,16 @@
         </div>
       </div>
 
+      <div class="sky-teaser" aria-label="Space Center teaser">
+        <div class="sky-teaser-stars" aria-hidden="true"><i style="left:8%;top:18%;animation-delay:0.0s"></i><i style="left:18%;top:64%;animation-delay:0.7s"></i><i style="left:27%;top:30%;animation-delay:1.4s"></i><i style="left:36%;top:78%;animation-delay:0.3s"></i><i style="left:45%;top:12%;animation-delay:2.1s"></i><i style="left:54%;top:52%;animation-delay:1.0s"></i><i style="left:62%;top:24%;animation-delay:0.5s"></i><i style="left:70%;top:70%;animation-delay:1.8s"></i><i style="left:78%;top:36%;animation-delay:0.9s"></i><i style="left:86%;top:58%;animation-delay:2.4s"></i><i style="left:93%;top:16%;animation-delay:1.2s"></i><i style="left:12%;top:86%;animation-delay:2.0s"></i><i style="left:50%;top:88%;animation-delay:0.6s"></i><i style="left:88%;top:88%;animation-delay:1.6s"></i></div>
+        <div class="sky-teaser-orbit" aria-hidden="true"><b></b></div>
+        <div class="sky-teaser-body">
+          <h3>🛰️ Space Center &mdash; Mission Control</h3>
+          <p>Track <b>1,082 real satellites</b> live in 3D. Tap any satellite for its photo and story, take a guided tour, and see tonight&rsquo;s flyovers over your house.</p>
+          <a class="sky-teaser-cta" href="space-center.html">🚀 Open Space Center</a>
+        </div>
+      </div>
+
       <ul class="sky-reg-feats">
         <li><span class="fi">🚀</span><span><b>Kid dashboards</b> &mdash; every kid gets a cinematic space: 100 avatars, custom banner, achievements, quiz scores, reading streaks.</span></li>
         <li><span class="fi">📖</span><span><b>Read Together mode</b> &mdash; guided co-reading with discussion prompts, tap-to-complete progress, and the Kid Take front and center.</span></li>
@@ -151,7 +196,13 @@
         <li><span class="fi">🔊</span><span><b>Listen with real voices</b> &mdash; every story narrated in studio quality. Pick from 4 voices.</span></li>
         <li><span class="fi">♿</span><span><b>Built for every kid</b> &mdash; audio guide, voice commands &amp; gesture navigation for blind kids, declared by parents.</span></li>
         <li><span class="fi">🏅</span><span><b>Beta Tester badge</b> &mdash; founding families help shape Skynet Nexus and earn a special badge at launch.</span></li>
-      </ul>
+              <li><span class="fi">🛰️</span><span><b>Space Center</b> &mdash; Mission Control in 3D: 1,082 live satellites, photo profiles, guided tours, tonight&rsquo;s flyover predictions, orbit lab.</span></li>
+        <li><span class="fi">📅</span><span><b>Events</b> &mdash; family STEM events, launches to watch together, and community happenings.</span></li>
+        <li><span class="fi">🏕️</span><span><b>Summer STEM</b> &mdash; a full summer of hands-on science, building, and exploration challenges.</span></li>
+        <li><span class="fi">🌟</span><span><b>STEM Creators</b> &mdash; meet the correspondents and creators behind every channel; kids can follow their favorites.</span></li>
+        <li><span class="fi">🏫</span><span><b>Classrooms</b> &mdash; teachers create classes, add students, and track reading progress, XP, and streaks.</span></li>
+        <li><span class="fi">📡</span><span><b>STEM Feeds</b> &mdash; curated feeds from around the web: space, robotics, AI, and more, all kid-safe.</span></li>
+</ul>
 
       <div class="sky-reg-trust">&#128737; <b>Parent-controlled &amp; invite-gated.</b> You create the account and add kid profiles under it. Per-kid controls: channels, listen, chats, quiet hours. Signup via family or teacher invite unlocks social features — solo accounts are reading-only. Kids never see ads, and kid data stays inside your family account.</div>
     </aside>
