@@ -1,5 +1,5 @@
 {
- "version": 1,
+ "version": "1.1.0",
  "profiles": {
   "iss": {
    "name": "International Space Station",
@@ -55,7 +55,10 @@
    "launchYear": 1990,
    "launchDate": "1990-04-24",
    "designLife": "15 years (still going!)",
-   "funFact": "Astronauts visited Hubble five times to give it new cameras and parts — like doctor checkups for a telescope!"
+   "funFact": "Astronauts visited Hubble five times to give it new cameras and parts — like doctor checkups for a telescope!",
+   "tags": [
+    "science"
+   ]
   },
   "starlink": {
    "name": "Starlink Satellite",
@@ -135,38 +138,44 @@
    "funFact": "A GOES satellite can photograph the entire United States in just 30 seconds!"
   },
   "terra": {
-   "name": "Terra (Earth Observer)",
-   "type": "satellite",
+   "name": "Terra",
+   "type": "science",
    "keys": [
     "25994",
     "terra"
    ],
-   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Terra_spacecraft_model.png/960px-Terra_spacecraft_model.png",
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Terra_spacecraft_model.png/330px-Terra_spacecraft_model.png",
    "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
    "learnMore": "https://en.wikipedia.org/wiki/Terra_(satellite)",
-   "blurb": "Terra is NASA’s Earth-watching superstar. It maps pollution, melting ice, and growing crops — basically giving our planet a daily checkup.",
-   "builder": "NASA (built by Lockheed Martin)",
+   "blurb": "NASA's giant Earth-checkup satellite! Terra watches our planet's land, oceans, air and ice all at once, keeping a decades-long record of how Earth's climate is changing.",
+   "builder": "NASA",
    "launchYear": 1999,
+   "designLife": "25+ years and counting",
+   "funFact": "Terra is as big as a small school bus and still working after 25 years!",
    "launchDate": "1999-12-18",
-   "designLife": "6 years (still going!)",
-   "funFact": "“Terra” means “Earth” in Latin — and it has watched over Earth for more than 25 years!"
+   "tags": [
+    "science"
+   ]
   },
   "aqua": {
-   "name": "Aqua (Earth Observer)",
-   "type": "satellite",
+   "name": "Aqua",
+   "type": "science",
    "keys": [
     "27424",
     "aqua"
    ],
-   "image": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Aqua_spacecraft_model.png",
-   "imageCredit": "Image: National Aeronautics and Space Administration (NASA) via Wikimedia Commons (Public domain)",
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Aqua_spacecraft_model.png/330px-Aqua_spacecraft_model.png",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
    "learnMore": "https://en.wikipedia.org/wiki/Aqua_(satellite)",
-   "blurb": "Aqua studies Earth’s water — oceans, clouds, ice, and rain. It helps scientists understand how water moves around our planet.",
-   "builder": "NASA (built by Northrop Grumman)",
+   "blurb": "Terra's sister satellite, chasing it around Earth! Aqua focuses on water — rain, snow, ice, oceans, and even the water vapor in the air you breathe.",
+   "builder": "NASA",
    "launchYear": 2002,
+   "designLife": "20+ years and counting",
+   "funFact": "Aqua and Terra fly in formation, photographing the same places minutes apart!",
    "launchDate": "2002-05-04",
-   "designLife": "6 years (still going!)",
-   "funFact": "“Aqua” means “water” in Latin, and Aqua flies in formation with other satellites like a team!"
+   "tags": [
+    "science"
+   ]
   },
   "noaa20": {
    "name": "NOAA-20 (JPSS)",
@@ -187,20 +196,24 @@
   },
   "suominpp": {
    "name": "Suomi NPP",
-   "type": "satellite",
+   "type": "science",
    "keys": [
     "37849",
-    "suominpp"
+    "suominpp",
+    "npp"
    ],
-   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Suomi_NPP_satellite.jpg/960px-Suomi_NPP_satellite.jpg",
-   "imageCredit": "Image: Ryan Zuber, Scientific Visualization Studio via Wikimedia Commons (Public domain)",
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Suomi_NPP_satellite.jpg/330px-Suomi_NPP_satellite.jpg",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
    "learnMore": "https://en.wikipedia.org/wiki/Suomi_NPP",
-   "blurb": "Suomi NPP watches Earth day and night, tracking wildfires, air pollution, and sea ice. It can even see city lights glowing from space!",
-   "builder": "NASA/NOAA (built by Ball Aerospace)",
+   "blurb": "The weather satellite that sees Earth at night! It takes stunning pictures of glowing city lights and tracks storms, wildfires and ice from pole to pole.",
+   "builder": "NASA + NOAA",
    "launchYear": 2011,
+   "designLife": "10+ years and counting",
+   "funFact": "Its night-time photos show the whole Earth sparkling with city lights!",
    "launchDate": "2011-10-28",
-   "designLife": "5 years (still going!)",
-   "funFact": "It’s named after Verner Suomi, known as the father of satellite weather-watching!"
+   "tags": [
+    "science"
+   ]
   },
   "metop": {
    "name": "MetOp Weather Satellite",
@@ -238,22 +251,26 @@
   },
   "sentinel3": {
    "name": "Sentinel-3",
-   "type": "satellite",
+   "type": "science",
    "keys": [
     "41335",
     "43437",
     "sentinel3a",
-    "sentinel3b"
+    "sentinel3b",
+    "sentinel3"
    ],
-   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Sentinel-3_spacecraft_model.svg/960px-Sentinel-3_spacecraft_model.svg.png",
-   "imageCredit": "Image: SkywalkerPL via Wikimedia Commons (CC BY 4.0)",
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Sentinel-3_spacecraft_model.svg/330px-Sentinel-3_spacecraft_model.svg.png",
+   "imageCredit": "Image: ESA via Wikimedia Commons",
    "learnMore": "https://en.wikipedia.org/wiki/Sentinel-3",
-   "blurb": "Sentinel-3 is Europe’s ocean and land monitor. It measures sea level, ocean color, and land temperature for scientists.",
-   "builder": "ESA (built by Thales Alenia Space)",
+   "blurb": "Europe's ocean-and-land watcher! Two Sentinel-3 satellites measure sea height, ocean color and land temperature to keep watch on our changing climate.",
+   "builder": "ESA (European Space Agency)",
    "launchYear": 2016,
+   "designLife": "7+ years each",
+   "funFact": "It can spot a change in sea level smaller than the width of your thumb!",
    "launchDate": "2016-02-16",
-   "designLife": "7 years",
-   "funFact": "Sentinel-3 can spot a wildfire from space and measure how hot it is burning!"
+   "tags": [
+    "science"
+   ]
   },
   "meteorm": {
    "name": "Meteor-M Weather Satellite",
@@ -347,19 +364,22 @@
   },
   "chandra": {
    "name": "Chandra X-ray Observatory",
-   "type": "satellite",
+   "type": "science",
    "keys": [
     "chandra"
    ],
-   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Chandra_artist_illustration.jpg/960px-Chandra_artist_illustration.jpg",
-   "imageCredit": "Image: NASA/CXC/NGST via Wikimedia Commons (Public domain)",
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Chandra_artist_illustration.jpg/330px-Chandra_artist_illustration.jpg",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
    "learnMore": "https://en.wikipedia.org/wiki/Chandra_X-ray_Observatory",
-   "blurb": "Chandra is NASA’s X-ray telescope. It sees the hottest, most violent places in the universe — exploding stars and giant black holes!",
-   "builder": "NASA (built by TRW)",
+   "blurb": "NASA's X-ray superstar! Chandra takes the sharpest X-ray pictures ever, revealing black holes and exploded stars that are invisible to normal telescopes.",
+   "builder": "NASA",
    "launchYear": 1999,
+   "designLife": "25+ years and counting",
+   "funFact": "It loops in a long stretched orbit, swinging out a third of the way to the Moon!",
    "launchDate": "1999-07-23",
-   "designLife": "5 years (still going!)",
-   "funFact": "Chandra is named after Subrahmanyan Chandrasekhar, who figured out how stars die!"
+   "tags": [
+    "science"
+   ]
   },
   "landsat9": {
    "name": "Landsat 9",
@@ -709,6 +729,775 @@
    "launchDate": "1955-06-02",
    "designLife": "Still launching",
    "funFact": "Baikonur sits in Kazakhstan, and Russia leases it — real space history lives here!"
+  },
+  "leopardsat": {
+   "name": "LEOPARDSat-1",
+   "type": "student",
+   "keys": [
+    "67687",
+    "leopard",
+    "leopardsat1",
+    "leopardsat"
+   ],
+   "image": null,
+   "imageCredit": null,
+   "learnMore": "https://www.uc.edu/news/articles/2026/01/uc-to-launch-first-student-led-satellite-with-nasa.html",
+   "blurb": "A satellite the size of a tissue box, built almost entirely by college students in Ohio! It is testing super-light materials that could one day shield astronauts from space radiation on trips to the Moon and Mars.",
+   "builder": "University of Cincinnati CubeCats (students)",
+   "launchYear": 2026,
+   "designLife": "~1 year",
+   "funFact": "Dozens of students worked on it for over 10 years — some joined as freshmen and saw it launch as graduates!",
+   "launchDate": "2026-04-11",
+   "tags": [
+    "stem"
+   ],
+   "missionType": "student-built"
+  },
+  "knacksat2": {
+   "name": "KNACKSAT-2",
+   "type": "student",
+   "keys": [
+    "67683",
+    "knacksat2"
+   ],
+   "image": null,
+   "imageCredit": null,
+   "learnMore": "http://www.unisec-global.org/pdf/virtual-meeting/2026/70th/KNACKSAT-2_J-CUBE.pdf",
+   "blurb": "A ride-share satellite carrying experiments built by university students across Southeast Asia — one satellite, many student payloads! Its clever design lets students focus on their experiments instead of building the whole satellite.",
+   "builder": "KMUTNB + universities in Thailand, Malaysia & the Philippines",
+   "launchYear": 2026,
+   "designLife": "~1 year",
+   "funFact": "It won the J-CUBE contest for clever satellite design!",
+   "launchDate": "2026-02-03",
+   "tags": [
+    "stem"
+   ],
+   "missionType": "student-built"
+  },
+  "uitmsat2": {
+   "name": "UITMSAT-2",
+   "type": "student",
+   "keys": [
+    "67686",
+    "uitmsat2"
+   ],
+   "image": null,
+   "imageCredit": null,
+   "learnMore": null,
+   "blurb": "A student satellite from a Malaysian university, flying together with friends from Thailand and the Philippines. Universities team up like this so every school gets a ticket to space!",
+   "builder": "UiTM (Universiti Teknologi MARA), Malaysia",
+   "launchYear": 2026,
+   "designLife": "~1 year",
+   "funFact": "It shares its ride — and its satellite bus — with KNACKSAT-2!",
+   "launchDate": "2026-02-03",
+   "tags": [
+    "stem"
+   ],
+   "missionType": "student-built"
+  },
+  "lightsail2": {
+   "name": "LightSail 2",
+   "type": "student",
+   "keys": [
+    "lightsail2",
+    "lightsail"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/LightSail_2_Deployment_Test.jpg/330px-LightSail_2_Deployment_Test.jpg",
+   "imageCredit": "Image: The Planetary Society via Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/LightSail_2",
+   "blurb": "A tiny satellite that sailed through space on sunlight alone! It unfolded a shiny sail as big as a boxing ring, and sunlight bouncing off the sail gently pushed it higher and higher.",
+   "builder": "The Planetary Society (funded by 50,000+ everyday people!)",
+   "launchYear": 2019,
+   "designLife": "Mission complete 2022",
+   "funFact": "No fuel, no engine — just sunshine pushing on a giant mirror!",
+   "launchDate": "2019-06-25",
+   "tags": [
+    "stem"
+   ],
+   "missionType": "citizen-science"
+  },
+  "funcube1": {
+   "name": "FUNcube-1 (AO-73)",
+   "type": "student",
+   "keys": [
+    "funcube1",
+    "ao73",
+    "funcube"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/FUNcube-1.jpg/330px-FUNcube-1.jpg",
+   "imageCredit": "Image: Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/FUNcube-1",
+   "blurb": "A school-friendly satellite that beams science data down for any classroom with a simple antenna. Students around the world track it and decode its messages — like having a pen-pal in space!",
+   "builder": "AMSAT-UK + volunteers",
+   "launchYear": 2013,
+   "designLife": "10+ years and counting",
+   "funFact": "Schools use it to learn how radios talk to space!",
+   "launchDate": "2013-11-21",
+   "tags": [
+    "stem"
+   ],
+   "missionType": "classroom-link"
+  },
+  "fox1a": {
+   "name": "AO-85 (Fox-1A)",
+   "type": "student",
+   "keys": [
+    "fox1a",
+    "ao85"
+   ],
+   "image": null,
+   "imageCredit": null,
+   "learnMore": "https://en.wikipedia.org/wiki/Fox-1A",
+   "blurb": "A ham-radio satellite that carries student experiments and works like a flying walkie-talkie in the sky — anyone with a small radio can talk through it!",
+   "builder": "AMSAT (amateur radio volunteers) + student teams",
+   "launchYear": 2015,
+   "designLife": "~2 years",
+   "funFact": "You can hear satellites like this with a handheld radio and a homemade antenna!",
+   "launchDate": "2015-10-08",
+   "tags": [
+    "stem"
+   ],
+   "missionType": "classroom-link"
+  },
+  "arissat1": {
+   "name": "ARISSat-1 (KEDR)",
+   "type": "student",
+   "keys": [
+    "arissat1",
+    "kedr"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/ARIS_AMSAT.jpg/330px-ARIS_AMSAT.jpg",
+   "imageCredit": "Image: Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/ARISSat-1",
+   "blurb": "A satellite deployed by hand — an astronaut literally tossed it during a spacewalk! It broadcast greetings in 15 languages and let students make radio contact with space.",
+   "builder": "AMSAT + ARISS (amateur radio on the ISS)",
+   "launchYear": 2011,
+   "designLife": "~5 months",
+   "funFact": "Students on Earth could earn a certificate just for hearing its voice from space!",
+   "launchDate": "2011-08-03",
+   "tags": [
+    "stem"
+   ],
+   "missionType": "classroom-link"
+  },
+  "equisat": {
+   "name": "EQUiSat",
+   "type": "student",
+   "keys": [
+    "equisat"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/en/6/60/EQUiSat_new_logo_2015.png",
+   "imageCredit": "Image: Brown Space Engineering via Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/EQUiSat",
+   "blurb": "Built by Brown University students to test a battery that charges with light — and to flash a super-bright LED like a lighthouse in space, visible from Earth!",
+   "builder": "Brown Space Engineering (Brown University students)",
+   "launchYear": 2018,
+   "designLife": "~2 years",
+   "funFact": "Its flashing beacon was designed to be bright enough to see from your backyard!",
+   "launchDate": "2018-05-21",
+   "tags": [
+    "stem"
+   ],
+   "missionType": "student-built"
+  },
+  "tj3sat": {
+   "name": "TJ3Sat",
+   "type": "student",
+   "keys": [
+    "tj3sat"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/en/b/b4/Tjlogo.png",
+   "imageCredit": "Image: Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/TJ3Sat",
+   "blurb": "The first satellite ever built by high-school students! Teens designed it to test a new way of sending text messages from space — proving you do not need a PhD to reach orbit.",
+   "builder": "Students of Thomas Jefferson High School, Virginia",
+   "launchYear": 2013,
+   "designLife": "~2 years",
+   "funFact": "It had a gadget that read text messages aloud from space — a talking satellite!",
+   "launchDate": "2013-11-20",
+   "tags": [
+    "stem"
+   ],
+   "missionType": "student-built"
+  },
+  "estcube1": {
+   "name": "ESTCube-1",
+   "type": "student",
+   "keys": [
+    "estcube1"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/ESTCube-1_illustration.jpg/330px-ESTCube-1_illustration.jpg",
+   "imageCredit": "Image: Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/ESTCube-1",
+   "blurb": "Estonia's very first satellite, built by university students! It tested an electric 'wind' sail that catches the solar wind — technology that could one day help clean up space junk.",
+   "builder": "University of Tartu students, Estonia",
+   "launchYear": 2013,
+   "designLife": "~2 years",
+   "funFact": "It was the first satellite ever to try flying with an electric solar-wind sail!",
+   "launchDate": "2013-05-07",
+   "tags": [
+    "stem"
+   ],
+   "missionType": "student-built"
+  },
+  "strand1": {
+   "name": "STRaND-1",
+   "type": "student",
+   "keys": [
+    "strand1"
+   ],
+   "image": null,
+   "imageCredit": null,
+   "learnMore": "https://en.wikipedia.org/wiki/STRaND-1",
+   "blurb": "A student satellite with a surprise passenger: an ordinary smartphone! Students wanted to prove the phone in your pocket is tough enough to help fly a spacecraft.",
+   "builder": "Surrey Space Centre students (UK)",
+   "launchYear": 2013,
+   "designLife": "~2 years",
+   "funFact": "It carried a smartphone as its backup brain — the ultimate phone durability test!",
+   "launchDate": "2013-02-25",
+   "tags": [
+    "stem"
+   ],
+   "missionType": "student-built"
+  },
+  "swisscube": {
+   "name": "SwissCube",
+   "type": "student",
+   "keys": [
+    "swisscube"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/SwissCube_EPFL.jpg/330px-SwissCube_EPFL.jpg",
+   "imageCredit": "Image: EPFL via Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/SwissCube",
+   "blurb": "Switzerland's first student satellite, built at EPFL to photograph a mysterious glowing layer high above Earth called airglow. Students ran the whole mission from their campus control room!",
+   "builder": "EPFL students, Switzerland",
+   "launchYear": 2009,
+   "designLife": "~2 years",
+   "funFact": "It was tiny — just 10 cm on each side, like a Rubik's cube!",
+   "launchDate": "2009-09-23",
+   "tags": [
+    "stem"
+   ],
+   "missionType": "student-built"
+  },
+  "delfi3": {
+   "name": "Delfi-C3",
+   "type": "student",
+   "keys": [
+    "delfi3",
+    "delfic3"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Delfi-C3-Stowed.JPG/330px-Delfi-C3-Stowed.JPG",
+   "imageCredit": "Image: Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/Delfi-C3",
+   "blurb": "Dutch students built this to test super-thin solar cells and a tiny radio beacon that any ham operator on Earth could hear. It proved students can build real space hardware on a school budget!",
+   "builder": "TU Delft students, Netherlands",
+   "launchYear": 2008,
+   "designLife": "~2 years",
+   "funFact": "Amateur radio fans around the world listened for its beeping signal!",
+   "launchDate": "2008-04-28",
+   "tags": [
+    "stem"
+   ],
+   "missionType": "student-built"
+  },
+  "ardusat": {
+   "name": "ArduSat",
+   "type": "student",
+   "keys": [
+    "ardusat"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/ArduSat3.png/330px-ArduSat3.png",
+   "imageCredit": "Image: Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/ArduSat",
+   "blurb": "A satellite built with Arduino boards — the same tiny computers kids use in robotics class! Anyone on Earth could rent time on it and run their own space experiment from a web browser.",
+   "builder": "NanoSatisfi (crowdfunded by everyday people)",
+   "launchYear": 2013,
+   "designLife": "~2 years",
+   "funFact": "It was funded on Kickstarter — regular people paid to put science in space!",
+   "launchDate": "2013-08-03",
+   "tags": [
+    "stem"
+   ],
+   "missionType": "citizen-science"
+  },
+  "phonesat": {
+   "name": "PhoneSat",
+   "type": "student",
+   "keys": [
+    "phonesat"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Phonesat-balloon-test.743380main.jpg/330px-Phonesat-balloon-test.743380main.jpg",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/PhoneSat",
+   "blurb": "NASA engineers stuffed ordinary smartphones into a tiny satellite to ask: can a phone fly a spacecraft? The answer was yes — some of the cheapest satellites ever flown!",
+   "builder": "NASA Ames Research Center",
+   "launchYear": 2013,
+   "designLife": "~1 week (demo)",
+   "funFact": "The whole satellite cost less than many used cars!",
+   "launchDate": "2013-04-21",
+   "tags": [
+    "stem"
+   ],
+   "missionType": "citizen-science"
+  },
+  "elana": {
+   "name": "NASA ELaNa",
+   "type": "student",
+   "keys": [
+    "elana"
+   ],
+   "image": null,
+   "imageCredit": null,
+   "learnMore": "https://en.wikipedia.org/wiki/ELaNa",
+   "blurb": "NASA's school bus to orbit! The ELaNa program gives student-built CubeSats free rides to space on big rockets — dozens of school satellites have launched this way. Maybe yours could be next!",
+   "builder": "NASA CubeSat Launch Initiative",
+   "launchYear": 2010,
+   "designLife": "Ongoing program",
+   "funFact": "ELaNa stands for Educational Launch of Nanosatellites!",
+   "tags": [
+    "stem"
+   ],
+   "missionType": "classroom-link"
+  },
+  "hxmt": {
+   "name": "HXMT (Huiyan)",
+   "type": "science",
+   "keys": [
+    "42758",
+    "hxmt"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/HXMT_rendering.jpg/330px-HXMT_rendering.jpg",
+   "imageCredit": "Image: Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/Hard_X-ray_Modulation_Telescope",
+   "blurb": "China's X-ray space telescope! It studies black holes and neutron stars — the weirdest, most extreme objects in the universe — by catching their X-ray light.",
+   "builder": "CNSA (China)",
+   "launchYear": 2017,
+   "designLife": "5+ years and counting",
+   "funFact": "'Huiyan' means 'Insight' — it stares at the sky's most violent neighborhoods!",
+   "launchDate": "2017-06-15",
+   "tags": [
+    "science"
+   ]
+  },
+  "xrism": {
+   "name": "XRISM",
+   "type": "science",
+   "keys": [
+    "57800",
+    "xrism"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/XRISM_in_a_nutshell_%28cropped%29.png/330px-XRISM_in_a_nutshell_%28cropped%29.png",
+   "imageCredit": "Image: JAXA via Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/X-Ray_Imaging_and_Spectroscopy_Mission",
+   "blurb": "A space detective for super-hot gas! XRISM reads X-rays from galaxy clusters to weigh the universe and watch how galaxies grow over billions of years.",
+   "builder": "JAXA + NASA + ESA",
+   "launchYear": 2023,
+   "designLife": "3+ years and counting",
+   "funFact": "It can tell what million-degree space gas is made of just from its X-ray 'fingerprint'!",
+   "launchDate": "2023-09-06",
+   "tags": [
+    "science"
+   ]
+  },
+  "xmmnewton": {
+   "name": "XMM-Newton",
+   "type": "science",
+   "keys": [
+    "xmmnewton",
+    "xmm"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/ESA_XMM-Newton.svg/330px-ESA_XMM-Newton.svg.png",
+   "imageCredit": "Image: ESA via Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/XMM-Newton",
+   "blurb": "Europe's X-ray giant with the biggest mirrors ever flown! It has spotted millions of X-ray sources, from baby stars to monster black holes.",
+   "builder": "ESA (European Space Agency)",
+   "launchYear": 1999,
+   "designLife": "25+ years and counting",
+   "funFact": "Its three telescopes collect more X-ray light than any before!",
+   "launchDate": "1999-12-10",
+   "tags": [
+    "science"
+   ]
+  },
+  "fermi": {
+   "name": "Fermi Gamma-ray Space Telescope",
+   "type": "science",
+   "keys": [
+    "fermi"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Fermi_Gamma-ray_Space_Telescope_spacecraft_model.png/330px-Fermi_Gamma-ray_Space_Telescope_spacecraft_model.png",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Fermi_Gamma-ray_Space_Telescope",
+   "blurb": "A gamma-ray hunter! Fermi catches the most powerful light in the universe — from exploding stars and spinning dead stars called pulsars.",
+   "builder": "NASA",
+   "launchYear": 2008,
+   "designLife": "15+ years and counting",
+   "funFact": "It sees gamma rays thousands of times more energetic than X-rays!",
+   "launchDate": "2008-06-11",
+   "tags": [
+    "science"
+   ]
+  },
+  "swift": {
+   "name": "Swift Observatory",
+   "type": "science",
+   "keys": [
+    "swift"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Swift_Observatory_spacecraft_model.png/330px-Swift_Observatory_spacecraft_model.png",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Neil_Gehrels_Swift_Observatory",
+   "blurb": "The fastest telescope in space! When a gamma-ray burst explodes somewhere in the universe, Swift spins around in under a minute to catch it.",
+   "builder": "NASA",
+   "launchYear": 2004,
+   "designLife": "20+ years and counting",
+   "funFact": "It has caught over 1,000 cosmic explosions!",
+   "launchDate": "2004-11-20",
+   "tags": [
+    "science"
+   ]
+  },
+  "tess": {
+   "name": "TESS",
+   "type": "science",
+   "keys": [
+    "tess"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/TESS_alone_high_res.jpg/330px-TESS_alone_high_res.jpg",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Transiting_Exoplanet_Survey_Satellite",
+   "blurb": "The planet hunter! TESS scans the whole sky looking for tiny dips in starlight that mean a planet just passed by — it has found thousands of new worlds.",
+   "builder": "NASA",
+   "launchYear": 2018,
+   "designLife": "5+ years and counting",
+   "funFact": "TESS found planets where it might rain lava, and worlds with two suns in the sky!",
+   "launchDate": "2018-04-18",
+   "tags": [
+    "science"
+   ]
+  },
+  "nustar": {
+   "name": "NuSTAR",
+   "type": "science",
+   "keys": [
+    "nustar"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/NuSTAR_spacecraft_model.png/330px-NuSTAR_spacecraft_model.png",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/NuSTAR",
+   "blurb": "An X-ray telescope with a 10-meter party trick — its mirrors sit at the end of a long unfolding mast! It maps black holes hiding behind cosmic dust.",
+   "builder": "NASA",
+   "launchYear": 2012,
+   "designLife": "10+ years and counting",
+   "funFact": "Its mast unfolds in space like a giant selfie stick!",
+   "launchDate": "2012-06-13",
+   "tags": [
+    "science"
+   ]
+  },
+  "integral": {
+   "name": "INTEGRAL",
+   "type": "science",
+   "keys": [
+    "integral"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/en/1/10/INTEGRAL_insignia.png",
+   "imageCredit": "Image: ESA via Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/INTEGRAL",
+   "blurb": "Europe's gamma-ray observatory! INTEGRAL watches the violent sky — exploding stars, feeding black holes, and the glowing heart of our galaxy.",
+   "builder": "ESA (European Space Agency)",
+   "launchYear": 2002,
+   "designLife": "20+ years and counting",
+   "funFact": "It was planned for 2 years but kept working for over 20!",
+   "launchDate": "2002-10-17",
+   "tags": [
+    "science"
+   ]
+  },
+  "cheops": {
+   "name": "CHEOPS",
+   "type": "science",
+   "keys": [
+    "cheops"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/en/2/29/CHEOPS_spacecraft.png",
+   "imageCredit": "Image: ESA via Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/CHEOPS",
+   "blurb": "A small telescope with one big job: measuring planets found by other missions! It figures out whether a faraway world is rocky like Earth or gassy like Jupiter.",
+   "builder": "ESA (European Space Agency)",
+   "launchYear": 2019,
+   "designLife": "5+ years and counting",
+   "funFact": "Its mirror is small, but its measurements are incredibly precise!",
+   "launchDate": "2019-12-18",
+   "tags": [
+    "science"
+   ]
+  },
+  "spektrrg": {
+   "name": "Spektr-RG",
+   "type": "science",
+   "keys": [
+    "spektrrg",
+    "spektr-rg"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/SPEKTR_RG.png/330px-SPEKTR_RG.png",
+   "imageCredit": "Image: Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/Spektr-RG",
+   "blurb": "A Russian-German telescope parked far from Earth at a gravity 'parking spot' called L2, mapping the whole X-ray sky to find hundreds of thousands of distant black holes.",
+   "builder": "Roscosmos + DLR (Germany)",
+   "launchYear": 2019,
+   "designLife": "5+ years and counting",
+   "funFact": "It lives 1.5 million km from Earth — four times farther than the Moon!",
+   "launchDate": "2019-07-13",
+   "tags": [
+    "science"
+   ]
+  },
+  "gaia": {
+   "name": "Gaia",
+   "type": "science",
+   "keys": [
+    "gaia"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Gaia_spacecraft.jpeg/330px-Gaia_spacecraft.jpeg",
+   "imageCredit": "Image: ESA via Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/Gaia_(spacecraft)",
+   "blurb": "The ultimate star mapper! Gaia measured nearly 2 billion stars with unbelievable precision, building the best 3D map of our galaxy ever made.",
+   "builder": "ESA (European Space Agency)",
+   "launchYear": 2013,
+   "designLife": "Mission complete 2025",
+   "funFact": "If your eyes were as sharp as Gaia, you could spot a coin sitting on the Moon!",
+   "launchDate": "2013-12-19",
+   "tags": [
+    "science"
+   ],
+   "status": "retired",
+   "whereNow": "Parked in a quiet orbit around the Sun"
+  },
+  "kepler": {
+   "name": "Kepler Space Telescope",
+   "type": "science",
+   "keys": [
+    "kepler"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Kepler_Space_Telescope_spacecraft_model_2.png/330px-Kepler_Space_Telescope_spacecraft_model_2.png",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Kepler_space_telescope",
+   "blurb": "The telescope that proved planets are everywhere! Kepler stared at 150,000 stars and found thousands of exoplanets — including rocky worlds where water could exist.",
+   "builder": "NASA",
+   "launchYear": 2009,
+   "designLife": "Mission complete 2018",
+   "funFact": "Kepler showed our galaxy holds more planets than stars!",
+   "launchDate": "2009-03-07",
+   "tags": [
+    "science"
+   ],
+   "status": "retired",
+   "whereNow": "Drifting in orbit around the Sun"
+  },
+  "spitzer": {
+   "name": "Spitzer Space Telescope",
+   "type": "science",
+   "keys": [
+    "spitzer"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Spitzer_space_telescope.jpg/330px-Spitzer_space_telescope.jpg",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Spitzer_Space_Telescope",
+   "blurb": "An infrared telescope that saw the universe's heat glow! Spitzer peered through cosmic dust to watch baby stars being born and mapped distant galaxies.",
+   "builder": "NASA",
+   "launchYear": 2003,
+   "designLife": "Mission complete 2020",
+   "funFact": "It slowly drifted away from Earth and now orbits the Sun on its own!",
+   "launchDate": "2003-08-25",
+   "tags": [
+    "science"
+   ],
+   "status": "retired",
+   "whereNow": "Heliocentric orbit, drifting from Earth"
+  },
+  "herschel": {
+   "name": "Herschel Space Observatory",
+   "type": "science",
+   "keys": [
+    "herschel"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Maquette_Herschel_salon_du_Bourget_2013_DSC_0217.JPG/330px-Maquette_Herschel_salon_du_Bourget_2013_DSC_0217.JPG",
+   "imageCredit": "Image: Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/Herschel_Space_Observatory",
+   "blurb": "The biggest infrared telescope ever flown! Herschel studied how stars and galaxies are born in the coldest, darkest corners of space.",
+   "builder": "ESA (European Space Agency)",
+   "launchYear": 2009,
+   "designLife": "Mission complete 2013",
+   "funFact": "Its mirror was 3.5 meters wide — even bigger than Hubble's!",
+   "launchDate": "2009-05-14",
+   "tags": [
+    "science"
+   ],
+   "status": "retired",
+   "whereNow": "Heliocentric orbit"
+  },
+  "planck": {
+   "name": "Planck",
+   "type": "science",
+   "keys": [
+    "planck"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Model_of_the_Planck_Satellite.jpg/330px-Model_of_the_Planck_Satellite.jpg",
+   "imageCredit": "Image: ESA via Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/Planck_(spacecraft)",
+   "blurb": "A telescope that photographed the baby universe! Planck mapped the afterglow of the Big Bang in incredible detail.",
+   "builder": "ESA (European Space Agency)",
+   "launchYear": 2009,
+   "designLife": "Mission complete 2013",
+   "funFact": "It measured the age of the universe: 13.8 billion years!",
+   "launchDate": "2009-05-14",
+   "tags": [
+    "science"
+   ],
+   "status": "retired",
+   "whereNow": "Heliocentric orbit"
+  },
+  "wise": {
+   "name": "WISE / NEOWISE",
+   "type": "science",
+   "keys": [
+    "wise",
+    "neowise"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/WISE_artist_concept_%28PIA17254%2C_crop%29.jpg/330px-WISE_artist_concept_%28PIA17254%2C_crop%29.jpg",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Wide-field_Infrared_Survey_Explorer",
+   "blurb": "An infrared scout that mapped the entire sky, then spent a decade hunting asteroids wandering near Earth!",
+   "builder": "NASA",
+   "launchYear": 2009,
+   "designLife": "Mission complete 2024",
+   "funFact": "It discovered Earth's first 'Trojan' asteroid — a space rock sharing our orbit!",
+   "launchDate": "2009-12-14",
+   "tags": [
+    "science"
+   ],
+   "status": "retired",
+   "whereNow": "Still in Earth orbit, slowly falling"
+  },
+  "aura": {
+   "name": "Aura",
+   "type": "science",
+   "keys": [
+    "aura"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/8/88/Aura_spacecraft.png",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Aura_(satellite)",
+   "blurb": "Earth's atmosphere doctor! Aura sniffs the air from space, tracking the ozone layer, pollution, and the gases that warm our planet.",
+   "builder": "NASA",
+   "launchYear": 2004,
+   "designLife": "20+ years and counting",
+   "funFact": "Aura helped confirm the ozone hole is healing!",
+   "launchDate": "2004-07-15",
+   "tags": [
+    "science"
+   ]
+  },
+  "cryosat2": {
+   "name": "CryoSat-2",
+   "type": "science",
+   "keys": [
+    "cryosat2",
+    "cryosat"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/CryoSat_model_ESA384323.jpg/330px-CryoSat_model_ESA384323.jpg",
+   "imageCredit": "Image: ESA via Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/CryoSat-2",
+   "blurb": "The ice detective! CryoSat-2 measures the thickness of polar ice with radar, watching how fast our ice caps are melting.",
+   "builder": "ESA (European Space Agency)",
+   "launchYear": 2010,
+   "designLife": "10+ years and counting",
+   "funFact": "It measures ice thickness to a few centimeters — from 700 km up!",
+   "launchDate": "2010-04-08",
+   "tags": [
+    "science"
+   ]
+  },
+  "swot": {
+   "name": "SWOT",
+   "type": "science",
+   "keys": [
+    "swot"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/SWOT_spacecraft_model.png/330px-SWOT_spacecraft_model.png",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Surface_Water_and_Ocean_Topography",
+   "blurb": "The water watcher! SWOT measures the height of nearly all Earth's rivers, lakes and oceans — the first satellite to survey the planet's water in such detail.",
+   "builder": "NASA + CNES (France)",
+   "launchYear": 2022,
+   "designLife": "3+ years and counting",
+   "funFact": "It can spot any river wider than 100 meters, anywhere on Earth!",
+   "launchDate": "2022-12-16",
+   "tags": [
+    "science"
+   ]
+  },
+  "earthcare": {
+   "name": "EarthCARE",
+   "type": "science",
+   "keys": [
+    "earthcare"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Cleaning_EarthCARE_ESA25462753.jpg/330px-Cleaning_EarthCARE_ESA25462753.jpg",
+   "imageCredit": "Image: ESA via Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/EarthCARE",
+   "blurb": "A cloud detective! EarthCARE studies clouds and the tiny particles floating in air, to learn how they warm or cool our planet.",
+   "builder": "ESA + JAXA (Japan)",
+   "launchYear": 2024,
+   "designLife": "3+ years planned",
+   "funFact": "It fires a laser into clouds to see inside them!",
+   "launchDate": "2024-05-28",
+   "tags": [
+    "science"
+   ]
+  },
+  "gracefo": {
+   "name": "GRACE-FO",
+   "type": "science",
+   "keys": [
+    "gracefo",
+    "grace-fo"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/GRACE_spacecraft_model_2.png/330px-GRACE_spacecraft_model_2.png",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Gravity_Recovery_and_Climate_Experiment",
+   "blurb": "Twin satellites that weigh water from space! By feeling tiny changes in Earth’s gravity, they track melting ice sheets and drying-up groundwater.",
+   "builder": "NASA + GFZ (Germany)",
+   "launchYear": 2018,
+   "designLife": "5+ years and counting",
+   "funFact": "The twins chase each other, sensing distance changes thinner than a hair!",
+   "launchDate": "2018-05-22",
+   "tags": [
+    "science"
+   ]
+  },
+  "aeolus": {
+   "name": "Aeolus",
+   "type": "science",
+   "keys": [
+    "aeolus"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/en/d/d1/ESA_FutureEO_Aeolus.png",
+   "imageCredit": "Image: ESA via Wikimedia Commons",
+   "learnMore": "https://en.wikipedia.org/wiki/ADM-Aeolus",
+   "blurb": "The wind satellite! Aeolus fired a laser into the atmosphere to measure winds around the whole planet — the first mission ever to do it.",
+   "builder": "ESA (European Space Agency)",
+   "launchYear": 2018,
+   "designLife": "Mission complete 2023",
+   "funFact": "At the end, it was steered to burn up safely over the ocean — a clean goodbye!",
+   "launchDate": "2018-08-22",
+   "tags": [
+    "science"
+   ],
+   "status": "retired",
+   "whereNow": "Safely deorbited over the ocean in 2023"
   }
  },
  "fleetKeywords": {
