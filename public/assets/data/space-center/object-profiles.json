@@ -1,0 +1,740 @@
+{
+ "version": 1,
+ "profiles": {
+  "iss": {
+   "name": "International Space Station",
+   "type": "station",
+   "keys": [
+    "25544",
+    "isszarya",
+    "iss"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/The_station_pictured_from_the_SpaceX_Crew_Dragon_5.jpg/960px-The_station_pictured_from_the_SpaceX_Crew_Dragon_5.jpg",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/International_Space_Station",
+   "blurb": "The International Space Station is the biggest thing humans have ever built in space — as long as a football field! Astronauts from many countries live and work there, doing science experiments that float.",
+   "builder": "NASA · Roscosmos · ESA · JAXA · CSA",
+   "launchYear": 1998,
+   "launchDate": "1998-11-20",
+   "designLife": "Through 2030",
+   "funFact": "The ISS zooms around Earth so fast it sees 16 sunrises and sunsets every single day!"
+  },
+  "tiangong": {
+   "name": "Tiangong Space Station",
+   "type": "station",
+   "keys": [
+    "48274",
+    "53239",
+    "54216",
+    "csstianhe",
+    "csswentian",
+    "cssmengtian"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Chinese_Tiangong_Space_Station.jpg/960px-Chinese_Tiangong_Space_Station.jpg",
+   "imageCredit": "Image: Shujianyang via Wikimedia Commons (CC BY-SA 4.0)",
+   "learnMore": "https://en.wikipedia.org/wiki/Tiangong_space_station",
+   "blurb": "Tiangong means “Heavenly Palace” in Chinese. It’s China’s space station, where taikonauts live and run science experiments high above Earth.",
+   "builder": "China Manned Space Agency",
+   "launchYear": 2021,
+   "launchDate": "2021-04-29",
+   "designLife": "15 years",
+   "funFact": "Tiangong is shaped like a giant letter “T” — three big modules locked together in orbit!"
+  },
+  "hubble": {
+   "name": "Hubble Space Telescope",
+   "type": "satellite",
+   "keys": [
+    "20580",
+    "hst"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Hubble_2009_close-up_2.jpg/960px-Hubble_2009_close-up_2.jpg",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Hubble_Space_Telescope",
+   "blurb": "Hubble is a school-bus-sized telescope floating in space. Because it looks at the stars from above Earth’s blurry air, its pictures are super sharp — it has taken over 1.5 million of them!",
+   "builder": "NASA · ESA (built by Lockheed Martin)",
+   "launchYear": 1990,
+   "launchDate": "1990-04-24",
+   "designLife": "15 years (still going!)",
+   "funFact": "Astronauts visited Hubble five times to give it new cameras and parts — like doctor checkups for a telescope!"
+  },
+  "starlink": {
+   "name": "Starlink Satellite",
+   "type": "satellite",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Starlink_01.webp/960px-Starlink_01.webp",
+   "imageCredit": "Image: Wikideas1 via Wikimedia Commons (CC BY 4.0)",
+   "learnMore": "https://en.wikipedia.org/wiki/Starlink",
+   "blurb": "Starlink satellites work as a giant team to beam internet down to Earth. They help ships at sea, airplanes, and remote villages get online.",
+   "builder": "SpaceX",
+   "launchYear": 2019,
+   "launchDate": "2019-05-24",
+   "designLife": "About 5 years each",
+   "funFact": "There are thousands of Starlink satellites — the biggest satellite family ever launched!"
+  },
+  "oneweb": {
+   "name": "OneWeb Satellite",
+   "type": "satellite",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/KSC-20170316-PH_KLS01_0007~orig.jpg/960px-KSC-20170316-PH_KLS01_0007~orig.jpg",
+   "imageCredit": "Image: Kim Shiflett via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Eutelsat_OneWeb",
+   "blurb": "OneWeb satellites beam internet to the far corners of the planet, including the Arctic. They fly near the poles so they can see the whole Earth.",
+   "builder": "Eutelsat OneWeb (built by Airbus)",
+   "launchYear": 2019,
+   "launchDate": "2019-02-27",
+   "designLife": "About 7 years each",
+   "funFact": "OneWeb satellites were built on a super-fast assembly line — up to two satellites per day!"
+  },
+  "kuiper": {
+   "name": "Project Kuiper Satellite",
+   "type": "satellite",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/KA-03_cropped.png/960px-KA-03_cropped.png",
+   "imageCredit": "Image: U.S. Space Force photo by Gwendolyn Kurzen via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Amazon_Leo",
+   "blurb": "Project Kuiper is Amazon’s plan to bring fast internet to places that don’t have it. Its satellites will form a giant network circling Earth.",
+   "builder": "Amazon",
+   "launchYear": 2023,
+   "launchDate": "2023-10-06",
+   "designLife": "About 7 years each",
+   "funFact": "Kuiper is named after the Kuiper Belt — a ring of icy objects far beyond Neptune!"
+  },
+  "iridium": {
+   "name": "Iridium Satellite",
+   "type": "satellite",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Iridium_satellite.jpg/960px-Iridium_satellite.jpg",
+   "imageCredit": "Image: Flickr user ideonexus via Wikimedia Commons (CC BY-SA 2.0)",
+   "learnMore": "https://en.wikipedia.org/wiki/Iridium_satellite_constellation",
+   "blurb": "Iridium satellites carry phone calls and text messages from the most remote places on Earth — even the middle of the ocean!",
+   "builder": "Iridium Communications (built by Thales Alenia Space)",
+   "launchYear": 1997,
+   "launchDate": "1997-05-05",
+   "designLife": "About 12 years each",
+   "funFact": "Early Iridium satellites sometimes flashed super bright in the night sky. Skywatchers called them “Iridium flares”!"
+  },
+  "goes": {
+   "name": "GOES Weather Satellite",
+   "type": "satellite",
+   "keys": [
+    "51850",
+    "43226",
+    "41866",
+    "goes18",
+    "goes17",
+    "goes16"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/GOES-T_Satellite_at_Processing_Facility_%2851854351059%29.jpg/960px-GOES-T_Satellite_at_Processing_Facility_%2851854351059%29.jpg",
+   "imageCredit": "Image: Ben Smegelsky via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/GOES-18",
+   "blurb": "GOES weather satellites stare at Earth without blinking from 22,000 miles up. They track hurricanes, wildfires, and lightning so forecasters can warn people in time.",
+   "builder": "NASA/NOAA (built by Lockheed Martin)",
+   "launchYear": 2022,
+   "launchDate": "2022-03-01",
+   "designLife": "15 years",
+   "funFact": "A GOES satellite can photograph the entire United States in just 30 seconds!"
+  },
+  "terra": {
+   "name": "Terra (Earth Observer)",
+   "type": "satellite",
+   "keys": [
+    "25994",
+    "terra"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Terra_spacecraft_model.png/960px-Terra_spacecraft_model.png",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Terra_(satellite)",
+   "blurb": "Terra is NASA’s Earth-watching superstar. It maps pollution, melting ice, and growing crops — basically giving our planet a daily checkup.",
+   "builder": "NASA (built by Lockheed Martin)",
+   "launchYear": 1999,
+   "launchDate": "1999-12-18",
+   "designLife": "6 years (still going!)",
+   "funFact": "“Terra” means “Earth” in Latin — and it has watched over Earth for more than 25 years!"
+  },
+  "aqua": {
+   "name": "Aqua (Earth Observer)",
+   "type": "satellite",
+   "keys": [
+    "27424",
+    "aqua"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Aqua_spacecraft_model.png",
+   "imageCredit": "Image: National Aeronautics and Space Administration (NASA) via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Aqua_(satellite)",
+   "blurb": "Aqua studies Earth’s water — oceans, clouds, ice, and rain. It helps scientists understand how water moves around our planet.",
+   "builder": "NASA (built by Northrop Grumman)",
+   "launchYear": 2002,
+   "launchDate": "2002-05-04",
+   "designLife": "6 years (still going!)",
+   "funFact": "“Aqua” means “water” in Latin, and Aqua flies in formation with other satellites like a team!"
+  },
+  "noaa20": {
+   "name": "NOAA-20 (JPSS)",
+   "type": "satellite",
+   "keys": [
+    "43013",
+    "noaa20jpss1"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/JPSS-1.jpg/960px-JPSS-1.jpg",
+   "imageCredit": "Image: NOAASatellites via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/NOAA-20",
+   "blurb": "NOAA-20 is a weather and climate watchdog. It takes super-detailed pictures of clouds, ice, and ocean temperatures to make forecasts better.",
+   "builder": "NASA/NOAA (built by Ball Aerospace)",
+   "launchYear": 2017,
+   "launchDate": "2017-11-18",
+   "designLife": "7 years",
+   "funFact": "NOAA-20 flies from pole to pole, seeing the whole Earth twice every day!"
+  },
+  "suominpp": {
+   "name": "Suomi NPP",
+   "type": "satellite",
+   "keys": [
+    "37849",
+    "suominpp"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Suomi_NPP_satellite.jpg/960px-Suomi_NPP_satellite.jpg",
+   "imageCredit": "Image: Ryan Zuber, Scientific Visualization Studio via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Suomi_NPP",
+   "blurb": "Suomi NPP watches Earth day and night, tracking wildfires, air pollution, and sea ice. It can even see city lights glowing from space!",
+   "builder": "NASA/NOAA (built by Ball Aerospace)",
+   "launchYear": 2011,
+   "launchDate": "2011-10-28",
+   "designLife": "5 years (still going!)",
+   "funFact": "It’s named after Verner Suomi, known as the father of satellite weather-watching!"
+  },
+  "metop": {
+   "name": "MetOp Weather Satellite",
+   "type": "satellite",
+   "keys": [
+    "38771",
+    "43689",
+    "65159",
+    "metopb",
+    "metopc"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/MetOp_Second_Generation_A-type_satellite_ESA511182.jpg/960px-MetOp_Second_Generation_A-type_satellite_ESA511182.jpg",
+   "imageCredit": "Image: European Space Agency via Wikimedia Commons (CC BY-SA 3.0 igo)",
+   "learnMore": "https://en.wikipedia.org/wiki/MetOp",
+   "blurb": "MetOp is Europe’s polar weather satellite. It helps make the multi-day forecasts you see on TV more accurate.",
+   "builder": "ESA/EUMETSAT (built by Airbus)",
+   "launchYear": 2012,
+   "launchDate": "2012-09-17",
+   "designLife": "5 years (still going!)",
+   "funFact": "MetOp data is shared freely with weather services all over the world!"
+  },
+  "dmsp": {
+   "name": "DMSP Weather Satellite",
+   "type": "satellite",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/DMSP_Block-5D2.jpg/960px-DMSP_Block-5D2.jpg",
+   "imageCredit": "Image: Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Defense_Meteorological_Satellite_Program",
+   "blurb": "DMSP satellites have watched Earth’s weather since the 1960s — one of the longest-running satellite programs ever.",
+   "builder": "U.S. Space Force (built by Lockheed Martin)",
+   "launchYear": 1962,
+   "launchDate": "1962-05-23",
+   "designLife": "About 5 years each",
+   "funFact": "DMSP satellites can see the aurora — the northern lights — glowing from space!"
+  },
+  "sentinel3": {
+   "name": "Sentinel-3",
+   "type": "satellite",
+   "keys": [
+    "41335",
+    "43437",
+    "sentinel3a",
+    "sentinel3b"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Sentinel-3_spacecraft_model.svg/960px-Sentinel-3_spacecraft_model.svg.png",
+   "imageCredit": "Image: SkywalkerPL via Wikimedia Commons (CC BY 4.0)",
+   "learnMore": "https://en.wikipedia.org/wiki/Sentinel-3",
+   "blurb": "Sentinel-3 is Europe’s ocean and land monitor. It measures sea level, ocean color, and land temperature for scientists.",
+   "builder": "ESA (built by Thales Alenia Space)",
+   "launchYear": 2016,
+   "launchDate": "2016-02-16",
+   "designLife": "7 years",
+   "funFact": "Sentinel-3 can spot a wildfire from space and measure how hot it is burning!"
+  },
+  "meteorm": {
+   "name": "Meteor-M Weather Satellite",
+   "type": "satellite",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Meteor-M_2.jpeg/960px-Meteor-M_2.jpeg",
+   "imageCredit": "Image: El Salvador.\n\nThe original uploader was El Salvador at Russian Wikipedia. via Wikimedia Commons (CC0)",
+   "learnMore": "https://en.wikipedia.org/wiki/Meteor-M_No.2",
+   "blurb": "Meteor-M is Russia’s weather satellite. It photographs clouds and ice to help forecasters across Russia and beyond.",
+   "builder": "Roscosmos (built by VNIIEM)",
+   "launchYear": 2019,
+   "launchDate": "2019-07-05",
+   "designLife": "5 years",
+   "funFact": "Some Meteor satellites also listen for distress signals from ships and hikers in trouble!"
+  },
+  "elektrol": {
+   "name": "Elektro-L",
+   "type": "satellite",
+   "keys": [
+    "41105",
+    "elektrol2"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/1/16/Electro-L_Cebit_2011.jpg",
+   "imageCredit": "Image: MKonair via Wikimedia Commons (CC BY-SA 2.0)",
+   "learnMore": "https://en.wikipedia.org/wiki/Elektro%E2%80%93L",
+   "blurb": "Elektro-L is Russia’s round-the-clock weather watcher. It sits in one fixed spot over the equator, snapping a full-Earth photo every 30 minutes.",
+   "builder": "Roscosmos (built by NPO Lavochkin)",
+   "launchYear": 2015,
+   "launchDate": "2015-12-11",
+   "designLife": "10 years",
+   "funFact": "Elektro-L’s camera takes pictures in colors our eyes can’t even see!"
+  },
+  "fengyun": {
+   "name": "Fengyun Weather Satellite",
+   "type": "satellite",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/20090829_Model_of_Fengyun-2_4002.JPG/960px-20090829_Model_of_Fengyun-2_4002.JPG",
+   "imageCredit": "Image: Jakub Hałun via Wikimedia Commons (CC BY-SA 4.0)",
+   "learnMore": "https://en.wikipedia.org/wiki/Fengyun",
+   "blurb": "Fengyun means “wind and cloud” in Chinese. These satellites help China track typhoons, floods, and droughts.",
+   "builder": "China Meteorological Admin (built by SAST)",
+   "launchYear": 1988,
+   "launchDate": "1988-09-07",
+   "designLife": "5–8 years each",
+   "funFact": "Fengyun satellites have been flying since 1988 — one of the world’s oldest weather satellite families!"
+  },
+  "insat3d": {
+   "name": "INSAT-3D",
+   "type": "satellite",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/6/6b/INSAT-3DS_Satellite.jpg",
+   "imageCredit": "Image: Indian Space Research Organisation via Wikimedia Commons (GODL-India)",
+   "learnMore": "https://en.wikipedia.org/wiki/INSAT-3D",
+   "blurb": "INSAT-3D is India’s weather eye in the sky. It watches monsoon clouds and helps warn people about cyclones.",
+   "builder": "ISRO (India)",
+   "launchYear": 2013,
+   "launchDate": "2013-07-25",
+   "designLife": "7 years",
+   "funFact": "INSAT-3D can photograph all of India in just a few minutes!"
+  },
+  "kosmos": {
+   "name": "Kosmos Satellite",
+   "type": "satellite",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/%D0%90%D0%BF%D0%BF%D0%B0%D1%80%D0%B0%D1%82-%D1%84%D0%BE%D1%82%D0%BE%D1%80%D0%B0%D0%B7%D0%B2%D0%B5%D0%B4%D1%87%D0%B8%D0%BA_%D0%97%D0%B5%D0%BD%D0%B8%D1%82-4.jpg/960px-%D0%90%D0%BF%D0%BF%D0%B0%D1%80%D0%B0%D1%82-%D1%84%D0%BE%D1%82%D0%BE%D1%80%D0%B0%D0%B7%D0%B2%D0%B5%D0%B4%D1%87%D0%B8%D0%BA_%D0%97%D0%B5%D0%BD%D0%B8%D1%82-4.jpg",
+   "imageCredit": "Image: Linar Khalitov via Wikimedia Commons (CC BY-SA 2.0)",
+   "learnMore": "https://en.wikipedia.org/wiki/Kosmos_(satellite)",
+   "blurb": "“Kosmos” is the name given to hundreds of Soviet and Russian satellites — spies, science labs, and test craft flying secret missions.",
+   "builder": "Soviet Union / Russia",
+   "launchYear": 1962,
+   "launchDate": "1962-03-16",
+   "designLife": "Varies — weeks to years",
+   "funFact": "More than 2,500 satellites have been named Kosmos — more than any other name in space history!"
+  },
+  "jwst": {
+   "name": "James Webb Space Telescope",
+   "type": "satellite",
+   "keys": [
+    "jwst",
+    "jameswebb"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/2/2a/JWST_spacecraft_model_3.png",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/James_Webb_Space_Telescope",
+   "blurb": "The James Webb Space Telescope is the biggest, most powerful telescope ever launched. It sees the universe’s first galaxies with heat vision!",
+   "builder": "NASA · ESA · CSA (built by Northrop Grumman)",
+   "launchYear": 2021,
+   "launchDate": "2021-12-25",
+   "designLife": "10 years (fuel for 20!)",
+   "funFact": "Webb’s sunshield is as big as a tennis court and keeps its mirrors colder than Pluto!"
+  },
+  "chandra": {
+   "name": "Chandra X-ray Observatory",
+   "type": "satellite",
+   "keys": [
+    "chandra"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Chandra_artist_illustration.jpg/960px-Chandra_artist_illustration.jpg",
+   "imageCredit": "Image: NASA/CXC/NGST via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Chandra_X-ray_Observatory",
+   "blurb": "Chandra is NASA’s X-ray telescope. It sees the hottest, most violent places in the universe — exploding stars and giant black holes!",
+   "builder": "NASA (built by TRW)",
+   "launchYear": 1999,
+   "launchDate": "1999-07-23",
+   "designLife": "5 years (still going!)",
+   "funFact": "Chandra is named after Subrahmanyan Chandrasekhar, who figured out how stars die!"
+  },
+  "landsat9": {
+   "name": "Landsat 9",
+   "type": "satellite",
+   "keys": [
+    "landsat9"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/LANDSAT-9.jpg/960px-LANDSAT-9.jpg",
+   "imageCredit": "Image: NASA/Goddard Space Flight Center/Conceptual Image Lab via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Landsat_9",
+   "blurb": "Landsat 9 photographs every inch of Earth’s land every 16 days. Farmers, firefighters, and scientists all use its pictures.",
+   "builder": "NASA/USGS (built by Northrop Grumman)",
+   "launchYear": 2021,
+   "launchDate": "2021-09-27",
+   "designLife": "5 years (fuel for 10+)",
+   "funFact": "The Landsat program has photographed Earth non-stop for over 50 years — the longest space photo album ever!"
+  },
+  "gps3": {
+   "name": "GPS III Satellite",
+   "type": "satellite",
+   "keys": [
+    "gps3",
+    "gpsiiii"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/GPS_Block_IIIA.jpg/960px-GPS_Block_IIIA.jpg",
+   "imageCredit": "Image: U.S. Air Force via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/GPS_Block_III",
+   "blurb": "GPS III satellites are the newest helpers for your phone’s maps. They broadcast super-precise timing signals from 12,000 miles up.",
+   "builder": "U.S. Space Force (built by Lockheed Martin)",
+   "launchYear": 2018,
+   "launchDate": "2018-12-23",
+   "designLife": "15 years",
+   "funFact": "Your phone figures out where you are by timing signals from at least four GPS satellites at once!"
+  },
+  "intelsat": {
+   "name": "Intelsat Communications Satellite",
+   "type": "satellite",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Intelsat_IV_in_an_anechoic_chamber_-_GPN-2003-00014.jpg/960px-Intelsat_IV_in_an_anechoic_chamber_-_GPN-2003-00014.jpg",
+   "imageCredit": "Image: NASA via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Intelsat",
+   "blurb": "Intelsat runs one of the world’s biggest TV and internet satellite fleets. Its satellites beam shows and data across oceans.",
+   "builder": "Intelsat (built by Maxar, Boeing, Airbus)",
+   "launchYear": 1965,
+   "launchDate": "1965-04-06",
+   "designLife": "About 15 years each",
+   "funFact": "Intelsat helped broadcast the first Moon landing to the whole world in 1969!"
+  },
+  "voyager1": {
+   "name": "Voyager 1",
+   "type": "satellite",
+   "keys": [
+    "voyager1"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Voyager_spacecraft_model.png/960px-Voyager_spacecraft_model.png",
+   "imageCredit": "Image: National Aeronautics and Space Administration (NASA) via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Voyager_1",
+   "blurb": "Voyager 1 is the farthest human-made object ever — over 15 billion miles away! It carries a golden record with Earth sounds, music, and greetings.",
+   "builder": "NASA JPL",
+   "launchYear": 1977,
+   "launchDate": "1977-09-05",
+   "designLife": "5 years (still flying after 49!)",
+   "funFact": "Voyager 1’s radio signal takes over 22 hours to reach Earth — even traveling at the speed of light!"
+  },
+  "falcon9": {
+   "name": "Falcon 9",
+   "type": "rocket",
+   "keys": [
+    "falcon9"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/45th_Space_Wing_Supports_Successful_Falcon_9_SAOCOM_1B_Launch_02.jpg/960px-45th_Space_Wing_Supports_Successful_Falcon_9_SAOCOM_1B_Launch_02.jpg",
+   "imageCredit": "Image: U.S. Space Force photo by Joshua Conti via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Falcon_9",
+   "blurb": "Falcon 9 is SpaceX’s workhorse rocket. Its first stage lands itself back on Earth and flies again — like a boomerang!",
+   "builder": "SpaceX",
+   "launchYear": 2010,
+   "launchDate": "2010-06-04",
+   "designLife": "Reusable — boosters fly 15+ times",
+   "funFact": "A single Falcon 9 booster has flown more than 20 missions!"
+  },
+  "falconheavy": {
+   "name": "Falcon Heavy",
+   "type": "rocket",
+   "keys": [
+    "falconheavy"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/SpaceX_Falcon_Heavy_on_the_Launch_Pad.jpg/960px-SpaceX_Falcon_Heavy_on_the_Launch_Pad.jpg",
+   "imageCredit": "Image: Daniel Oberhaus via Wikimedia Commons (CC BY-SA 4.0)",
+   "learnMore": "https://en.wikipedia.org/wiki/Falcon_Heavy",
+   "blurb": "Falcon Heavy is three Falcon 9 boosters strapped together. It can lift huge satellites — and once launched a car toward Mars!",
+   "builder": "SpaceX",
+   "launchYear": 2018,
+   "launchDate": "2018-02-06",
+   "designLife": "Reusable side boosters",
+   "funFact": "Its first flight carried a Tesla Roadster with a dummy driver named Starman!"
+  },
+  "starship": {
+   "name": "Starship",
+   "type": "rocket",
+   "keys": [
+    "starship"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/SpaceX_Starship_ignition_during_IFT-5.jpg/960px-SpaceX_Starship_ignition_during_IFT-5.jpg",
+   "imageCredit": "Image: Steve Jurvetson via Wikimedia Commons (CC BY 2.0)",
+   "learnMore": "https://en.wikipedia.org/wiki/SpaceX_Starship",
+   "blurb": "Starship is the biggest, most powerful rocket ever built — taller than the Statue of Liberty! SpaceX designed it to carry people to the Moon and Mars.",
+   "builder": "SpaceX",
+   "launchYear": 2023,
+   "launchDate": "2023-04-20",
+   "designLife": "Fully reusable (in testing)",
+   "funFact": "Starship’s booster is caught mid-air by giant mechanical arms nicknamed “chopsticks”!"
+  },
+  "newglenn": {
+   "name": "New Glenn",
+   "type": "rocket",
+   "keys": [
+    "newglenn"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Blue_Origin_New_Glenn_Rocket_Successful_Launch_%289387521%29.jpg/960px-Blue_Origin_New_Glenn_Rocket_Successful_Launch_%289387521%29.jpg",
+   "imageCredit": "Image: U.S. Space Force photo by Senior Airman Samuel Becker via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/New_Glenn",
+   "blurb": "New Glenn is Blue Origin’s giant reusable rocket, named after John Glenn — the first American to orbit Earth.",
+   "builder": "Blue Origin",
+   "launchYear": 2025,
+   "launchDate": "2025-01-16",
+   "designLife": "Reusable first stage",
+   "funFact": "New Glenn is so big its nose cone could fit a whole school bus inside!"
+  },
+  "vulcan": {
+   "name": "Vulcan Centaur",
+   "type": "rocket",
+   "keys": [
+    "vulcan"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Vulcan_Centaur_rollout_%28Peregrine%29_%28cropped%29.jpg/960px-Vulcan_Centaur_rollout_%28Peregrine%29_%28cropped%29.jpg",
+   "imageCredit": "Image: NASA/Ben Smegelsky via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Vulcan_Centaur",
+   "blurb": "Vulcan Centaur is the United Launch Alliance’s newest rocket. It replaced the famous Atlas and Delta rockets.",
+   "builder": "United Launch Alliance",
+   "launchYear": 2024,
+   "launchDate": "2024-01-08",
+   "designLife": "Expendable",
+   "funFact": "Vulcan’s first flight carried a robotic lander heading for the surface of the Moon!"
+  },
+  "electron": {
+   "name": "Electron",
+   "type": "rocket",
+   "keys": [
+    "electron"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Rocket_Lab_PREFIRE_and_Ice_Launch_%28KSC-20240605-PH-RKL01_0005%29.jpg/960px-Rocket_Lab_PREFIRE_and_Ice_Launch_%28KSC-20240605-PH-RKL01_0005%29.jpg",
+   "imageCredit": "Image: NASA Kennedy Space Center / Rocket Lab via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Rocket_Lab_Electron",
+   "blurb": "Electron is Rocket Lab’s small, speedy rocket for tiny satellites. It’s one of the first rockets with a 3D-printed engine!",
+   "builder": "Rocket Lab",
+   "launchYear": 2017,
+   "launchDate": "2017-05-25",
+   "designLife": "Expendable",
+   "funFact": "Electron is only about as tall as a five-story building — a mini rocket with a big job!"
+  },
+  "soyuz": {
+   "name": "Soyuz",
+   "type": "rocket",
+   "keys": [
+    "soyuz"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Expedition_75_Launch_%28NHQ202607140006%29.jpg/960px-Expedition_75_Launch_%28NHQ202607140006%29.jpg",
+   "imageCredit": "Image: NASA Headquarters / NASA/Bill Ingalls via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Soyuz_(rocket_family)",
+   "blurb": "Soyuz is the world’s most-flown rocket family, launching since the 1960s. It has carried more people to space than any other rocket.",
+   "builder": "Roscosmos (RKK Energia)",
+   "launchYear": 1966,
+   "launchDate": "1966-11-28",
+   "designLife": "Expendable",
+   "funFact": "Soyuz is based on the R-7 — the rocket that launched Sputnik, the very first satellite ever!"
+  },
+  "ariane6": {
+   "name": "Ariane 6",
+   "type": "rocket",
+   "keys": [
+    "ariane6"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/MTG-I2_Launches_From_French_Guiana_%28CIRA_2026-08-27%29.png/960px-MTG-I2_Launches_From_French_Guiana_%28CIRA_2026-08-27%29.png",
+   "imageCredit": "Image: GOES imagery: CSU/CIRA & NOAA via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Ariane_6",
+   "blurb": "Ariane 6 is Europe’s newest big rocket, launching science missions and satellites from the jungles of South America.",
+   "builder": "ESA (built by ArianeGroup)",
+   "launchYear": 2024,
+   "launchDate": "2024-07-09",
+   "designLife": "Expendable",
+   "funFact": "Ariane rockets launched famous space telescopes — including the James Webb Space Telescope!"
+  },
+  "longmarch5": {
+   "name": "Long March 5",
+   "type": "rocket",
+   "keys": [
+    "longmarch5"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Launching_Tianhe_Core_Module.jpg",
+   "imageCredit": "Image: China News Service via Wikimedia Commons (CC BY 4.0)",
+   "learnMore": "https://en.wikipedia.org/wiki/Long_March_5",
+   "blurb": "Long March 5 is China’s most powerful rocket. It launched the pieces of China’s space station and a rover to Mars!",
+   "builder": "CASC (China)",
+   "launchYear": 2016,
+   "launchDate": "2016-11-03",
+   "designLife": "Expendable",
+   "funFact": "It’s nicknamed the “chubby one” because it’s wider than other Chinese rockets!"
+  },
+  "sls": {
+   "name": "Space Launch System",
+   "type": "rocket",
+   "keys": [
+    "sls"
+   ],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Artemis_II_launch_%28SLS_MAF_20260401_ArtemisIILaunch_02%29_crop.jpg/960px-Artemis_II_launch_%28SLS_MAF_20260401_ArtemisIILaunch_02%29_crop.jpg",
+   "imageCredit": "Image: https://www.nasa.gov/marshall/ via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Space_Launch_System",
+   "blurb": "NASA’s Space Launch System is the rocket for the Artemis Moon missions. It’s the most powerful rocket NASA has ever built.",
+   "builder": "NASA (built by Boeing)",
+   "launchYear": 2022,
+   "launchDate": "2022-11-16",
+   "designLife": "Expendable",
+   "funFact": "SLS’s first flight sent a capsule around the Moon and back — with no crew aboard!"
+  },
+  "pad39a": {
+   "name": "Kennedy Space Center LC-39A",
+   "type": "pad",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/NASA%E2%80%99s_SLS_and_SpaceX%E2%80%99s_Falcon_9_at_Launch_Complex_39A_%26_39B_%28KSC-20220406-PH-JBP01-0001%29.jpg/960px-NASA%E2%80%99s_SLS_and_SpaceX%E2%80%99s_Falcon_9_at_Launch_Complex_39A_%26_39B_%28KSC-20220406-PH-JBP01-0001%29.jpg",
+   "imageCredit": "Image: NASA/Jamie Peer via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Kennedy_Space_Center_Launch_Complex_39",
+   "blurb": "Launch Complex 39A is the most famous launch pad on Earth! Apollo 11 left for the Moon from here, and so did the first Space Shuttle.",
+   "builder": "NASA (operated by SpaceX)",
+   "launchYear": 1967,
+   "launchDate": "1967-11-09",
+   "designLife": "Still launching",
+   "funFact": "SpaceX now launches astronauts to the space station from this historic pad!"
+  },
+  "padslc40": {
+   "name": "Cape Canaveral SLC-40",
+   "type": "pad",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/CYGNUS_NG-24_Launches_from_Cape_Canaveral_Space_Force_Station_%289617819%29.jpg/960px-CYGNUS_NG-24_Launches_from_Cape_Canaveral_Space_Force_Station_%289617819%29.jpg",
+   "imageCredit": "Image: U.S. Space Force SLD45 by Gwendolyn Kurzen via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Cape_Canaveral_Space_Launch_Complex_40",
+   "blurb": "Space Launch Complex 40 is SpaceX’s busiest pad — rockets lift off here almost every week!",
+   "builder": "U.S. Space Force (operated by SpaceX)",
+   "launchYear": 1965,
+   "launchDate": "1965-06-18",
+   "designLife": "Still launching",
+   "funFact": "A Dragon capsule once carried a wheel of cheese to orbit as a joke — it launched from nearby pads like this one!"
+  },
+  "padslc4e": {
+   "name": "Vandenberg SLC-4E",
+   "type": "pad",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/KSC-20250308-PH-SPX02_0009.jpg/960px-KSC-20250308-PH-SPX02_0009.jpg",
+   "imageCredit": "Image: SpaceX via Wikimedia Commons (CC0)",
+   "learnMore": "https://en.wikipedia.org/wiki/Vandenberg_Space_Launch_Complex_4",
+   "blurb": "Space Launch Complex 4 East sits on the California coast. Rockets here fly south over the ocean to reach polar orbits.",
+   "builder": "U.S. Space Force (operated by SpaceX)",
+   "launchYear": 1964,
+   "launchDate": "1964-03-01",
+   "designLife": "Still launching",
+   "funFact": "From Vandenberg you can watch rockets climb right over the Pacific Ocean!"
+  },
+  "padstarbase": {
+   "name": "Starbase, Texas",
+   "type": "pad",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Starbase.jpg/960px-Starbase.jpg",
+   "imageCredit": "Image: Jenny Hautmann via Wikimedia Commons (CC BY-SA 4.0)",
+   "learnMore": "https://en.wikipedia.org/wiki/SpaceX_Starbase",
+   "blurb": "Starbase is SpaceX’s Texas home for Starship — the biggest rocket ever. Future Mars missions will start here!",
+   "builder": "SpaceX",
+   "launchYear": 2019,
+   "launchDate": "2019-08-27",
+   "designLife": "Still launching",
+   "funFact": "Starbase has a giant tower with “chopsticks” arms that catch the rocket booster mid-air!"
+  },
+  "padmahia": {
+   "name": "Mahia — Rocket Lab LC-1",
+   "type": "pad",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Rocket_Lab_Launch_Complex_1_%28Sept_2016%29.jpg",
+   "imageCredit": "Image: Rodney Allen via Wikimedia Commons (CC BY-SA 2.0)",
+   "learnMore": "https://en.wikipedia.org/wiki/Rocket_Lab_Launch_Complex_1",
+   "blurb": "Launch Complex 1 sits on New Zealand’s Mahia Peninsula — the first privately-owned orbital launch site in the world.",
+   "builder": "Rocket Lab",
+   "launchYear": 2017,
+   "launchDate": "2017-05-25",
+   "designLife": "Still launching",
+   "funFact": "It’s one of the only orbital launch pads in the Southern Hemisphere!"
+  },
+  "padkourou": {
+   "name": "Guiana Space Centre",
+   "type": "pad",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/CSG_Soyuz_01.JPG/960px-CSG_Soyuz_01.JPG",
+   "imageCredit": "Image: Denys via Wikimedia Commons (CC BY 3.0)",
+   "learnMore": "https://en.wikipedia.org/wiki/Guiana_Space_Centre",
+   "blurb": "The Guiana Space Centre is Europe’s spaceport in South America. Being near the equator, Earth’s spin gives rockets an extra push!",
+   "builder": "ESA / CNES",
+   "launchYear": 1968,
+   "launchDate": "1968-04-09",
+   "designLife": "Still launching",
+   "funFact": "The James Webb Space Telescope launched from Kourou on Christmas Day 2021!"
+  },
+  "padtanegashima": {
+   "name": "Tanegashima Space Center",
+   "type": "pad",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Osaki_Range.jpg/960px-Osaki_Range.jpg",
+   "imageCredit": "Image: ウニウニ via Wikimedia Commons (CC BY-SA 3.0)",
+   "learnMore": "https://en.wikipedia.org/wiki/Tanegashima_Space_Center",
+   "blurb": "Tanegashima is Japan’s beautiful island spaceport. Rockets launch over the ocean, past palm trees and beaches.",
+   "builder": "JAXA (Japan)",
+   "launchYear": 1969,
+   "launchDate": "1969-09-01",
+   "designLife": "Still launching",
+   "funFact": "Tanegashima has launched missions to the Moon and to asteroids!"
+  },
+  "padjiuquan": {
+   "name": "Jiuquan Satellite Launch Center",
+   "type": "pad",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Shenzhou_22_CZ-2F_Y22_launch_10.png/960px-Shenzhou_22_CZ-2F_Y22_launch_10.png",
+   "imageCredit": "Image: 中国新闻社 via Wikimedia Commons (CC BY 4.0)",
+   "learnMore": "https://en.wikipedia.org/wiki/Jiuquan_Satellite_Launch_Center",
+   "blurb": "Jiuquan is China’s first spaceport, out in the Gobi Desert. China’s astronauts — taikonauts — ride rockets to space from here.",
+   "builder": "CNSA (China)",
+   "launchYear": 1958,
+   "launchDate": "1958-04-01",
+   "designLife": "Still launching",
+   "funFact": "China’s first satellite launched from Jiuquan in 1970!"
+  },
+  "padbaikonur": {
+   "name": "Baikonur Cosmodrome",
+   "type": "pad",
+   "keys": [],
+   "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Baikonur_Cosmodrome_Soyuz_launch_pad.jpg/960px-Baikonur_Cosmodrome_Soyuz_launch_pad.jpg",
+   "imageCredit": "Image: Bill Ingalls via Wikimedia Commons (Public domain)",
+   "learnMore": "https://en.wikipedia.org/wiki/Baikonur_Cosmodrome",
+   "blurb": "Baikonur is the world’s oldest spaceport — Sputnik and Yuri Gagarin, the first human in space, launched from here!",
+   "builder": "Roscosmos (leased from Kazakhstan)",
+   "launchYear": 1955,
+   "launchDate": "1955-06-02",
+   "designLife": "Still launching",
+   "funFact": "Baikonur sits in Kazakhstan, and Russia leases it — real space history lives here!"
+  }
+ },
+ "fleetKeywords": {
+  "STARLINK": "starlink",
+  "ONEWEB": "oneweb",
+  "KUIPER": "kuiper",
+  "IRIDIUM": "iridium",
+  "GOES": "goes",
+  "NOAA": "noaa20",
+  "JPSS": "noaa20",
+  "SUOMI": "suominpp",
+  "METOP": "metop",
+  "DMSP": "dmsp",
+  "SENTINEL": "sentinel3",
+  "METEOR": "meteorm",
+  "ELEKTRO": "elektrol",
+  "FENGYUN": "fengyun",
+  "INSAT": "insat3d",
+  "COSMOS": "kosmos",
+  "TERRA": "terra",
+  "AQUA": "aqua",
+  "CSS": "tiangong",
+  "HST": "hubble",
+  "ISS": "iss",
+  "PROGRESS": "iss",
+  "SHENZHOU": "tiangong",
+  "TIANZHOU": "tiangong"
+ }
+}
