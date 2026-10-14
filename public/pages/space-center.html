@@ -581,7 +581,7 @@
     var _orbQ = new THREE.Quaternion(), _upY = new THREE.Vector3(0, 1, 0), _right = new THREE.Vector3(), _camDirPrev = new THREE.Vector3(); // orbit-around-model temps
     var focusSat = null, _sv = new THREE.Vector3();
     function flyTo(sp) {
-      focusSat = sp; camGoalDist = sp.userData.isPad ? 0.9 : 0.5;
+      focusSat = sp; camGoalDist = sp.userData.isPad ? 0.9 : sp.userData.destDist || 0.5;
       var u = sp.userData;
       document.getElementById('trackname').textContent = u.isPad ? u.pad.n : (u.name.length > 24 ? u.name.slice(0, 24) + '…' : u.name);
       document.getElementById('trackchip').classList.add('show');
