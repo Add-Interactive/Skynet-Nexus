@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Space Center — Mission Control — Skynet Nexus</title>
-  <meta name="description" content="God's eye view of Earth: track the real ISS, Tiangong, Hubble and 170 satellites live, complete missions, and visit launch pads — in 3D."/>
+  <meta name="description" content="God's eye view of Earth: track the real ISS, Tiangong, Hubble and 1,082 satellites live, complete missions, and visit launch pads — in 3D."/>
   <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg"/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap"/>
   <link rel="stylesheet" href="../assets/css/style.css"/>
@@ -55,6 +55,12 @@
     #infopanel .fk{font:700 .62rem "JetBrains Mono",monospace;letter-spacing:.2em;color:var(--accent);margin-bottom:6px}
     #infopanel h3{margin:0 0 10px;font-size:1.05rem;word-break:break-word}
     #infopanel .fx{position:absolute;top:8px;right:12px;background:none;border:0;color:var(--text-mute);font-size:1.1rem;cursor:pointer}
+    #infoprof:empty{display:none}
+    #infoprof .pimg{width:100%;border-radius:10px;display:block;margin-bottom:8px;border:1px solid rgba(0,229,255,.2);background:#06121f;max-height:180px;object-fit:cover}
+    #infoprof .pcredit{font-size:.6rem;color:var(--text-mute);margin:0 0 10px;line-height:1.35}
+    #infoprof .pfact{background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.18);border-radius:8px;padding:8px 10px;font-size:.74rem;margin:10px 0;line-height:1.45}
+    #infoprof .pfact b{color:var(--accent)}
+    #infoprof .pmore{display:inline-block;margin:10px 0 2px;font-size:.72rem;color:var(--accent);text-decoration:none}
     .datagrid{border:1px solid rgba(0,229,255,.15);border-radius:8px;overflow:hidden;margin-bottom:12px}
     .drow{display:flex;justify-content:space-between;gap:8px;padding:7px 12px;font:600 .72rem "JetBrains Mono",monospace;background:rgba(0,229,255,.03)}
     .drow:nth-child(even){background:rgba(0,229,255,.07)}
@@ -222,6 +228,7 @@
     <button class="fx" id="infox" aria-label="Close">×</button>
     <div class="fk" id="infok">SATELLITE</div>
     <h3 id="infot">—</h3>
+    <div id="infoprof"></div>
     <div class="datagrid" id="infodata"></div>
     <p id="infop">—</p>
   </div>
@@ -254,6 +261,43 @@
       kuiper: { t: 'Kuiper Satellite', p: 'Amazon\'s Kuiper satellites are building a space-internet network for homes and villages that don\'t have good connections yet.' },
       iridium: { t: 'Iridium Satellite', p: 'Iridium satellites carry phone calls and texts from the most remote places on Earth — even the middle of the ocean!' }
     };
+
+    // ---- Object encyclopedia: rich profiles for satellites, stations, rockets, pads ----
+    var OBJPROF = null, profByKey = {}, profById = {}, selProf = null;
+    function normKey(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+    fetch('../assets/data/space-center/object-profiles.json').then(function (r) { return r.json(); }).then(function (d) {
+      OBJPROF = d || {};
+      Object.keys(OBJPROF.profiles || {}).forEach(function (pid) {
+        var p = OBJPROF.profiles[pid]; p.pid = pid; profById[pid] = p;
+        (p.keys || []).forEach(function (k) { profByKey[normKey(k)] = p; });
+      });
+    }).catch(function () { OBJPROF = null; });
+    function findSatProfile(u) {
+      if (!OBJPROF) return null;
+      var p = profByKey[normKey(String(u.id))] || profByKey[normKey(u.name)] || profByKey[normKey(u.tag || '')];
+      if (p) return p;
+      var n = (u.name || '').toUpperCase(), kw = OBJPROF.fleetKeywords || {}, k;
+      for (k in kw) { if (n.indexOf(k) !== -1) return profById[kw[k]]; }
+      return null;
+    }
+    function timeInOrbit(p) {
+      var d = p.launchDate ? new Date(p.launchDate + 'T00:00:00Z') : new Date((p.launchYear || 2000) + '-01-01T00:00:00Z');
+      var ms = Date.now() - d.getTime();
+      if (isNaN(ms) || ms < 0) return '\u2014';
+      var days = Math.floor(ms / 86400000), yrs = Math.floor(days / 365.25), rem = Math.floor(days - yrs * 365.25);
+      return yrs > 0 ? yrs + ' yrs, ' + rem + ' days' : days + ' days';
+    }
+    function profileCardHtml(p, ageLabel) {
+      var h = '';
+      if (p.image) h += '<img class="pimg" src="' + p.image + '" alt="' + escapeHtml(p.name) + '" loading="lazy" onerror="this.style.display=\'none\'"/>';
+      if (p.imageCredit) h += '<div class="pcredit">' + escapeHtml(p.imageCredit) + '</div>';
+      h += rowsHtml([['BUILDER', p.builder || '\u2014'], ['LAUNCHED', p.launchYear || '\u2014'],
+        [ageLabel || 'TIME IN ORBIT', '<span class="p-age">' + timeInOrbit(p) + '</span>'],
+        ['DESIGN LIFE', p.designLife || '\u2014']]);
+      if (p.funFact) h += '<div class="pfact">\uD83C\uDF1F <b>Fun fact:</b> ' + escapeHtml(p.funFact) + '</div>';
+      if (p.learnMore) h += '<a class="pmore" href="' + p.learnMore + '" target="_blank" rel="noopener">Learn more on Wikipedia \u2197</a>';
+      return h;
+    }
     function companyOf(name, tag) {
       var n = (name || '').toUpperCase();
       if (tag === 'iss') return 'iss';
@@ -269,14 +313,14 @@
     var COMPANY_COLORS = { iss: 0xffe27a, tiangong: 0xff9d7a, hubble: 0xc4b5fd, spacex: 0x00e5ff, oneweb: 0xa855f7, kuiper: 0xffb020, iridium: 0xff7ab8, noaa: 0x38d17c, def: 0x9beaff };
     var COMPANY_FACT = { iss: 'iss', tiangong: 'tiangong', hubble: 'hubble', spacex: 'starlink', oneweb: 'oneweb', kuiper: 'kuiper', iridium: 'iridium', noaa: 'noaa', def: 'def' };
     var PADS = [
-      { n: 'Kennedy LC-39A', lat: 28.608, lon: -80.604, d: 'Where astronauts launch to the Moon and the space station!', k: ['39a', 'kennedy'] },
-      { n: 'Cape Canaveral SLC-40', lat: 28.562, lon: -80.577, d: 'SpaceX\'s busiest launch pad — rockets lift off here almost every week.', k: ['slc-40', 'cape canaveral'] },
-      { n: 'Vandenberg SLC-4E', lat: 34.632, lon: -120.611, d: 'California\'s spaceport — rockets here fly south over the ocean to polar orbits.', k: ['4e', 'vandenberg'] },
-      { n: 'Starbase, Texas', lat: 25.997, lon: -97.155, d: 'Home of Starship, the biggest rocket ever built. Mars starts here!', k: ['starbase', 'boca chica'] },
-      { n: 'Mahia, New Zealand', lat: -39.083, lon: 177.867, d: 'Rocket Lab\'s launch site — small Electron rockets carry small satellites to space.', k: ['mahia', 'lc-1'] },
-      { n: 'Kourou, French Guiana', lat: 5.236, lon: -52.768, d: 'Europe\'s spaceport, near the equator — Earth\'s spin gives rockets an extra push here!', k: ['kourou', 'ela'] },
-      { n: 'Tanegashima, Japan', lat: 30.375, lon: 130.957, d: 'Japan\'s beautiful island spaceport, launching H3 rockets and Moon missions.', k: ['tanegashima'] },
-      { n: 'Jiuquan, China', lat: 40.957, lon: 100.298, d: 'China\'s historic launch site in the Gobi Desert — astronauts ride Long March rockets from here.', k: ['jiuquan'] }
+      { n: 'Kennedy LC-39A', lat: 28.608, lon: -80.604, d: 'Where astronauts launch to the Moon and the space station!', k: ['39a', 'kennedy'], prof: 'pad39a' },
+      { n: 'Cape Canaveral SLC-40', lat: 28.562, lon: -80.577, d: 'SpaceX\'s busiest launch pad — rockets lift off here almost every week.', k: ['slc-40', 'cape canaveral'], prof: 'padslc40' },
+      { n: 'Vandenberg SLC-4E', lat: 34.632, lon: -120.611, d: 'California\'s spaceport — rockets here fly south over the ocean to polar orbits.', k: ['4e', 'vandenberg'], prof: 'padslc4e' },
+      { n: 'Starbase, Texas', lat: 25.997, lon: -97.155, d: 'Home of Starship, the biggest rocket ever built. Mars starts here!', k: ['starbase', 'boca chica'], prof: 'padstarbase' },
+      { n: 'Mahia, New Zealand', lat: -39.083, lon: 177.867, d: 'Rocket Lab\'s launch site — small Electron rockets carry small satellites to space.', k: ['mahia', 'lc-1'], prof: 'padmahia' },
+      { n: 'Kourou, French Guiana', lat: 5.236, lon: -52.768, d: 'Europe\'s spaceport, near the equator — Earth\'s spin gives rockets an extra push here!', k: ['kourou', 'ela'], prof: 'padkourou' },
+      { n: 'Tanegashima, Japan', lat: 30.375, lon: 130.957, d: 'Japan\'s beautiful island spaceport, launching H3 rockets and Moon missions.', k: ['tanegashima'], prof: 'padtanegashima' },
+      { n: 'Jiuquan, China', lat: 40.957, lon: 100.298, d: 'China\'s historic launch site in the Gobi Desert — astronauts ride Long March rockets from here.', k: ['jiuquan'], prof: 'padjiuquan' }
     ];
     var MISSIONS = [
       { id: 'm-iss', em: '🛰️', t: 'Say hello to the ISS — click it!' },
@@ -566,9 +610,10 @@
       }
       return rows;
     }
-    function showInfo(kind, title, rows, body) {
+    function showInfo(kind, title, rows, body, profHtml) {
       document.getElementById('infok').textContent = kind;
       document.getElementById('infot').textContent = title;
+      document.getElementById('infoprof').innerHTML = profHtml || '';
       document.getElementById('infodata').innerHTML = rowsHtml(rows);
       document.getElementById('infop').textContent = body || '';
       infopanel.classList.add('show');
@@ -579,9 +624,12 @@
       selected = sp;
       flyTo(sp);
       if (u.isPad) {
-        selKind = 'pad';
+        selKind = 'pad'; selProf = null;
         clearOrbit();
-        showInfo('LAUNCH PAD', u.pad.n, [['TYPE', 'LAUNCH SITE']], u.pad.d + ' Tap a pad when it glows red — a launch is close!');
+        var pp = (u.pad.prof && profById[u.pad.prof]) || null;
+        showInfo('LAUNCH PAD', pp ? pp.name : u.pad.n, [],
+          pp ? pp.blurb : (u.pad.d + ' Tap a pad when it glows red — a launch is close!'),
+          pp ? profileCardHtml(pp, 'SITE AGE') : '');
         complete('m-pad', 'Visit a launch pad!');
         return;
       }
@@ -589,7 +637,10 @@
       drawOrbit(sp);
       var f = FACTS[COMPANY_FACT[u.co] || 'def'];
       var nm = u.name.length > 28 ? u.name.slice(0, 28) + '…' : u.name;
-      showInfo(u.tag === 'iss' ? 'SPACE STATION' : u.tag ? u.tag.toUpperCase() : 'SATELLITE', f.t === 'Satellite' ? nm : f.t, satRows(sp), f.p);
+      selProf = findSatProfile(u);
+      showInfo(u.tag === 'iss' ? 'SPACE STATION' : u.tag ? u.tag.toUpperCase() : 'SATELLITE',
+        selProf ? selProf.name : (f.t === 'Satellite' ? nm : f.t), satRows(sp), selProf ? selProf.blurb : f.p,
+        selProf ? profileCardHtml(selProf, 'TIME IN ORBIT') : '');
       clickedIds.add(u.id);
       if (u.tag === 'iss') complete('m-iss', 'Say hello to the ISS!');
       if (u.tag === 'tiangong') complete('m-tiangong', 'Find Tiangong!');
@@ -1186,8 +1237,11 @@
         if (++frameNo % 15 === 0) {
           var sd = simDate();
           document.getElementById('simclock').textContent = sd.toISOString().slice(0, 19).replace('T', ' ') + ' UTC';
-          if (selKind === 'sat' && selected && infopanel.classList.contains('show'))
+          if (selKind === 'sat' && selected && infopanel.classList.contains('show')) {
             document.getElementById('infodata').innerHTML = rowsHtml(satRows(selected));
+            var ageEl = document.querySelector('#infoprof .p-age');
+            if (ageEl && selProf) ageEl.textContent = timeInOrbit(selProf);
+          }
         }
         // pads pulse
         padMeshes.forEach(function (pm, idx) {
