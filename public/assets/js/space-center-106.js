@@ -119,7 +119,7 @@
         tourIdx = (i + tour.stops.length) % tour.stops.length;
         var s = tour.stops[tourIdx], r = tourResolve(s);
         if (r && r.sp) B.selectSat(r.sp);
-        else if (r && r.prof) { B.flyHome(); B.showInfo('TOUR STOP', r.prof.name, [], r.prof.blurb, B.profileCardHtml(r.prof, 'FIRST FLIGHT')); }
+        else if (r && r.prof) { B.flyHome(); B.showInfo('TOUR STOP', r.prof.name, [], r.prof.blurb, B.profileCardHtml(r.prof, 'FIRST FLIGHT')); if (B.closeSidepanel) B.closeSidepanel(); }
         else B.toast('That stop is out of range right now');
         document.getElementById('tourbar-title').textContent = tour.em + ' ' + tour.t + ' \u2014 stop ' + (tourIdx + 1) + ' of ' + tour.stops.length;
         document.getElementById('tourbar-line').textContent = s.line;
@@ -137,6 +137,7 @@
         for (var i = 0; i < TOURS.length; i++) if (TOURS[i].id === id) tour = TOURS[i];
         if (!tour) return;
         document.getElementById('tourbar').style.display = 'block';
+        if (B.closeSidepanel) B.closeSidepanel();
         B.complete('m-tour', 'Take a guided tour!');
         tourGo(0); tourArm();
       }
@@ -278,7 +279,7 @@
         skyLabels = [];
         if (skyGroup) { B.scene.remove(skyGroup); skyGroup = null; }
         B.world.visible = true;
-        var sb = document.getElementById('arskybtn'); if (sb) sb.textContent = '\uD83D\uDCF1 Sky';
+        var sb = document.getElementById('arskybtn'); if (sb) { sb.textContent = '\uD83D\uDCF1'; sb.classList.remove('on'); }
         B.arStatus(reason || 'Sky mode ended');
       }
       function startSky() {
@@ -295,7 +296,7 @@
               B.world.visible = false;
               B.scene.add(B.camera);
               skyGroup = new B.THREE.Group(); B.scene.add(skyGroup);
-              var sb = document.getElementById('arskybtn'); if (sb) sb.textContent = '\uD83D\uDCF1 Sky on\u2026';
+              var sb = document.getElementById('arskybtn'); if (sb) { sb.textContent = '\uD83D\uDCF1'; sb.classList.add('on'); }
               B.arStatus('\uD83D\uDCF1 Sky mode \u2014 point your phone at the sky \u00B7 Back exits');
               setTimeout(function () {
                 if (skyOn && !skyGotOri) { try { session.end(); } catch (e) {} endSky('\uD83D\uDCF1 No motion sensors found \u2014 sky mode needs them'); }
@@ -316,7 +317,7 @@
         navigator.xr.isSessionSupported('immersive-ar').then(function (ok) {
           if (!ok) return;
           var sb = document.getElementById('arskybtn');
-          if (sb) { sb.style.display = 'inline-block'; sb.onclick = startSky; }
+          if (sb) { sb.style.display = 'inline-flex'; sb.onclick = startSky; }
         }).catch(function () {});
       }
   T.afterPasses = renderTrains;
