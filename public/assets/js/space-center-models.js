@@ -6,7 +6,7 @@ import { GLTFLoader } from '../../vendor/three/addons/loaders/GLTFLoader.js';
 
 const MODEL_BASE = '../assets/models/';
 const SHOW_DIST = 1.0;      // camera-to-satellite distance under which the model appears
-const DISPLAY_SIZE = 0.045;  // every model normalized to this diameter (true scale is invisible)
+const DISPLAY_SIZE = 0.06;   // every model normalized to this diameter (true scale is invisible)
 
 // profile "model" id -> file. 'proc:*' entries are built in code, no download.
 const REGISTRY = {
@@ -141,6 +141,7 @@ function showHint(b, label) {
 
 function detach() {
   const b = B(); if (!b) return;
+  try { b.modelShowing = false; } catch (e) {}
   if (cur) {
     if (cur.group) { cur.group.visible = false; }
     // only restore the dot if WE hid it (fleet filters may hide sats themselves)
@@ -195,6 +196,7 @@ function tick() {
     const d = b.camera.position.distanceTo(_v1.w);
     show = d < SHOW_DIST;
   }
+  try { b.modelShowing = !!show; } catch (e) {} // page uses this to orbit-drag around the model
   try {
     if (show) { sel.visible = false; cur.dotHidden = true; }
     else if (cur.dotHidden) { sel.visible = true; cur.dotHidden = false; }
