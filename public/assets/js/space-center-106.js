@@ -397,3 +397,61 @@
     if (++tries < 200) setTimeout(wait, 250);
   })();
 })();
+
+/* Space Center UX: fixed spacetime grid + fly-home orientation reset.
+ * (1) The gravity-well grid is the fixed fabric of space — it must not spin
+ * with the Earth when the user drags the globe, so it is counter-rotated
+ * against world.rotation.y every frame (it keeps its tilt, just not the spin).
+ * (2) Flying home resets the camera but left a spun Earth spun; now a
+ * show->hide transition of #trackchip (the page toggles `show` on every
+ * focus/fly-home path: info-panel X, tracking X, Escape, empty-space click,
+ * fleet filter, Destinations Earth button) eases world.rotation.y back to the
+ * nearest full turn. Grabbing the globe (pointerdown) cancels the unwind. */
+(function () {
+  var grid = null, spinTarget = null, chipWasShown = false;
+  function findGrid(world) {
+    if (grid) return grid;
+    for (var i = 0; i < world.children.length; i++) {
+      if (world.children[i].isLineSegments) { grid = world.children[i]; break; }
+    }
+    return grid;
+  }
+  function init() {
+    var B = window.__scB;
+    if (!(B && B.world && B.renderer)) return false;
+    var chip = document.getElementById('trackchip');
+    if (chip) {
+      chipWasShown = chip.classList.contains('show');
+      new MutationObserver(function () {
+        var shown = chip.classList.contains('show');
+        if (chipWasShown && !shown && B.world) {
+          spinTarget = Math.round(B.world.rotation.y / (Math.PI * 2)) * Math.PI * 2;
+        }
+        chipWasShown = shown;
+      }).observe(chip, { attributes: true, attributeFilter: ['class'] });
+    }
+    var cv = B.renderer.domElement;
+    if (cv) cv.addEventListener('pointerdown', function () { spinTarget = null; }, { passive: true });
+    (function tick() {
+      try {
+        requestAnimationFrame(tick);
+        var W = (window.__scB && window.__scB.world) || null;
+        if (!W) return;
+        var g = findGrid(W);
+        if (g) g.rotation.y = -W.rotation.y;
+        if (spinTarget !== null) {
+          var d = spinTarget - W.rotation.y;
+          if (Math.abs(d) < 0.002) { W.rotation.y = spinTarget; spinTarget = null; }
+          else W.rotation.y += d * 0.08;
+        }
+      } catch (e) { /* never break the page */ }
+    })();
+    return true;
+  }
+  var tries = 0;
+  function wait() {
+    if (init()) return;
+    if (++tries < 200) setTimeout(wait, 250);
+  }
+  setTimeout(wait, 0);
+})();
