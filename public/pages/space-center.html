@@ -20,7 +20,6 @@
     #topbar .sub{font:600 .66rem "JetBrains Mono",monospace;letter-spacing:.14em;color:var(--text-mute)}
     .topright{display:flex;gap:8px;margin-left:auto;align-items:center}
     .ticon{display:none;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#fff;font-size:1.05rem;line-height:1;padding:0;cursor:pointer;backdrop-filter:blur(6px);transition:transform .15s,background .15s;align-items:center;justify-content:center}.ticon:hover{background:rgba(255,255,255,.16);transform:scale(1.08)}.ticon.on{background:rgba(255,255,255,.22);transform:scale(1.08)}#vrbtn.ticon{border-color:rgba(124,108,255,.55);box-shadow:0 0 10px rgba(124,108,255,.25)}#arbtn.ticon{border-color:rgba(0,184,169,.55);box-shadow:0 0 10px rgba(0,184,169,.25)}#arskybtn.ticon{border-color:rgba(96,165,250,.55);box-shadow:0 0 10px rgba(96,165,250,.25)}
-    
     #arstatus{display:none;font:600 .68rem "JetBrains Mono",monospace;color:#7df3ff;letter-spacing:.06em}
     #backbtn{font:700 .72rem Inter,sans-serif;color:var(--text-dim);text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:8px 12px;background:rgba(10,16,30,.6)}
     #iconrail{left:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px}
@@ -91,7 +90,6 @@
     #toast{position:fixed;z-index:30;top:70px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00e5ff,#a855f7);color:#04121a;font-weight:800;font-size:.9rem;padding:12px 24px;border-radius:14px;display:none;box-shadow:0 8px 30px rgba(0,229,255,.4)}
     @media (max-width:760px){#sidepanel{left:58px;width:232px}#infopanel{width:220px;right:8px}#simclock{display:none}}
     @media (prefers-reduced-motion:reduce){#loading .spin{animation:none}}
-
     /* ---- merged Space Center content panels ---- */
     #iconrail{max-height:72vh;overflow-y:auto;scrollbar-width:none}
     #iconrail::-webkit-scrollbar{display:none}
@@ -198,7 +196,6 @@
     .chiprow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
     .fchip{background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.22);color:#cfeeff;border-radius:16px;padding:5px 11px;font-size:.68rem;cursor:pointer}
     .fchip.on{background:rgba(0,229,255,.25);color:#fff}
-
     /* ---- PR #106: tours / compare / debris / sky ---- */
     #tourbar{position:fixed;left:50%;transform:translateX(-50%);bottom:86px;width:min(540px,calc(100vw - 32px));background:rgba(4,8,18,.94);border:1px solid rgba(0,229,255,.35);border-radius:14px;padding:12px 16px;z-index:60;box-shadow:0 0 24px rgba(0,229,255,.25)}
     #tourbar-title{font:700 .72rem "JetBrains Mono",monospace;letter-spacing:.12em;color:var(--accent)}
@@ -218,13 +215,11 @@
     .cmprow span{color:var(--text-mute);flex:0 0 auto}
     .cmprow b{color:#eaffff;text-align:right;word-break:break-word}
     .cmpline{font-size:.78rem;color:#ffe27a;margin:8px 0;font-weight:700;line-height:1.5}
-    
   </style>
 </head>
 <body>
   <div id="loading"><div class="spin">🛰️</div><div>ACQUIRING SATELLITES…</div></div>
   <canvas id="scene"></canvas>
-
   <div class="hud" id="topbar">
     <div>
       <div class="title">SPACE CENTER</div>
@@ -238,7 +233,6 @@
       <a id="backbtn" href="../index.html">← Home</a>
     </div>
   </div>
-
   <div class="hud" id="iconrail">
     <button class="rbtn" data-tab="search" title="Search satellites">🔍</button>
     <button class="rbtn" data-tab="missions" title="Missions">◈</button>
@@ -255,7 +249,6 @@
     <button class="rbtn" data-tab="tours" title="Guided tours">🎬</button>
     <button class="rbtn" data-tab="whatsnew" title="What's new">✨</button>
   </div>
-
   <div class="hud" id="sidepanel">
     <div class="tabs">
       <button class="tab on" data-tab="search">SEARCH</button>
@@ -419,7 +412,6 @@
       <p class="tsub">Fresh upgrades to your Mission Control:</p>
     </div>
   </div>
-
   <div class="hud" id="infopanel">
     <button class="fx" id="infox" aria-label="Close">×</button>
     <button class="fx" id="infomin" aria-label="Minimize" title="Minimize" style="right:40px">—</button>
@@ -430,7 +422,6 @@
     <p id="infop">—</p>
     <div id="cmpzone"></div>
   </div>
-
   <div class="hud" id="timebar">
     <button id="pausebtn" title="Pause / resume time">⏸</button>
     <div id="simclock">—</div>
@@ -455,10 +446,8 @@
     </div>
     <label class="tsub" style="display:block;margin-top:8px"><input type="checkbox" id="tour-auto" checked/> Auto-advance every 8 seconds</label>
   </div>
-
   <script type="module">
     import * as THREE from 'three';
-
     var FACTS = {
       iss: { t: 'International Space Station', p: 'The ISS is as big as a football field! Six astronauts live there, circling Earth every 90 minutes — that\'s 16 sunrises and sunsets every single day.' },
       tiangong: { t: 'Tiangong Space Station', p: 'Tiangong means "Heavenly Palace" — it\'s China\'s space station. Three astronauts live and work there, running science experiments high above Earth.' },
@@ -470,7 +459,6 @@
       kuiper: { t: 'Kuiper Satellite', p: 'Amazon\'s Kuiper satellites are building a space-internet network for homes and villages that don\'t have good connections yet.' },
       iridium: { t: 'Iridium Satellite', p: 'Iridium satellites carry phone calls and texts from the most remote places on Earth — even the middle of the ocean!' }
     };
-
     // ---- Object encyclopedia: rich profiles for satellites, stations, rockets, pads ----
     var OBJPROF = null, profByKey = {}, profById = {}, selProf = null;
     function normKey(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
@@ -558,7 +546,6 @@
       { id: 'm-cal', em: '📅', t: 'Save a pass to your calendar' },
       { id: 'm-train', em: '🚂', t: 'Spot a Starlink train' }
     ];
-
     var canvas = document.getElementById('scene');
     var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -587,10 +574,8 @@
     document.getElementById('trackx').onclick = function () {
       infopanel.classList.remove('show'); selected = null; selKind = null; clearOrbit(); flyHome();
     };
-
     var world = new THREE.Group(); scene.add(world); // everything spinnable lives here
     var R = 1;
-
     // stars
     (function () {
       var g = new THREE.BufferGeometry(), pos = new Float32Array(1200 * 3);
@@ -601,7 +586,6 @@
       g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
       scene.add(new THREE.Points(g, new THREE.PointsMaterial({ color: 0xcfeaff, size: 0.06, sizeAttenuation: true, transparent: true, opacity: 0.85 })));
     })();
-
     // earth (4096px + max anisotropy for sharp close-ups; falls back to the 1024 file until the 4096 one is pushed)
     var earthTex = new THREE.TextureLoader().load('../assets/img/earth-blue-marble-4096.jpg', undefined, undefined,
       function () { earth.material.map = new THREE.TextureLoader().load('../assets/img/earth-blue-marble-1024.jpg');
@@ -670,7 +654,6 @@
     var sun = new THREE.DirectionalLight(0xffffff, 1.6); scene.add(sun);
     var _sunQ = new THREE.Quaternion(), _sunDir = new THREE.Vector3();
     scene.add(new THREE.AmbientLight(0x334455, 0.7));
-
     function llToVec3(lat, lon, altKm) {
       var phi = (90 - lat) * Math.PI / 180, theta = (lon + 180) * Math.PI / 180;
       var r = R * (1 + altKm / 6371);
@@ -687,7 +670,6 @@
       var lon = ((L - gmst * 15 + 540) % 360) - 180;
       return llToVec3(dec * 180 / Math.PI, lon, 0).normalize();
     }
-
     // satellite dot texture
     var dotTex = (function () {
       var c = document.createElement('canvas'); c.width = c.height = 64;
@@ -696,7 +678,6 @@
       x.fillStyle = gr; x.fillRect(0, 0, 64, 64);
       return new THREE.CanvasTexture(c);
     })();
-
     var sats = [], satGroup = new THREE.Group(); world.add(satGroup);
     var heroSats = {};
     var clickedIds = new Set();
@@ -718,8 +699,6 @@ window.__scB = {
       makeLabelSprite, arStatus, THREE, satellite,
       cmp: {}, wireCompare: null, renderCompare: null, tools: null
     };
-
-
     function addSat(rec, name, tag, id) {
       var co = companyOf(name, tag);
       var mat = new THREE.SpriteMaterial({ map: dotTex, transparent: true, depthWrite: false, color: COMPANY_COLORS[co] });
@@ -731,7 +710,6 @@ window.__scB = {
       if (tag === 'iss' || tag === 'tiangong' || tag === 'hubble') heroSats[tag] = sp;
       return sp;
     }
-
     function propagate(sp, date) {
       try {
         var pv = satellite.propagate(sp.userData.rec, date);
@@ -740,7 +718,6 @@ window.__scB = {
         return llToVec3(gd.latitude * 180 / Math.PI, gd.longitude * 180 / Math.PI, gd.height);
       } catch (e) { return null; }
     }
-
     // launch pads
     var padMeshes = [];
     var padTexC = new THREE.CanvasTexture((function () {
@@ -757,7 +734,6 @@ window.__scB = {
       sp.userData = { pad: p, isPad: true };
       world.add(sp); padMeshes.push(sp);
     });
-
     // missions
     var done = {};
     try { done = JSON.parse(localStorage.getItem('sc3d-missions') || '{}'); } catch (e) {}
@@ -779,7 +755,6 @@ window.__scB = {
       renderMissions(); toast(label);
     }
     renderMissions();
-
     // ---- KeepTrack-style UI: icon rail, slide-out panel, info panel, time bar ----
     var infopanel = document.getElementById('infopanel');
     var sidepanel = document.getElementById('sidepanel');
@@ -868,7 +843,6 @@ window.__scB = {
       infopanel.classList.add('show');
       if (window.__scB && window.__scB.wireCompare) window.__scB.wireCompare(kind);
     }
-
     document.getElementById('infox').onclick = function () { infopanel.classList.remove('show'); selected = null; selKind = null; clearOrbit(); flyHome(); };
     document.getElementById('infomin').onclick = function (e) { e.stopPropagation(); infopanel.classList.add('min'); };
     infopanel.addEventListener('click', function () { if (infopanel.classList.contains('min')) infopanel.classList.remove('min'); });
@@ -967,7 +941,6 @@ window.__scB = {
       paused = !paused;
       this.textContent = paused ? '▶' : '⏸';
     };
-
     // custom orbit controls
     var rotX = 0.35, targetRotX = 0.35, spinAccum = 0;
     var dragging = false, px = 0, py = 0;
@@ -1025,7 +998,6 @@ window.__scB = {
       var lo = focusSat ? 0.06 : 1.7; // zoom right into a satellite when focused
       camGoalDist = Math.max(lo, Math.min(8, camGoalDist + e.deltaY * 0.002));
     }, { passive: false });
-
     // picking
     var ray = new THREE.Raycaster(), ptr = new THREE.Vector2(), selected = null;
     var label = document.getElementById('satlabel');
@@ -1039,7 +1011,6 @@ window.__scB = {
       if (!hits.length) { infopanel.classList.remove('show'); selected = null; selKind = null; clearOrbit(); flyHome(); return; }
       selectSat(hits[0].object);
     });
-
     // hover name tags (throttled raycast)
     var hoverlabel = document.getElementById('hoverlabel'), lastHover = 0;
     canvas.addEventListener('pointermove', function (e) {
@@ -1059,7 +1030,6 @@ window.__scB = {
       hoverlabel.style.top = (e.clientY - 10) + 'px';
     });
     canvas.addEventListener('pointerleave', function () { hoverlabel.style.display = 'none'; });
-
     // idle auto-rotate + esc to reset view
     var lastInteract = performance.now();
     ['pointerdown', 'wheel'].forEach(function (ev) {
@@ -1071,7 +1041,6 @@ window.__scB = {
         infopanel.classList.remove('show'); selected = null; selKind = null; clearOrbit(); flyHome();
       }
     });
-
     // time warp — simulated clock starts at real now, preserved across warp changes
     var warp = 1, warpStart = Date.now(), warpStartOffset = Date.now();
     function simDate() { return new Date(warpStartOffset + (Date.now() - warpStart) * warp); }
@@ -1085,7 +1054,6 @@ window.__scB = {
         warp = +b.getAttribute('data-warp');
       };
     });
-
     /* ---------- Space Center content: launches / students / moon+mars / stories ---------- */
     function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
     var LL2 = 'https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=15';
@@ -1286,7 +1254,6 @@ window.__scB = {
           + p(Math.floor(diff / 3600000) % 24) + ':' + p(Math.floor(diff / 60000) % 60) + ':' + p(Math.floor(diff / 1000) % 60);
       });
     }, 1000);
-
     // VR
     if ('xr' in navigator) {
       navigator.xr.isSessionSupported('immersive-vr').then(function (ok) {
@@ -1295,14 +1262,13 @@ window.__scB = {
         vb.style.display = 'inline-flex';
         vb.onclick = function () {
           navigator.xr.requestSession('immersive-vr', { optionalFeatures: ['local-floor'] }).then(function (s) {
+            renderer.xr.setReferenceSpaceType('local-floor');
             renderer.xr.setSession(s);
             vb.textContent = '🥽 In VR — look around!';
           }).catch(function () {});
         };
       }).catch(function () {});
     }
-
-
     // AR — tabletop mode (Android Chrome with ARCore). Proven pattern: no DOM overlay,
     // placement via select events, tap always does something, Back button exits.
     var arMode = false, arPlaced = false, arGroup = null, reticle = null, crosshair = null,
@@ -1405,7 +1371,8 @@ window.__scB = {
         ab.onclick = function () {
           arStatus('AR: starting — point at a table, move phone slowly, tap to place · Back exits');
           navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['hit-test'] }).then(function (session) {
-            renderer.xr.setSession(session);
+            renderer.xr.setReferenceSpaceType('local');
+            renderer.xr.setSession(session).catch(function(){try{session.end()}catch(e){}endAR('AR: failed to start')});
             arMode = true; arPlaced = false; hitTestRequested = false; hitTestSource = null;
             arGroup = new THREE.Group(); scene.add(arGroup); arGroup.add(world);
             world.scale.setScalar(0.18); // tabletop Earth, ~36 cm across
@@ -1463,7 +1430,6 @@ window.__scB = {
         });
       }).catch(function () {});
     }
-
     // load satellites
     Promise.all([
       fetch('../assets/data/space-center/tle-snapshot-a.json').then(function (r) { return r.json(); }),
@@ -1488,7 +1454,6 @@ window.__scB = {
     }).catch(function () {
       document.getElementById('loading').innerHTML = '<div>📡</div><div>SIGNAL LOST — PLEASE RELOAD</div>';
     });
-
     var clock = new THREE.Clock();
     function animate() {
       renderer.setAnimationLoop(function (time, frame) {
@@ -1586,7 +1551,6 @@ window.__scB = {
     (function () {
       'use strict';
       var MU = 398600.4418, RE = 6371;
-
       // ---------- shared orbital math ----------
       function zoneOf(altKm) {
         if (altKm < 2000) return 'LEO';
@@ -1607,7 +1571,6 @@ window.__scB = {
         var dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
         return dirs[Math.round((((az % 360) + 360) % 360) / 45) % 8];
       }
-
       // ---------- PART D/E: tag -> tracked-sat matching ----------
       var tagSatCache = {};
       function satsForTag(tag) {
@@ -1644,7 +1607,6 @@ window.__scB = {
       }
       document.getElementById('iso-stem').onclick = function () { setIsolate('stem'); complete('m-stem', 'Visited a STEM mission!'); };
       document.getElementById('iso-science').onclick = function () { setIsolate('science'); complete('m-science', 'Met a space telescope!'); };
-
       // ---------- PART D/E: browse cards ----------
       var MT_LABEL = {
         'student-built': ['\uD83C\uDF93 Student-built', 'tag-student'],
@@ -1701,7 +1663,6 @@ window.__scB = {
           renderStemGrid(c.getAttribute('data-mt'));
         };
       });
-
       // ---------- PART A: See It Tonight ----------
       var CITIES = [
         ['New York', 40.71, -74.0], ['Los Angeles', 34.05, -118.24], ['Chicago', 41.88, -87.63],
@@ -1915,7 +1876,6 @@ window.__scB = {
       }
       document.getElementById('pass-go').onclick = computePasses;
       setInterval(function () { if (lastPassData) renderPasses(); }, 30000);
-
       // ---------- PART B: Orbit Lab ----------
       var labRing = null, labDot = null, labAngle = 0, labPeriodMs = 0;
       var X_AXIS = null;
@@ -1988,7 +1948,6 @@ window.__scB = {
             'Note: a real Molniya flies a stretched ellipse \u2014 this shows its average height (the 12-hour period matches!).' : '';
         };
       });
-
       // ---------- PART C: zone shells ----------
       var zoneObjs = {};
       function zoneToggle(key, make) {
@@ -2017,14 +1976,11 @@ window.__scB = {
         t.rotation.x = Math.PI / 2;
         return t;
       });
-
-
       window.__scB.tools = {
         findPasses, getObserver, fmtT, countdown, compass, satLook, obsGeo,
         get lastPassData() { return lastPassData; }, afterPasses: null
       };
       // ---------- init ----------
-
       updateObsLabel();
       labUpdate();
       var profIv = setInterval(function () {
