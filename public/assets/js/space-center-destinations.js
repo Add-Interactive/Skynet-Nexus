@@ -338,6 +338,7 @@ function initPicking() {
     ray.setFromCamera(ptr, b.camera);
     var hits = ray.intersectObjects(pickables, false);
     if (!hits.length) {
+      if (destSelected) { e.stopPropagation(); e.preventDefault(); return; } // stay on the destination; fly back only via ✕ or the Earth button
       destSelected = null; // let the page handle it (satellite pick / empty-space flyHome)
       try { b.modelShowing = false; } catch (e) {} // back to world-spin dragging
       return;
