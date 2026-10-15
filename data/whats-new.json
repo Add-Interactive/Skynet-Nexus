@@ -2,6 +2,36 @@
   {
     "date": "2026-10-14",
     "tag": "New",
+    "title": "🌌 Fly to the Moon and Mars",
+    "body": "Mission Control's new Destinations tab flies you to the Moon and Mars at their real positions — meet lunar and Mars orbiters, tap 32 historic landing pins (Apollo, Perseverance, Chandrayaan-3…) with a full timeline, and watch city lights glow on Earth's night side."
+  },
+  {
+    "date": "2026-10-14",
+    "tag": "New",
+    "title": "🛰️ Satellites become 3D models up close",
+    "body": "Zoom into the ISS, Hubble, Chandra and four more to see real 3D spacecraft instead of dots — drag to orbit the camera around them while they hang in space."
+  },
+  {
+    "date": "2026-10-14",
+    "tag": "Improved",
+    "title": "🌍 Sharper Earth, truer sunlight",
+    "body": "A 4K NASA Blue Marble texture keeps coastlines crisp at max zoom, the day/night terminator now follows the real sun, and a faint globe seam was repaired."
+  },
+  {
+    "date": "2026-10-14",
+    "tag": "Fixed",
+    "title": "🧭 Smoother Mission Control flying",
+    "body": "The spacetime grid stays fixed while the Earth spins beneath it, flying home smoothly resets the view, Moon/Mars visits no longer bounce on arrival, and clicking around up there won't yank you back to Earth."
+  },
+  {
+    "date": "2026-10-14",
+    "tag": "New",
+    "title": "✨ Space Center joins signup & About",
+    "body": "The signup page now teases Mission Control with an animated preview, and the About page explains the Space Center alongside 15 other things families get."
+  },
+  {
+    "date": "2026-10-14",
+    "tag": "New",
     "title": "🚀 Space Center becomes a real tool",
     "body": "See It Tonight predicts visible satellite flyovers over your house (with countdowns and add-to-calendar), the Orbit Lab lets kids build their own satellite, and the Orbit Zones guide explains how humanity divides up space — LEO, MEO, GEO and graveyard orbits."
   },
