@@ -466,7 +466,13 @@
       '<div class="wn-item" data-wn="oct14b">🌌 <span><b>Destinations</b> — fly to the Moon &amp; Mars at their real positions, meet their orbiters, tap 32 historic landing pins, and see city lights on Earth\'s night side.</span></div>',
       '<div class="wn-item" data-wn="oct14b">🛰️ <span><b>3D models up close</b> — zoom into the ISS, Hubble, Chandra and more to see real spacecraft; drag to orbit the camera around them.</span></div>',
       '<div class="wn-item" data-wn="oct14b">🌍 <span><b>Sharper Earth, truer sun</b> — 4K NASA texture, the day/night line follows the real sun, and a faint globe seam was repaired.</span></div>',
-      '<div class="wn-item" data-wn="oct14b">🧭 <span><b>Smoother flying</b> — the spacetime grid stays fixed while Earth spins, flying home resets the view, and Moon/Mars visits no longer bounce or yank you back.</span></div>'
+      '<div class="wn-item" data-wn="oct14b">🧭 <span><b>Smoother flying</b> — the spacetime grid stays fixed while Earth spins, flying home resets the view, and Moon/Mars visits no longer bounce or yank you back.</span></div>',
+      '<div class="wn-item" data-wn="oct14b">📸 <span><b>Photo encyclopedia</b> — tap any satellite, station, rocket or pad for its photo + story.</span></div>',
+      '<div class="wn-item" data-wn="oct14b">🔭 <span><b>See It Tonight</b> — real flyover predictions for your sky.</span></div>',
+      '<div class="wn-item" data-wn="oct14b">🛠️ <span><b>Orbit Lab</b> — build your own satellite.</span></div>',
+      '<div class="wn-item" data-wn="oct14b">🗺️ <span><b>Orbit Zones</b> — how humanity divides up space.</span></div>',
+      '<div class="wn-item" data-wn="oct14b">🎓 <span><b>STEM Missions</b> + 🔬 <b>Science</b> — student-built sats and the great space telescopes.</span></div>',
+      '<div class="wn-item" data-wn="oct14b">🎬 <span><b>Tours</b> · 🟠 <b>Debris</b> · ⚖️ <b>Compare</b> · 🚂 <b>Trains</b> · 📅 <b>Calendar</b> — guided tours, junk-spotting, satellite showdowns, Starlink trains &amp; one-tap calendar saves.</span></div>'
     ];
     // insert in order right after the .tsub paragraph (newest first on top)
     for (var i = items.length - 1; i >= 0; i--) {
