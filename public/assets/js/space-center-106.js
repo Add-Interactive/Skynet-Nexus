@@ -363,3 +363,37 @@
     if(++tries < 40) setTimeout(wait, 300);
   })();
 })();
+
+/* Runtime de-seam for the NASA Blue Marble earth texture (4096px).
+ * The texture's left/right edges don't match at the antimeridian (up to 140/255
+ * near Alaska: dark ocean vs bright ice), painting a visible seam line on the
+ * globe's limb. The 2.5MB file can't be re-pushed through tooling, so the seam
+ * is repaired here once the earth mesh's texture has loaded: the right edge
+ * column is stamped over the left edge, making the wrap seamless. Same-origin
+ * texture, so the canvas is never tainted. Failures keep the original texture. */
+(function () {
+  var tries = 0;
+  (function wait() {
+    var B = window.__scB;
+    if (B && B.world) {
+      var done = false;
+      B.world.traverse(function (o) {
+        if (!done && o.isMesh && o.material && o.material.map && o.material.map.image &&
+            o.material.map.image.width === 5400 && !o.material.map.userData.deseamed) {
+          try {
+            var tex = o.material.map, i = tex.image;
+            var c = document.createElement('canvas'), g = c.getContext('2d');
+            c.width = i.width; c.height = i.height;
+            g.drawImage(i, 0, 0);
+            g.drawImage(i, i.width - 1, 0, 1, i.height, 0, 0, 1, i.height);
+            tex.image = c; tex.needsUpdate = true;
+            tex.userData.deseamed = true;
+          } catch (e) { /* keep original texture */ }
+          done = true;
+        }
+      });
+      return;
+    }
+    if (++tries < 200) setTimeout(wait, 250);
+  })();
+})();
