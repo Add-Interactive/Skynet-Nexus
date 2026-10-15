@@ -455,3 +455,26 @@
   }
   setTimeout(wait, 0);
 })();
+
+// ---- Space Center What's New: prepend the latest upgrades ----
+(function () {
+  try {
+    var page = document.getElementById('page-whatsnew');
+    if (!page || page.querySelector('[data-wn="oct14b"]')) return; // already injected
+    var tsub = page.querySelector('.tsub');
+    var items = [
+      '<div class="wn-item" data-wn="oct14b">🌌 <span><b>Destinations</b> — fly to the Moon &amp; Mars at their real positions, meet their orbiters, tap 32 historic landing pins, and see city lights on Earth\'s night side.</span></div>',
+      '<div class="wn-item" data-wn="oct14b">🛰️ <span><b>3D models up close</b> — zoom into the ISS, Hubble, Chandra and more to see real spacecraft; drag to orbit the camera around them.</span></div>',
+      '<div class="wn-item" data-wn="oct14b">🌍 <span><b>Sharper Earth, truer sun</b> — 4K NASA texture, the day/night line follows the real sun, and a faint globe seam was repaired.</span></div>',
+      '<div class="wn-item" data-wn="oct14b">🧭 <span><b>Smoother flying</b> — the spacetime grid stays fixed while Earth spins, flying home resets the view, and Moon/Mars visits no longer bounce or yank you back.</span></div>'
+    ];
+    // insert in order right after the .tsub paragraph (newest first on top)
+    for (var i = items.length - 1; i >= 0; i--) {
+      var tmp = document.createElement('div');
+      tmp.innerHTML = items[i];
+      var node = tmp.firstChild;
+      if (tsub && tsub.nextSibling) page.insertBefore(node, tsub.nextSibling);
+      else page.appendChild(node);
+    }
+  } catch (e) {}
+})();
