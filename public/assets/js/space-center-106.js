@@ -478,3 +478,77 @@
     }
   } catch (e) {}
 })();
+
+// ---- Space Center gap fixes (Oct 14 evening): attribution, TLE staleness warning, profile sharing ----
+
+// 1. Attribution: credit CelesTrak, NASA, three.js, satellite.js at the bottom of the What's New tab
+(function () {
+  try {
+    var page = document.getElementById('page-whatsnew');
+    if (!page || page.querySelector('[data-attr="oct14c"]')) return; // already injected
+    var el = document.createElement('div');
+    el.setAttribute('data-attr', 'oct14c');
+    el.className = 'tsub';
+    el.style.marginTop = '14px';
+    el.style.fontSize = '.66rem';
+    el.textContent = 'Satellite data: CelesTrak \u00B7 Earth/Moon/Mars imagery: NASA \u00B7 Built with three.js + satellite.js';
+    page.appendChild(el);
+  } catch (e) {}
+})();
+
+// 2. TLE staleness warning: if the orbital snapshot is older than 14 days, say so under the topbar
+(function () {
+  try {
+    if (document.querySelector('[data-tle="oct14c"]')) return; // already injected
+    fetch('../assets/data/space-center/tle-snapshot-a.json').then(function (r) { return r.json(); }).then(function (d) {
+      var upd = d && d.updated; if (!upd) return;
+      var days = Math.floor((Date.now() - new Date(upd + 'T00:00:00Z').getTime()) / 86400000);
+      if (days <= 14) return; // fresh data: stay quiet
+      var sub = document.querySelector('#topbar .sub');
+      if (!sub || document.querySelector('[data-tle="oct14c"]')) return;
+      var el = document.createElement('div');
+      el.setAttribute('data-tle', 'oct14c');
+      el.style.cssText = 'font-size:.62rem;color:#f0a35e;margin-top:3px;letter-spacing:.04em';
+      el.textContent = '\u26A0\uFE0F Satellite positions may be slightly stale \u2014 orbital data from ' + upd;
+      sub.parentNode.insertBefore(el, sub.nextSibling);
+    }).catch(function () {});
+  } catch (e) {}
+})();
+
+// 3. Share button on the info panel: navigator.share, falling back to clipboard + toast
+(function () {
+  try {
+    var panel = document.getElementById('infopanel');
+    if (!panel || document.getElementById('sharebtn')) return; // already injected
+    var btn = document.createElement('button');
+    btn.id = 'sharebtn';
+    btn.className = 'fx';
+    btn.style.right = '68px';
+    btn.title = 'Share this object';
+    btn.setAttribute('aria-label', 'Share');
+    btn.textContent = '\uD83D\uDCE4';
+    btn.onclick = function () {
+      var infot = document.getElementById('infot'), infok = document.getElementById('infok');
+      var title = (infot && infot.textContent) || 'Space Center';
+      var kind = (infok && infok.textContent) || '';
+      var text = (kind ? kind + ': ' : '') + title + ' \u2014 explore it live in 3D at the Skynet Nexus Space Center';
+      var url = 'https://skynet-nexus-production.up.railway.app/pages/space-center.html';
+      var toast = (window.__scB && window.__scB.toast) || function () {};
+      if (navigator.share) {
+        navigator.share({ title: title, text: text, url: url }).catch(function () {});
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text + ' ' + url).then(
+          function () { toast('Link copied to clipboard!'); },
+          function () { toast('Copy failed \u2014 long-press to copy the address bar.'); });
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text + ' ' + url;
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); toast('Link copied to clipboard!'); }
+        catch (e2) { toast('Copy is not supported on this browser.'); }
+        ta.remove();
+      }
+    };
+    panel.appendChild(btn);
+  } catch (e) {}
+})();
