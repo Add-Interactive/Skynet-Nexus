@@ -310,7 +310,7 @@ function selectDestination(obj) {
   if (u.destKind === 'moon' || u.destKind === 'mars') showBodyInfo(u);
   else if (u.destKind === 'pin') showPinInfo(u);
   else if (u.destKind === 'orbiter') showOrbiterInfo(u);
-  pulsing = { mesh: obj, t0: performance.now() };
+  if (u.destKind === 'pin' || u.destKind === 'orbiter') pulsing = { mesh: obj, t0: performance.now() }; else pulsing = null;
 }
 
 function flyToDest(which) {
