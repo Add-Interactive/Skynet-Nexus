@@ -417,12 +417,6 @@
     <div class="tabpage" id="page-whatsnew">
       <div class="toolhead">✨ WHAT'S NEW</div>
       <p class="tsub">Fresh upgrades to your Mission Control:</p>
-      <div class="wn-item">📸 <span><b>Photo encyclopedia</b> — tap any satellite, station, rocket or pad for its photo + story.</span></div>
-      <div class="wn-item">🔭 <span><b>See It Tonight</b> — real flyover predictions for your sky.</span></div>
-      <div class="wn-item">🛠️ <span><b>Orbit Lab</b> — build your own satellite.</span></div>
-      <div class="wn-item">🗺️ <span><b>Orbit Zones</b> — how humanity divides up space.</span></div>
-      <div class="wn-item">🎓 <span><b>STEM Missions</b> + 🔬 <b>Science</b> — student-built sats and the great space telescopes.</span></div>
-      <div class="wn-item">🎬 <span><b>Tours</b> · 🟠 <b>Debris</b> · ⚖️ <b>Compare</b> · 🚂 <b>Trains</b> · 📅 <b>Calendar</b> — guided tours, junk-spotting, satellite showdowns, Starlink trains & one-tap calendar saves.</span></div>
     </div>
   </div>
 
@@ -1313,7 +1307,7 @@ window.__scB = {
     // placement via select events, tap always does something, Back button exits.
     var arMode = false, arPlaced = false, arGroup = null, reticle = null, crosshair = null,
         hitTestSource = null, hitTestRequested = false, arLabels = [], arInfoSprite = null,
-        arInfoTimer = 0, arWatchdog = 0;
+        arInfoTimer = 0, arWatchdog = 0, arPromptSprite = null, arPromptTimer = 0;
     function arStatus(msg) {
       var el = document.getElementById('arstatus');
       el.style.display = 'inline-block'; el.textContent = msg;
@@ -1337,6 +1331,18 @@ window.__scB = {
       var w = 0.5, h = w * c.height / 512;
       sp.scale.set(w, h, 1); sp.renderOrder = 999;
       return sp;
+    }
+    // AR in-view prompts: DOM #arstatus is invisible inside AR, mirror as 3D sprites.
+    function arPrompt3D(msg, holdMs) {
+      try {
+        if (arPromptSprite && arPromptSprite.parent) arPromptSprite.parent.remove(arPromptSprite);
+        arPromptSprite = null; clearTimeout(arPromptTimer);
+        if (!msg || !arMode || !camera) return;
+        arPromptSprite = makeLabelSprite([msg]);
+        arPromptSprite.position.set(0, 0.34, -0.9);
+        camera.add(arPromptSprite);
+        if (holdMs) arPromptTimer = setTimeout(function () { arPrompt3D(null); }, holdMs);
+      } catch (e) {}
     }
     function arPickSat(clientX, clientY) {
       var v = new THREE.Vector3(), best = null, bestD = 70;
@@ -1373,6 +1379,7 @@ window.__scB = {
         arGroup.position.y -= 0.3;
       }
       arPlaced = true;
+      arPrompt3D('PLACED! POINT AT A SATELLITE + TAP', 5000);
       if (reticle) reticle.visible = false;
       if (crosshair) crosshair.visible = true;
       complete('m-ar', 'Place Earth on your table in AR!');
@@ -1382,6 +1389,7 @@ window.__scB = {
       clearTimeout(arWatchdog);
       arMode = false; arPlaced = false; hitTestSource = null;
       clearTimeout(arInfoTimer); arInfoSprite = null;
+      arPrompt3D(null);
       arLabels.forEach(function (l) { if (l.parent) l.parent.remove(l); }); arLabels = [];
       if (crosshair) { scene.remove(crosshair); crosshair = null; }
       if (reticle) { scene.remove(reticle); reticle = null; }
@@ -1503,6 +1511,7 @@ window.__scB = {
               reticle.position.set(pose.transform.position.x, pose.transform.position.y, pose.transform.position.z);
             } else reticle.visible = false;
           }
+          if (!arPlaced && !arPromptSprite) arPrompt3D('TAP ANYWHERE TO PLACE EARTH');
         }
         // sun — sunDirection() is in the world's local frame (same as llToVec3);
         // rotate into scene space so the terminator stays accurate while Earth spins/tilts
