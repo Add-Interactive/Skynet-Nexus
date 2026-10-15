@@ -826,11 +826,26 @@ window.__scB = {
     var arMode = false, arPlaced = false, arGroup = null, reticle = null, crosshair = null,
         hitTestSource = null, hitTestRequested = false, arLabels = [], arInfoSprite = null,
         arInfoTimer = 0, arWatchdog = 0, arPromptSprite = null, arPromptTimer = 0,
-        arButtons = [];
+        arButtons = [], arDomOverlay = false;
     function arStatus(msg) {
       var el = document.getElementById('arstatus');
       el.style.display = 'inline-block'; el.textContent = msg;
     }
+    // AR DOM overlay: is this tap on Space Center UI rather than the 3D scene?
+    function arTapOnUI(x, y) {
+      var els = document.querySelectorAll('.hud');
+      for (var i = 0; i < els.length; i++) {
+        var r = els[i].getBoundingClientRect();
+        if (r.width > 0 && r.height > 0 && x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return true;
+      }
+      return false;
+    }
+    // Track direct taps so satellites/buttons can be tapped where they appear (DOM overlay mode)
+    window.__arTapX = null; window.__arTapY = null;
+    document.addEventListener('pointerdown', function (e) {
+      if (!arMode) return;
+      window.__arTapX = e.clientX; window.__arTapY = e.clientY;
+    }, true);
     function makeLabelSprite(lines) {
       var c = document.createElement('canvas'); c.width = 512; c.height = 64 + (lines.length - 1) * 56;
       var g = c.getContext('2d');
@@ -853,6 +868,8 @@ window.__scB = {
     }
     // AR in-view prompts: DOM #arstatus is invisible inside AR, mirror as 3D sprites.
     function arPrompt3D(msg, holdMs) {
+      // DOM overlay: the real Space Center UI is visible, so mirror prompts as DOM text too
+      if (arDomOverlay && msg) arStatus('AR \u00b7 ' + msg);
       try {
         if (arPromptSprite && arPromptSprite.parent) arPromptSprite.parent.remove(arPromptSprite);
         arPromptSprite = null; clearTimeout(arPromptTimer);
@@ -873,13 +890,15 @@ window.__scB = {
       }
       return best;
     }
-    function arButtonHit() {
-      // nearest floating AR button to the screen-center crosshair (aim + tap)
+    function arButtonHit(clientX, clientY) {
+      // nearest floating AR button to the tap point (direct tap w/ DOM overlay, else center crosshair)
+      if (clientX == null) clientX = innerWidth / 2;
+      if (clientY == null) clientY = innerHeight / 2;
       var v = new THREE.Vector3(), best = null, bestD = 80;
       for (var i = 0; i < arButtons.length; i++) {
         arButtons[i].getWorldPosition(v); v.project(camera);
         if (v.z > 1) continue;
-        var d = Math.hypot((v.x * 0.5 + 0.5) * innerWidth - innerWidth / 2, (-v.y * 0.5 + 0.5) * innerHeight - innerHeight / 2);
+        var d = Math.hypot((v.x * 0.5 + 0.5) * innerWidth - clientX, (-v.y * 0.5 + 0.5) * innerHeight - clientY);
         if (d < bestD) { bestD = d; best = arButtons[i]; }
       }
       return best;
@@ -947,6 +966,7 @@ window.__scB = {
     function endAR(reason) {
       clearTimeout(arWatchdog);
       arMode = false; arPlaced = false; hitTestSource = null;
+      arDomOverlay = false; document.body.classList.remove('ar-overlay');
       clearTimeout(arInfoTimer); arInfoSprite = null;
       arPrompt3D(null);
       arLabels.forEach(function (l) { if (l.parent) l.parent.remove(l); }); arLabels = [];
@@ -964,9 +984,18 @@ window.__scB = {
         ab.style.display = 'inline-flex';
         ab.onclick = function () {
           arStatus('AR: starting — point at a table, move phone slowly, tap to place · Back exits');
-          navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['hit-test'] }).then(function (session) {
+          navigator.xr.requestSession('immersive-ar', {
+            requiredFeatures: ['hit-test'],
+            optionalFeatures: ['dom-overlay'],
+            domOverlay: { root: document.body }
+          }).then(function (session) {
             renderer.xr.setReferenceSpaceType('local');
             renderer.xr.setSession(session).catch(function(){try{session.end()}catch(e){}endAR('AR: failed to start')});
+            // DOM overlay: the full Space Center UI stays visible + tappable over the camera feed,
+            // so the room itself becomes the Space Center. Falls back gracefully when unsupported.
+            try { arDomOverlay = !!(session.domOverlayState); } catch (e) { arDomOverlay = false; }
+            document.body.classList.toggle('ar-overlay', arDomOverlay);
+            if (arDomOverlay) arStatus('AR \u00b7 full Space Center UI is live \u2014 tap menus directly, tap a satellite to inspect');
             arMode = true; arPlaced = false; hitTestRequested = false; hitTestSource = null;
             arGroup = new THREE.Group(); scene.add(arGroup); arGroup.add(world);
             arButtons = [];
@@ -993,13 +1022,18 @@ window.__scB = {
             var onSelect = function () {
               if (!arMode) return;
               if (!arPlaced) { arPlace(); return; }
+              var tx = (window.__arTapX != null) ? window.__arTapX : innerWidth / 2;
+              var ty = (window.__arTapY != null) ? window.__arTapY : innerHeight / 2;
+              window.__arTapX = window.__arTapY = null;
+              // DOM overlay: taps on Space Center UI are handled by the DOM — never double-fire 3D
+              if (arDomOverlay && arTapOnUI(tx, ty)) return;
               var now = performance.now();
               var isDouble = (now - (window.__arLastTap || 0)) < 350;
               window.__arLastTap = now;
               if (isDouble) { arCycleZoom(); return; }
-              var btn = arButtonHit();
+              var btn = arButtonHit(tx, ty);
               if (btn) { arDoButton(btn); return; }
-              var sp = arPickSat(innerWidth / 2, innerHeight / 2);
+              var sp = arPickSat(tx, ty);
               if (sp) arShowInfo(sp);
             };
             controller.addEventListener('select', onSelect);
