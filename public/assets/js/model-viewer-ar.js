@@ -1,9 +1,11 @@
 /* AR Satellite Lab — model-viewer-ar.js
-   GLTFLoader viewer (Model Lab tab) + WebXR tabletop placement.
+   GLTFLoader viewer (Model Lab tab) + satellite info-panel "Place in room".
    - Viewer pane: own small renderer/scene/camera + OrbitControls (isolated from
      the main Space Center loop so it never fights camera tracking).
-   - AR: hooks INTO the existing THREE scene/renderer via window.__scB
-     (the immersive-ar session in space-center-main.js). No second XR renderer.
+   - AR placement is owned by ar-placement.js (hit-test reticle + WebXR anchors +
+     persistence). placeInAR() just routes there.
+     (2026-10-16 fix: the old code added the model to renderer.xr.getCamera(),
+     which is NOT in the scene graph — the model loaded but never rendered.)
    Plain ES module, matches repo style (see space-center-models.js). */
 
 import * as THREE from 'three';
@@ -143,36 +145,14 @@ function show(model) {
   });
 }
 
-/* ---------- AR placement (hooks the EXISTING AR session/renderer) ---------- */
-var ar = { group: null, model: null, drag: null, lastPinch: 0 };
+/* ---------- AR placement: routed to ar-placement.js ----------
+   The old implementation attached the model to renderer.xr.getCamera().
+   That internal XR camera is not part of the scene graph, so the model was
+   loaded but never rendered ("Place in room" appeared to do nothing).
+   All AR placement now goes through window.ARPlacement (reticle + anchors). */
 function xrPresenting() {
   var b = B();
   return !!(b && b.renderer && b.renderer.xr && b.renderer.xr.isPresenting);
-}
-function arTapOnUI(x, y) {
-  var els = document.querySelectorAll('.hud');
-  for (var i = 0; i < els.length; i++) {
-    var r = els[i].getBoundingClientRect();
-    if (r.width > 0 && r.height > 0 && x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return true;
-  }
-  return false;
-}
-function arCleanup() {
-  var b = B();
-  if (b && b.renderer && ar.group) {
-    try { b.renderer.xr.getCamera().remove(ar.group); } catch (e) {}
-    try { b.scene.remove(ar.group); } catch (e) {}
-  }
-  ar.group = null; ar.model = null; ar.drag = null; ar.pointers = null;
-  var cvs = ar.canvas || (b && b.renderer && b.renderer.domElement);
-  if (cvs) {
-    cvs.removeEventListener('pointerdown', arPointerDown);
-    cvs.removeEventListener('pointermove', arPointerMove);
-    cvs.removeEventListener('pointerup', arPointerUp);
-  }
-  ar.canvas = null;
-  if (b && b.renderer && b.renderer.xr) b.renderer.xr.removeEventListener('sessionend', arCleanup);
-  if (window.ModelViewerAR) window.ModelViewerAR._arActive = false;
 }
 function placeInAR(model) {
   var b = B();
@@ -183,73 +163,29 @@ function placeInAR(model) {
     show(model);
     return;
   }
+  if (window.ARPlacement && window.ARPlacement.requestPlace) {
+    window.ARPlacement.requestPlace({ type: 'model', model: model });
+    return;
+  }
+  // Fallback if the placement module failed to load: add to the SCENE at the
+  // reticle (or floating in front of the camera) — never on the XR camera.
   loadGlb(model.modelUrl).then(function (tpl) {
-    if (!xrPresenting()) return; // session ended while loading
-    arCleanup();
+    var bb = B();
+    if (!bb || !xrPresenting()) return;
     var g = tpl.clone(true);
-    var inner = normalize(g, 0.5); // tabletop scale: ~50 cm across
-    inner.position.set(0, -0.15, -1.0); // 1 m in front of the camera
-    var cam = b.renderer.xr.getCamera();
-    cam.add(inner);
-    ar.group = inner; ar.model = model;
-    // basic gestures on the AR canvas: drag rotates, pinch scales, tap shows info.
-    // DOM-overlay taps on Space Center UI are skipped (same guard pattern as space-center-main.js).
-    var cvs = b.renderer.domElement;
-    ar.canvas = cvs;
-    cvs.addEventListener('pointerdown', arPointerDown);
-    cvs.addEventListener('pointermove', arPointerMove);
-    cvs.addEventListener('pointerup', arPointerUp);
-    b.renderer.xr.addEventListener('sessionend', arCleanup);
-    if (b.toast) b.toast(model.name + ' placed! Drag to spin · pinch to resize');
-    if (window.ModelViewerAR) window.ModelViewerAR._arActive = true;
+    var inner = normalize(g, 0.5);
+    var r = (bb.ar && bb.ar.reticle) ? bb.ar.reticle() : null;
+    if (r && r.visible) inner.position.copy(r.position);
+    else {
+      var cp = new THREE.Vector3(), cd = new THREE.Vector3();
+      bb.camera.getWorldPosition(cp); bb.camera.getWorldDirection(cd);
+      inner.position.copy(cp).addScaledVector(cd, 1.0); inner.position.y -= 0.15;
+    }
+    bb.scene.add(inner);
+    if (bb.toast) bb.toast((model.name || 'Model') + ' placed!');
   }).catch(function () {
     if (b.toast) b.toast('Could not load ' + (model.name || 'model') + ' for AR');
   });
-}
-function arPointerDown(e) {
-  if (!ar.group || !xrPresenting()) return;
-  if (arTapOnUI(e.clientX, e.clientY)) return;
-  ar.pointers = ar.pointers || {};
-  ar.pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
-  ar.drag = { moved: false, t: performance.now(), x: e.clientX, y: e.clientY };
-  var ids = Object.keys(ar.pointers);
-  if (ids.length === 2) {
-    var a = ar.pointers[ids[0]], p2 = ar.pointers[ids[1]];
-    ar.lastPinch = Math.hypot(a.x - p2.x, a.y - p2.y);
-  }
-}
-function arPointerMove(e) {
-  if (!ar.group || !ar.drag || !ar.pointers || !ar.pointers[e.pointerId]) return;
-  var prev = ar.pointers[e.pointerId];
-  var ids = Object.keys(ar.pointers);
-  ar.pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
-  var dx = e.clientX - prev.x, dy = e.clientY - prev.y;
-  if (Math.abs(e.clientX - ar.drag.x) + Math.abs(e.clientY - ar.drag.y) > 8) ar.drag.moved = true;
-  if (ids.length === 2) {
-    var a = ar.pointers[ids[0]], p2 = ar.pointers[ids[1]];
-    var d = Math.hypot(a.x - p2.x, a.y - p2.y);
-    if (ar.lastPinch > 0 && d > 0) {
-      // normalize() wrapped the model at 0.5 m; scale factor is relative — clamp generously.
-      var s = ar.group.scale.x * (d / ar.lastPinch);
-      ar.group.scale.setScalar(Math.min(4, Math.max(0.16, s)));
-    }
-    ar.lastPinch = d;
-    return;
-  }
-  if (ids.length === 1 && ar.drag.moved) {
-    ar.group.rotation.y += dx * 0.008;
-    ar.group.rotation.x = Math.max(-1.2, Math.min(1.2, ar.group.rotation.x + dy * 0.008));
-  }
-}
-function arPointerUp(e) {
-  if (!ar.group || !xrPresenting()) return;
-  if (ar.pointers) delete ar.pointers[e.pointerId];
-  var wasTap = ar.drag && !ar.drag.moved && (performance.now() - ar.drag.t) < 400 && !arTapOnUI(e.clientX, e.clientY);
-  ar.drag = null;
-  var b = B();
-  if (wasTap && b && b.toast && ar.model) {
-    b.toast(ar.model.name + (ar.model.creatorHandle ? ' · Built by ' + ar.model.creatorHandle : ''));
-  }
 }
 
 /* ---------- satellite info-panel integration ---------- */
@@ -284,8 +220,7 @@ window.ModelViewerAR = {
   modelForSatellite: modelForSatellite,
   show: show,
   placeInAR: placeInAR,
-  attachViewButton: attachViewButton,
-  _arActive: false
+  attachViewButton: attachViewButton
 };
 
 /* Self-bootstrap: wires the AR "Models" overlay button (added by the HTML diff)
