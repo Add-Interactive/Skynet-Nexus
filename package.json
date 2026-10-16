@@ -1,7 +1,7 @@
 {
   "name": "skynet-nexus-news",
   "version": "0.0.5-beta.1",
-  "description": "Skynet Nexus News — a family-first daily news network for young readers.",
+  "description": "Skynet Nexus News \u2014 a family-first daily news network for young readers.",
   "private": true,
   "type": "commonjs",
   "engines": {
@@ -18,6 +18,7 @@
     "bcryptjs": "^2.4.3",
     "express": "^4.21.0",
     "express-session": "^1.18.0",
+    "multer": "^1.4.5-lts.1",
     "web-push": "^3.6.7"
   }
 }
