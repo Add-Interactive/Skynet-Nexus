@@ -26,6 +26,9 @@ const SEED_DATA_DIR = path.join(ROOT, 'data');
 const DATA_DIR = process.env.DATA_DIR || (VOLUME ? path.join(VOLUME, 'data') : SEED_DATA_DIR);
 const DB_PATH = process.env.DB_PATH || (VOLUME ? path.join(VOLUME, 'skynet.db') : path.join(__dirname, 'skynet.db'));
 const USERS_DIR = process.env.USERS_DIR || (VOLUME ? path.join(VOLUME, 'users') : path.join(ROOT, 'public', 'assets', 'img', 'users'));
+// AR Satellite Lab: kid-uploaded 3D models. pending/ is never publicly served;
+// live/ is mounted at /assets/models/live by server/models-routes.js.
+const MODELS_DIR = process.env.MODELS_DIR || (VOLUME ? path.join(VOLUME, 'models') : path.join(ROOT, 'models-dev'));
 
 let _prepared = false;
 
@@ -38,6 +41,8 @@ function ensureStorage() {
   fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
   fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.mkdirSync(USERS_DIR, { recursive: true });
+  fs.mkdirSync(path.join(MODELS_DIR, 'pending'), { recursive: true });
+  fs.mkdirSync(path.join(MODELS_DIR, 'live'), { recursive: true });
 
   // Seed the persistent data dir from the image bundle on first boot only.
   if (DATA_DIR !== SEED_DATA_DIR && fs.existsSync(SEED_DATA_DIR)) {
@@ -139,6 +144,39 @@ function ensureStorage() {
     }
   }
 
+
+  // Seed/merge models.json (AR Satellite Lab model library). Runtime-mutated
+  // (uploads, approvals), so this is seed-once plus a by-id merge of seed
+  // entries — git stays the source of truth for seed ids, community entries
+  // are never clobbered by a deploy.
+  try {
+    const seedModels = path.join(SEED_DATA_DIR, 'models.json');
+    const dataModels = path.join(DATA_DIR, 'models.json');
+    if (fs.existsSync(seedModels)) {
+      if (!fs.existsSync(dataModels)) {
+        fs.cpSync(seedModels, dataModels);
+        console.log('[storage] Seeded models.json from bundle to persistent volume');
+      } else {
+        const seed = JSON.parse(fs.readFileSync(seedModels, 'utf8'));
+        const cur = JSON.parse(fs.readFileSync(dataModels, 'utf8'));
+        const seedList = Array.isArray(seed.models) ? seed.models : [];
+        const curList = Array.isArray(cur.models) ? cur.models : [];
+        let changed = false;
+        for (const s of seedList) {
+          const ix = curList.findIndex(m => m.id === s.id);
+          if (ix === -1) { curList.push(s); changed = true; }
+          else if (JSON.stringify(curList[ix]) !== JSON.stringify(s)) { curList[ix] = s; changed = true; }
+        }
+        if (changed) {
+          fs.writeFileSync(dataModels, JSON.stringify({ models: curList }, null, 2));
+          console.log('[storage] Merged seed model entries into persistent models.json');
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('[storage] models.json seed/merge failed:', e.message);
+  }
+
   if (VOLUME) {
     console.log('[storage] Persistent volume active. DB=' + DB_PATH + ' DATA=' + DATA_DIR);
   } else {
@@ -148,4 +186,4 @@ function ensureStorage() {
   return { DATA_DIR, DB_PATH, USERS_DIR, VOLUME };
 }
 
-module.exports = { ROOT, SEED_DATA_DIR, DATA_DIR, DB_PATH, USERS_DIR, VOLUME, ensureStorage };
+module.exports = { ROOT, SEED_DATA_DIR, DATA_DIR, DB_PATH, USERS_DIR, MODELS_DIR, VOLUME, ensureStorage };
