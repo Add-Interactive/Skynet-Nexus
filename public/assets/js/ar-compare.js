@@ -24,7 +24,7 @@
  * branding. Never JARVIS.
  */
 
-import * as THREE from '../../vendor/three/three.module.js';
+import * as THREE from 'three';
 import { GLTFLoader } from '../../vendor/three/addons/loaders/GLTFLoader.js';
 
 /* ------------------------------------------------------------------ */
