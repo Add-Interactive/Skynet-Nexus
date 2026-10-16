@@ -71,7 +71,8 @@ var S = {
   domOverlay: false,
   tapOnModel: false, tapOnModelTimer: 0,
   gesture: null,       // {root, pointers:{}, lastPinch, moved, startT}
-  clearArm: 0
+  clearArm: 0,
+  lastTapped: null     // most recently tapped placed entry (fun-pack: explode target)
 };
 var nextId = 1;
 
@@ -105,6 +106,13 @@ function ensurePicker() {
       '<div id="ar-picker-note" style="font-size:.68rem;color:#8fd8ef"></div>' +
     '</div>' +
     '<div id="ar-picker-cards" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>' +
+    '<div style="display:flex;gap:6px;margin-top:8px">' +
+      '<button id="ar-fun-orbit" class="tbtn" style="flex:1;font-size:.68rem;padding:8px 2px">🛰 Orbit</button>' +
+      '<button id="ar-fun-compare" class="tbtn" style="flex:1;font-size:.68rem;padding:8px 2px">📏 Compare</button>' +
+      '<button id="ar-fun-track" class="tbtn" style="flex:1;font-size:.68rem;padding:8px 2px">📡 Track</button>' +
+      '<button id="ar-fun-photo" class="tbtn" style="flex:1;font-size:.68rem;padding:8px 2px">📸 Photo</button>' +
+      '<button id="ar-fun-explode" class="tbtn" style="flex:1;font-size:.68rem;padding:8px 2px">💥 Explode</button>' +
+    '</div>' +
     '<div style="display:flex;gap:8px;margin-top:10px">' +
       '<button id="ar-picker-done" class="tbtn" style="flex:1">✓ Done</button>' +
       '<button id="ar-picker-clear" class="tbtn" style="flex:1;opacity:.85">🧹 Clear room</button>' +
@@ -131,6 +139,29 @@ function ensurePicker() {
       }, 4100);
     }
   };
+  // Fun-pack row: each button guards for its module (scripts load after this one).
+  function funCall(mod, fn) {
+    var m = window.ARFun && window.ARFun[mod];
+    if (m && typeof m[fn] === 'function') { m[fn](); return true; }
+    var b = B();
+    if (b && b.toast) b.toast('That feature is still loading — try again in a sec');
+    return false;
+  }
+  function syncOrbitBtn() {
+    var btn = document.getElementById('ar-fun-orbit');
+    var m = window.ARFun && window.ARFun.orbit;
+    if (btn && m && typeof m.isOn === 'function') btn.textContent = m.isOn() ? '🛰 Orbit: on' : '🛰 Orbit';
+  }
+  document.getElementById('ar-fun-orbit').onclick = function () {
+    if (funCall('orbit', 'toggle')) syncOrbitBtn();
+  };
+  document.getElementById('ar-fun-compare').onclick = function () {
+    if (funCall('compare', 'start')) hidePicker();
+  };
+  document.getElementById('ar-fun-track').onclick = function () { funCall('telemetry', 'toggle'); };
+  document.getElementById('ar-fun-photo').onclick = function () { funCall('photo', 'snap'); };
+  document.getElementById('ar-fun-explode').onclick = function () { funCall('explode', 'toggle'); };
+  syncOrbitBtn();
   return p;
 }
 function getModels() {
@@ -230,6 +261,17 @@ function trackPlaced(entry) {
   S.placed.push(entry);
   S.pendingAnchors.push(entry); // anchor created on the next XR frame
   return entry;
+}
+/* ---------- fun-pack extension API (used by ar-orbit/compare/explode/telemetry/photo) ---------- */
+function placedEntries() { return S.placed; }
+// Place an already-positioned group through the standard anchor + persist flow.
+// meta: {kind:'model'|'earth', model: <library model object or null>}
+function placeAt(group, meta) {
+  var b = B();
+  if (!b || !b.scene || !group) return null;
+  if (!group.parent) b.scene.add(group);
+  var entry = { kind: (meta && meta.kind) || 'model', model: (meta && meta.model) || null, group: group };
+  return trackPlaced(entry);
 }
 function handleTap() {
   if (S.pickerOpen) return true;              // let the DOM picker have the tap
@@ -444,7 +486,7 @@ function onSessionEnd() {
   });
   S.placed = []; S.pendingAnchors = [];
   S.placing = false; S.choice = null; S.pickerOpen = false;
-  S.tapOnModel = false;
+  S.tapOnModel = false; S.lastTapped = null;
   detachGestures();
   var p = document.getElementById('ar-place-picker');
   if (p) p.style.display = 'none';
@@ -460,6 +502,7 @@ function clearRoom() {
   S.placed = []; S.pendingAnchors = [];
   if (b && b.ar && b.ar.resetEarth) b.ar.resetEarth();
   writeSaved([]);
+  S.lastTapped = null;
   if (b && b.toast) b.toast('Room cleared — fresh canvas!');
   showPicker();
 }
@@ -574,6 +617,7 @@ function gUp(e) {
     for (var i = 0; i < S.placed.length; i++) {
       if (S.placed[i].group === G.root) { entry = S.placed[i]; break; }
     }
+    if (entry) S.lastTapped = entry; // fun-pack explode target
     var b = B();
     if (b && b.toast) {
       var nm = entry && entry.model ? entry.model.name : 'Model';
@@ -596,5 +640,8 @@ window.ARPlacement = {
   isPlacing: isPlacing,
   promptText: promptText,
   clearRoom: clearRoom,
-  showPicker: showPicker
+  showPicker: showPicker,
+  placedEntries: placedEntries,
+  placeAt: placeAt,
+  lastTapped: function () { return S.lastTapped || null; }
 };
