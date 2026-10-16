@@ -10,6 +10,12 @@
   <link rel="stylesheet" href="/assets/css/style.css?v=20260705-1"/>
   <link rel="stylesheet" href="/assets/css/admin.css?v=20260705-1"/>
   <link rel="stylesheet" href="/assets/css/admin-security-team.css?v=20261007-1"/>
+    <script type="importmap">
+      { "imports": {
+          "three": "/vendor/three/three.module.min.js",
+          "three/addons/": "/vendor/three/addons/"
+      } }
+    </script>
 </head>
 <body class="admin-body">
 
@@ -66,6 +72,7 @@
         <button class="admin-nav-link" data-view="submissions"><span>📥</span> Submissions <em class="admin-badge" id="nav-badge-submissions" hidden>0</em></button>
         <button class="admin-nav-link" data-view="queue"><span>📝</span> Story Queue <em class="admin-badge" id="nav-badge-queue" hidden>0</em></button>
         <button class="admin-nav-link" data-view="rejected"><span>🚫</span> Rejected <em class="admin-badge" id="nav-badge-rejected" hidden>0</em></button>
+        <button class="admin-nav-link admin-only" data-view="models"><span>🛰️</span> 3D Models <em class="admin-badge" id="nav-badge-models" hidden>0</em></button>
         <button class="admin-nav-link" data-view="social"><span>📱</span> Social <em class="admin-badge" id="nav-badge-social" hidden>0</em></button>
         <button class="admin-nav-link" data-view="qa"><span>💬</span> Q&amp;A <em class="admin-badge" id="nav-badge-qa" hidden>0</em></button>
         <button class="admin-nav-link" data-view="feedback"><span>🧪</span> Feedback <em class="admin-badge" id="nav-badge-feedback" hidden>0</em></button>
@@ -88,6 +95,7 @@
 
   <script src="/assets/js/admin.js?v=20260930-1"></script>
   <script src="/assets/js/admin-security-team.js?v=20261007-1"></script>
+  <script src="/assets/js/admin-models.js?v=20261016-1"></script>
 </body>
 </html>
 
