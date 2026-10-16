@@ -71,7 +71,8 @@ var S = {
   domOverlay: false,
   tapOnModel: false, tapOnModelTimer: 0,
   gesture: null,       // {root, pointers:{}, lastPinch, moved, startT}
-  clearArm: 0
+  clearArm: 0,
+  lastTapped: null     // most recently tapped placed entry (fun-pack: explode target)
 };
 var nextId = 1;
 
@@ -110,6 +111,7 @@ function ensurePicker() {
       '<button id="ar-fun-compare" class="tbtn" style="flex:1;font-size:.68rem;padding:8px 2px">📏 Compare</button>' +
       '<button id="ar-fun-track" class="tbtn" style="flex:1;font-size:.68rem;padding:8px 2px">📡 Track</button>' +
       '<button id="ar-fun-photo" class="tbtn" style="flex:1;font-size:.68rem;padding:8px 2px">📸 Photo</button>' +
+      '<button id="ar-fun-explode" class="tbtn" style="flex:1;font-size:.68rem;padding:8px 2px">💥 Explode</button>' +
     '</div>' +
     '<div style="display:flex;gap:8px;margin-top:10px">' +
       '<button id="ar-picker-done" class="tbtn" style="flex:1">✓ Done</button>' +
@@ -158,6 +160,7 @@ function ensurePicker() {
   };
   document.getElementById('ar-fun-track').onclick = function () { funCall('telemetry', 'toggle'); };
   document.getElementById('ar-fun-photo').onclick = function () { funCall('photo', 'snap'); };
+  document.getElementById('ar-fun-explode').onclick = function () { funCall('explode', 'toggle'); };
   syncOrbitBtn();
   return p;
 }
@@ -483,7 +486,7 @@ function onSessionEnd() {
   });
   S.placed = []; S.pendingAnchors = [];
   S.placing = false; S.choice = null; S.pickerOpen = false;
-  S.tapOnModel = false;
+  S.tapOnModel = false; S.lastTapped = null;
   detachGestures();
   var p = document.getElementById('ar-place-picker');
   if (p) p.style.display = 'none';
@@ -499,6 +502,7 @@ function clearRoom() {
   S.placed = []; S.pendingAnchors = [];
   if (b && b.ar && b.ar.resetEarth) b.ar.resetEarth();
   writeSaved([]);
+  S.lastTapped = null;
   if (b && b.toast) b.toast('Room cleared — fresh canvas!');
   showPicker();
 }
@@ -613,6 +617,7 @@ function gUp(e) {
     for (var i = 0; i < S.placed.length; i++) {
       if (S.placed[i].group === G.root) { entry = S.placed[i]; break; }
     }
+    if (entry) S.lastTapped = entry; // fun-pack explode target
     var b = B();
     if (b && b.toast) {
       var nm = entry && entry.model ? entry.model.name : 'Model';
@@ -637,5 +642,6 @@ window.ARPlacement = {
   clearRoom: clearRoom,
   showPicker: showPicker,
   placedEntries: placedEntries,
-  placeAt: placeAt
+  placeAt: placeAt,
+  lastTapped: function () { return S.lastTapped || null; }
 };
