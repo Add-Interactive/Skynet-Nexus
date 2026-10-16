@@ -1,12 +1,12 @@
 // AGI/ASI countdown predictions — loaded before app.js
-// Updated 2026-10-09. Source: public statements from each predictor.
+// Updated 2026-10-16. Source: public statements from each predictor.
 const AGI_PREDICTIONS = {
   elon: {
     name: 'Elon Musk',
     credits: 'Founder of xAI, Tesla, & SpaceX. Creator of Grok AI models. Co-founder of OpenAI. Directing massive GPU compute clusters.',
-    date: new Date('2026-12-31T23:59:59'),
-    desc: 'Musk said in a July 2026 Economist interview that AI will exceed human intelligence "within just a few years" and could surpass the sum of all human intelligence by ~2031 — holding his end-of-2026 AGI call (Davos, Jan 2026).',
-    link: 'https://nypost.com/2026/07/26/tech/elon-musk-drops-wild-5-year-prediction-about-ai-and-humanity/'
+    date: new Date('2027-12-31T23:59:59'),
+    desc: 'Musk endorsed a 2027 AGI/ASI arrival call on X (Sept 28, 2026), replying "Accurate" to a post predicting major US labs achieve proper AGI in 2027 and move quickly toward ASI — and posted he "really felt the AGI profoundly this time" as Grok 5 is positioned as xAI\'s first AGI candidate.',
+    link: 'https://www.latestly.com/socially/technology/elon-musk-backs-2027-predictions-tech-billionaire-agrees-that-us-ai-labs-will-achieve-proper-agi-and-work-on-asi-7623441.html'
   },
   jensen: {
     name: 'Jensen Huang',
@@ -47,8 +47,8 @@ const AGI_PREDICTIONS = {
     name: 'Mustafa Suleyman',
     credits: 'CEO of Microsoft AI. Co-founder of Google DeepMind & Inflection AI (Pi). Pioneer in consumer AI agents.',
     date: new Date('2027-11-30T23:59:59'),
-    desc: 'Suleyman told the FT (May 2026) that AI will reach human-level performance on most professional computer tasks within 12-18 months — but clarified in June 2026 he meant automating sub-tasks (emails, decks), not replacing entire jobs.',
-    link: 'https://cryptobriefing.com/microsoft-suleyman-clarifies-ai-automation-comments/'
+    desc: 'Suleyman told the FT (May 2026) that AI will reach human-level performance on most professional computer tasks within 12-18 months — but clarified in June 2026 he meant automating sub-tasks (emails, decks), not replacing entire jobs, and on Oct 7, 2026 backed Acemoglu\'s estimate that AI will replace only ~5% of human work over the next decade: "Even 99% accuracy isn\'t enough for full automation. The last 1% is the hard part."',
+    link: 'https://www.windowslatest.com/2026/10/07/ai-wont-take-your-job-anytime-soon-microsofts-ai-boss-says-only-5-of-human-work-will-be-replaced-in-10-years/'
   },
   ilya: {
     name: 'Ilya Sutskever',
@@ -61,8 +61,8 @@ const AGI_PREDICTIONS = {
     name: 'Ray Kurzweil (AGI)',
     credits: 'Director of Engineering at Google. Renowned futurist and author. Wrote "The Singularity is Near". Has a 86% accuracy rate on past tech predictions.',
     date: new Date('2029-12-31T23:59:59'),
-    desc: 'Kurzweil reaffirmed AGI by 2029 on the Moonshots podcast (Jan 2026): \'Elon Musk says 2026... we really won\'t be convinced in 2026. By 2029, I think everyone will accept it.\'',
-    link: 'https://pjfp.com/ray-kurzweil-2026-agi-by-2029-singularity-by-2045-and-the-merger-of-human-and-ai-intelligence/'
+    desc: 'Kurzweil reaffirmed AGI by 2029 in a June 2026 Tony Robbins interview, now calling the date "conservative" — the expert arrival window compressing to 2026–2029 ("Elon Musk says 2026... we really won\'t be convinced in 2026. By 2029, I think everyone will accept it." — Moonshots podcast, Jan 2026).',
+    link: 'https://podcastalpha.substack.com/p/kurzweil-ai-humanity-20260611'
   },
   demis: {
     name: 'Demis Hassabis',
