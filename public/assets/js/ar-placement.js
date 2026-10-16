@@ -40,7 +40,10 @@ function normalize(group, targetSize) {
   var center = new THREE.Vector3(); box.getCenter(center);
   var s = targetSize / (Math.max(size.x, size.y, size.z) || 1);
   var inner = new THREE.Group(); inner.add(group);
-  group.position.sub(center).multiplyScalar(s);
+  // Center the model on its own origin. inner.scale (below) sizes both the
+  // geometry and this offset uniformly — do NOT pre-scale the offset here
+  // (that would displace the model from the tap point by s^2 instead of s).
+  group.position.sub(center);
   inner.scale.setScalar(s);
   return inner;
 }
