@@ -827,7 +827,29 @@ window.__scB = {
     var arMode = false, arPlaced = false, arGroup = null, reticle = null, crosshair = null,
         hitTestSource = null, hitTestRequested = false, arLabels = [], arInfoSprite = null,
         arInfoTimer = 0, arWatchdog = 0, arPromptSprite = null, arPromptTimer = 0,
-        arButtons = [], arDomOverlay = false;
+        arButtons = [], arDomOverlay = false, arPlacing = false;
+    // AR placement hooks for ar-placement.js (picker + persistent anchors).
+    // Surgical: read-only access plus the existing arPlace(); the module owns all new UI/logic.
+    window.__scB.ar = {
+      isActive: function () { return arMode && !!(renderer.xr && renderer.xr.isPresenting); },
+      isPlacing: function () { return arPlacing; },
+      setPlacing: function (v) { arPlacing = !!v; },
+      isEarthPlaced: function () { return arPlaced; },
+      reticle: function () { return reticle; },
+      refSpace: function () { try { return renderer.xr.getReferenceSpace(); } catch (e) { return null; } },
+      session: function () { try { return renderer.xr.getSession(); } catch (e) { return null; } },
+      earthObject: function () { return arGroup; },
+      placeEarth: function (atPos) { arPlace(atPos); },
+      resetEarth: function () {
+        try {
+          if (arGroup) scene.remove(arGroup);
+          arGroup = new THREE.Group(); scene.add(arGroup); arGroup.add(world);
+          world.scale.setScalar(0.18);
+        } catch (e) {}
+        arButtons = []; arPlaced = false;
+      },
+      prompt3D: function (msg, holdMs) { arPrompt3D(msg, holdMs); }
+    };
     function arStatus(msg) {
       var el = document.getElementById('arstatus');
       el.style.display = 'inline-block'; el.textContent = msg;
@@ -936,8 +958,10 @@ window.__scB = {
         arInfoSprite = null;
       }, 6000);
     }
-    function arPlace() {
-      if (reticle && reticle.visible) {
+    function arPlace(atPos) {
+      if (atPos && typeof atPos.x === 'number') {
+        arGroup.position.copy(atPos);
+      } else if (reticle && reticle.visible) {
         arGroup.position.copy(reticle.position);
       } else {
         // no surface found — float the Earth 1.2 m in front of the viewer
@@ -966,7 +990,8 @@ window.__scB = {
     }
     function endAR(reason) {
       clearTimeout(arWatchdog);
-      arMode = false; arPlaced = false; hitTestSource = null;
+      arMode = false; arPlaced = false; arPlacing = false; hitTestSource = null;
+      if (window.ARPlacement && window.ARPlacement.onSessionEnd) { try { window.ARPlacement.onSessionEnd(); } catch (e) {} }
       arDomOverlay = false; document.body.classList.remove('ar-overlay');
       clearTimeout(arInfoTimer); arInfoSprite = null;
       arPrompt3D(null);
@@ -997,7 +1022,7 @@ window.__scB = {
             try { arDomOverlay = !!(session.domOverlayState); } catch (e) { arDomOverlay = false; }
             document.body.classList.toggle('ar-overlay', arDomOverlay);
             if (arDomOverlay) arStatus('AR \u00b7 full Space Center UI is live \u2014 tap menus directly, tap a satellite to inspect');
-            arMode = true; arPlaced = false; hitTestRequested = false; hitTestSource = null;
+            arMode = true; arPlaced = false; arPlacing = false; hitTestRequested = false; hitTestSource = null;
             arGroup = new THREE.Group(); scene.add(arGroup); arGroup.add(world);
             arButtons = [];
             world.scale.setScalar(0.18); // tabletop Earth, ~36 cm across
@@ -1022,6 +1047,8 @@ window.__scB = {
             var controller = renderer.xr.getController(0);
             var onSelect = function () {
               if (!arMode) return;
+              var AP = window.ARPlacement;
+              if (AP && AP.handleTap()) return;
               if (!arPlaced) { arPlace(); return; }
               var tx = (window.__arTapX != null) ? window.__arTapX : innerWidth / 2;
               var ty = (window.__arTapY != null) ? window.__arTapY : innerHeight / 2;
@@ -1046,6 +1073,9 @@ window.__scB = {
               }
             }, 15000);
             ab.textContent = '📲 AR active…';
+            if (window.ARPlacement && window.ARPlacement.onSessionStart) {
+              try { window.ARPlacement.onSessionStart(session); } catch (e) {}
+            }
           }).catch(function () { arStatus('AR: could not start (cancelled?)'); });
         };
       }).catch(function () {});
@@ -1104,7 +1134,7 @@ window.__scB = {
               session.requestHitTestSource({ space: viewerSpace }).then(function (src) { hitTestSource = src; });
             }).catch(function () {});
           }
-          if (hitTestSource && !arPlaced && reticle) {
+          if (hitTestSource && reticle && (arPlacing || !arPlaced)) {
             var hits = frame.getHitTestResults(hitTestSource);
             if (hits.length > 0) {
               var pose = hits[0].getPose(renderer.xr.getReferenceSpace());
@@ -1112,7 +1142,12 @@ window.__scB = {
               reticle.position.set(pose.transform.position.x, pose.transform.position.y, pose.transform.position.z);
             } else reticle.visible = false;
           }
-          if (!arPlaced && !arPromptSprite) arPrompt3D('TAP ANYWHERE TO PLACE EARTH');
+          if (!arPromptSprite) {
+            var _ap = window.ARPlacement, _pt = _ap ? _ap.promptText() : null;
+            if (_pt) arPrompt3D(_pt);
+            else if (!arPlaced) arPrompt3D('TAP ANYWHERE TO PLACE EARTH');
+          }
+          if (window.ARPlacement) { try { window.ARPlacement.onFrame(frame); } catch (e) {} }
         }
         // sun — sunDirection() is in the world's local frame (same as llToVec3);
         // rotate into scene space so the terminator stays accurate while Earth spins/tilts
