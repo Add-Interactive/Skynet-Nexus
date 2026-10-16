@@ -1998,6 +1998,7 @@ require('./search')(api);
 require('./checklist')(api, { requireAuth });
 
 app.use('/api', api);
+app.use(require('./models-routes'));
 
 // -------------- ADMIN ROUTER --------------
 app.use('/api/admin', require('./admin-routes'));

@@ -1573,5 +1573,81 @@ security.registerSecurityRoutes(router, { requireFullAdmin, logAction });
 // -------------- NEXUS SHIELD threat intelligence --------------
 threatIntel.registerThreatIntelRoutes(router, { requireFullAdmin, logAction });
 
+
+// -------------- AR SATELLITE LAB: 3D model moderation --------------
+// Kid-uploaded .glb models land PENDING (invisible to everyone except admins
+// via the authed endpoints below). Approve -> live for all users; the file
+// moves to MODELS_DIR/live, served at /assets/models/live/<id>.glb.
+const { MODELS_DIR } = require('./storage');
+const MODEL_ID_RE = /^[0-9a-f]{16}$/i;
+function readModelsAr() {
+  try {
+    const j = JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'models.json'), 'utf8'));
+    return Array.isArray(j.models) ? j.models : [];
+  } catch (e) { return []; }
+}
+function writeModelsAr(models) {
+  fs.writeFileSync(path.join(DATA_DIR, 'models.json'), JSON.stringify({ models }, null, 2));
+}
+
+// List pending models (metadata only — never file bytes).
+router.get('/models/pending', (req, res) => {
+  res.json({ models: readModelsAr().filter(m => m.status === 'pending') });
+});
+
+// Stream one pending .glb for the admin 3D preview (session-authed).
+router.get('/models/pending/:id/file', (req, res) => {
+  const id = String(req.params.id || '');
+  if (!MODEL_ID_RE.test(id)) return res.status(400).json({ error: 'bad id' });
+  const pendingDir = path.join(MODELS_DIR, 'pending');
+  const fp = path.join(pendingDir, id + '.glb');
+  if (path.dirname(fp) !== pendingDir) return res.status(400).json({ error: 'bad id' });
+  if (!fs.existsSync(fp)) return res.status(404).json({ error: 'model file missing' });
+  res.set('Content-Type', 'model/gltf-binary');
+  res.sendFile(fp);
+});
+
+// Approve: move file to live, publish the fileUrl.
+router.post('/models/:id/approve', (req, res) => {
+  const id = String(req.params.id || '');
+  if (!MODEL_ID_RE.test(id)) return res.status(400).json({ error: 'bad id' });
+  const models = readModelsAr();
+  const m = models.find(x => x.id === id);
+  if (!m || m.status !== 'pending') return res.status(404).json({ error: 'pending model not found' });
+  const pendingDir = path.join(MODELS_DIR, 'pending');
+  const liveDir = path.join(MODELS_DIR, 'live');
+  fs.mkdirSync(liveDir, { recursive: true });
+  const srcP = path.join(pendingDir, id + '.glb');
+  const dstP = path.join(liveDir, id + '.glb');
+  if (path.dirname(srcP) !== pendingDir || path.dirname(dstP) !== liveDir) return res.status(400).json({ error: 'bad id' });
+  if (!fs.existsSync(srcP)) return res.status(404).json({ error: 'model file missing' });
+  fs.renameSync(srcP, dstP);
+  m.status = 'live';
+  m.fileUrl = `/assets/models/live/${id}.glb`;
+  writeModelsAr(models);
+  logAction(req.adminUser.id, 'model.approve', 'model', id, { name: m.name });
+  console.log(`[models] approved: ${id} -> ${m.fileUrl}`);
+  res.json({ ok: true, id, fileUrl: m.fileUrl });
+});
+
+// Reject: delete the pending file, keep the metadata record.
+router.post('/models/:id/reject', (req, res) => {
+  const id = String(req.params.id || '');
+  if (!MODEL_ID_RE.test(id)) return res.status(400).json({ error: 'bad id' });
+  const models = readModelsAr();
+  const m = models.find(x => x.id === id);
+  if (!m || m.status !== 'pending') return res.status(404).json({ error: 'pending model not found' });
+  const pendingDir = path.join(MODELS_DIR, 'pending');
+  const fp = path.join(pendingDir, id + '.glb');
+  if (path.dirname(fp) !== pendingDir) return res.status(400).json({ error: 'bad id' });
+  try { if (fs.existsSync(fp)) fs.unlinkSync(fp); } catch (e) {}
+  m.status = 'rejected';
+  m.fileUrl = null;
+  writeModelsAr(models);
+  logAction(req.adminUser.id, 'model.reject', 'model', id, { name: m.name });
+  console.log(`[models] rejected: ${id}`);
+  res.json({ ok: true, id });
+});
+
 module.exports = router;
 
