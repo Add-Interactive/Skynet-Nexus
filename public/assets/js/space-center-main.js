@@ -319,7 +319,7 @@ window.__scB = {
       document.querySelectorAll('.rbtn').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-tab') === tab); });
       document.querySelectorAll('#sidepanel .tab').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-tab') === tab); });
       document.querySelectorAll('.tabpage').forEach(function (x) { x.classList.toggle('on', x.id === 'page-' + tab); });
-      sidepanel.classList.toggle('wide', ['launches', 'students', 'moonmars', 'stories', 'tonight', 'orbitlab', 'zones', 'stem', 'science', 'tours'].indexOf(tab) !== -1);
+      sidepanel.classList.toggle('wide', ['launches', 'students', 'moonmars', 'stories', 'tonight', 'orbitlab', 'zones', 'stem', 'science', 'tours', 'modellab'].indexOf(tab) !== -1);
       sidepanel.classList.add('open');
       if (typeof loadContent === 'function') loadContent(tab);
     }
@@ -428,6 +428,7 @@ window.__scB = {
         selProf ? selProf.name : (f.t === 'Satellite' ? nm : f.t), satRows(sp), selProf ? selProf.blurb : f.p,
         selProf ? profileCardHtml(selProf, 'TIME IN ORBIT') : '');
       clickedIds.add(u.id);
+      if (window.ModelViewerAR) window.ModelViewerAR.attachViewButton(u.id);
       if (u.tag === 'iss') complete('m-iss', 'Say hello to the ISS!');
       if (u.tag === 'tiangong') complete('m-tiangong', 'Find Tiangong!');
       if (u.tag === 'hubble') complete('m-hubble', 'Spot Hubble!');
