@@ -12,6 +12,10 @@
   <script src="../vendor/satellite/satellite.min.js"></script>
   <style>
     html,body{margin:0;height:100%;overflow:hidden;background:#02040a;font-family:Inter,sans-serif}
+    /* AR DOM overlay: the room becomes the Space Center — camera shows through, full UI stays tappable */
+    body.ar-overlay{background:transparent!important}
+    body.ar-overlay #scene{visibility:hidden}
+    body.ar-overlay .hud{pointer-events:auto}
     #scene{position:fixed;inset:0;touch-action:none;user-select:none;-webkit-user-select:none}
     .hud{position:fixed;z-index:10;pointer-events:none}
     .hud a,.hud button{pointer-events:auto}
