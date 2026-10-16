@@ -1,1 +1,74 @@
-{"models":[{"category":"satellite","createdAt":"2026-10-16","creatorHandle":"Add Interactive Studio","fileUrl":"/assets/models/iss.glb","id":"iss","name":"International Space Station","satelliteId":"25544","status":"live"},{"category":"satellite","createdAt":"2026-10-16","creatorHandle":"Add Interactive Studio","fileUrl":"/assets/models/hubble.glb","id":"hubble","name":"Hubble Space Telescope","satelliteId":"20580","status":"live"}]}
+{
+  "models": [
+    {
+      "id": "iss",
+      "name": "International Space Station",
+      "category": "satellite",
+      "satelliteId": "25544",
+      "creatorHandle": "Add Interactive Studio",
+      "fileUrl": "/assets/models/iss.glb",
+      "status": "live",
+      "createdAt": "2026-10-16"
+    },
+    {
+      "id": "hubble",
+      "name": "Hubble Space Telescope",
+      "category": "satellite",
+      "satelliteId": "20580",
+      "creatorHandle": "Add Interactive Studio",
+      "fileUrl": "/assets/models/hubble.glb",
+      "status": "live",
+      "createdAt": "2026-10-16"
+    },
+    {
+      "id": "aqua",
+      "name": "Aqua",
+      "category": "satellite",
+      "satelliteId": "27424",
+      "creatorHandle": "Add Interactive Studio",
+      "fileUrl": "/assets/models/aqua.glb",
+      "status": "live",
+      "createdAt": "2026-10-16"
+    },
+    {
+      "id": "terra",
+      "name": "Terra",
+      "category": "satellite",
+      "satelliteId": "25994",
+      "creatorHandle": "Add Interactive Studio",
+      "fileUrl": "/assets/models/terra.glb",
+      "status": "live",
+      "createdAt": "2026-10-16"
+    },
+    {
+      "id": "chandra",
+      "name": "Chandra X-ray Observatory",
+      "category": "telescope",
+      "satelliteId": "25867",
+      "creatorHandle": "Add Interactive Studio",
+      "fileUrl": "/assets/models/chandra.glb",
+      "status": "live",
+      "createdAt": "2026-10-16"
+    },
+    {
+      "id": "fermi",
+      "name": "Fermi Gamma-ray Space Telescope",
+      "category": "telescope",
+      "satelliteId": "33053",
+      "creatorHandle": "Add Interactive Studio",
+      "fileUrl": "/assets/models/fermi.glb",
+      "status": "live",
+      "createdAt": "2026-10-16"
+    },
+    {
+      "id": "jwst",
+      "name": "James Webb Space Telescope",
+      "category": "telescope",
+      "satelliteId": "50463",
+      "creatorHandle": "Add Interactive Studio",
+      "fileUrl": "/assets/models/jwst.glb",
+      "status": "live",
+      "createdAt": "2026-10-16"
+    }
+  ]
+}
