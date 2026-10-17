@@ -113,6 +113,13 @@ function ensurePicker() {
       '<button id="ar-fun-photo" class="tbtn" style="flex:1;font-size:.68rem;padding:8px 2px">📸 Photo</button>' +
       '<button id="ar-fun-explode" class="tbtn" style="flex:1;font-size:.68rem;padding:8px 2px">💥 Explode</button>' +
     '</div>' +
+    '<div style="display:flex;gap:6px;margin-top:6px">' +
+      '<button id="ar-fun-replay" class="tbtn" style="flex:1;font-size:.68rem;padding:8px 2px">🎬 Replay</button>' +
+      '<button id="ar-fun-tours" class="tbtn" style="flex:1;font-size:.68rem;padding:8px 2px">🎧 Tours</button>' +
+      '<button id="ar-fun-builder" class="tbtn" style="flex:1;font-size:.68rem;padding:8px 2px">🛠️ Build</button>' +
+      '<button id="ar-fun-dock" class="tbtn" style="flex:1;font-size:.68rem;padding:8px 2px">🎮 Dock</button>' +
+      '<button id="ar-fun-nightsky" class="tbtn" style="flex:1;font-size:.68rem;padding:8px 2px">🌌 Sky</button>' +
+    '</div>' +
     '<div style="display:flex;gap:8px;margin-top:10px">' +
       '<button id="ar-picker-done" class="tbtn" style="flex:1">✓ Done</button>' +
       '<button id="ar-picker-clear" class="tbtn" style="flex:1;opacity:.85">🧹 Clear room</button>' +
@@ -161,6 +168,23 @@ function ensurePicker() {
   document.getElementById('ar-fun-track').onclick = function () { funCall('telemetry', 'toggle'); };
   document.getElementById('ar-fun-photo').onclick = function () { funCall('photo', 'snap'); };
   document.getElementById('ar-fun-explode').onclick = function () { funCall('explode', 'toggle'); };
+  // Pack-2 row: each opens its own overlay, so the picker hides on success.
+  document.getElementById('ar-fun-replay').onclick = function () {
+    if (funCall('replay', 'open')) hidePicker();
+  };
+  document.getElementById('ar-fun-tours').onclick = function () {
+    if (funCall('tours', 'open')) hidePicker();
+  };
+  document.getElementById('ar-fun-builder').onclick = function () {
+    // Clear any pending room placement first so its tap can't leak through later.
+    if (funCall('builder', 'open')) { hidePicker(); setPlacing(false); }
+  };
+  document.getElementById('ar-fun-dock').onclick = function () {
+    if (funCall('docking', 'start')) hidePicker();
+  };
+  document.getElementById('ar-fun-nightsky').onclick = function () {
+    if (funCall('nightsky', 'toggle')) hidePicker();
+  };
   syncOrbitBtn();
   return p;
 }
