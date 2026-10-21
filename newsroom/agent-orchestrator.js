@@ -117,7 +117,7 @@ function validateMediaArray(media) {
   if (!Array.isArray(media)) return ['media must be an array'];
   if (media.length > 6) errors.push('media: max 6 items (got ' + media.length + ')');
   const okUrl = u => typeof u === 'string' && /^https?:\/\//i.test(u.trim());
-  const flagged = ['killed', 'murder', 'suicide', 'terrorist', 'assault', 'rape', 'overdose', 'nazi', 'slavery', 'gun ', 'shooting', 'weapon', 'combat'];
+  const flagged = ['killed', 'murder', 'suicide', 'terrorist', 'assault', 'rape', 'overdose', 'nazi', 'slavery', 'gun', 'shooting', 'weapon', 'combat'];
   media.forEach((m, i) => {
     const tag = 'media[' + i + ']';
     if (!m || typeof m !== 'object') { errors.push(tag + ': must be an object'); return; }
@@ -130,7 +130,8 @@ function validateMediaArray(media) {
     const cred = String(m.credit || '').trim();
     if (!cred) errors.push(tag + ': credit required (name the source)');
     else if (cred.length > 120) errors.push(tag + ': credit max 120 chars');
-    const hits = flagged.filter(w => cap.toLowerCase().includes(w));
+    const escapeRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const hits = flagged.filter(w => new RegExp('\\b' + escapeRe(w) + 's?\\b').test(cap.toLowerCase()));
     if (hits.length) errors.push(tag + ': KID-SAFE VIOLATION in caption: ' + hits.join(', '));
   });
   return errors;

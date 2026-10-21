@@ -125,7 +125,7 @@ if(IS_PROD)res.setHeader('Strict-Transport-Security','max-age=31536000; includeS
 res.setHeader('Content-Security-Policy',"default-src 'self';script-src 'self' 'unsafe-inline';style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;img-src 'self' data: blob: https://upload.wikimedia.org https://thespacedevs-prod.nyc3.digitaloceanspaces.com;media-src 'self' data: blob:;font-src 'self' data: https://fonts.gstatic.com;connect-src 'self' https://ll.thespacedevs.com;frame-src 'self' https://www.youtube-nocookie.com https://player.vimeo.com;frame-ancestors 'self';base-uri 'self';form-action 'self'");
 next();});
 
-app.use(express.json({ limit: '3mb' })); // raised for pipeline artwork uploads (base64)
+app.use(express.json({ limit: '15mb' })); // raised for pipeline artwork + narration MP3 uploads (base64); /newsroom/audio documents max 8MB and enforces 12MB base64 itself
 app.use(express.urlencoded({ extended: false, limit: '256kb' }));
 
 app.use(session({
@@ -2414,6 +2414,7 @@ app.listen(PORT, () => {
       }
 
       // Update DB queued stories
+      const queued = rawDb.prepare("SELECT id, payload FROM queued_stories").all();
       queued.forEach(row => {
         try {
           const payload = JSON.parse(row.payload);
