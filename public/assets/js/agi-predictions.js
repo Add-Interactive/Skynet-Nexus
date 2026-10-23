@@ -1,5 +1,5 @@
 // AGI/ASI countdown predictions — loaded before app.js
-// Updated 2026-10-16. Source: public statements from each predictor.
+// Updated 2026-10-23. Source: public statements from each predictor.
 const AGI_PREDICTIONS = {
   elon: {
     name: 'Elon Musk',
@@ -61,15 +61,15 @@ const AGI_PREDICTIONS = {
     name: 'Ray Kurzweil (AGI)',
     credits: 'Director of Engineering at Google. Renowned futurist and author. Wrote "The Singularity is Near". Has a 86% accuracy rate on past tech predictions.',
     date: new Date('2029-12-31T23:59:59'),
-    desc: 'Kurzweil reaffirmed AGI by 2029 in a June 2026 Tony Robbins interview, now calling the date "conservative" — the expert arrival window compressing to 2026–2029 ("Elon Musk says 2026... we really won\'t be convinced in 2026. By 2029, I think everyone will accept it." — Moonshots podcast, Jan 2026).',
-    link: 'https://podcastalpha.substack.com/p/kurzweil-ai-humanity-20260611'
+    desc: 'Kurzweil stood by 2029 for "human-level intelligence and for artificial general intelligence (AGI)" in an Aug 2026 Guardian interview, calling the date "conservative" — consistent with his June 2026 Tony Robbins appearance; expects a 2026–2029 recognition period where people "will be broadly confident that AGI has arrived."',
+    link: 'https://arcader.org/news/googles-ai-visionary-says-well-expand-intelligence-a-millionfold-by-2045-thanks-to-nanobots-the-tech-will-resurrect-the-dead-and-were-all-going-to-live-forever/'
   },
   demis: {
     name: 'Demis Hassabis',
     credits: 'CEO & Co-founder of Google DeepMind. Led development of AlphaGo, AlphaFold, and Gemini models. Pioneer in reinforcement learning.',
-    date: new Date('2030-12-31T23:59:59'),
-    desc: 'Hassabis narrowed his window at a Stanford GSB fireside chat (May 2026): AGI "maybe 2030, plus or minus a year" — "standing in the foothills of the singularity."',
-    link: 'https://sherwood.news/tech/google-deepminds-hassabis-agi-is-3-to-4-years-away/'
+    date: new Date('2029-06-30T23:59:59'),
+    desc: 'Hassabis compressed his window in a WSJ Magazine profile (Oct 21, 2026): "It\'s soon. I\'m updating nearer and nearer" — AGI now within two to three years (~2028–2029), down from "maybe 2030, plus or minus a year" (Stanford GSB, May 2026). Still holds his "Einstein test" as the AGI bar.',
+    link: 'https://aiweekly.co/alerts/hassabis-trims-agi-window-to-two-to-three-years-in-wsj-profile'
   },
   carmack: {
     name: 'John Carmack',
@@ -131,8 +131,8 @@ const AGI_PREDICTIONS = {
     name: 'Bill Gates',
     credits: 'Co-founder of Microsoft & Gates Foundation. Prominent advisor and philanthropist guiding AI deployment in education and health.',
     date: new Date('2035-12-31T23:59:59'),
-    desc: 'Gates reaffirmed on NBC\'s Meet the Press (Sept 2026) a ~20-year AI adjustment period, with AI agents gaining serious momentum now — keeping his 10-20 year AGI frame.',
-    link: 'https://www.thestreet.com/investing/stocks/bill-gates-makes-bold-predictions-on-the-future-of-humanity-and-ai'
+    desc: 'Gates told The Verge\'s Decoder podcast (Oct 22, 2026) to brace for 20 "tumultuous" years of AI disruption — some may opt out of AI society "like the Amish," AI is "the most dangerous weapon ever," and meaningful change will probably only come after a disaster. Same ~20-year frame as his Sept 2026 Meet the Press call, with a bleaker edge.',
+    link: 'https://madrobot.blog/2026/10/22/bill-gates-20-years-tumultuous-ai-disruption-amish-decoder/'
   },
   kurzweil_asi: {
     name: 'Ray Kurzweil (ASI)',
@@ -145,7 +145,7 @@ const AGI_PREDICTIONS = {
     name: 'Yann LeCun',
     credits: 'Chief AI Scientist at Meta & NYU Professor. Turing Award winner for CNNs. Pioneer in self-supervised learning and robotics.',
     date: new Date('2032-12-31T23:59:59'),
-    desc: 'LeCun (departed Meta late 2025) now allows human-level AI in 5-6 years as a best case, while rejecting the \'AGI\' label for \'advanced machine intelligence.\'',
+    desc: 'LeCun (departed Meta late 2025) re-stated in Oct 2026 interviews that "AGI" is a dangerous misnomer — human-level-feeling systems won\'t appear in "less than five or six years," and that\'s the best case. Separately: "not a chance in hell" AI drives human extinction in the next three years.',
     link: 'https://ceointerviews.ai/interview/1322883/'
   }
 };
