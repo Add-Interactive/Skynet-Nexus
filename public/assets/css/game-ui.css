@@ -2096,4 +2096,224 @@ body {
   }
 }
 
+@media (max-width: 768px) {
+  body,
+  .app {
+    perspective: none !important;
+  }
 
+  .holo-grid-bg {
+    inset: 0 !important;
+    transform: none !important;
+    animation: none !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+  }
+
+  .ambient-nebula {
+    display: none !important;
+  }
+
+  .game-hud-bar {
+    position: relative !important;
+    top: auto !important;
+    padding: 10px 12px !important;
+    gap: 8px !important;
+  }
+
+  .app {
+    z-index: auto !important;
+  }
+
+  .role-matrix {
+    width: 100% !important;
+    justify-content: stretch !important;
+    gap: 4px !important;
+    padding: 3px !important;
+  }
+
+  .role-pill-btn {
+    flex: 1 1 0 !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    padding: 8px 5px !important;
+    font-size: clamp(0.62rem, 2.5vw, 0.78rem) !important;
+    letter-spacing: 0 !important;
+  }
+
+  .hud-player-stats {
+    width: 100% !important;
+    justify-content: space-between !important;
+    gap: 6px !important;
+  }
+
+  .hud-stat-pill {
+    flex: 1 1 0 !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    min-height: 42px !important;
+    padding: 6px 7px !important;
+    font-size: clamp(0.62rem, 2.6vw, 0.75rem) !important;
+    white-space: nowrap !important;
+  }
+
+  .sfx-toggle-btn {
+    min-height: 44px !important;
+    padding: 7px 8px !important;
+    font-size: 0.75rem !important;
+    white-space: nowrap !important;
+  }
+
+  .hud-avatar {
+    flex: 0 0 40px !important;
+  }
+
+  .app {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 14px !important;
+    padding: 12px !important;
+  }
+
+  .main,
+  .cadet-hero-card,
+  .guardian-hero-card,
+  .commander-hero-card {
+    min-width: 0 !important;
+  }
+
+  .cadet-hero-card {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 16px !important;
+    padding: 20px 16px !important;
+  }
+
+  .cadet-hero-card > div,
+  .guardian-hero-card > div,
+  .commander-hero-card > div {
+    min-width: 0;
+  }
+
+  .cadet-xp-track {
+    max-width: none !important;
+  }
+
+  .cadet-xp-meta {
+    gap: 8px;
+    font-size: clamp(0.58rem, 2.5vw, 0.72rem);
+  }
+
+  .mission-launch-btn,
+  .sky-btn,
+  .chip,
+  .sort-select {
+    min-height: 44px;
+  }
+
+  .cadet-hero-card .mission-launch-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero {
+    min-height: 190px;
+    padding: 22px 18px;
+  }
+
+  .welcome-banner {
+    padding: 16px !important;
+    gap: 12px !important;
+  }
+
+  .welcome-banner-actions {
+    width: 100%;
+    margin-left: 0;
+    flex-wrap: wrap;
+  }
+
+  .feed-grid,
+  .edition-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)) !important;
+  }
+
+  .card,
+  .feed-grid .card,
+  .mission-card,
+  .summer-promo,
+  .dropbar,
+  .widget,
+  .cadet-hero-card,
+  .guardian-hero-card,
+  .commander-hero-card,
+  .prog-card {
+    transform-style: flat !important;
+    will-change: auto !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .topbar-inner {
+    gap: 8px !important;
+    padding: 8px 10px !important;
+  }
+
+  .top-actions {
+    gap: 5px !important;
+  }
+
+  .icon-btn {
+    width: 42px;
+    height: 42px;
+  }
+
+  .brand-name {
+    font-size: 0.86rem !important;
+    letter-spacing: 0.03em !important;
+  }
+
+  .brand svg {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .hero {
+    padding: 18px 14px;
+  }
+
+  .section-title {
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .section-title h2 {
+    font-size: 1rem;
+  }
+
+  .section-title a {
+    font-size: 0.78rem;
+    text-align: right;
+  }
+
+  .post-body {
+    padding: 14px;
+  }
+
+  .article-pager {
+    gap: 8px;
+  }
+
+  .pager-link {
+    gap: 6px;
+    padding: 12px 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .holo-grid-bg,
+  .ambient-nebula,
+  .ticker-inner,
+  .hero::before,
+  .cadet-xp-fill {
+    animation: none !important;
+  }
+}

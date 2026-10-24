@@ -2,7 +2,7 @@
    SKYNET NEXUS NEWS â€” Core Theme (base + variables + layout)
    ============================================================ */
 
-@import url('./game-ui.css?v=20261024-live1');
+@import url('./game-ui.css?v=20261024-mobile2');
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
@@ -84,13 +84,13 @@ body::before{
     height:calc(100vh - var(--drawer-top,60px));
     height:calc(100dvh - var(--drawer-top,60px));
     width:min(330px,86vw);
-    background:var(--bg);z-index:60;
+    background:var(--bg);z-index:1101;
     padding:14px 16px 40px;
     overflow-y:auto;border-right:1px solid var(--border);box-shadow:6px 0 30px rgba(0,0,0,.45);
     -webkit-overflow-scrolling:touch;animation:sky-drawer-in .22s cubic-bezier(.4,.2,.2,1);
   }
   .sky-drawer-backdrop{
-    position:fixed;top:var(--drawer-top,60px);left:0;right:0;bottom:0;z-index:59;
+    position:fixed;top:var(--drawer-top,60px);left:0;right:0;bottom:0;z-index:1100;
     background:rgba(0,0,0,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
     animation:sky-fade-in .22s ease;
   }
