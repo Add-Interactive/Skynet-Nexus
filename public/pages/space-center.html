@@ -242,7 +242,19 @@
 .mlab-msg.err{display:block;color:#ff9d9d}
 #mlab-viewer-canvas{display:block;width:100%;height:260px;border-radius:12px;background:#04101d;border:1px solid rgba(0,229,255,.2);touch-action:none;cursor:grab}
 #mlab-viewer-info{min-height:1.2em}
-  </style>
+  
+    /* Space video panels: video panel opened from the info panel, first object Hubble */
+    #videopanel-slot:empty{display:none}
+    .vbtn{display:block;width:100%;margin:12px 0 2px;padding:10px 12px;border-radius:10px;border:1px solid rgba(0,229,255,.45);background:rgba(0,229,255,.14);color:#bff3ff;font:700 .78rem Inter,sans-serif;cursor:pointer}
+    .vbtn:hover{background:rgba(0,229,255,.24)}
+    #videopanel{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(2,4,10,.88);padding:18px}
+    #videopanel.open{display:flex}
+    #videopanel .vp-box{width:min(860px,100%);background:#04101e;border:1px solid rgba(0,229,255,.35);border-radius:16px;padding:16px}
+    #videopanel .vp-box h3{margin:0 0 6px;font-size:1.05rem}
+    #videopanel .vp-box p{margin:0 0 12px;font-size:.82rem;line-height:1.5;color:var(--text-dim)}
+    #videopanel video{width:100%;border-radius:10px;background:#000}
+    #videopanel .vp-close{float:right;background:none;border:0;color:var(--text-mute);font-size:1.2rem;cursor:pointer}
+</style>
 </head>
 <body>
   <div id="loading"><div class="spin">🛰️</div><div>ACQUIRING SATELLITES…</div></div>
@@ -463,6 +475,7 @@
     <div class="datagrid" id="infodata"></div>
     <p id="infop">—</p>
     <div id="cmpzone"></div>
+    <div id="videopanel-slot"></div>
   </div>
   <div class="hud" id="timebar">
     <button id="pausebtn" title="Pause / resume time">⏸</button>
@@ -505,5 +518,16 @@
 <script type="module" src="../assets/js/ar-nightsky.js"></script>
   <script type="module" src="../assets/js/model-library.js"></script>
   <script type="module" src="../assets/js/creator-studio.js"></script>
+
+  <div id="videopanel" role="dialog" aria-modal="true" aria-label="Space video panel">
+    <div class="vp-box">
+      <button class="vp-close" id="vp-close" aria-label="Close video panel">×</button>
+      <h3 id="vp-title">—</h3>
+      <p id="vp-desc">—</p>
+      <video id="vp-video" controls playsinline preload="none"></video>
+      <p id="vp-note" style="display:none;font-size:.74rem;color:#ffb454">Video file not yet uploaded to this site. See public/assets/video/README.md for the local-git step to add it.</p>
+    </div>
+  </div>
+  <script type="module" src="../assets/js/space-video-panels.js"></script>
 </body>
 </html>
