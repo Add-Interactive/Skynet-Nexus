@@ -101,14 +101,30 @@
   GameEngine.playSfx = playSfx;
 
   // ------------------------------------------------------------
-  // 2. INTERACTIVE COSMIC CANVAS (STARFIELD & WARP PARTICLES)
+  // 2. 3D PARALLAX COSMIC CANVAS & NEBULA POSITIONING
   // ------------------------------------------------------------
+  var mouseTargetX = 0, mouseTargetY = 0;
+  var mouseCurX = 0, mouseCurY = 0;
+
+  window.addEventListener('mousemove', function (e) {
+    var centerX = window.innerWidth / 2;
+    var centerY = window.innerHeight / 2;
+    mouseTargetX = (e.clientX - centerX) / centerX; // -1 to 1
+    mouseTargetY = (e.clientY - centerY) / centerY; // -1 to 1
+
+    // Update global CSS variables for parallax background grid & nebulae
+    document.documentElement.style.setProperty('--parallax-x', (mouseTargetX * 18) + 'px');
+    document.documentElement.style.setProperty('--parallax-y', (mouseTargetY * 18) + 'px');
+    document.documentElement.style.setProperty('--tilt-x', (mouseTargetX * 4) + 'deg');
+    document.documentElement.style.setProperty('--tilt-y', (mouseTargetY * 4) + 'deg');
+  });
+
   function initStarfieldCanvas() {
     var canvas = document.getElementById('space-canvas');
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
     var stars = [];
-    var count = 90;
+    var count = 130;
 
     function resize() {
       canvas.width = window.innerWidth;
@@ -118,30 +134,58 @@
     resize();
 
     for (var i = 0; i < count; i++) {
+      // 3 Depth planes: 0 = Far, 1 = Mid, 2 = Near
+      var plane = (i < 75) ? 0 : (i < 110) ? 1 : 2;
+      var speed = (plane === 0) ? 0.15 : (plane === 1) ? 0.35 : 0.7;
+      var size = (plane === 0) ? Math.random() * 1.2 + 0.4 : (plane === 1) ? Math.random() * 2 + 1 : Math.random() * 2.8 + 1.8;
+      var color = (plane === 2) ? ['#00e5ff', '#b026ff', '#ffffff'][Math.floor(Math.random() * 3)] : '#ffffff';
+
       stars.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        size: Math.random() * 2 + 0.5,
-        speed: Math.random() * 0.4 + 0.1,
-        alpha: Math.random() * 0.8 + 0.2
+        baseX: Math.random() * canvas.width,
+        baseY: Math.random() * canvas.height,
+        x: 0,
+        y: 0,
+        plane: plane,
+        speed: speed,
+        size: size,
+        color: color,
+        alpha: Math.random() * 0.7 + 0.3
       });
     }
 
     function render() {
+      // Smooth interpolation for mouse parallax
+      mouseCurX += (mouseTargetX - mouseCurX) * 0.05;
+      mouseCurY += (mouseTargetY - mouseCurY) * 0.05;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#ffffff';
 
       for (var i = 0; i < stars.length; i++) {
         var s = stars[i];
-        s.y -= s.speed;
-        if (s.y < 0) {
-          s.y = canvas.height;
-          s.x = Math.random() * canvas.width;
+        s.baseY -= s.speed;
+        if (s.baseY < 0) {
+          s.baseY = canvas.height;
+          s.baseX = Math.random() * canvas.width;
         }
+
+        // Parallax offset proportional to plane depth
+        var parallaxFactor = (s.plane === 0) ? 12 : (s.plane === 1) ? 28 : 60;
+        s.x = s.baseX + (mouseCurX * parallaxFactor);
+        s.y = s.baseY + (mouseCurY * parallaxFactor);
+
         ctx.globalAlpha = s.alpha;
+        ctx.fillStyle = s.color;
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
         ctx.fill();
+
+        // Extra halo for near cosmic dust particles
+        if (s.plane === 2) {
+          ctx.globalAlpha = s.alpha * 0.35;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.size * 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
       requestAnimationFrame(render);
     }
@@ -149,10 +193,48 @@
   }
 
   // ------------------------------------------------------------
-  // 3. INITIALIZATION & BINDING
+  // 3. INTERACTIVE 3D HOLOGRAPHIC DISPLAY CARDS (TILT & SPECULAR SHEEN)
+  // ------------------------------------------------------------
+  function initHolo3DCards() {
+    var cardSelector = '.feed-grid .card, .card, .mission-card, .summer-promo, .dropbar, .widget, .cadet-hero-card, .guardian-hero-card, .commander-hero-card, .prog-card';
+
+    document.addEventListener('mousemove', function (e) {
+      var card = e.target.closest(cardSelector);
+      if (!card) return;
+
+      var rect = card.getBoundingClientRect();
+      var x = e.clientX - rect.left; // x position within element
+      var y = e.clientY - rect.top;  // y position within element
+
+      var centerX = rect.width / 2;
+      var centerY = rect.height / 2;
+
+      // Calculate tilt angles (subtle 3D angle)
+      var rotateX = ((y - centerY) / centerY) * -7;
+      var rotateY = ((x - centerX) / centerX) * 7;
+
+      var percentX = (x / rect.width) * 100;
+      var percentY = (y / rect.height) * 100;
+
+      card.style.setProperty('--holo-x', percentX + '%');
+      card.style.setProperty('--holo-y', percentY + '%');
+      card.style.transform = 'perspective(1000px) rotateX(' + rotateX.toFixed(2) + 'deg) rotateY(' + rotateY.toFixed(2) + 'deg) translateZ(10px) scale3d(1.015, 1.015, 1.015)';
+    });
+
+    document.addEventListener('mouseout', function (e) {
+      var card = e.target.closest(cardSelector);
+      if (card && (!e.relatedTarget || !card.contains(e.relatedTarget))) {
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0) scale3d(1, 1, 1)';
+      }
+    });
+  }
+
+  // ------------------------------------------------------------
+  // 4. INITIALIZATION & BINDING
   // ------------------------------------------------------------
   document.addEventListener('DOMContentLoaded', function () {
     initStarfieldCanvas();
+    initHolo3DCards();
     bindGlobalUIEvents();
     loadMissions();
   });

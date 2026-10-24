@@ -1817,3 +1817,283 @@ body {
   letter-spacing: 0.12em !important;
 }
 
+/* ============================================================
+   11. 3D DEPTH, HOLOGRAPHIC SHEEN & PARALLAX LAYERING
+   ============================================================ */
+
+/* 3D Depth Viewport & Perspective Floor Grid */
+body {
+  perspective: 1200px;
+}
+
+.holo-grid-bg {
+  position: fixed !important;
+  inset: -40% -20% -20% -20% !important;
+  background: 
+    linear-gradient(rgba(0, 229, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.05) 1px, transparent 1px) !important;
+  background-size: 70px 70px !important;
+  transform: perspective(600px) rotateX(68deg) translate(var(--parallax-x, 0px), var(--parallax-y, 0px)) !important;
+  transform-origin: center 80% !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+  mask-image: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 35%, transparent 75%) !important;
+  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 35%, transparent 75%) !important;
+  animation: gridDrift 24s linear infinite !important;
+}
+
+@keyframes gridDrift {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 700px; }
+}
+
+.ambient-nebula {
+  transform: translate(calc(var(--parallax-x, 0px) * -1.5), calc(var(--parallax-y, 0px) * -1.5)) !important;
+  transition: transform 0.25s cubic-bezier(0.1, 0.9, 0.2, 1) !important;
+}
+
+/* 3-Column Floating Console Decks with Layered Shadowing */
+.app {
+  perspective: 1400px !important;
+}
+
+.sidebar {
+  background: rgba(8, 14, 32, 0.75) !important;
+  border: 1px solid var(--hud-border) !important;
+  border-radius: 24px !important;
+  padding: 18px 14px 28px !important;
+  box-shadow: 
+    0 24px 60px rgba(0, 0, 0, 0.8),
+    0 0 30px rgba(0, 229, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+}
+
+/* Holographic 3D Display Cards */
+.card, .feed-grid .card, .mission-card, .summer-promo, .dropbar, .widget, .cadet-hero-card, .guardian-hero-card, .commander-hero-card, .prog-card {
+  position: relative !important;
+  transform-style: preserve-3d !important;
+  transition: transform 0.18s cubic-bezier(0.18, 0.89, 0.32, 1.28), box-shadow 0.25s ease, border-color 0.25s ease !important;
+  box-shadow: 
+    0 16px 40px rgba(0, 0, 0, 0.75),
+    0 2px 6px rgba(0, 0, 0, 0.5),
+    0 0 25px rgba(0, 229, 255, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+  will-change: transform, box-shadow;
+}
+
+/* Dynamic Holographic Specular Glare / Sheen */
+.card::after, .feed-grid .card::after, .mission-card::after, .summer-promo::after, .dropbar::after, .widget::after, .cadet-hero-card::after, .guardian-hero-card::after, .commander-hero-card::after {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: inherit !important;
+  background: radial-gradient(450px circle at var(--holo-x, 50%) var(--holo-y, 50%), rgba(0, 229, 255, 0.28), rgba(176, 38, 255, 0.18) 35%, transparent 65%) !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  mix-blend-mode: screen !important;
+  transition: opacity 0.3s ease !important;
+  z-index: 5 !important;
+}
+
+.card:hover::after, .feed-grid .card:hover::after, .mission-card:hover::after, .summer-promo:hover::after, .dropbar:hover::after, .widget:hover::after, .cadet-hero-card:hover::after, .guardian-hero-card:hover::after, .commander-hero-card:hover::after {
+  opacity: 1 !important;
+}
+
+/* Holographic Hover Elevation & Ambient Glow */
+.card:hover, .feed-grid .card:hover, .mission-card:hover, .summer-promo:hover, .widget:hover, .prog-card:hover {
+  border-color: var(--neon-cyan) !important;
+  box-shadow: 
+    0 28px 70px rgba(0, 0, 0, 0.85),
+    0 0 35px rgba(0, 229, 255, 0.4),
+    0 0 70px rgba(176, 38, 255, 0.2),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Holographic Prismatic Rainbow Edge Effect */
+.card::before, .mission-card::before, .summer-promo::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: -1px !important;
+  border-radius: inherit !important;
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.4), rgba(176, 38, 255, 0.3), rgba(0, 255, 136, 0.3), rgba(255, 183, 3, 0.2)) !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  z-index: -1 !important;
+  transition: opacity 0.3s ease !important;
+}
+
+.card:hover::before, .mission-card:hover::before, .summer-promo:hover::before {
+  opacity: 1 !important;
+}
+
+/* 3D Pop-out elements inside cards */
+.mission-bounty-badge, .bounty-pill, .cat-dot, .kicker, .prog-badge {
+  transform: translateZ(26px) !important;
+  transform-style: preserve-3d !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+}
+
+.card-title, .mission-title, .summer-promo-body h2, .widget-title {
+  transform: translateZ(16px) !important;
+  transform-style: preserve-3d !important;
+}
+
+.mission-launch-btn, .summer-promo-cta, .dropbar-timer, .holo-claim-btn {
+  transform: translateZ(22px) !important;
+  transform-style: preserve-3d !important;
+}
+
+.mission-thumb-wrap, .summer-promo-emoji {
+  transform: translateZ(8px) !important;
+  transform-style: preserve-3d !important;
+}
+
+/* ============================================================
+   12. MOBILE & TOUCHSCREEN RESPONSIVENESS
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .game-hud-bar {
+    padding: 10px 16px !important;
+    gap: 10px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Gamer HUD Stack */
+  .game-hud-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 12px 14px !important;
+    gap: 10px !important;
+  }
+  
+  .role-matrix {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    gap: 6px !important;
+  }
+  
+  .role-pill-btn {
+    flex: 1 !important;
+    padding: 8px 10px !important;
+    font-size: 0.78rem !important;
+    justify-content: center !important;
+  }
+
+  .hud-player-stats {
+    width: 100% !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+  }
+
+  .hud-stat-pill {
+    padding: 4px 10px !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* Role Stations */
+  .cadet-hero-card, .guardian-hero-card, .commander-hero-card {
+    padding: 18px 16px !important;
+    border-radius: 18px !important;
+  }
+
+  .cadet-level-title {
+    font-size: 1.1rem !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+  }
+
+  .cadet-bounties-grid {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .bounty-pill {
+    width: 100% !important;
+    font-size: 0.8rem !important;
+    padding: 8px 12px !important;
+  }
+
+  /* Touch optimizations: prevent stuck tilt on touch devices */
+  .card, .feed-grid .card, .mission-card, .summer-promo, .dropbar, .widget {
+    transform: none !important;
+  }
+
+  .card:active, .mission-card:active, .summer-promo:active, .widget:active {
+    transform: scale(0.98) !important;
+    transition: transform 0.1s ease !important;
+  }
+
+  /* Horizontal swipe for category chips */
+  .filter-bar {
+    display: flex !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: 8px !important;
+    scrollbar-width: none !important;
+    gap: 6px !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .filter-bar::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .filter-bar .chip {
+    flex-shrink: 0 !important;
+    padding: 7px 14px !important;
+    font-size: 0.78rem !important;
+  }
+
+  .sort-select {
+    flex-shrink: 0 !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .dropbar {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    padding: 14px 16px !important;
+  }
+
+  .dropbar-timer {
+    font-size: 1.35rem !important;
+  }
+
+  .summer-promo {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    padding: 16px !important;
+  }
+
+  .summer-promo-emoji {
+    font-size: 2.2rem !important;
+  }
+
+  .summer-promo-cta {
+    align-self: flex-start !important;
+    margin-top: 4px !important;
+  }
+
+  /* Mobile Feed Grid */
+  .feed-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* Right rail widgets when visible */
+  .right-rail .widget {
+    padding: 16px !important;
+    border-radius: 16px !important;
+  }
+}
+
+
