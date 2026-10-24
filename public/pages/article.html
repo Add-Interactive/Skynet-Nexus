@@ -3,267 +3,434 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Article — Skynet Nexus</title>
-  <meta name="description" content="A single story from Skynet Nexus, with a Kid Take and Family Discussion questions."/>
-  <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg"/>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
-  <link rel="stylesheet" href="../assets/css/style.css?v=20261001-2"/>
-  <link rel="stylesheet" href="/assets/css/auth.css"/>
-
-  <!-- Open Graph + link discovery (added by polish pass) -->
-  <meta property="og:type" content="website"/>
-  <meta property="og:site_name" content="Skynet Nexus"/>
-  <meta property="og:title" content="Skynet Nexus"/>
-  <meta property="og:description" content="A single story from Skynet Nexus, with a Kid Take and Family Discussion."/>
-  <meta property="og:url" content="https://skynet-nexus-production.up.railway.app/pages/article.html"/>
-  <meta property="og:image" content="https://skynet-nexus-production.up.railway.app/assets/img/og-cover.png"/>
-  <meta property="og:image:width" content="1200"/>
-  <meta property="og:image:height" content="630"/>
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:title" content="Skynet Nexus"/>
-  <meta name="twitter:description" content="A single story from Skynet Nexus, with a Kid Take and Family Discussion."/>
-  <meta name="twitter:image" content="https://skynet-nexus-production.up.railway.app/assets/img/og-cover.png"/>
-  <meta name="theme-color" content="#0a0e17" media="(prefers-color-scheme: dark)"/>
-  <meta name="theme-color" content="#f0f4ff" media="(prefers-color-scheme: light)"/>
-  <link rel="canonical" href="https://skynet-nexus-production.up.railway.app/pages/article.html"/>
-  <link rel="alternate" type="application/rss+xml" title="Skynet Nexus RSS" href="/rss.xml"/>
-  <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png"/>
-  <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/apple-touch-icon.png"/>
-  <meta name="apple-mobile-web-app-title" content="Skynet Nexus"/>
-  <meta name="application-name" content="Skynet Nexus"/>
+  <title>TACTICAL INTEL // Skynet Nexus Holo-OS</title>
+  <meta name="description" content="Tactical STEM Intelligence Briefing with Kid Take, Co-Op Reading, and Daily Bounties."/>
+  <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Lexend:wght@400;600;700&family=JetBrains+Mono:wght@500;700;800&display=swap"/>
+  <link rel="stylesheet" href="/assets/css/game-ui.css?v=20261013-game3"/>
 </head>
 <body>
 
-  <!-- Top Bar -->
-  <header class="topbar">
-    <div class="topbar-inner">
-      <a href="../index.html" class="brand" aria-label="Skynet Nexus">
-        <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-          <defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00e5ff"/><stop offset="100%" stop-color="#a855f7"/></linearGradient></defs>
-          <path d="M20 3l14 8v18l-14 8L6 29V11z" fill="none" stroke="url(#lg1)" stroke-width="2.5" stroke-linejoin="round"/>
-          <path d="M20 12l7 4v8l-7 4-7-4v-8z" fill="url(#lg1)" opacity=".95"/>
-          <circle cx="20" cy="20" r="2.5" fill="#0a0e17"/>
-        </svg>
-        <div>
-          <div class="brand-name">SKYNET NEXUS</div>
-          <div class="brand-tag">Family Signal</div>
-        </div>
+  <!-- Ambient Holographic Canvas -->
+  <canvas id="space-canvas"></canvas>
+  <div class="holo-grid-bg"></div>
+  <div class="ambient-nebula nebula-1"></div>
+  <div class="ambient-nebula nebula-2"></div>
+
+  <!-- 1. TOP GAMER HUD BAR -->
+  <header class="game-hud-bar">
+    <a href="../index.html" class="game-brand" aria-label="Skynet Nexus Command">
+      <div class="brand-hologram-icon">🪐</div>
+      <div>
+        <div class="brand-text-game">SKYNET NEXUS</div>
+        <div class="brand-sub-game">HOLO-OS // TACTICAL READER</div>
+      </div>
+    </a>
+
+    <div class="game-hud-center">
+      <a href="../index.html" class="tactical-btn tactical-btn-ghost" style="padding:6px 14px;font-size:0.75rem;">
+        &larr; MISSION HUB
       </a>
+      <a href="quiz.html" class="tactical-btn tactical-btn-purple" style="padding:6px 14px;font-size:0.75rem;">
+        🧠 QUIZ ARENA
+      </a>
+      <a href="kid.html" class="tactical-btn tactical-btn-cyan" style="padding:6px 14px;font-size:0.75rem;">
+        🚀 CADET SPACE
+      </a>
+    </div>
 
-      <div class="search-wrap">
-        <span id="ic-search"></span>
-        <input id="global-search" type="search" placeholder="Search stories, artists, teams, tags..."/>
+    <div class="game-hud-stats">
+      <div class="hud-stat-pill">
+        <span>⭐ XP</span>
+        <strong id="hud-xp-val" class="xp-glow">340 XP</strong>
       </div>
-
-      <div class="top-actions">
-        <button class="icon-btn only-mobile" id="menu-toggle" aria-label="Menu"><span id="ic-menu"></span></button>
-        <a class="icon-btn" href="guide.html" aria-label="How to use Skynet Nexus" title="How to use Skynet Nexus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.6 2.6 0 1 1 3.7 2.4c-.8.4-1.3.9-1.3 1.9"/><circle cx="12" cy="17" r="1.1" fill="currentColor" stroke="none"/></svg></a>
-        <button class="icon-btn" id="theme-toggle" aria-label="Toggle theme"></button>
-        
-        
-        <div class="sky-user-slot"></div>
-      </div>
+      <button type="button" class="sfx-toggle-pill" id="sfx-toggle" title="Toggle Synthesized Audio SFX">
+        🔊 SFX ON
+      </button>
+      <a href="profile.html" class="cadet-badge-mini" title="Fleet Command Profile">
+        <span class="cadet-avatar-face">👨‍🚀</span>
+        <span class="cadet-level-tag">LVL 3</span>
+      </a>
     </div>
   </header>
 
-  <div class="ticker"><div id="ticker-inner" class="ticker-inner"></div></div>
+  <!-- 2. TACTICAL READER CONTAINER -->
+  <main class="tactical-reader-wrap">
 
-  <div class="app">
+    <!-- Hero Header -->
+    <div class="tactical-hero-header">
+      <div class="tactical-hero-img-wrap">
+        <img id="article-cover" src="/assets/img/skynet_newsroom_banner.jpg" alt="Mission Cover"/>
+        <div class="tactical-hero-overlay">
+          <div class="tactical-sector-badge" id="article-sector">📡 SECTOR // STEM EXPLORATION</div>
+          <h1 class="tactical-hero-title" id="article-title">Synchronizing Holographic Intel...</h1>
+          <div class="tactical-hero-meta">
+            <span id="article-date">TRANS-DATE: 2026-10-24</span>
+            <span>&bull;</span>
+            <span id="article-correspondent">SIGNAL: SKYNET CORRESPONDENT CORPS</span>
+            <span>&bull;</span>
+            <span style="color:var(--neon-green)">CLEARANCE: UNRESTRICTED CADET</span>
+          </div>
+        </div>
+      </div>
 
-    <aside class="sidebar">
-      <div class="side-section">
-        <div class="side-title">Feed</div>
-        <ul class="nav-list">
-          <li><a href="../index.html" ><span class="icon" id="nav-home"></span><span>Home</span></a></li>
-          <li><a href="../index.html#trending"><span class="icon" id="nav-flame"></span><span>Trending</span></a></li>
-          <li><a href="events.html" ><span class="icon" id="nav-events"></span><span>Events</span></a></li>
-          <li><a href="leaderboard.html" ><span class="icon" id="nav-trophy"></span><span>Leaderboard</span></a></li>
-          <li><a href="summer.html"><span class="icon">🏕️</span><span>Summer STEM</span></a></li>
-          <li><a href="archive.html"><span class="icon">📚</span><span>Archive</span></a></li>
-        </ul>
-      </div>
-      <div class="side-section">
-        <div class="side-title">Channels</div>
-        <ul class="nav-list">
-          <li><a href="stem.html" ><span class="cat-dot cat-stem"></span><span>STEM</span><span class="count">1</span></a></li>
-          <li><a href="robotics.html" ><span class="cat-dot cat-robotics"></span><span>Robotics</span><span class="count">1</span></a></li>
-          <li><a href="play.html" ><span class="cat-dot cat-play"></span><span>Play & Design</span><span class="count">1</span></a></li>
-          <li><a href="music.html" ><span class="cat-dot cat-music"></span><span>Music</span><span class="count">1</span></a></li>
-        </ul>
-      </div>
-      <div class="side-section">
-        <div class="side-title">You</div>
-        <ul class="nav-list">
-          
-          
-          <li><a href="about.html" ><span class="icon" id="nav-info"></span><span>About</span></a></li>
-          <li><a href="contact.html" ><span class="icon" id="nav-mail"></span><span>Contact</span></a></li>
-        </ul>
-      </div>
-      <div class="side-section"><div class="sky-intro-slot"></div></div>
-      <div class="side-section">
-        <div class="sky-user-card-slot"></div>
-      </div>
-    </aside>
+      <!-- Action Bar -->
+      <div class="tactical-action-bar">
+        <!-- Audio Uplink -->
+        <div class="tactical-audio-player">
+          <button type="button" class="audio-play-btn" id="audio-play-trigger" title="Listen with Piper TTS Voice">
+            ▶
+          </button>
+          <div style="font-family:var(--font-game);font-size:0.8rem;font-weight:700;color:var(--neon-cyan);">
+            VOICE NARRATION
+          </div>
+          <div class="audio-wave-bars" id="audio-wave-anim">
+            <div class="audio-wave-bar"></div>
+            <div class="audio-wave-bar"></div>
+            <div class="audio-wave-bar"></div>
+            <div class="audio-wave-bar"></div>
+            <div class="audio-wave-bar"></div>
+          </div>
+        </div>
 
-    <main class="main">
-      <div id="article-root"></div>
-    </main>
+        <!-- Mode Pills -->
+        <div class="tactical-mode-switcher">
+          <button type="button" class="tactical-mode-btn active" id="btn-mode-standard">
+            🛰️ FULL INTEL
+          </button>
+          <button type="button" class="tactical-mode-btn" id="btn-mode-cadet">
+            🧒 CADET CODEX (AGE 8)
+          </button>
+        </div>
 
-    <aside class="right-rail">
-      <div class="widget countdown-card">
-        <div class="widget-title">Featured Event <span class="live-dot"></span></div>
-        <div class="countdown-title" id="countdown-title">—</div>
-        <div class="countdown-sub" id="countdown-sub">—</div>
-        <div class="countdown-grid" id="countdown-grid"></div>
-      </div>
-      <div class="widget">
-        <div class="widget-title">Right now <span class="live-dot"></span></div>
-        <div id="stat-tiles" class="stat-tiles"></div>
-      </div>
-      <div class="widget">
-        <div class="widget-title">Trending Now</div>
-        <ol id="trending-list" class="trend-list"></ol>
-      </div>
-      <div class="widget">
-        <div class="widget-title">Weekly Leaderboard</div>
-        <div id="leaderboard"></div>
-      </div>
-      <div class="widget poll-card">
-        <div class="widget-title">Quick Poll</div>
-        <div class="poll-q" id="poll-q"></div>
-        <div id="poll-box"></div>
-      </div>
-      <div class="widget news-card">
-        <div class="widget-title">Get the Wire</div>
-        <p>One family-friendly digest of the best youth achievement stories, every Sunday morning. Perfect for the fridge door.</p>
-        <form id="newsletter-form">
-          <input type="email" placeholder="you@yourcrew.com" required/>
-          <button type="submit">Join</button>
-        </form>
-      </div>
-    </aside>
-
-  </div>
-
-  <footer class="footer">
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <h4>SKYNET NEXUS</h4>
-        <p>The signal for the next generation — built for families. Every story includes a Kid Take (age 8 reading level) and Family Discussion questions. Free forever, no ads targeted at kids.</p>
-      </div>
-      <div class="footer-col">
-        <h5>Channels</h5>
-        <ul>
-          <li><a href="stem.html">STEM</a></li>
-          <li><a href="robotics.html">Robotics</a></li>
-          <li><a href="play.html">Play &amp; Design</a></li>
-          <li><a href="music.html">Music</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h5>Company</h5>
-        <ul>
-          <li><a href="about.html">About</a></li>
-          <li><a href="team.html">Team</a></li>
-          <li><a href="contact.html">Contact</a></li>
-          <li><a href="contact.html#press">Press</a></li>
-          <li><a href="privacy.html">Privacy</a></li>
-          <li><a href="safety.html">Safety &amp; Security</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h5>Community</h5>
-        <ul>
-          <li><a href="whats-new.html" data-whatsnew>What's New</a></li>
-          <li><a href="guide.html">How to Use</a></li>
-          <li><a href="events.html">Events</a></li>
-          <li><a href="leaderboard.html">Leaderboard</a></li>
-          <li><a href="/rss.xml">RSS feed</a></li>
-        </ul>
-      </div>
-      <div class="footer-col footer-col-partners">
-        <h5>Network</h5>
-        <ul class="partners-list">
-          <li>
-            <a href="https://addinteractive-production.up.railway.app/" target="_blank" rel="noopener">
-              <span class="partner-role">Published by</span>
-              <span class="partner-name">Add Interactive Studio</span>
-            </a>
-          </li>
-          <li>
-            <a href="https://stemnexus.org" target="_blank" rel="noopener">
-              <span class="partner-role">In partnership with</span>
-              <span class="partner-name">STEM Nexus</span>
-            </a>
-          </li>
-        </ul>
+        <!-- Quick Actions -->
+        <div class="tactical-btns-group">
+          <button type="button" class="tactical-btn tactical-btn-ghost" id="btn-bookmark" title="Save to Shelf">
+            🔖 SAVE
+          </button>
+          <button type="button" class="tactical-btn tactical-btn-purple" id="btn-coread" title="Launch Co-Read Mission">
+            📖 READ TOGETHER
+          </button>
+        </div>
       </div>
     </div>
-    <div class="footer-bottom">
-      <div class="footer-legal">
-        <span class="footer-parent-line">An <a href="https://addinteractive-production.up.railway.app/" target="_blank" rel="noopener"><strong>Add Interactive Studio</strong></a> production &middot; In partnership with <a href="https://stemnexus.org" target="_blank" rel="noopener"><strong>STEM Nexus</strong></a></span>
-        <span class="footer-copyright">&copy; 2026 Skynet Nexus. Free forever, family first.</span>
-      </div>
-      <div class="socials">
-        <a href="contact.html" class="story-tips-btn" title="Have a story tip? We'd love to hear it!">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
-          <span>Story tips</span>
-        </a>
-      </div>
+
+    <!-- Main Grid -->
+    <div class="tactical-grid">
+      
+      <!-- Primary Intel Panel -->
+      <section class="tactical-intel-panel">
+        
+        <!-- Cadet Codex Highlight Box -->
+        <div class="cadet-codex-box" id="cadet-codex-box">
+          <div class="cadet-codex-badge">🧒 CADET CODEX &middot; AGE 8 READING LEVEL</div>
+          <div class="cadet-codex-text" id="article-kidtake">
+            Analyzing story for young cadets...
+          </div>
+        </div>
+
+        <!-- Full Story Body -->
+        <div class="tactical-body-text" id="article-body">
+          <p>Decrypting transmission stream...</p>
+        </div>
+
+        <!-- Discussion Sparks Section -->
+        <div style="margin-top:40px;border-top:1px solid var(--hud-border);padding-top:28px;">
+          <h3 style="font-family:var(--font-game);color:var(--neon-amber);margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+            💬 ALLIED SPARKS &middot; FAMILY & CLASSROOM DEBRIEF
+          </h3>
+          <p style="color:#9cb5d6;font-size:0.95rem;margin-bottom:18px;">
+            Tap each prompt with your parent or classmates once discussed to mark complete:
+          </p>
+          <div id="discussion-sparks-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Mission Glossary Section -->
+        <div style="margin-top:36px;border-top:1px solid var(--hud-border);padding-top:28px;">
+          <h3 style="font-family:var(--font-game);color:var(--neon-cyan);margin-bottom:14px;">
+            📚 MISSION CODEX &middot; VOCABULARY TO MASTER
+          </h3>
+          <div class="codex-glossary-grid" id="glossary-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- XP Claim Action -->
+        <div style="margin-top:40px;text-align:center;padding:30px;background:rgba(4,8,20,0.7);border-radius:20px;border:1px solid var(--hud-border);">
+          <div style="font-family:var(--font-game);font-size:1.3rem;font-weight:900;color:#fff;margin-bottom:10px;">
+            READY TO LOG EXPEDITION PROGRESS?
+          </div>
+          <p style="color:#9cb5d6;margin-bottom:20px;">
+            Completing this reading earns you +25 XP toward your next Cadet Rank.
+          </p>
+          <button type="button" class="holo-claim-btn" id="claim-expedition-xp">
+            ⚡ CLAIM +25 XP REWARD
+          </button>
+        </div>
+
+      </section>
+
+      <!-- Right Tactical Deck -->
+      <aside class="tactical-sidebar">
+
+        <!-- Speed Quiz Challenge Card -->
+        <div class="mission-card" style="margin-bottom:24px;border-color:var(--neon-purple);">
+          <div style="padding:24px;">
+            <div style="font-family:var(--font-code);color:var(--neon-purple);font-size:0.8rem;font-weight:800;letter-spacing:0.1em;margin-bottom:6px;">
+              ⚡ DAILY COMBAT ARENA
+            </div>
+            <div style="font-family:var(--font-game);font-size:1.2rem;font-weight:900;color:#fff;margin-bottom:10px;">
+              Rapid-Fire Quiz Battle
+            </div>
+            <p style="font-size:0.85rem;color:#9cb5d6;line-height:1.5;margin-bottom:18px;">
+              Face off against the Daily Boss Trivia. Score combos, retain your 3 lives, and earn up to 50 XP.
+            </p>
+            <a href="quiz.html" class="tactical-btn tactical-btn-purple" style="width:100%;justify-content:center;">
+              ENTER ARENA &rarr;
+            </a>
+          </div>
+        </div>
+
+        <!-- Intel Telemetry Card -->
+        <div class="mission-card" style="margin-bottom:24px;">
+          <div style="padding:24px;">
+            <div style="font-family:var(--font-code);color:var(--neon-cyan);font-size:0.8rem;font-weight:800;letter-spacing:0.1em;margin-bottom:12px;">
+              📊 TELEMETRY & CLEARANCE
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;font-size:0.85rem;font-family:var(--font-code);">
+              <div style="display:flex;justify-content:space-between;color:#9cb5d6;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px;">
+                <span>READING TIME:</span>
+                <strong style="color:#fff;">3.5 MIN</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;color:#9cb5d6;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px;">
+                <span>CADET RATING:</span>
+                <strong style="color:var(--neon-green);">ALL AUDIENCES</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;color:#9cb5d6;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:6px;">
+                <span>STATION PROTOCOL:</span>
+                <strong style="color:var(--neon-cyan);">VERIFIED DATA</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Co-Op Link Card -->
+        <div class="mission-card">
+          <div style="padding:24px;">
+            <div style="font-family:var(--font-code);color:var(--neon-amber);font-size:0.8rem;font-weight:800;letter-spacing:0.1em;margin-bottom:6px;">
+              👨‍👩‍👧 CO-OP FLIGHT DECK
+            </div>
+            <div style="font-family:var(--font-game);font-size:1.1rem;font-weight:900;color:#fff;margin-bottom:10px;">
+              Side-by-Side Reading
+            </div>
+            <p style="font-size:0.85rem;color:#9cb5d6;line-height:1.5;margin-bottom:16px;">
+              Synchronize reading between cadet and guardian with simultaneous progress trackers.
+            </p>
+            <button type="button" class="tactical-btn tactical-btn-cyan" id="btn-coread-side" style="width:100%;justify-content:center;">
+              START CO-OP FLIGHT
+            </button>
+          </div>
+        </div>
+
+      </aside>
+
     </div>
-  </footer>
 
-  <script src="../assets/js/agi-predictions.js?v=20261006-1"></script>
-  <script src="../assets/js/app.js?v=20261001-6"></script>
-  <script src="../assets/js/voice-picker.js?v=20261006-1"></script>
-  <script src="../assets/js/sky-nav.js?v=20261007-3"></script>
-  <script src="../assets/js/article-media.js?v=20261004-1"></script>
-  <script src="../assets/js/article-nav.js?v=20261005-1"></script>
-  <script src="../assets/js/engage.js?v=20261001-1"></script>
-  <script src="../assets/js/article-engage.js?v=20261006-1"></script>
-  <script>
-    const NAV = {
-      'nav-home': ICONS.home, 'nav-flame': ICONS.flame, 'nav-events': ICONS.events,
-      'nav-trophy': ICONS.trophy, 'nav-bookmarks': ICONS.bookmarks, 'nav-users': ICONS.users,
-      'nav-info': ICONS.info, 'nav-mail': ICONS.mail,
-      's-tw': ICONS.twitter, 's-ig': ICONS.instagram, 's-yt': ICONS.youtube,
-      's-dc': ICONS.discord, 's-tt': ICONS.tiktok
-    };
-    Object.keys(NAV).forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = NAV[id]; });
-    initArticle('../');
-  </script>
+  </main>
 
+  <script src="/assets/js/game-engine.js?v=20261013-game3"></script>
   <script>
-  // Bookmark + Read Together floating actions
-  (function () {
-    var slug = new URLSearchParams(location.search).get('id');
-    if (!slug) return;
-    var bar = document.createElement('div');
-    bar.style.cssText = 'position:fixed;bottom:20px;right:20px;display:flex;gap:10px;z-index:9999';
-    bar.innerHTML = '<button id="bm-btn" title="Save to shelf" style="width:52px;height:52px;border-radius:50%;border:2px solid rgba(0,229,255,.5);background:rgba(11,16,38,.9);color:#fff;font-size:22px;cursor:pointer">🔖</button>' +
-      '<button id="rt-btn" title="Read together" style="width:52px;height:52px;border-radius:50%;border:2px solid rgba(168,85,247,.5);background:rgba(11,16,38,.9);color:#fff;font-size:22px;cursor:pointer">📖</button>';
-    document.body.appendChild(bar);
-    var kidId = null;
-    try { kidId = localStorage.getItem('nexus_active_kid'); } catch (e) {}
-    document.getElementById('bm-btn').addEventListener('click', function () {
-      fetch('/api/bookmarks', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ article_slug: slug, kid_id: kidId ? Number(kidId) : null }) })
-        .then(function (r) { if (!r.ok) throw 0; alert('🔖 Saved to shelf!'); })
-        .catch(function () { alert('Sign in to save stories.'); });
-    });
-    document.getElementById('rt-btn').addEventListener('click', function () {
-      if (!kidId) { alert('Pick a kid profile first, then read together!'); location.href = '/pages/profile.html'; return; }
-      fetch('/api/coread/start', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kid_id: Number(kidId), article_slug: slug }) })
+    (function () {
+      'use strict';
+      var params = new URLSearchParams(location.search);
+      var storyId = params.get('id') || params.get('slug') || '2026-09-30-welcome-back-to-the-nexus';
+      var currentStory = null;
+      var isCadetMode = false;
+      var isAudioPlaying = false;
+      var audioElement = null;
+
+      function esc(s) {
+        return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+
+      // Fetch article intel
+      fetch('/api/manifest')
         .then(function (r) { return r.json(); })
-        .then(function (d) { location.href = '/pages/read-together.html?slug=' + encodeURIComponent(slug) + '&kid=' + kidId + '&session=' + d.sessionId; })
-        .catch(function () { location.href = '/pages/read-together.html?slug=' + encodeURIComponent(slug) + '&kid=' + kidId; });
-    });
-  })();
+        .then(function (manifest) {
+          var articles = manifest.articles || [];
+          currentStory = articles.find(function (a) {
+            return a.id === storyId || a.slug === storyId;
+          }) || articles[0];
+
+          if (currentStory) renderStory(currentStory);
+        })
+        .catch(function () {
+          // Fallback story if offline or demo
+          currentStory = {
+            id: storyId,
+            title: 'Welcome to the STEM Nexus Network',
+            cat: 'stem',
+            date: '2026-10-24',
+            heroImage: '/assets/img/skynet_newsroom_banner.jpg',
+            kidTake: 'Reporters write exciting true stories about what students are building in science, space exploration, and robotics!',
+            body: '<p>Welcome Explorer to the Skynet Nexus Signal. Every day, correspondents track groundbreaking achievements across deep space telescopes, autonomous submersibles, bio-engineering, and interactive gaming worlds.</p><p>As you explore each briefing, you unlock experience points (XP), complete daily bounties, and climb classroom leaderboards alongside your teachers and crewmates.</p>',
+            familyDiscussion: [
+              'What exciting thing in science or space would you explore if you had your own submarine or spacecraft?',
+              'Why is it helpful to have simple explanations alongside deep technical research reports?'
+            ],
+            glossary: [
+              { term: 'Telemetry', definition: 'The automated transmission of data measurements from distant or deep space probes.' },
+              { term: 'Autonomous', definition: 'Able to navigate, think, or act independently without human remote-control guidance.' }
+            ]
+          };
+          renderStory(currentStory);
+        });
+
+      function renderStory(story) {
+        document.title = (story.title || 'Intel') + ' // HOLO-OS';
+        document.getElementById('article-title').textContent = story.title || 'Untitled Transmission';
+        document.getElementById('article-sector').textContent = '📡 SECTOR // ' + (story.cat || 'STEM').toUpperCase();
+        if (story.date) document.getElementById('article-date').textContent = 'TRANS-DATE: ' + story.date;
+        if (story.heroImage) document.getElementById('article-cover').src = story.heroImage;
+
+        document.getElementById('article-kidtake').textContent = story.kidTake || story.kid_take || 'Simplified intelligence briefing for cadet crew members.';
+        document.getElementById('article-body').innerHTML = story.body || '<p>' + (story.excerpt || '') + '</p>';
+
+        // Discussion Sparks
+        var sparks = story.familyDiscussion || [
+          'What did you learn from this intelligence briefing that surprised you most?',
+          'How can we test or explore this idea in our own home or school science lab?'
+        ];
+        var sparksContainer = document.getElementById('discussion-sparks-list');
+        sparksContainer.innerHTML = sparks.map(function (spark, idx) {
+          return (
+            '<div class="discussion-spark-card" data-idx="' + idx + '">' +
+              '<div class="discussion-spark-title">' +
+                '<span>⚡ TOPIC ' + (idx + 1) + '</span>' +
+                '<span style="font-size:0.75rem;opacity:0.8;">(Tap when discussed)</span>' +
+              '</div>' +
+              '<div class="discussion-spark-text">' + esc(spark) + '</div>' +
+            '</div>'
+          );
+        }).join('');
+
+        sparksContainer.querySelectorAll('.discussion-spark-card').forEach(function (card) {
+          card.addEventListener('click', function () {
+            if (window.GameEngine && window.GameEngine.playSfx) window.GameEngine.playSfx('click');
+            this.classList.toggle('discussed');
+            if (this.classList.contains('discussed')) {
+              if (window.GameEngine && window.GameEngine.playSfx) window.GameEngine.playSfx('success');
+            }
+          });
+        });
+
+        // Mission Codex Glossary
+        var gloss = story.glossary || [
+          { term: 'Signal', definition: 'A clear stream of intelligence and discovery transmitted directly to learners.' }
+        ];
+        var glossContainer = document.getElementById('glossary-list');
+        glossContainer.innerHTML = gloss.map(function (item) {
+          return (
+            '<div class="codex-glossary-item">' +
+              '<div class="codex-term">' + esc(item.term || '') + '</div>' +
+              '<div class="codex-def">' + esc(item.definition || item.meaning || '') + '</div>' +
+            '</div>'
+          );
+        }).join('');
+      }
+
+      // Mode Switcher
+      var btnStd = document.getElementById('btn-mode-standard');
+      var btnCadet = document.getElementById('btn-mode-cadet');
+      var bodyEl = document.getElementById('article-body');
+      var codexBox = document.getElementById('cadet-codex-box');
+
+      btnStd.addEventListener('click', function () {
+        if (window.GameEngine && window.GameEngine.playSfx) window.GameEngine.playSfx('click');
+        btnStd.classList.add('active');
+        btnCadet.classList.remove('active');
+        bodyEl.style.display = 'block';
+        codexBox.style.display = 'block';
+      });
+
+      btnCadet.addEventListener('click', function () {
+        if (window.GameEngine && window.GameEngine.playSfx) window.GameEngine.playSfx('click');
+        btnCadet.classList.add('active');
+        btnStd.classList.remove('active');
+        bodyEl.style.display = 'none';
+        codexBox.style.display = 'block';
+        codexBox.scrollIntoView({ behavior: 'smooth' });
+      });
+
+      // Claim XP
+      document.getElementById('claim-expedition-xp').addEventListener('click', function () {
+        if (window.GameEngine && window.GameEngine.claimMissionXp) {
+          window.GameEngine.claimMissionXp();
+        }
+      });
+
+      // Piper TTS Narration
+      var audioBtn = document.getElementById('audio-play-trigger');
+      var waveAnim = document.getElementById('audio-wave-anim');
+      audioBtn.addEventListener('click', function () {
+        if (window.GameEngine && window.GameEngine.playSfx) window.GameEngine.playSfx('click');
+        if (!isAudioPlaying) {
+          isAudioPlaying = true;
+          audioBtn.textContent = '⏸';
+          waveAnim.style.display = 'flex';
+          
+          if (!audioElement) {
+            audioElement = new Audio('/api/tts?slug=' + encodeURIComponent(storyId));
+            audioElement.onended = function () {
+              isAudioPlaying = false;
+              audioBtn.textContent = '▶';
+              waveAnim.style.display = 'none';
+            };
+          }
+          audioElement.play().catch(function () {
+            // SpeechSynthesis fallback
+            if ('speechSynthesis' in window && currentStory) {
+              var utter = new SpeechSynthesisUtterance(currentStory.title + '. ' + (currentStory.kidTake || currentStory.excerpt || ''));
+              utter.onend = function () {
+                isAudioPlaying = false;
+                audioBtn.textContent = '▶';
+                waveAnim.style.display = 'none';
+              };
+              window.speechSynthesis.speak(utter);
+            }
+          });
+        } else {
+          isAudioPlaying = false;
+          audioBtn.textContent = '▶';
+          waveAnim.style.display = 'none';
+          if (audioElement) audioElement.pause();
+          if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        }
+      });
+
+      // Co-Read Navigation
+      function launchCoRead() {
+        if (window.GameEngine && window.GameEngine.playSfx) window.GameEngine.playSfx('click');
+        location.href = 'read-together.html?slug=' + encodeURIComponent(storyId);
+      }
+      document.getElementById('btn-coread').addEventListener('click', launchCoRead);
+      document.getElementById('btn-coread-side').addEventListener('click', launchCoRead);
+
+      // Bookmark
+      document.getElementById('btn-bookmark').addEventListener('click', function () {
+        if (window.GameEngine && window.GameEngine.playSfx) window.GameEngine.playSfx('success');
+        this.textContent = '✅ SAVED!';
+        fetch('/api/bookmarks', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ article_slug: storyId })
+        }).catch(function () {});
+      });
+
+    })();
   </script>
-  <script src="/assets/js/auth.js" defer></script>
-  <script src="/assets/js/whatsnew-badge.js"></script>
 </body>
 </html>
-

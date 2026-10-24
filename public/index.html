@@ -6,9 +6,10 @@
   <title>Skynet Nexus — STEM, Robotics, Play & Design, and Music for the Whole Family</title>
   <meta name="description" content="A family-first daily news network for readers ages 5–50. Real youth achievement in STEM, robotics, play & design, and music — with Kid Take and Family Discussion sections on every story."/>
   <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg"/>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Lexend:wght@400;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap"/>
   <link rel="stylesheet" href="assets/css/style.css?v=20260930-1"/>
   <link rel="stylesheet" href="/assets/css/auth.css"/>
+  <link rel="stylesheet" href="/assets/css/game-ui.css?v=20261024-live1"/>
 
   <!-- Open Graph + link discovery (added by polish pass) -->
   <meta property="og:type" content="website"/>
@@ -33,6 +34,12 @@
   <meta name="application-name" content="Skynet Nexus"/>
 </head>
 <body>
+
+  <!-- Ambient Holographic Canvas -->
+  <canvas id="space-canvas"></canvas>
+  <div class="holo-grid-bg"></div>
+  <div class="ambient-nebula nebula-1"></div>
+  <div class="ambient-nebula nebula-2"></div>
 
   <!-- Top Bar -->
   <header class="topbar">
@@ -73,6 +80,28 @@
 
   <!-- Live Ticker -->
   <div class="ticker"><div id="ticker-inner" class="ticker-inner"></div></div>
+
+  <!-- Top Gamer HUD Bar -->
+  <header class="game-hud-bar" style="border-top:none;border-bottom:1px solid var(--hud-border);">
+    <div class="role-matrix">
+      <button type="button" class="role-pill-btn active" data-role="cadet" title="Student Cadet Experience">
+        <span>🎮 CADET</span>
+      </button>
+      <button type="button" class="role-pill-btn" data-role="guardian" title="Parent Guardian Experience">
+        <span>🛡️ GUARDIAN</span>
+      </button>
+      <button type="button" class="role-pill-btn" data-role="commander" title="Teacher Commander Experience">
+        <span>🎖️ COMMANDER</span>
+      </button>
+    </div>
+
+    <div class="hud-player-stats">
+      <div class="hud-stat-pill streak">🔥 4 STREAK</div>
+      <div class="hud-stat-pill xp" id="hud-xp-val">⭐ 340 XP</div>
+      <button type="button" class="sfx-toggle-btn" id="sfx-toggle" title="Toggle Sound FX">🔊 SFX ON</button>
+      <a href="/pages/kid.html" class="hud-avatar" title="My Space & Badges">🧑‍🚀</a>
+    </div>
+  </header>
 
   <!-- Beta tester welcome (beta.js fills this when applicable) -->
   <div id="beta-welcome-mount"></div>
@@ -125,6 +154,114 @@
 
     <!-- Main Column -->
     <main class="main">
+
+      <!-- 1. CADET / STUDENT MISSION STATION -->
+      <section class="cadet-hero-card" id="cadet-station" style="margin-bottom:22px;">
+        <div>
+          <div class="cadet-level-title">
+            <span>🚀 CADET MISSION CONTROL</span>
+            <span style="font-size:0.85rem;background:rgba(0,229,255,0.15);border:1px solid var(--neon-cyan);padding:4px 12px;border-radius:999px;color:var(--neon-cyan);">RANK: LVL 3 SCIENTIST</span>
+          </div>
+          <div class="cadet-xp-track">
+            <div class="cadet-xp-meta">
+              <span>EXP PROGRESSION</span>
+              <span>340 / 500 XP TO LVL 4</span>
+            </div>
+            <div class="cadet-xp-bar-bg">
+              <div class="cadet-xp-fill"></div>
+            </div>
+          </div>
+          <div class="cadet-bounties-grid">
+            <div class="bounty-pill done">✓ 🛰️ READ 1 DAILY STORY (+15 XP)</div>
+            <div class="bounty-pill ready">⚡ 🧠 DEFEAT DAILY QUIZ (+25 XP)</div>
+            <div class="bounty-pill">🔒 🧪 SATURDAY STEM LAB (+50 XP)</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <a href="/pages/quiz.html" class="mission-launch-btn" style="text-decoration:none;text-align:center;">
+            ⚔️ ENTER QUIZ ARENA
+          </a>
+          <a href="/pages/kid.html" class="mission-launch-btn" style="text-decoration:none;text-align:center;background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.2);">
+            🌌 MY STARFIELD &amp; BADGES
+          </a>
+        </div>
+      </section>
+
+      <!-- 2. GUARDIAN / PARENT MISSION STATION -->
+      <section class="guardian-hero-card" id="guardian-station" style="display:none;margin-bottom:22px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;">
+          <div>
+            <div style="font-family:var(--font-game);font-size:1.6rem;font-weight:900;color:#fff;">
+              🛡️ FAMILY ALLIANCE // GUARDIAN COMMAND
+            </div>
+            <div style="color:var(--neon-amber);font-size:0.95rem;margin-top:4px;">
+              Linked Cadet: <strong>Leo (Age 8)</strong> · 2 Stories Completed Today · 4-Day Family Streak
+            </div>
+          </div>
+          <button type="button" class="mission-launch-btn" style="width:auto;border-color:var(--neon-amber);color:var(--neon-amber);" onclick="alert('🚀 Rocket Cheer Sent (+5 XP)!')">
+            🚀 SEND ROCKET CHEER (+5 XP)
+          </button>
+        </div>
+
+        <div class="guardian-spark-box">
+          <div style="font-family:var(--font-code);font-size:0.8rem;color:var(--neon-amber);font-weight:800;">
+            💡 DINNER TABLE SPARK // 30-SECOND FAMILY CONVERSATION
+          </div>
+          <div style="font-size:1.15rem;line-height:1.6;color:#fff;margin-top:8px;">
+            "Tonight at dinner, ask your cadet: If we had to build an autonomous submarine robot to explore an ocean on an icy moon without sunlight, what tools would we pack?"
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;">
+          <a href="/pages/read-together.html" class="mission-launch-btn" style="width:auto;text-decoration:none;">
+            📖 LAUNCH READ-TOGETHER CO-OP
+          </a>
+          <a href="/pages/profile.html" class="mission-launch-btn" style="width:auto;text-decoration:none;background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.2);">
+            🔒 CURFEW &amp; SAFETY CONTROLS
+          </a>
+        </div>
+      </section>
+
+      <!-- 3. COMMANDER / TEACHER MISSION STATION -->
+      <section class="commander-hero-card" id="commander-station" style="display:none;margin-bottom:22px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;">
+          <div>
+            <div style="font-family:var(--font-game);font-size:1.6rem;font-weight:900;color:#fff;">
+              🎖️ FLEET COMMAND // CLASSROOM SMARTBOARD
+            </div>
+            <div style="color:var(--neon-green);font-size:0.95rem;margin-top:4px;">
+              Class 4-B · <strong>18 of 24 Cadets</strong> Completed Today's Briefing (75% Active)
+            </div>
+          </div>
+          <button type="button" class="mission-launch-btn" style="width:auto;background:var(--neon-green);color:#040814;border-color:var(--neon-green);" onclick="alert('📽️ Projector Bell-Ringer Mode Activated!')">
+            📽️ LAUNCH PROJECTOR BELL-RINGER
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:14px;margin-top:20px;">
+          <div style="background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.3);padding:14px;border-radius:14px;">
+            <div style="font-size:0.75rem;color:var(--neon-green);font-family:var(--font-code);">COMPLETION RATE</div>
+            <div style="font-size:1.4rem;font-weight:900;margin-top:4px;">18 / 24 READ</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);padding:14px;border-radius:14px;">
+            <div style="font-size:0.75rem;color:#8fa7c6;font-family:var(--font-code);">CLASS QUIZ AVERAGE</div>
+            <div style="font-size:1.4rem;font-weight:900;margin-top:4px;">4.6 / 5.0 PTS</div>
+          </div>
+          <div style="background:rgba(255,0,85,0.08);border:1px solid rgba(255,0,85,0.3);padding:14px;border-radius:14px;">
+            <div style="font-size:0.75rem;color:var(--neon-rose);font-family:var(--font-code);">AT-RISK ALERT</div>
+            <div style="font-size:1.4rem;font-weight:900;margin-top:4px;color:var(--neon-rose);">1 IDLE 3+ DAYS</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;">
+          <a href="/pages/assignments.html" class="mission-launch-btn" style="width:auto;text-decoration:none;">
+            📚 CADET ASSIGNMENT MATRIX
+          </a>
+          <a href="/pages/classroom.html" class="mission-launch-btn" style="width:auto;text-decoration:none;background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.2);">
+            🏫 FLEET ROSTER &amp; INVITES
+          </a>
+        </div>
+      </section>
 
       <!-- Welcome banner (compact, dismissible) -->
       <section class="welcome-banner" id="sky-welcome">
@@ -444,7 +581,7 @@
 
   <script src="assets/js/agi-predictions.js?v=20261006-1"></script>
   <script src="assets/js/app.js?v=20261001-6"></script>
-<script src="assets/js/server-notifs.js?v=20261006-1"></script></script>
+  <script src="assets/js/server-notifs.js?v=20261006-1"></script>
   <script src="assets/js/sky-nav.js?v=20261007-3"></script>
   <script src="assets/js/beta.js?v=20261004-1"></script>
   <script src="assets/js/poll-widget.js?v=20261005-1"></script>
@@ -463,8 +600,9 @@
   </script>
 
   <script src="/assets/js/auth.js" defer></script>
-  <script src="/assets/js/whatsnew-badge.js">
-<script src="/assets/js/whatsnew-modal.js"></script></script>
+  <script src="/assets/js/whatsnew-badge.js"></script>
+  <script src="/assets/js/whatsnew-modal.js"></script>
+  <script src="/assets/js/game-engine.js?v=20261024-live1"></script>
 </body>
 </html>
 

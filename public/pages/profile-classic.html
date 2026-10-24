@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>My Dashboard · Skynet Nexus</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
+  <link rel="stylesheet" href="/assets/css/style.css"/>
+  <style>
+    .dash-wrap { max-width: 1100px; margin: 24px auto 60px; padding: 0 20px; }
+    .dash-head { display: flex; align-items: center; gap: 16px; margin: 18px 0 20px; flex-wrap: wrap; }
+    .dash-ava { width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font: 800 24px/1 Inter, sans-serif; color: #0a0e17; flex: none; }
+    .dash-head h1 { margin: 0; font: 800 26px/1.2 Inter, sans-serif; }
+    .dash-head .sub { margin: 4px 0 0; color: var(--muted, #7c8898); font: 500 14px/1.4 Inter, sans-serif; }
+    .role-pills { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .role-pill { font: 700 11px/1 Inter, sans-serif; padding: 5px 12px; border-radius: 999px; background: rgba(0,229,255,.12); color: #00e5ff; border: 1px solid rgba(0,229,255,.4); }
+
+    /* Role switcher (multi-role users) */
+    .dash-roles { display: flex; gap: 8px; margin: 0 0 20px; }
+    .dash-roles button { padding: 10px 24px; border-radius: 12px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.03); color: inherit; font: 700 14px/1 Inter, sans-serif; cursor: pointer; }
+    .dash-roles button.active { background: #00e5ff; color: #0a0e17; border-color: #00e5ff; }
+
+    /* Win10 tile grid */
+    .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+    .tile { border-radius: 16px; padding: 20px; color: #fff; position: relative; overflow: hidden; min-height: 150px; display: flex; flex-direction: column; cursor: pointer; border: none; text-align: left; font-family: Inter, sans-serif; transition: transform .12s, box-shadow .12s; }
+    .tile:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+    .tile .t-ico { font-size: 32px; margin-bottom: 8px; }
+    .tile .t-title { font: 800 17px/1.3 Inter, sans-serif; margin: 0 0 4px; }
+    .tile .t-sub { font: 500 13px/1.5 Inter, sans-serif; opacity: .85; margin: 0; }
+    .tile .t-big { font: 800 34px/1 Inter, sans-serif; margin: 6px 0 2px; }
+    .tile .t-wide { grid-column: span 2; }
+    .tile.cyan { background: linear-gradient(135deg, #0891b2, #0e7490); }
+    .tile.blue { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+    .tile.green { background: linear-gradient(135deg, #16a34a, #15803d); }
+    .tile.gold { background: linear-gradient(135deg, #d97706, #b45309); }
+    .tile.purple { background: linear-gradient(135deg, #9333ea, #7e22ce); }
+    .tile.orange { background: linear-gradient(135deg, #ea580c, #c2410c); }
+    .tile.pink { background: linear-gradient(135deg, #db2777, #be185d); }
+    .tile.slate { background: linear-gradient(135deg, #475569, #334155); }
+    @media (max-width: 560px) { .tile .t-wide, .tile.t-wide { grid-column: span 1; } }
+
+    /* Class tabs (teacher) */
+    .class-tabs { display: flex; gap: 6px; margin: 0 0 18px; flex-wrap: wrap; border-bottom: 2px solid rgba(255,255,255,.08); padding-bottom: 10px; }
+    .class-tabs button { padding: 10px 20px; border-radius: 10px 10px 0 0; border: none; background: transparent; color: var(--muted, #7c8898); font: 700 14px/1 Inter, sans-serif; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -12px; padding-bottom: 12px; }
+    .class-tabs button.active { color: #00e5ff; border-bottom-color: #00e5ff; }
+    .class-tabs .add-class { color: #39ff14; }
+
+    /* Panels */
+    .panel { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 22px; margin-top: 14px; }
+    .panel h2 { margin: 0 0 14px; font: 800 19px/1.3 Inter, sans-serif; }
+    .panel.hidden { display: none; }
+
+    /* Kid cards */
+    .kid-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .kid-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 16px; text-align: center; }
+    .kid-card .k-av { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font: 800 22px/1 Inter, sans-serif; color: #0a0e17; }
+    .kid-card .k-name { font: 700 15px/1.3 Inter, sans-serif; }
+    .kid-card .k-meta { font: 500 12px/1.4 Inter, sans-serif; color: var(--muted, #7c8898); margin: 4px 0 10px; }
+    .kid-card .k-xp { font: 700 13px/1 Inter, sans-serif; color: #00e5ff; }
+    .kid-card button { margin: 4px 2px; padding: 7px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.05); color: inherit; font: 700 12px/1 Inter, sans-serif; cursor: pointer; }
+
+    /* Achievement board */
+    .badge-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+    .badge { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 14px 8px; text-align: center; }
+    .badge.earned { border-color: rgba(255,176,32,.5); background: rgba(255,176,32,.07); }
+    .badge.locked { opacity: .4; filter: grayscale(1); }
+    .badge .b-ico { font-size: 28px; }
+    .badge .b-name { font: 700 11px/1.3 Inter, sans-serif; margin-top: 6px; }
+
+    /* Student table (teacher) */
+    .stu-table { width: 100%; border-collapse: collapse; font: 500 14px/1.5 Inter, sans-serif; }
+    .stu-table th { text-align: left; padding: 10px 12px; color: var(--muted, #7c8898); font: 700 12px/1 Inter, sans-serif; text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .stu-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,.05); }
+    .stu-table tr:hover td { background: rgba(255,255,255,.02); }
+    .xp-bar { height: 8px; border-radius: 99px; background: rgba(255,255,255,.1); overflow: hidden; min-width: 80px; }
+    .xp-bar > div { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #00e5ff, #a855f7); }
+
+    .btn { display: inline-block; padding: 10px 22px; border-radius: 999px; border: none; background: #00e5ff; color: #0a0e17; font: 800 14px/1 Inter, sans-serif; cursor: pointer; text-decoration: none; }
+    .btn.ghost { background: rgba(255,255,255,.06); color: inherit; border: 1px solid rgba(255,255,255,.2); }
+    .btn + .btn { margin-left: 8px; }
+    .stat-row { display: flex; gap: 24px; flex-wrap: wrap; margin: 6px 0 0; }
+    .stat { min-width: 90px; }
+    .stat .s-v { font: 800 24px/1 Inter, sans-serif; color: #00e5ff; }
+    .stat .s-l { font: 500 12px/1.4 Inter, sans-serif; color: var(--muted, #7c8898); margin-top: 2px; }
+  </style>
+<style>
+.a11y-large { font-size: 118%; }
+.a11y-large h1 { font-size: 2.2em; }
+.a11y-large p, .a11y-large div { line-height: 1.8; }
+.a11y-contrast { --text: #ffffff; --muted: #c8d4e3; }
+.a11y-contrast body, .a11y-contrast { background: #000 !important; }
+.a11y-contrast .panel, .a11y-contrast .kid-card { border-width: 2px !important; }
+</style>
+<script src="/assets/js/a11y.js" defer>
+<script src="/assets/js/debug-checklist-link.js" defer></script>
+</head>
+<body>
+  <div class="dash-wrap">
+    <a href="/" class="sky-back" style="color:#00e5ff;text-decoration:none;font:600 13px/1 Inter,sans-serif">← Back to feed</a>
+    <div id="dash-root"><p style="color:#7c8898;margin-top:30px">Loading your dashboard…</p></div>
+  </div>
+
+<script>
+(function () {
+  'use strict';
+  var root = document.getElementById('dash-root');
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
+  function api(path, opts) {
+    return fetch(path, Object.assign({ credentials: 'same-origin', headers: { 'Content-Type': 'application/json' } }, opts || {}))
+      .then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (d) {
+          if (!r.ok) { var e = new Error('HTTP ' + r.status); e.status = r.status; e.data = d; e.consent_required = !!(d && d.consent_required); throw e; }
+          return d;
+        });
+      });
+  }
+
+  // COPPA: verification banner shown when parent email is unverified.
+  function showVerifyBanner() {
+    if (document.getElementById('coppa-verify-banner')) return;
+    var b = document.createElement('div');
+    b.id = 'coppa-verify-banner';
+    b.style.cssText = 'background:rgba(255,184,0,.12);border:1px solid rgba(255,184,0,.4);border-radius:12px;padding:16px 20px;margin:0 0 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap';
+    b.innerHTML = '<span style="font-size:24px">📬</span>' +
+      '<div style="flex:1;min-width:200px"><strong>Verify your email</strong><br>' +
+      '<span style="font-size:13px;opacity:.8">Click the link we emailed you to unlock kid profiles.</span></div>' +
+      '<button class="btn" id="coppa-resend" style="white-space:nowrap">Resend email</button>';
+    var main = document.querySelector('.main') || document.body;
+    main.insertBefore(b, main.firstChild);
+    document.getElementById('coppa-resend').addEventListener('click', function () {
+      var btn = this; btn.disabled = true; btn.textContent = 'Sending…';
+      api('/api/consent/send-verification', { method: 'POST' }).then(function (d) {
+        btn.textContent = d.already_verified ? 'Already verified!' : 'Sent! Check your inbox.';
+        if (d.already_verified) setTimeout(function () { location.reload(); }, 1200);
+      }).catch(function () { btn.disabled = false; btn.textContent = 'Resend email'; alert('Could not send. Try again.'); });
+    });
+  }
+
+  // Check verification status on load; show banner if pending.
+  api('/api/consent/status').then(function (d) {
+    if (d && d.verified === false) showVerifyBanner();
+  }).catch(function () {});
+
+  var AVATAR_COLORS = ['#00e5ff', '#a855f7', '#39ff14', '#ffb020', '#ff2e63', '#ff6b35'];
+  var AVATAR_EMOJI = ['🦊', '🐱', '🐶', '🦁', '🐼', '🐸', '🦄', '🐙', '🚀', '⭐', '🎨', '⚽'];
+
+  function avatarHtml(name, color, emoji, size, photoUrl) {
+    size = size || 64;
+    var style = 'width:' + size + 'px;height:' + size + 'px;';
+    if (photoUrl) return '<div class="dash-ava" style="' + style + 'padding:0;overflow:hidden"><img src="' + esc(photoUrl) + '" style="width:100%;height:100%;object-fit:cover" onerror="this.remove()"/></div>';
+    var bg = color || AVATAR_COLORS[name.length % AVATAR_COLORS.length];
+    var face = emoji || name.slice(0, 2).toUpperCase();
+    return '<div class="dash-ava" style="' + style + 'background:' + esc(bg) + ';font-size:' + Math.round(size / 2.6) + 'px">' + esc(face) + '</div>';
+  }
+
+  /* ============ PARENT DASHBOARD ============ */
+  var _currentUser = null;
+  function parentDash(user, kids, gam) {
+    _currentUser = user;
+    var totalXP = kids.reduce(function (s, k) { return s + ((gam[k.id] || {}).xp || 0); }, 0);
+    var totalBadges = kids.reduce(function (s, k) { return s + ((gam[k.id] || {}).badges || []).length; }, 0);
+    var bestStreak = Math.max.apply(null, [0].concat(kids.map(function (k) { return (gam[k.id] || {}).streak || 0; })));
+
+    var html = '<div class="dash-head">' + avatarHtml(user.name || user.email, user.avatarColor, user.avatarEmoji, 64, user.photoUrl) +
+      '<div><h1>' + esc(user.name || 'My Family') + '</h1>' +
+      '<p class="sub">Parent dashboard · ' + kids.length + ' kid' + (kids.length === 1 ? '' : 's') + '</p>' +
+      '<div class="role-pills">' + user.roles.map(function (r) { return '<span class="role-pill">' + esc(r) + '</span>'; }).join('') + '</div></div></div>';
+
+    html += '<div class="tile-grid">' +
+      tile('cyan', '👨‍👩‍👧', 'Family', '<div class="t-big">' + kids.length + '</div>', kids.length + ' kid profiles · ' + totalXP.toLocaleString() + ' total XP', 'kids') +
+      tile('gold', '🏆', 'Achievements', '<div class="t-big">' + totalBadges + '</div>', 'badges earned across the family', 'badges') +
+      tile('pink', '🌳', 'Family tree', '', 'Link spouses, grandparents & relatives', 'family') +
+      '<a href="/pages/chat.html" style="text-decoration:none">' + tile('cyan', '💬', 'Chats', '', 'Family & class conversations', '') + '</a>' +
+      tile('gold', '📊', 'Weekly digest', '', 'What your kids read', 'digest') +
+      tile('orange', '🏅', 'Family leaderboard', '', 'Sibling XP race', 'board') +
+      tile('pink', '🤝', 'Kid friends', '', 'Parent-approved friendships', 'friends') +
+      tile('purple', '💬', 'Teacher messages', '', 'Private parent-teacher chat', 'ptmsg') +
+      tile('yellow', '👴', 'Family feed', '', 'Cheers & achievements', 'famfeed') +
+      tile('gold', '📢', 'Class news', '', 'Teacher announcements', 'pann') +
+      tile('green', '🔥', 'Streaks', '<div class="t-big">' + bestStreak + '🔥</div>', 'best reading streak in the family', 'streaks') +
+      tile('purple', '🧪', 'Weekend Lab', '', 'Vote Thursday · activities Saturday', null, '/pages/weekend-lab.html') +
+      tile('orange', '🧠', 'Daily Quiz', '', 'Tonight\'s 5 questions · leaderboard', null, '/pages/quiz.html') +
+      tile('slate', '⚙️', 'Settings', '', 'Profile, notifications, privacy', 'settings') +
+      '</div>';
+
+    // Panels
+    html += '<div class="panel" id="p-kids"><h2>🧒 Kid profiles</h2><div class="kid-grid">' +
+      kids.map(function (k) {
+        var g = gam[k.id] || {};
+        return '<div class="kid-card" data-kid-dash="' + k.id + '" style="cursor:pointer"><div class="k-av" style="background:' + esc(k.avatarColor || '#00e5ff') + '">' + esc(k.avatarEmoji || k.name.slice(0, 2).toUpperCase()) + '</div>' +
+          '<div class="k-name">' + esc(k.name) + '</div><div class="k-meta">Age ' + (new Date().getFullYear() - k.birthYear) + ' · Level ' + esc(g.level || 'Rookie Reader') + '</div>' +
+          '<div class="k-xp">' + (g.xp || 0).toLocaleString() + ' XP · ' + (g.streak || 0) + '🔥</div>' +
+          '<div style="margin-top:10px"><button data-edit-kid="' + k.id + '">Edit</button><button data-ctrl-kid="' + k.id + '">Controls</button><button data-hist-kid="' + k.id + '">History</button></div></div>';
+      }).join('') +
+      (kids.length < 6 ? '<div class="kid-card" style="display:flex;align-items:center;justify-content:center;min-height:180px;cursor:pointer;border-style:dashed" id="add-kid"><span style="font-size:15px;color:#39ff14">＋ Add a kid</span></div>' : '') +
+      '</div></div>';
+
+    html += '<div class="panel hidden" id="p-family"><h2>🌳 Family tree</h2>' +
+      '<div id="fam-body"><p style="color:#7c8898">Loading family…</p></div></div>';
+
+    html += '<div class="panel" id="p-safety" style="border-color:rgba(57,255,20,.35)"><h2>🛡️ How we protect your children</h2>' +
+      '<div style="display:grid;gap:10px;font-size:14px;line-height:1.6;color:var(--muted,#9aa7bd)">' +
+      '<div><b style="color:#39ff14">1. Family-only by invite.</b> Only someone with your family invite code can join. No strangers, no open signup to your family.</div>' +
+      '<div><b style="color:#39ff14">2. You own your kids\' data.</b> Only the parent who created a kid profile can see or edit it. Grandparents and relatives see only what you choose to share.</div>' +
+      '<div><b style="color:#39ff14">3. Teachers can\'t add your child.</b> A teacher sends <i>you</i> an invite — you create the account, you link your child. Teachers never touch kid accounts directly.</div>' +
+      '<div><b style="color:#39ff14">4. Teachers see classroom stats only.</b> XP, streaks, reading progress — never personal details, never your family tree.</div>' +
+      '<div><b style="color:#39ff14">5. Kid friends need two parents\' approval.</b> Kids can friend other kids via friend codes — but <i>both</i> parents must approve before they can chat. Either parent can revoke anytime. No searchable kid directory exists.</div>' +
+      '<div><b style="color:#39ff14">6. Leave anytime.</b> Remove a family member or unlink a classroom instantly — no questions, no waiting.</div>' +
+      '</div></div>';
+
+    html += '<div class="panel hidden" id="p-digest"><h2>📊 Weekly digest</h2><div id="digest-body"><p style="color:#7c8898">Loading…</p></div></div>';
+    html += '<div class="panel hidden" id="p-board"><h2>🏅 Family leaderboard</h2><div id="board-body"><p style="color:#7c8898">Loading…</p></div></div>';
+    html += '<div class="panel hidden" id="p-friends"><h2>🤝 Kid friends</h2><div id="friends-body"><p style="color:#7c8898">Loading…</p></div></div>';
+    html += '<div class="panel hidden" id="p-ptmsg"><h2>💬 Teacher messages</h2><div id="ptmsg-body"><p style="color:#7c8898">Loading…</p></div></div>';
+    html += '<div class="panel hidden" id="p-famfeed"><h2>👴 Family feed</h2><div id="famfeed-body"><p style="color:#7c8898">Loading…</p></div></div>';
+    html += '<div class="panel hidden" id="p-pann"><h2>📢 Class news</h2><div id="pann-body"><p style="color:#7c8898">Loading…</p></div></div>';
+    html += '<div class="panel hidden" id="p-badges"><h2>🏆 Achievement board</h2>' +
+      '<p style="color:var(--muted,#7c8898);font-size:14px;margin:0 0 16px">Every badge the family has earned — and what\'s still to unlock.</p>' +
+      '<div class="badge-wall" id="badge-wall"><p style="color:#7c8898">Loading badges…</p></div></div>';
+
+    html += '<div class="panel hidden" id="p-settings"><h2>⚙️ Settings</h2>' +
+      '<div id="edit-profile"><p style="color:#7c8898">Loading…</p></div>' +
+      '<p style="margin-top:14px"><button class="btn ghost" id="btn-notif">🔔 Enable drop alerts</button></p></div>';
+
+    root.innerHTML = html;
+    bindParentTiles();
+    loadBadges(kids);
+  }
+
+  function tile(color, ico, title, big, sub, panelId, href) {
+    var inner = '<div class="t-ico">' + ico + '</div><div class="t-title">' + title + '</div>' + big + '<p class="t-sub">' + sub + '</p>';
+    if (href) return '<a class="tile ' + color + '" href="' + href + '" style="text-decoration:none">' + inner + '</a>';
+    return '<button class="tile ' + color + '"' + (panelId ? ' data-panel="p-' + panelId + '"' : '') + '>' + inner + '</button>';
+  }
+
+  var KID_COLORS = ['#39ff14', '#00e5ff', '#ff2e63', '#ffd166', '#a855f7', '#ff9f1c', '#06d6a0', '#ef476f'];
+  var KID_EMOJIS = ['🚀', '🦄', '🐱', '🐶', '🦖', '🌟', '🎮', '🚗', '🦋', '🐙', '🤖', '🧙'];
+  var _kidsCache = [];
+  function kidModal(kid) {
+    var isEdit = !!kid;
+    kid = kid || {};
+    var yr = new Date().getFullYear();
+    var yearOpts = '';
+    for (var y = yr - 2; y >= yr - 18; y--) yearOpts += '<option value="' + y + '"' + (kid.birthYear == y ? ' selected' : '') + '>' + y + '</option>';
+    var m = document.createElement('div');
+    m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px';
+    m.innerHTML = '<div style="background:#0f1522;border:1px solid rgba(0,229,255,.3);border-radius:16px;padding:24px;max-width:400px;width:100%">' +
+      '<h3 style="margin:0 0 16px">' + (isEdit ? 'Edit kid' : 'Add a kid') + '</h3>' +
+      '<label style="display:block;font:700 12px/1 Inter,sans-serif;margin:12px 0 6px">Name</label>' +
+      '<input id="km-name" value="' + esc(kid.name || '') + '" maxlength="40" placeholder="First name" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit"/>' +
+      '<label style="display:block;font:700 12px/1 Inter,sans-serif;margin:12px 0 6px">Birth year</label>' +
+      '<select id="km-year" style="width:100%;padding:10px;border-radius:8px;background:#0b1026;color:inherit">' + yearOpts + '</select>' +
+      '<label style="display:block;font:700 12px/1 Inter,sans-serif;margin:12px 0 6px">Avatar color</label>' +
+      '<div id="km-colors" style="display:flex;gap:8px;flex-wrap:wrap">' +
+      KID_COLORS.map(function (c) { return '<div data-c="' + c + '" style="width:36px;height:36px;border-radius:50%;background:' + c + ';cursor:pointer;border:' + ((kid.avatarColor || KID_COLORS[0]) === c ? '3px solid #fff' : '3px solid transparent') + '"></div>'; }).join('') + '</div>' +
+      '<label style="display:block;font:700 12px/1 Inter,sans-serif;margin:12px 0 6px">Avatar emoji</label>' +
+      '<div id="km-emojis" style="display:flex;gap:6px;flex-wrap:wrap;font-size:24px">' +
+      KID_EMOJIS.map(function (e) { return '<div data-e="' + e + '" style="cursor:pointer;padding:4px;border-radius:8px;background:' + ((kid.avatarEmoji || KID_EMOJIS[0]) === e ? 'rgba(0,229,255,.25)' : 'transparent') + '">' + e + '</div>'; }).join('') + '</div>' +
+      '<div style="margin-top:16px;padding:14px;border:1px solid rgba(57,255,20,.3);border-radius:10px;background:rgba(57,255,20,.04)">' +
+      '<div style="font:700 13px/1 Inter,sans-serif;margin-bottom:8px">♿ Accessibility needs</div>' +
+      '<label style="display:flex;align-items:center;gap:8px;font-size:13px;margin:6px 0"><input type="checkbox" id="km-blind"/> My child is blind</label>' +
+      '<label style="display:flex;align-items:center;gap:8px;font-size:13px;margin:6px 0"><input type="checkbox" id="km-lowvision"/> Low vision (large text + high contrast)</label>' +
+      '<div style="font-size:12px;color:var(--muted,#7c8898);margin-top:6px">Declaring blindness enables the full audio guide, voice commands, and gesture navigation.</div></div>' +
+      '<div style="display:flex;gap:10px;margin-top:20px">' +
+      '<button class="btn" id="km-save" style="flex:1">' + (isEdit ? 'Save' : 'Add kid') + '</button>' +
+      (isEdit ? '<button class="btn ghost" id="km-del" style="color:#ff2e63">Remove</button>' : '') +
+      (isEdit ? '<button class="btn ghost" id="km-wipe" style="color:#ffb800" title="Delete all of this kid\'s data (quiz answers, XP, comments, etc.)">Wipe data</button>' : '') +
+      '<button class="btn ghost" id="km-cancel">Cancel</button></div></div>';
+    document.body.appendChild(m);
+    var selColor = kid.avatarColor || KID_COLORS[0], selEmoji = kid.avatarEmoji || KID_EMOJIS[0];
+    m.querySelectorAll('#km-colors [data-c]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        selColor = el.getAttribute('data-c');
+        m.querySelectorAll('#km-colors [data-c]').forEach(function (x) { x.style.border = x.getAttribute('data-c') === selColor ? '3px solid #fff' : '3px solid transparent'; });
+      });
+    });
+    m.querySelectorAll('#km-emojis [data-e]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        selEmoji = el.getAttribute('data-e');
+        m.querySelectorAll('#km-emojis [data-e]').forEach(function (x) { x.style.background = x.getAttribute('data-e') === selEmoji ? 'rgba(0,229,255,.25)' : 'transparent'; });
+      });
+    });
+    document.getElementById('km-cancel').addEventListener('click', function () { m.remove(); });
+    m.addEventListener('click', function (e) { if (e.target === m) m.remove(); });
+    // Load existing accessibility flags when editing
+    if (isEdit && kid.id) {
+      api('/api/kids/' + kid.id + '/settings').then(function (d) {
+        var s = d.settings || {};
+        document.getElementById('km-blind').checked = !!s.isBlind;
+        document.getElementById('km-lowvision').checked = !!s.lowVision;
+      }).catch(function () {});
+    }
+    document.getElementById('km-save').addEventListener('click', function () {
+      var payload = { name: document.getElementById('km-name').value.trim(), birthYear: Number(document.getElementById('km-year').value), avatarColor: selColor, avatarEmoji: selEmoji };
+      if (!payload.name) { alert('Enter a name.'); return; }
+      var a11y = { isBlind: document.getElementById('km-blind').checked, lowVision: document.getElementById('km-lowvision').checked };
+      var p = isEdit ? api('/api/kids/' + kid.id, { method: 'PATCH', body: JSON.stringify(payload) })
+                     : api('/api/kids', { method: 'POST', body: JSON.stringify(payload) });
+      p.then(function (d) {
+        var kidId = isEdit ? kid.id : (d.kid && d.kid.id);
+        m.remove();
+        // Save accessibility settings in background — don't block on it
+        if (kidId) api('/api/kids/' + kidId + '/settings', { method: 'PUT', body: JSON.stringify(a11y) }).catch(function () {});
+        location.reload();
+      }).catch(function (err) {
+        // COPPA: parent email not verified yet
+        if (err && err.consent_required) {
+          m.remove();
+          showVerifyBanner();
+          alert('Please verify your email before adding kid profiles. Check your inbox for the verification link.');
+        } else { alert('Could not save.'); }
+      });
+    });
+    if (isEdit) document.getElementById('km-del').addEventListener('click', function () {
+      if (!confirm('Remove ' + kid.name + '?')) return;
+      api('/api/kids/' + kid.id, { method: 'DELETE' }).then(function () { m.remove(); location.reload(); }).catch(function () { alert('Could not remove.'); });
+    });
+    if (isEdit) document.getElementById('km-wipe').addEventListener('click', function () {
+      var typed = prompt('Type "' + kid.name + '" to permanently delete all of their data (quiz answers, XP, reactions, comments, questions, chat messages, creations). This cannot be undone.');
+      if (typed !== kid.name) { if (typed !== null) alert('Names did not match. Nothing was deleted.'); return; }
+      api('/api/kids/' + kid.id + '/data', { method: 'DELETE' }).then(function (d) {
+        var s = d.deleted || {};
+        var total = Object.values(s).reduce(function (a, b) { return a + b; }, 0);
+        alert('Deleted ' + total + ' records for ' + kid.name + '.');
+        m.remove(); location.reload();
+      }).catch(function () { alert('Could not delete kid data.'); });
+    });
+  }
+  var CHANNELS = ['ai','space','robotics','biotech','quantum','climate','engineering','math','cyber','gaming','music','stem','play'];
+  function controlsModal(kid) {
+    var m = document.createElement('div');
+    m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px;overflow-y:auto';
+    m.innerHTML = '<div style="background:#0f1522;border:1px solid rgba(0,229,255,.3);border-radius:16px;padding:24px;max-width:440px;width:100%;margin:auto">' +
+      '<h3 style="margin:0 0 8px">⚙️ Controls — ' + esc(kid.name) + '</h3>' +
+      '<div id="cm-body"><p style="color:#7c8898">Loading…</p></div>' +
+      '<div style="display:flex;gap:10px;margin-top:16px"><button class="btn ghost" id="cm-close" style="flex:1">Close</button></div></div>';
+    document.body.appendChild(m);
+    document.getElementById('cm-close').addEventListener('click', function () { m.remove(); });
+    m.addEventListener('click', function (e) { if (e.target === m) m.remove(); });
+    api('/api/kids/' + kid.id + '/settings').then(function (d) {
+      var s = d.settings || {};
+      var allowed = s.channels && s.channels.length ? s.channels : CHANNELS.slice();
+      var b = document.getElementById('cm-body');
+      b.innerHTML =
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:10px 0"><input type="checkbox" id="cm-listen" ' + (s.listenEnabled ? 'checked' : '') + '/> 🔊 Listen (read stories aloud)</label>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:10px 0"><input type="checkbox" id="cm-comments" ' + (s.commentsEnabled ? 'checked' : '') + '/> 💬 Allow discussions & questions</label>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:10px 0"><input type="checkbox" id="cm-public" ' + (s.publicChatAllowed ? 'checked' : '') + '/> 🌍 Allow public chat (outside family/class)</label>' +
+        '<div style="font-size:12px;color:#ff9f1c;margin:4px 0 8px">⚠️ Kids stay in family & classroom chats by default. Only enable if you trust public spaces.</div>' +
+        '<div style="font:700 13px/1 Inter,sans-serif;margin:16px 0 8px">📰 Channels visible to ' + esc(kid.name) + '</div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+        CHANNELS.map(function (c) {
+          var on = allowed.indexOf(c) !== -1;
+          return '<button data-ch="' + c + '" style="padding:6px 12px;border-radius:999px;font:700 12px/1 Inter,sans-serif;cursor:pointer;border:1px solid ' + (on ? '#00e5ff' : 'rgba(255,255,255,.2)') + ';background:' + (on ? 'rgba(0,229,255,.15)' : 'transparent') + ';color:' + (on ? '#00e5ff' : '#7c8898') + '">' + c + '</button>';
+        }).join('') + '</div>' +
+        '<div style="font:700 13px/1 Inter,sans-serif;margin:16px 0 8px">♿ Accessibility</div>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"><input type="checkbox" id="cm-blind" ' + (s.isBlind ? 'checked' : '') + '/> Blind — full audio guide + voice + gestures</label>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"><input type="checkbox" id="cm-audio" ' + (s.audioGuide ? 'checked' : '') + '/> Audio guide (spoken navigation)</label>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"><input type="checkbox" id="cm-voice" ' + (s.voiceCommands ? 'checked' : '') + '/> Voice commands</label>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"><input type="checkbox" id="cm-large" ' + (s.largeText ? 'checked' : '') + '/> Large text</label>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"><input type="checkbox" id="cm-contrast" ' + (s.highContrast ? 'checked' : '') + '/> High contrast</label>' +
+        '<div style="font:700 13px/1 Inter,sans-serif;margin:16px 0 8px">🌙 Quiet hours</div>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"><input type="checkbox" id="cm-quiet" /> Pause chat during quiet hours</label>' +
+        '<div style="display:flex;gap:8px;align-items:center;font-size:13px"><span>From</span><input type="time" id="cm-qs" value="20:00" style="padding:6px;border-radius:6px;background:#0b1026;color:inherit;border:1px solid rgba(255,255,255,.2)"/><span>to</span><input type="time" id="cm-qe" value="07:00" style="padding:6px;border-radius:6px;background:#0b1026;color:inherit;border:1px solid rgba(255,255,255,.2)"/></div>' +
+        '<div style="font:700 13px/1 Inter,sans-serif;margin:16px 0 8px">🎯 Weekly reading goal</div>' +
+        '<div style="display:flex;gap:8px;align-items:center"><input type="number" id="cm-goal" min="1" max="20" value="3" style="width:70px;padding:8px;border-radius:8px;background:#0b1026;color:inherit;border:1px solid rgba(255,255,255,.2)"/><span style="font-size:13px">stories per week</span></div>' +
+        '<button class="btn" id="cm-save" style="width:100%;margin-top:16px">Save controls</button>';
+      var selChannels = allowed.slice();
+      b.querySelectorAll('[data-ch]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var c = btn.getAttribute('data-ch');
+          var i = selChannels.indexOf(c);
+          if (i === -1) selChannels.push(c); else selChannels.splice(i, 1);
+          var on = selChannels.indexOf(c) !== -1;
+          btn.style.border = on ? '1px solid #00e5ff' : '1px solid rgba(255,255,255,.2)';
+          btn.style.background = on ? 'rgba(0,229,255,.15)' : 'transparent';
+          btn.style.color = on ? '#00e5ff' : '#7c8898';
+        });
+      });
+      // Load quiet hours + goal
+      api('/api/kids/' + kid.id + '/quiet').then(function (q) {
+        document.getElementById('cm-quiet').checked = !!q.enabled;
+        document.getElementById('cm-qs').value = q.start || '20:00';
+        document.getElementById('cm-qe').value = q.end || '07:00';
+      }).catch(function () {});
+      api('/api/kids/' + kid.id + '/goals').then(function (g) {
+        document.getElementById('cm-goal').value = g.target || 3;
+      }).catch(function () {});
+      document.getElementById('cm-save').addEventListener('click', function () {
+        var quietP = api('/api/kids/' + kid.id + '/quiet', { method: 'PUT', body: JSON.stringify({
+          enabled: document.getElementById('cm-quiet').checked,
+          start: document.getElementById('cm-qs').value, end: document.getElementById('cm-qe').value }) });
+        var goalP = api('/api/kids/' + kid.id + '/goals', { method: 'POST', body: JSON.stringify({
+          stories_target: Number(document.getElementById('cm-goal').value) || 3 }) });
+        Promise.all([quietP, goalP]).catch(function () {});
+        api('/api/kids/' + kid.id + '/settings', { method: 'PUT', body: JSON.stringify({
+          listenEnabled: document.getElementById('cm-listen').checked,
+          commentsEnabled: document.getElementById('cm-comments').checked,
+          channels: selChannels,
+          publicChatAllowed: document.getElementById('cm-public').checked,
+          isBlind: document.getElementById('cm-blind').checked,
+          audioGuide: document.getElementById('cm-audio').checked,
+          voiceCommands: document.getElementById('cm-voice').checked,
+          largeText: document.getElementById('cm-large').checked,
+          highContrast: document.getElementById('cm-contrast').checked,
+        })}).then(function () { alert('Saved!'); m.remove(); }).catch(function () { alert('Could not save.'); });
+      });
+    }).catch(function () { document.getElementById('cm-body').innerHTML = '<p style="color:#ff2e63">Could not load settings.</p>'; });
+  }
+  function historyModal(kid) {
+    var m = document.createElement('div');
+    m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px;overflow-y:auto';
+    m.innerHTML = '<div style="background:#0f1522;border:1px solid rgba(0,229,255,.3);border-radius:16px;padding:24px;max-width:520px;width:100%;margin:auto;max-height:85vh;overflow-y:auto">' +
+      '<h3 style="margin:0 0 8px">💬 ' + esc(kid.name) + '\'s activity</h3>' +
+      '<div id="hm-body"><p style="color:#7c8898">Loading…</p></div>' +
+      '<div style="display:flex;gap:10px;margin-top:16px"><button class="btn ghost" id="hm-close" style="flex:1">Close</button></div></div>';
+    document.body.appendChild(m);
+    document.getElementById('hm-close').addEventListener('click', function () { m.remove(); });
+    m.addEventListener('click', function (e) { if (e.target === m) m.remove(); });
+    api('/api/kids/' + kid.id + '/comments').then(function (d) {
+      var h = '';
+      if (d.replies && d.replies.length) {
+        h += '<div style="font:700 13px/1 Inter,sans-serif;margin:14px 0 8px">Discussion replies (' + d.replies.length + ')</div>';
+        h += d.replies.map(function (r) {
+          return '<div style="padding:10px;border:1px solid rgba(255,255,255,.1);border-radius:8px;margin-bottom:8px">' +
+            '<div style="font-size:13px">' + esc(r.body) + '</div>' +
+            '<div style="font-size:12px;color:#7c8898;margin-top:6px">' + esc(r.discussion_title || 'Discussion') +
+            ' · <a href="/pages/discussions.html?id=' + r.discussion_id + '" style="color:#00e5ff">Join thread →</a></div></div>';
+        }).join('');
+      }
+      if (d.questions && d.questions.length) {
+        h += '<div style="font:700 13px/1 Inter,sans-serif;margin:14px 0 8px">Questions to correspondents (' + d.questions.length + ')</div>';
+        h += d.questions.map(function (q) {
+          return '<div style="padding:10px;border:1px solid rgba(255,255,255,.1);border-radius:8px;margin-bottom:8px">' +
+            '<div style="font-size:13px">Q: ' + esc(q.question) + '</div>' +
+            (q.answer ? '<div style="font-size:13px;color:#39ff14;margin-top:4px">A: ' + esc(q.answer) + '</div>' : '<div style="font-size:12px;color:#7c8898">Awaiting answer</div>') + '</div>';
+        }).join('');
+      }
+      if (!h) h = '<p style="color:#7c8898">No activity yet.</p>';
+      document.getElementById('hm-body').innerHTML = h;
+    }).catch(function () { document.getElementById('hm-body').innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
+  function bindKidButtons() {
+    root.querySelectorAll('[data-kid-dash]').forEach(function (c) {
+      c.addEventListener('click', function (e) {
+        if (e.target.tagName === 'BUTTON') return; // let Edit/Controls/History buttons work
+        location.href = '/pages/kid.html?id=' + c.getAttribute('data-kid-dash');
+      });
+    });
+    var add = document.getElementById('add-kid');
+    if (add) add.addEventListener('click', function () { kidModal(null); });
+    var q = root.querySelectorAll ? root.querySelectorAll('[data-edit-kid]') : [];
+    q.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-edit-kid');
+        var kid = _kidsCache.filter(function (k) { return String(k.id) === String(id); })[0];
+        kidModal(kid || { id: id });
+      });
+    });
+    var q3 = root.querySelectorAll ? root.querySelectorAll('[data-ctrl-kid]') : [];
+    q3.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-ctrl-kid');
+        var kid = _kidsCache.filter(function (k) { return String(k.id) === String(id); })[0];
+        if (kid) controlsModal(kid);
+      });
+    });
+    var q4 = root.querySelectorAll ? root.querySelectorAll('[data-hist-kid]') : [];
+    q4.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-hist-kid');
+        var kid = _kidsCache.filter(function (k) { return String(k.id) === String(id); })[0];
+        if (kid) historyModal(kid);
+      });
+    });
+    var q2 = root.querySelectorAll ? root.querySelectorAll('[data-avatar-kid]') : [];
+    q2.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-avatar-kid');
+        var kid = _kidsCache.filter(function (k) { return String(k.id) === String(id); })[0];
+        kidModal(kid || { id: id });
+      });
+    });
+  }
+  var REL_LABELS = { parent: 'Parent', spouse: 'Spouse', grandparent: 'Grandparent', sibling: 'Sibling', aunt_uncle: 'Aunt/Uncle', cousin: 'Cousin', guardian: 'Guardian' };
+  function loadFamily() {
+    var b = document.getElementById('fam-body');
+    api('/api/families/mine').then(function (d) {
+      if (!d.family) {
+        b.innerHTML = '<p style="color:var(--muted)">No family yet. Create one to link spouses, grandparents, and relatives.</p>' +
+          '<p style="margin-top:10px"><input id="fam-name" placeholder="Family name (e.g. The Hunt Family)" style="padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;width:260px"/>' +
+          ' <button class="btn" id="fam-create">Create family</button></p>' +
+          '<p style="margin-top:14px;color:var(--muted);font-size:13px">Have an invite code? <input id="fam-join-code" placeholder="CODE" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;width:110px;text-transform:uppercase"/>' +
+          ' <select id="fam-join-rel" style="padding:8px;border-radius:8px;background:#0b1026;color:inherit">' +
+          Object.keys(REL_LABELS).map(function (k) { return '<option value="' + k + '">' + REL_LABELS[k] + '</option>'; }).join('') + '</select>' +
+          ' <button class="btn ghost" id="fam-join">Join</button></p>';
+        document.getElementById('fam-create').addEventListener('click', function () {
+          api('/api/families', { method: 'POST', body: JSON.stringify({ name: document.getElementById('fam-name').value }) })
+            .then(function () { loadFamily(); }).catch(function () { alert('Could not create family.'); });
+        });
+        document.getElementById('fam-join').addEventListener('click', function () {
+          api('/api/families/join', { method: 'POST', body: JSON.stringify({ code: document.getElementById('fam-join-code').value, relationship: document.getElementById('fam-join-rel').value }) })
+            .then(function () { loadFamily(); }).catch(function (e) { alert('Invalid code.'); });
+        });
+        return;
+      }
+      var f = d.family;
+      b.innerHTML = '<p><b>' + esc(f.name) + '</b> <span style="color:var(--muted);font-size:13px">· invite code: <code style="background:rgba(0,229,255,.12);padding:4px 10px;border-radius:6px;font-size:15px;letter-spacing:2px">' + esc(f.inviteCode) + '</code> <button class="btn ghost" style="padding:6px 14px;font-size:12px" id="fam-copy">Copy</button></span></p>' +
+        '<p style="color:var(--muted);font-size:13px">Share this code only with true family. Anyone with the code can join as the relationship they choose.</p>' +
+        '<div class="kid-grid" style="margin-top:14px">' +
+        d.members.map(function (m) {
+          return '<div class="kid-card"><div class="k-av" style="background:' + esc(m.avatar_color || '#00e5ff') + '">' + esc((m.display_name || '?').slice(0, 2).toUpperCase()) + '</div>' +
+            '<div class="k-name">' + esc(m.display_name) + '</div><div class="k-meta">' + esc(REL_LABELS[m.relationship] || m.relationship) + '</div></div>';
+        }).join('') + '</div>' +
+        '<p style="margin-top:14px"><button class="btn ghost" style="color:#ff2e63" id="fam-leave">Leave family</button></p>';
+      document.getElementById('fam-copy').addEventListener('click', function () {
+        try { navigator.clipboard.writeText(f.inviteCode); this.textContent = 'Copied!'; } catch (e) {}
+      });
+      document.getElementById('fam-leave').addEventListener('click', function () {
+        if (confirm('Leave this family?')) api('/api/families/leave', { method: 'POST' }).then(function () { loadFamily(); });
+      });
+    }).catch(function () { b.innerHTML = '<p style="color:#7c8898">Could not load family.</p>'; });
+  }
+  function checkConsent() {
+    api('/api/consent/status').then(function (d) {
+      if (!d.verified) {
+        var b = document.createElement('div');
+        b.className = 'panel';
+        b.style.borderColor = 'rgba(255,209,102,.5)';
+        b.innerHTML = '<h2>✅ Verify your parent account</h2><p style="color:var(--muted)">To create kid profiles and use family features, verify you are the parent.</p><p><button class="btn" id="consent-btn">Send verification email</button></p><div id="consent-msg" style="margin-top:8px;font-size:13px"></div>';
+        document.getElementById('root').prepend(b);
+        document.getElementById('consent-btn').addEventListener('click', function () {
+          api('/api/consent/request', { method: 'POST' }).then(function () {
+            document.getElementById('consent-msg').innerHTML = '<span style="color:#39ff14">✓ Verification email sent! Check your inbox.</span>';
+          });
+        });
+        // Check ?consent= param
+        var cid = new URLSearchParams(location.search).get('consent');
+        if (cid) {
+          api('/api/consent/verify', { method: 'POST', body: JSON.stringify({ consentId: cid }) })
+            .then(function () { alert('Verified! You are now a verified parent.'); location.reload(); });
+        }
+      }
+    }).catch(function () {});
+  }
+  function loadDigest() {
+    api('/api/digest/weekly').then(function (d) {
+      var b = document.getElementById('digest-body');
+      if (!d.kids.length) { b.innerHTML = '<p style="color:#7c8898">No kids yet.</p>'; return; }
+      b.innerHTML = '<p style="color:var(--muted);font-size:13px">Week of ' + esc(d.weekStart) + '</p>' +
+        d.kids.map(function (k) {
+          return '<div class="kid-card" style="margin-bottom:10px"><div class="k-name">' + esc(k.name) + '</div>' +
+            '<div class="k-meta">📚 ' + k.stories + ' stories · ⚡ ' + k.xp + ' XP' +
+            (k.quizAvg !== null ? ' · 🧠 ' + k.quizAvg + '% quiz avg (' + k.quizCount + ')' : '') +
+            (k.newBadges ? ' · 🏆 ' + k.newBadges + ' new badges' : '') + '</div></div>';
+        }).join('');
+    });
+  }
+  function loadBoard() {
+    api('/api/families/leaderboard').then(function (d) {
+      var b = document.getElementById('board-body');
+      var medals = ['🥇', '🥈', '🥉'];
+      b.innerHTML = (d.board || []).map(function (k, i) {
+        return '<div class="kid-card" style="margin-bottom:10px;display:flex;align-items:center;gap:12px">' +
+          '<div style="font-size:28px">' + (medals[i] || '🏅') + '</div>' +
+          '<div><div class="k-name">' + esc(k.name) + '</div><div class="k-meta">This week: ' + k.weekXp + ' XP · Total: ' + k.totalXp + ' XP</div></div></div>';
+      }).join('') || '<p style="color:#7c8898">No family yet.</p>';
+    });
+  }
+  function loadFriends() {
+    var b = document.getElementById('friends-body');
+    api('/api/friends/pending').then(function (d) {
+      var h = '<p style="color:var(--muted);font-size:13px;margin-bottom:12px">Kids can friend other kids, but <b>both parents must approve</b>. Share friend codes in real life — there is no searchable kid directory.</p>';
+      // Pending requests
+      var pend = d.pending || [];
+      if (pend.length) {
+        h += '<div style="font:700 13px/1 Inter;margin:12px 0 8px">Pending requests</div>';
+        h += pend.map(function (r) {
+          var action = r.needsMyApproval
+            ? '<button class="btn" data-appr="' + r.id + '" style="padding:8px 16px;font-size:13px">Approve</button> <button class="btn ghost" data-decl="' + r.id + '" style="padding:8px 16px;font-size:13px;color:#ff2e63">Decline</button>'
+            : '<span style="font-size:13px;color:#ff9f1c">⏳ Waiting on ' + esc(r.needsMyApproval ? '' : 'other parent') + '</span>';
+          return '<div class="kid-card" style="margin-bottom:8px"><div class="k-name">' + esc(r.fromName) + ' → ' + esc(r.toName) + '</div><div class="k-meta">' + action + '</div></div>';
+        }).join('');
+      }
+      // Per-kid: show code + friends + add
+      h += '<div style="font:700 13px/1 Inter;margin:16px 0 8px">My kids</div><div id="fr-kids"><p style="color:#7c8898">Loading…</p></div>';
+      b.innerHTML = h;
+      // Wire approve/decline
+      b.querySelectorAll('[data-appr]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          api('/api/friends/requests/' + btn.getAttribute('data-appr') + '/approve', { method: 'POST' })
+            .then(function (r) { alert(r.friends ? '🎉 Friends! Chat space created.' : 'Approved! Waiting on the other parent.'); loadFriends(); });
+        });
+      });
+      b.querySelectorAll('[data-decl]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          api('/api/friends/requests/' + btn.getAttribute('data-decl') + '/decline', { method: 'POST' }).then(loadFriends);
+        });
+      });
+      // Load each kid's code + friends
+      var fk = document.getElementById('fr-kids');
+      Promise.all(_kidsCache.map(function (k) {
+        return Promise.all([
+          api('/api/kids/' + k.id + '/friend-code').catch(function () { return {}; }),
+          api('/api/kids/' + k.id + '/friends').catch(function () { return { friends: [] }; }),
+        ]).then(function (rs) { return { kid: k, code: rs[0].code, friends: rs[1].friends || [] }; });
+      })).then(function (rows) {
+        fk.innerHTML = rows.map(function (r) {
+          return '<div class="kid-card" style="margin-bottom:10px"><div class="k-name">' + esc(r.kid.name) + '</div>' +
+            '<div class="k-meta">Friend code: <code style="background:rgba(0,229,255,.12);padding:4px 10px;border-radius:6px;letter-spacing:2px">' + esc(r.code || '…') + '</code></div>' +
+            (r.friends.length ? '<div class="k-meta" style="margin-top:6px">Friends: ' + r.friends.map(function (f) {
+              return esc(f.name) + ' <button data-unfr="' + r.kid.id + ':' + f.id + '" style="background:none;border:none;color:#ff2e63;cursor:pointer;font-size:12px">✕</button>';
+            }).join(', ') + '</div>' : '<div class="k-meta">No friends yet</div>') +
+            '<div style="margin-top:8px"><input data-addcode="' + r.kid.id + '" placeholder="Friend\'s code" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;width:120px;text-transform:uppercase"/> <button class="btn ghost" data-addbtn="' + r.kid.id + '" style="padding:8px 14px;font-size:13px">Send request</button></div></div>';
+        }).join('');
+        fk.querySelectorAll('[data-addbtn]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var kidId = btn.getAttribute('data-addbtn');
+            var code = fk.querySelector('[data-addcode="' + kidId + '"]').value.trim();
+            if (!code) return;
+            api('/api/friends/request', { method: 'POST', body: JSON.stringify({ from_kid_id: kidId, to_code: code }) })
+              .then(function (r) { alert('Request sent to ' + r.toKidName + '! Both parents must approve.'); loadFriends(); })
+              .catch(function (e) { alert(e.message || 'Could not send.'); });
+          });
+        });
+        fk.querySelectorAll('[data-unfr]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            if (!confirm('Remove this friendship? The chat will be deleted.')) return;
+            var parts = btn.getAttribute('data-unfr').split(':');
+            api('/api/friends/' + parts[0] + '/' + parts[1], { method: 'DELETE' }).then(loadFriends);
+          });
+        });
+      });
+    }).catch(function () { b.innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
+  function loadPT() {
+    var b = document.getElementById('ptmsg-body');
+    Promise.all([api('/api/pt/threads'), api('/api/pt/teachers')]).then(function (rs) {
+      var h = '';
+      var th = rs[0].threads || [], tc = rs[1].teachers || [];
+      if (th.length) {
+        h += th.map(function (t) {
+          return '<div class="kid-card" style="margin-bottom:8px"><div class="k-name">' + esc(t.subject || 'Chat') + '</div>' +
+            '<div class="k-meta">' + esc(t.kid_name || '') + ' · ' + esc(t.teacher_name || '') + (t.last_msg ? ' — “' + esc(t.last_msg.slice(0, 60)) + '”' : ' — no messages yet') + '</div>' +
+            '<div style="margin-top:8px"><a class="btn ghost" style="padding:8px 14px;font-size:13px" href="/pages/chat.html">Open chat →</a></div></div>';
+        }).join('');
+      } else h += '<p style="color:#7c8898">No conversations yet.</p>';
+      if (tc.length) {
+        h += '<div style="font:700 13px/1 Inter;margin:16px 0 8px">Start a conversation</div>';
+        h += tc.map(function (t) {
+          return '<div class="kid-card" style="margin-bottom:8px"><div class="k-name">' + esc(t.display_name) + '</div><div class="k-meta">' + esc(t.kid_name) + '\'s teacher</div>' +
+            '<div style="margin-top:8px"><button class="btn ghost" data-newpt="' + t.kid_id + ':' + t.id + '" style="padding:8px 14px;font-size:13px">Message</button></div></div>';
+        }).join('');
+      }
+      b.innerHTML = h;
+      b.querySelectorAll('[data-newpt]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var p = btn.getAttribute('data-newpt').split(':');
+          var subj = prompt('What is this about?', 'Question about class');
+          if (subj === null) return;
+          api('/api/pt/threads', { method: 'POST', body: JSON.stringify({ kid_id: Number(p[0]), teacher_user_id: Number(p[1]), subject: subj }) })
+            .then(function (r) { window.location.href = '/pages/chat.html'; });
+        });
+      });
+    }).catch(function () { b.innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
+  function loadFamFeed() {
+    var b = document.getElementById('famfeed-body');
+    Promise.all([api('/api/family/feed'), api('/api/cheers/templates').catch(function () { return { templates: [] }; })]).then(function (rs) {
+      var d = rs[0], tmpl = rs[1].templates || [];
+      var h = '<p style="color:var(--muted);font-size:13px;margin-bottom:12px">Everyone in your family tree — achievements, badges, and cheers. Send encouragement with one tap.</p>';
+      (d.kids || []).forEach(function (k) {
+        h += '<div class="kid-card" style="margin-bottom:10px"><div class="k-name">' + (k.avatarEmoji || '🚀') + ' ' + esc(k.name) + '</div>' +
+          '<div style="margin-top:8px"><select data-cheerkid="' + k.id + '" style="padding:8px;border-radius:8px;background:rgba(255,255,255,.05);color:inherit;border:1px solid rgba(255,255,255,.2)">' +
+          tmpl.map(function (t) { return '<option>' + esc(t) + '</option>'; }).join('') + '</select> ' +
+          '<button class="btn ghost" data-cheerbtn="' + k.id + '" style="padding:8px 14px;font-size:13px">Send cheer 📣</button></div></div>';
+      });
+      var ch = d.cheers || [];
+      if (ch.length) {
+        h += '<div style="font:700 13px/1 Inter;margin:16px 0 8px">Recent cheers</div>' +
+          ch.map(function (c) { return '<div class="k-meta" style="margin-bottom:6px">' + esc(c.template) + ' <span style="opacity:.6">— ' + esc(c.from_name || 'someone') + ' → ' + esc(c.to_name || '') + '</span></div>'; }).join('');
+      }
+      b.innerHTML = h;
+      b.querySelectorAll('[data-cheerbtn]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var kidId = btn.getAttribute('data-cheerbtn');
+          var t = b.querySelector('[data-cheerkid="' + kidId + '"]').value;
+          api('/api/cheers', { method: 'POST', body: JSON.stringify({ to_kid_id: Number(kidId), template: t }) })
+            .then(function () { alert('Cheer sent! 🎉'); loadFamFeed(); });
+        });
+      });
+    }).catch(function () { b.innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
+  function loadPAnn() {
+    var b = document.getElementById('pann-body');
+    // Get my kids' classrooms via kids cache
+    var kids = _kidsCache || [];
+    Promise.all(kids.map(function (k) {
+      return api('/api/kids/' + k.id + '/classrooms').catch(function () { return { classrooms: [] }; });
+    })).then(function (rs) {
+      var classIds = [];
+      rs.forEach(function (r) { (r.classrooms || []).forEach(function (c) { if (classIds.indexOf(c.id) === -1) classIds.push({ id: c.id, name: c.name }); }); });
+      if (!classIds.length) { b.innerHTML = '<p style="color:#7c8898">Your kids are not in any classrooms yet.</p>'; return; }
+      Promise.all(classIds.map(function (c) {
+        return api('/api/classrooms/' + c.id + '/announcements').then(function (d) {
+          return { name: c.name, anns: d.announcements || [] };
+        }).catch(function () { return { name: c.name, anns: [] }; });
+      })).then(function (all) {
+        var h = '';
+        all.forEach(function (g) {
+          if (!g.anns.length) return;
+          h += '<div style="font:700 13px/1 Inter;margin:14px 0 8px">🏫 ' + esc(g.name) + '</div>';
+          h += g.anns.map(function (a) {
+            return '<div class="kid-card" style="margin-bottom:8px">' + (a.pinned ? '📌 ' : '') +
+              '<div class="k-name">' + esc(a.title) + '</div><div class="k-meta">' + esc(a.body) + '</div>' +
+              '<div class="k-meta" style="opacity:.6">' + esc(a.teacher_name || '') + ' · ' + new Date(a.created_at + 'Z').toLocaleDateString() + '</div></div>';
+          }).join('');
+        });
+        b.innerHTML = h || '<p style="color:#7c8898">No announcements yet.</p>';
+      });
+    }).catch(function () { b.innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
+  var AVATAR_COLORS = ['#00e5ff','#39ff14','#ff2e63','#ffd166','#a855f7','#ff9f1c','#06d6a0','#ef476f'];
+  var NEXUS_AVATARS = []; // loaded from avatars.json
+  function loadEditProfile(user) {
+    var el = document.getElementById('edit-profile');
+    if (!el) return;
+    var cur = { name: user.displayName || '', color: user.avatarColor || '#00e5ff', emoji: '', photo: user.photoUrl || '' };
+    el.innerHTML =
+      '<div style="display:flex;gap:18px;align-items:center;margin-bottom:16px;flex-wrap:wrap">' +
+      '<div id="ep-preview" style="width:72px;height:72px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:36px;flex:none"></div>' +
+      '<div><div style="font:700 14px/1 Inter;margin-bottom:6px">Your profile</div><div style="font-size:13px;color:#7c8898">This is how you appear across Skynet Nexus.</div></div></div>' +
+      '<label style="display:block;font:700 12px/1 Inter;margin:12px 0 6px">Display name</label>' +
+      '<input id="ep-name" value="' + esc(cur.name) + '" maxlength="40" style="width:100%;max-width:320px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit"/>' +
+      '<label style="display:block;font:700 12px/1 Inter;margin:14px 0 6px">Choose an avatar <span style="font-weight:400;color:#7c8898">(100 Nexus Glow designs)</span></label>' +
+      '<div id="ep-avatars" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:8px;max-height:260px;overflow-y:auto;padding:10px;background:rgba(255,255,255,.03);border-radius:12px"><p style="color:#7c8898;font-size:13px">Loading avatars…</p></div>' +
+      '<div style="margin-top:10px"><label class="btn ghost" style="padding:10px 18px;font-size:13px;cursor:pointer">📤 Upload your own photo<input type="file" id="ep-file" accept="image/png,image/jpeg,image/gif,image/webp" style="display:none"/></label> <span id="ep-upload-msg" style="font-size:13px;color:#7c8898"></span></div>' +
+      '<label style="display:block;font:700 12px/1 Inter;margin:14px 0 6px">Avatar color</label>' +
+      '<div id="ep-colors" style="display:flex;gap:8px;flex-wrap:wrap">' +
+      AVATAR_COLORS.map(function (c) { return '<button data-color="' + c + '" style="width:36px;height:36px;border-radius:50%;background:' + c + ';border:3px solid ' + (c === cur.color ? '#fff' : 'transparent') + ';cursor:pointer"></button>'; }).join('') + '</div>' +
+      '<label style="display:block;font:700 12px/1 Inter;margin:14px 0 6px">Or paste an image URL</label>' +
+      '<input id="ep-photo" value="' + esc(cur.photo) + '" placeholder="https://…" style="width:100%;max-width:420px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit"/>' +
+      '<div style="margin-top:16px"><button class="btn" id="ep-save">Save profile ✓</button> <span id="ep-msg" style="margin-left:10px;font-size:13px"></span></div>';
+    function paintPreview() {
+      var p = document.getElementById('ep-preview');
+      p.style.background = 'rgba(255,255,255,.06)';
+      if (cur.photo) { p.innerHTML = '<img src="' + esc(cur.photo) + '" style="width:100%;height:100%;border-radius:20px;object-fit:cover" onerror="this.remove()"/>'; }
+      else { p.innerHTML = '<span style="font-size:28px">👤</span>'; }
+    }
+    paintPreview();
+    // Load 100 Nexus Glow avatars
+    var avBox = document.getElementById('ep-avatars');
+    function renderAvatars() {
+      avBox.innerHTML = NEXUS_AVATARS.map(function (a) {
+        var sel = cur.photo === a.file;
+        return '<button data-av="' + esc(a.file) + '" title="' + esc(a.name || '') + '" style="padding:4px;border-radius:12px;border:2px solid ' + (sel ? '#00e5ff' : 'transparent') + ';background:rgba(255,255,255,.05);cursor:pointer"><img src="' + esc(a.file) + '" style="width:100%;height:auto;display:block" loading="lazy"/></button>';
+      }).join('');
+      avBox.querySelectorAll('[data-av]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          cur.photo = b.getAttribute('data-av'); cur.emoji = '';
+          avBox.querySelectorAll('[data-av]').forEach(function (x) { x.style.borderColor = x === b ? '#00e5ff' : 'transparent'; });
+          paintPreview();
+        });
+      });
+    }
+    if (NEXUS_AVATARS.length) renderAvatars();
+    else fetch('/assets/img/avatars/avatars.json').then(function (r) { return r.json(); }).then(function (d) {
+      NEXUS_AVATARS = d || []; renderAvatars();
+    }).catch(function () { avBox.innerHTML = '<p style="color:#ff2e63;font-size:13px">Could not load avatars.</p>'; });
+    // Upload handler
+    document.getElementById('ep-file').addEventListener('change', function (e) {
+      var f = e.target.files[0];
+      if (!f) return;
+      var msg = document.getElementById('ep-upload-msg');
+      if (f.size > 1.5 * 1024 * 1024) { msg.textContent = 'Too big — max 1.5MB.'; msg.style.color = '#ff2e63'; return; }
+      msg.textContent = 'Uploading…'; msg.style.color = '#7c8898';
+      var rd = new FileReader();
+      rd.onload = function () {
+        api('/api/auth/avatar-upload', { method: 'POST', body: JSON.stringify({ base64: rd.result }) })
+          .then(function (r) { cur.photo = r.url; cur.emoji = ''; paintPreview(); msg.textContent = '✓ Uploaded!'; msg.style.color = '#39ff14'; })
+          .catch(function (err) { msg.textContent = '✗ ' + (err.message || 'failed'); msg.style.color = '#ff2e63'; });
+      };
+      rd.readAsDataURL(f);
+    });
+    el.querySelectorAll('[data-color]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        cur.color = b.getAttribute('data-color');
+        el.querySelectorAll('[data-color]').forEach(function (x) { x.style.borderColor = x === b ? '#fff' : 'transparent'; });
+        paintPreview();
+      });
+    });
+    document.getElementById('ep-photo').addEventListener('input', function (e) { cur.photo = e.target.value.trim(); paintPreview(); });
+    document.getElementById('ep-save').addEventListener('click', function () {
+      var msg = document.getElementById('ep-msg');
+      msg.textContent = 'Saving…'; msg.style.color = '#7c8898';
+      api('/api/auth/profile', { method: 'PATCH', body: JSON.stringify({
+        displayName: document.getElementById('ep-name').value.trim(),
+        avatarColor: cur.color, photoUrl: cur.photo || null,
+      })}).then(function (u) {
+        msg.textContent = '✓ Saved!'; msg.style.color = '#39ff14';
+        if (u && u.user) { try { localStorage.setItem('nexus_user', JSON.stringify(u.user)); } catch (e) {} }
+      }).catch(function (e) { msg.textContent = '✗ ' + (e.message || 'failed'); msg.style.color = '#ff2e63'; });
+    });
+  }
+  function bindParentTiles() {
+    root.querySelectorAll('[data-panel]').forEach(function (t) {
+      t.addEventListener('click', function () {
+        var id = t.getAttribute('data-panel');
+        root.querySelectorAll('.panel').forEach(function (p) { p.classList.add('hidden'); });
+        var el = document.getElementById(id);
+        if (el) {
+          el.classList.remove('hidden');
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (id === 'p-family') loadFamily();
+          if (id === 'p-digest') loadDigest();
+          if (id === 'p-board') loadBoard();
+          if (id === 'p-friends') loadFriends();
+          if (id === 'p-ptmsg') loadPT();
+          if (id === 'p-famfeed') loadFamFeed();
+          if (id === 'p-pann') loadPAnn();
+          if (id === 'p-settings') loadEditProfile(_currentUser);
+        }
+      });
+    });
+    bindKidButtons();
+    var nk = document.getElementById('btn-notif');
+    if (nk) nk.addEventListener('click', function () {
+      if (!('Notification' in window)) { alert('Notifications not supported in this browser.'); return; }
+      Notification.requestPermission().then(function (p) {
+        nk.textContent = p === 'granted' ? '✓ Drop alerts on' : '🔔 Enable drop alerts';
+      });
+    });
+  }
+
+  var ALL_BADGES = [
+    ['📖', 'First Story'], ['🔥', '3-Day Streak'], ['🔥🔥', '7-Day Streak'], ['🏆', '30-Day Streak'],
+    ['🚀', 'Space Explorer'], ['🤖', 'Robotics Explorer'], ['🎮', 'Gaming Explorer'], ['🎵', 'Music Explorer'],
+    ['🧪', 'STEM Explorer'], ['🌍', 'Climate Explorer'], ['🧬', 'Biotech Explorer'], ['⚛️', 'Quantum Explorer'],
+    ['➗', 'Math Explorer'], ['🔒', 'Cyber Explorer'], ['💡', 'AI Explorer'], ['🔧', 'Engineering Explorer'],
+    ['🎓', 'Scholar'], ['👑', 'Editor-in-Chief'], ['💬', 'Debater'], ['❓', 'Curious Mind'],
+  ];
+  function loadBadges(kids) {
+    var wall = document.getElementById('badge-wall');
+    if (!wall) return;
+    api('/api/gamification/status').then(function (d) {
+      var earned = {};
+      (d.kids || []).forEach(function (k) { (k.badges || []).forEach(function (b) { earned[b] = true; }); });
+      wall.innerHTML = ALL_BADGES.map(function (bd) {
+        var got = earned[bd[1]];
+        return '<div class="badge ' + (got ? 'earned' : 'locked') + '"><div class="b-ico">' + bd[0] + '</div><div class="b-name">' + esc(bd[1]) + '</div></div>';
+      }).join('');
+    }).catch(function () { wall.innerHTML = '<p style="color:#7c8898">Could not load badges.</p>'; });
+  }
+
+  /* ============ TEACHER DASHBOARD ============ */
+  function teacherDash(user, classrooms) {
+    var html = '<div class="dash-head">' + avatarHtml(user.name || user.email, user.avatarColor, user.avatarEmoji, 64, user.photoUrl) +
+      '<div><h1>' + esc(user.name || 'Teacher') + '</h1>' +
+      '<p class="sub">Teacher dashboard · ' + classrooms.length + ' class' + (classrooms.length === 1 ? '' : 'es') + '</p>' +
+      '<div class="role-pills">' + user.roles.map(function (r) { return '<span class="role-pill">' + esc(r) + '</span>'; }).join('') + '</div></div></div>';
+
+    if (!classrooms.length) {
+      html += '<div class="panel"><h2>🏫 No classes yet</h2><p style="color:var(--muted)">Create your first class to unlock the teacher dashboard.</p>' +
+        '<p style="margin-top:12px"><button class="btn" id="btn-new-class">＋ Create a class</button></p></div>';
+      root.innerHTML = html;
+      bindNewClass();
+      return;
+    }
+
+    html += '<div class="class-tabs" id="class-tabs">' +
+      classrooms.map(function (c, i) { return '<button data-class="' + c.id + '" class="' + (i === 0 ? 'active' : '') + '">' + esc(c.name) + '</button>'; }).join('') +
+      '<button class="add-class" id="btn-new-class">＋ New class</button></div>';
+
+    html += '<div id="class-body"><p style="color:#7c8898">Loading class…</p></div>';
+    root.innerHTML = html;
+    bindNewClass();
+
+    var tabs = root.querySelectorAll('#class-tabs [data-class]');
+    tabs.forEach(function (t) {
+      t.addEventListener('click', function () {
+        tabs.forEach(function (x) { x.classList.remove('active'); });
+        t.classList.add('active');
+        loadClass(t.getAttribute('data-class'));
+      });
+    });
+    loadClass(classrooms[0].id);
+  }
+
+  function loadClass(classId) {
+    var body = document.getElementById('class-body');
+    body.innerHTML = '<p style="color:#7c8898">Loading class…</p>';
+    Promise.all([
+      api('/api/classrooms/' + classId + '/students').catch(function () { return { students: [] }; }),
+      api('/api/classrooms/' + classId + '/progress').catch(function () { return { progress: [] }; }),
+      api('/api/assignments?classroom=' + classId).catch(function () { return { assignments: [] }; }),
+    ]).then(function (rs) {
+      var students = rs[0].students || rs[0] || [];
+      var progress = rs[1].progress || rs[1] || [];
+      var assigns = rs[2].assignments || rs[2] || [];
+      renderClassTiles(classId, students, progress, assigns);
+    });
+  }
+
+  function renderClassTiles(classId, students, progress, assigns) {
+    var body = document.getElementById('class-body');
+    var active = assigns.filter(function (a) { return !a.completed; }).length;
+    var avgXP = students.length ? Math.round(students.reduce(function (s, x) { return s + (x.xp || 0); }, 0) / students.length) : 0;
+    var topStreak = Math.max.apply(null, [0].concat(students.map(function (x) { return x.streak || 0; })));
+
+    var html = '<div class="tile-grid">' +
+      tile('blue', '👥', 'Students', '<div class="t-big">' + students.length + '</div>', 'avg ' + avgXP.toLocaleString() + ' XP · best streak ' + topStreak + '🔥', 'students') +
+      tile('orange', '📝', 'Assignments', '<div class="t-big">' + active + '</div>', assigns.length + ' total · ' + active + ' active', 'assignments') +
+      tile('green', '📊', 'Progress', '', 'Leaderboard & reading stats', 'progress') +
+      tile('purple', '💬', 'Discussions', '', 'Class threads & Q&A', null, '/pages/classroom.html') +
+      tile('gold', '🧠', 'Quiz', '', 'Tonight\'s results & leaderboard', null, '/pages/quiz.html') +
+      tile('cyan', '⚡', 'Quick actions', '', 'New assignment · discussion · announcement', 'actions') +
+      tile('pink', '🌟', 'Public profile', '', 'Photo, bio, degrees, awards, quote', 'pubprofile') +
+      tile('slate', '✉️', 'Invite parents', '', 'Email invites to link students', 'invites') +
+      tile('gold', '⚙️', 'Class settings', '', 'Listen toggle, channel filters', 'csettings') +
+      '<a href="/pages/chat.html" style="text-decoration:none">' + tile('cyan', '💬', 'Class chats', '', 'Talk with families', '') + '</a>' +
+      tile('red', '⚠️', 'Needs attention', '', 'At-risk students', 'atrisk') +
+      tile('slate', '📋', 'Completion matrix', '', 'Assignments × students', 'matrix') +
+      '</div>';
+
+    // Students panel
+    html += '<div class="panel" id="p-students"><h2>👥 Students</h2>' +
+      (students.length ? '<table class="stu-table"><tr><th>Student</th><th>Level</th><th>XP</th><th>Streak</th><th>Progress</th></tr>' +
+        students.map(function (s) {
+          var pct = Math.min(100, Math.round((s.xp || 0) / 100));
+          return '<tr><td>' + esc(s.name) + '</td><td>' + esc(s.level || '—') + '</td><td>' + (s.xp || 0).toLocaleString() + '</td><td>' + (s.streak || 0) + '🔥</td>' +
+            '<td><div class="xp-bar"><div style="width:' + pct + '%"></div></div></td></tr>';
+        }).join('') + '</table>'
+        : '<p style="color:var(--muted)">No students yet. Add them below.</p>') +
+      '<p style="margin-top:14px"><button class="btn ghost" id="btn-add-student">＋ Add student</button></p></div>';
+
+    // Assignments panel
+    html += '<div class="panel hidden" id="p-assignments"><h2>📝 Assignments</h2>' +
+      (assigns.length ? assigns.map(function (a) {
+        return '<div style="padding:12px;border:1px solid rgba(255,255,255,.1);border-radius:10px;margin-bottom:8px"><b>' + esc(a.title || a.articleTitle || 'Assignment') + '</b><br><span style="color:var(--muted);font-size:13px">' + esc(a.status || 'active') + '</span></div>';
+      }).join('') : '<p style="color:var(--muted)">No assignments yet.</p>') +
+      '<p style="margin-top:14px"><a class="btn" href="/pages/assignments.html">Manage assignments →</a></p></div>';
+
+    // Progress panel
+    var sorted = students.slice().sort(function (a, b) { return (b.xp || 0) - (a.xp || 0); }).slice(0, 5);
+    html += '<div class="panel hidden" id="p-progress"><h2>📊 Top readers</h2>' +
+      (sorted.length ? '<table class="stu-table"><tr><th>#</th><th>Student</th><th>XP</th><th>Streak</th></tr>' +
+        sorted.map(function (s, i) { return '<tr><td>' + (i + 1) + '</td><td>' + esc(s.name) + '</td><td>' + (s.xp || 0).toLocaleString() + '</td><td>' + (s.streak || 0) + '🔥</td></tr>'; }).join('') + '</table>'
+        : '<p style="color:var(--muted)">No data yet.</p>') + '</div>';
+
+    // Public profile panel
+    html += '<div class="panel hidden" id="p-pubprofile"><h2>🌟 Public profile</h2>' +
+      '<p style="color:var(--muted,#7c8898);font-size:14px;margin:0 0 16px">This is what families see on your public page. <a href="/pages/teacher.html?id=' + classId + '" style="color:#00e5ff" id="pp-view-link">Preview →</a></p>' +
+      '<div id="pp-form"><p style="color:#7c8898">Loading…</p></div></div>';
+
+    // Invites panel
+    html += '<div class="panel hidden" id="p-invites"><h2>✉️ Invite parents</h2>' +
+      '<p style="color:var(--muted,#7c8898);font-size:14px;margin:0 0 14px">Enter a parent\'s email. They\'ll get a link to create their account and link their child to this class. <b>You cannot add students directly</b> — parents always stay in control.</p>' +
+      '<p><input id="inv-email" type="email" placeholder="parent@example.com" style="padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;width:260px"/> <button class="btn" id="inv-send">Send invite</button></p>' +
+      '<div id="inv-result" style="margin-top:10px;font-size:14px"></div></div>';
+
+    // At-risk panel
+    html += '<div class="panel hidden" id="p-atrisk"><h2>⚠️ Needs attention</h2><div id="atrisk-body"><p style="color:#7c8898">Loading…</p></div></div>';
+    // Matrix panel
+    html += '<div class="panel hidden" id="p-matrix"><h2>📋 Completion matrix</h2><div id="matrix-body" style="overflow-x:auto"><p style="color:#7c8898">Loading…</p></div></div>';
+    // Class settings panel
+    html += '<div class="panel hidden" id="p-csettings"><h2>⚙️ Class settings</h2><div id="cs-body"><p style="color:#7c8898">Loading…</p></div></div>';
+    // PT messages panel (teacher)
+    html += '<div class="panel hidden" id="p-tptmsg"><h2>💬 Parent messages</h2><div id="tptmsg-body"><p style="color:#7c8898">Loading…</p></div></div>';
+    // Announcements panel (teacher)
+    html += '<div class="panel hidden" id="p-tannounce"><h2>📢 Announcements</h2><div id="tannounce-body"><p style="color:#7c8898">Loading…</p></div></div>';
+
+    // Safety panel (teacher)
+    html += '<div class="panel" style="border-color:rgba(57,255,20,.35)"><h2>🛡️ Child safety rules</h2>' +
+      '<div style="display:grid;gap:10px;font-size:14px;line-height:1.6;color:var(--muted,#9aa7bd)">' +
+      '<div><b style="color:#39ff14">You invite, parents decide.</b> You send an email invite — the parent creates the account and links their child. You never handle kid accounts.</div>' +
+      '<div><b style="color:#39ff14">Classroom data only.</b> You see XP, streaks, and reading progress for enrolled students — never personal details, family info, or other classes.</div>' +
+      '<div><b style="color:#39ff14">Kid friendships are parent-gated.</b> Kids can only chat with parent-approved friends (both parents must agree). You cannot message students privately — classroom chat only.</div>' +
+      '<div><b style="color:#39ff14">Parents can unlink instantly.</b> A parent can remove their child from your class at any time, no approval needed.</div>' +
+      '</div></div>';
+
+    // Actions panel
+    html += '<div class="panel hidden" id="p-actions"><h2>⚡ Quick actions</h2>' +
+      '<p><a class="btn" href="/pages/assignments.html">📝 New assignment</a> <a class="btn ghost" href="/pages/classroom.html">💬 Start discussion</a></p></div>';
+
+    body.innerHTML = html;
+    body.querySelectorAll('[data-panel]').forEach(function (t) {
+      t.addEventListener('click', function () {
+        var id = t.getAttribute('data-panel');
+        body.querySelectorAll('.panel').forEach(function (p) { p.classList.add('hidden'); });
+        var el = document.getElementById(id);
+        if (el) {
+          el.classList.remove('hidden');
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (id === 'p-pubprofile') loadProfileForm();
+          if (id === 'p-csettings') loadClassSettings(classId);
+          if (id === 'p-atrisk') loadAtRisk(classId);
+          if (id === 'p-matrix') loadMatrix(classId);
+          if (id === 'p-tptmsg') loadTPT();
+          if (id === 'p-tannounce') loadTAnnounce(classId);
+        }
+      });
+    });
+    bindInviteSender(classId);
+  }
+
+  function loadProfileForm() {
+    var f = document.getElementById('pp-form');
+    api('/api/auth/me').then(function (d) {
+      var u = d.user || {};
+      f.innerHTML =
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">Profile photo URL</label>' +
+        '<input id="pp-img" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit" value="' + esc(u.profile_image || '') + '" placeholder="/assets/img/... or https://…"/>' +
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">Bio</label>' +
+        '<textarea id="pp-bio" rows="4" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit">' + esc(u.bio || '') + '</textarea>' +
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">Teaching quote</label>' +
+        '<input id="pp-quote" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit" value="' + esc(u.quote || '') + '" placeholder="Your teaching philosophy in one line"/>' +
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">School</label>' +
+        '<input id="pp-school" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit" value="' + esc(u.school || '') + '"/>' +
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">Subjects (comma-separated)</label>' +
+        '<input id="pp-subj" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit" value="' + esc(u.subjects || '') + '" placeholder="Science, Math"/>' +
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">Degrees (one per line: Degree, School, Year)</label>' +
+        '<textarea id="pp-deg" rows="3" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit" placeholder="M.Ed. Curriculum, State University, 2018">' + esc((u.degrees || []).map(function (x) { return [x.degree, x.school, x.year].filter(Boolean).join(', '); }).join('\n')) + '</textarea>' +
+        '<label style="display:block;font:700 13px/1 Inter;margin:14px 0 6px">Awards (one per line: Title, Organization, Year)</label>' +
+        '<textarea id="pp-awd" rows="3" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit" placeholder="Teacher of the Year, District, 2024">' + esc((u.awards || []).map(function (x) { return [x.title, x.org, x.year].filter(Boolean).join(', '); }).join('\n')) + '</textarea>' +
+        '<label style="display:flex;align-items:center;gap:8px;margin:16px 0;font:600 14px/1 Inter"><input type="checkbox" id="pp-pub" ' + (u.public_profile ? 'checked' : '') + '/> Make my profile public</label>' +
+        '<p><button class="btn" id="pp-save">Save profile</button> <a class="btn ghost" id="pp-preview" href="/pages/teacher.html?id=' + u.id + '" target="_blank">Preview →</a></p>';
+      document.getElementById('pp-save').addEventListener('click', function () {
+        function parseLines(txt, keys) {
+          return txt.split('\n').map(function (l) { return l.trim(); }).filter(Boolean).map(function (l) {
+            var p = l.split(',').map(function (x) { return x.trim(); });
+            var o = {}; keys.forEach(function (k, i) { o[k] = p[i] || ''; }); return o;
+          });
+        }
+        var payload = {
+          profile_image: document.getElementById('pp-img').value.trim(),
+          bio: document.getElementById('pp-bio').value.trim(),
+          quote: document.getElementById('pp-quote').value.trim(),
+          school: document.getElementById('pp-school').value.trim(),
+          subjects: document.getElementById('pp-subj').value.trim(),
+          degrees: parseLines(document.getElementById('pp-deg').value, ['degree', 'school', 'year']),
+          awards: parseLines(document.getElementById('pp-awd').value, ['title', 'org', 'year']),
+          public_profile: document.getElementById('pp-pub').checked,
+        };
+        api('/api/users/profile', { method: 'PUT', body: JSON.stringify(payload) })
+          .then(function () { alert('Profile saved!'); })
+          .catch(function () { alert('Could not save.'); });
+      });
+    });
+  }
+
+  var CLASS_CHANNELS = ['ai','space','robotics','biotech','quantum','climate','engineering','math','cyber','gaming','music','stem','play'];
+  function loadClassSettings(classId) {
+    var b = document.getElementById('cs-body');
+    api('/api/classrooms/' + classId + '/settings').then(function (d) {
+      var s = d.settings || {};
+      var allowed = s.channels && s.channels.length ? s.channels : CLASS_CHANNELS.slice();
+      b.innerHTML =
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:10px 0"><input type="checkbox" id="cs-listen" ' + (s.listenEnabled ? 'checked' : '') + '/> 🔊 Listen feature for this class</label>' +
+        '<div style="font:700 13px/1 Inter,sans-serif;margin:16px 0 8px">📰 Channels visible to students</div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap" id="cs-channels">' +
+        CLASS_CHANNELS.map(function (c) {
+          var on = allowed.indexOf(c) !== -1;
+          return '<button data-ch="' + c + '" style="padding:6px 12px;border-radius:999px;font:700 12px/1 Inter,sans-serif;cursor:pointer;border:1px solid ' + (on ? '#00e5ff' : 'rgba(255,255,255,.2)') + ';background:' + (on ? 'rgba(0,229,255,.15)' : 'transparent') + ';color:' + (on ? '#00e5ff' : '#7c8898') + '">' + c + '</button>';
+        }).join('') + '</div>' +
+        '<button class="btn" id="cs-save" style="margin-top:16px">Save class settings</button>' +
+        '<p style="font-size:12px;color:var(--muted,#7c8898);margin-top:10px">Note: parents can further restrict channels per kid — your settings are the classroom default.</p>';
+      var sel = allowed.slice();
+      b.querySelectorAll('[data-ch]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var c = btn.getAttribute('data-ch');
+          var i = sel.indexOf(c);
+          if (i === -1) sel.push(c); else sel.splice(i, 1);
+          var on = sel.indexOf(c) !== -1;
+          btn.style.border = on ? '1px solid #00e5ff' : '1px solid rgba(255,255,255,.2)';
+          btn.style.background = on ? 'rgba(0,229,255,.15)' : 'transparent';
+          btn.style.color = on ? '#00e5ff' : '#7c8898';
+        });
+      });
+      document.getElementById('cs-save').addEventListener('click', function () {
+        api('/api/classrooms/' + classId + '/settings', { method: 'PUT', body: JSON.stringify({
+          listenEnabled: document.getElementById('cs-listen').checked, channels: sel }) })
+          .then(function () { alert('Class settings saved!'); }).catch(function () { alert('Could not save.'); });
+      });
+    }).catch(function () { b.innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
+  function loadTPT() {
+    var b = document.getElementById('tptmsg-body');
+    api('/api/pt/threads').then(function (d) {
+      var th = d.threads || [];
+      b.innerHTML = th.length ? th.map(function (t) {
+        return '<div class="kid-card" style="margin-bottom:8px"><div class="k-name">' + esc(t.subject || 'Chat') + '</div>' +
+          '<div class="k-meta">' + esc(t.kid_name || '') + ' · ' + esc(t.parent_name || 'parent') + (t.last_msg ? ' — “' + esc(t.last_msg.slice(0, 60)) + '”' : ' — no messages yet') + '</div>' +
+          '<div style="margin-top:8px"><a class="btn ghost" style="padding:8px 14px;font-size:13px" href="/pages/chat.html">Open chat →</a></div></div>';
+      }).join('') : '<p style="color:#7c8898">No parent conversations yet. Parents can message you from their dashboard.</p>';
+    }).catch(function () { b.innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
+  function loadTAnnounce(classId) {
+    var b = document.getElementById('tannounce-body');
+    api('/api/classrooms/' + classId + '/announcements').then(function (d) {
+      var h = '<div style="background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.25);border-radius:12px;padding:14px;margin-bottom:16px">' +
+        '<div style="font:700 13px/1 Inter;margin-bottom:10px">New announcement</div>' +
+        '<input id="ann-title" placeholder="Title (e.g. Field trip Friday!)" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;margin-bottom:8px"/>' +
+        '<textarea id="ann-body" placeholder="Details for families…" rows="3" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;margin-bottom:8px"></textarea>' +
+        '<label style="font-size:13px"><input type="checkbox" id="ann-pin"/> 📌 Pin to top</label> ' +
+        '<button class="btn" id="ann-send" style="margin-left:10px">Post 📢</button></div>';
+      h += '<div id="ann-list">' + (d.announcements || []).map(function (a) {
+        return '<div class="kid-card" style="margin-bottom:8px;position:relative">' + (a.pinned ? '<span style="position:absolute;top:10px;right:12px">📌</span>' : '') +
+          '<div class="k-name">' + esc(a.title) + '</div><div class="k-meta">' + esc(a.body) + '</div>' +
+          '<div class="k-meta" style="opacity:.6">' + new Date(a.created_at + 'Z').toLocaleDateString() + ' <button data-delann="' + a.id + '" style="background:none;border:none;color:#ff2e63;cursor:pointer">delete</button></div></div>';
+      }).join('') + '</div>';
+      b.innerHTML = h;
+      document.getElementById('ann-send').addEventListener('click', function () {
+        var t = document.getElementById('ann-title').value.trim(), bd = document.getElementById('ann-body').value.trim();
+        if (!t || !bd) { alert('Title and message needed.'); return; }
+        api('/api/classrooms/' + classId + '/announcements', { method: 'POST', body: JSON.stringify({ title: t, body: bd, pinned: document.getElementById('ann-pin').checked }) })
+          .then(function () { loadTAnnounce(classId); });
+      });
+      b.querySelectorAll('[data-delann]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          if (!confirm('Delete this announcement?')) return;
+          api('/api/announcements/' + btn.getAttribute('data-delann'), { method: 'DELETE' }).then(function () { loadTAnnounce(classId); });
+        });
+      });
+    }).catch(function () { b.innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
+  function loadAtRisk(classId) {
+    api('/api/classrooms/' + classId + '/at-risk').then(function (d) {
+      var b = document.getElementById('atrisk-body');
+      if (!d.atRisk.length) { b.innerHTML = '<p style="color:#39ff14">✅ Everyone is on track!</p>'; return; }
+      b.innerHTML = d.atRisk.map(function (k) {
+        var color = k.risk === 'high' ? '#ff2e63' : '#ff9f1c';
+        return '<div class="kid-card" style="margin-bottom:10px;border-left:4px solid ' + color + '">' +
+          '<div class="k-name">' + esc(k.name) + ' <span style="font-size:12px;color:' + color + '">' + k.risk.toUpperCase() + '</span></div>' +
+          '<div class="k-meta">' + k.daysIdle + ' days idle · ' + k.xp7 + ' XP this week · 🔥 ' + k.streak + ' streak</div></div>';
+      }).join('');
+    }).catch(function () { document.getElementById('atrisk-body').innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
+  function loadMatrix(classId) {
+    api('/api/classrooms/' + classId + '/matrix').then(function (d) {
+      var b = document.getElementById('matrix-body');
+      if (!d.assignments.length) { b.innerHTML = '<p style="color:#7c8898">No assignments yet.</p>'; return; }
+      var h = '<table style="border-collapse:collapse;font-size:13px"><tr><th style="padding:8px;text-align:left;position:sticky;left:0;background:#0f1522">Student</th>';
+      d.assignments.forEach(function (a) { h += '<th style="padding:8px;min-width:90px" title="' + esc(a.title) + '">' + esc(a.title.slice(0, 12)) + '…</th>'; });
+      h += '</tr>';
+      d.matrix.forEach(function (row) {
+        h += '<tr><td style="padding:8px;font-weight:700;position:sticky;left:0;background:#0f1522">' + esc(row.name) + '</td>';
+        row.cells.forEach(function (c) {
+          h += '<td style="padding:8px;text-align:center;background:' + (c.done ? 'rgba(57,255,20,.15)' : 'rgba(255,46,99,.08)') + '">' + (c.done ? '✅' : '⬜') + '</td>';
+        });
+        h += '</tr>';
+      });
+      b.innerHTML = h + '</table>';
+    }).catch(function () { document.getElementById('matrix-body').innerHTML = '<p style="color:#ff2e63">Could not load.</p>'; });
+  }
+  function bindInviteSender(classId) {
+    var btn = document.getElementById('inv-send');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var email = document.getElementById('inv-email').value.trim();
+      var res = document.getElementById('inv-result');
+      if (!email || !email.includes('@')) { res.innerHTML = '<span style="color:#ff2e63">Enter a valid email.</span>'; return; }
+      res.innerHTML = '<span style="color:#7c8898">Sending…</span>';
+      api('/api/classrooms/' + classId + '/invite', { method: 'POST', body: JSON.stringify({ parentEmail: email }) })
+        .then(function (d) {
+          res.innerHTML = '<span style="color:#39ff14">✓ Invite sent!</span><br><span style="color:var(--muted);font-size:13px">Share link: <code style="word-break:break-all">' + esc(d.link) + '</code></span>';
+          document.getElementById('inv-email').value = '';
+        })
+        .catch(function () { res.innerHTML = '<span style="color:#ff2e63">Could not send invite.</span>'; });
+    });
+  }
+  function bindNewClass() {
+    var b = document.getElementById('btn-new-class');
+    if (b) b.addEventListener('click', function () {
+      var m = document.createElement('div');
+      m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px';
+      m.innerHTML = '<div style="background:#0f1522;border:1px solid rgba(0,229,255,.3);border-radius:16px;padding:24px;max-width:380px;width:100%">' +
+        '<h3 style="margin:0 0 14px">＋ New class</h3>' +
+        '<input id="nc-name" placeholder="Class name (e.g. Ms. Rivera\'s 4th Grade)" maxlength="80" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;margin-bottom:14px"/>' +
+        '<div style="display:flex;gap:10px"><button class="btn ghost" id="nc-cancel" style="flex:1">Cancel</button><button class="btn" id="nc-go" style="flex:1">Create</button></div></div>';
+      document.body.appendChild(m);
+      var input = document.getElementById('nc-name');
+      input.focus();
+      document.getElementById('nc-cancel').addEventListener('click', function () { m.remove(); });
+      m.addEventListener('click', function (e) { if (e.target === m) m.remove(); });
+      function go() {
+        var name = input.value.trim();
+        if (!name) { input.focus(); return; }
+        api('/api/classrooms', { method: 'POST', body: JSON.stringify({ name: name }) })
+          .then(function () { location.reload(); })
+          .catch(function () { alert('Could not create class.'); });
+      }
+      document.getElementById('nc-go').addEventListener('click', go);
+      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+    });
+  }
+
+  /* ============ BOOT ============ */
+  function checkClassInvite() {
+    var code = new URLSearchParams(location.search).get('classInvite');
+    if (!code) return;
+    api('/api/auth/me').then(function (d) {
+      var kids = d.kids || [];
+      if (!kids.length) { alert('Create a kid profile first, then open the invite link again.'); return; }
+      var kidOpts = kids.map(function (k) { return '<option value="' + k.id + '">' + esc(k.name) + '</option>'; }).join('');
+      var div = document.createElement('div');
+      div.className = 'panel';
+      div.style.borderColor = 'rgba(0,229,255,.5)';
+      div.innerHTML = '<h2>🎓 Classroom invite</h2><p style="color:var(--muted)">A teacher invited you to link your child to their class. Choose which kid to enroll:</p>' +
+        '<p><select id="ci-kid" style="padding:10px;border-radius:8px;background:#0b1026;color:inherit">' + kidOpts + '</select> ' +
+        '<button class="btn" id="ci-join">Link to classroom</button></p>';
+      document.getElementById('root').prepend(div);
+      document.getElementById('ci-join').addEventListener('click', function () {
+        api('/api/classrooms/join', { method: 'POST', body: JSON.stringify({ code: code, kidId: document.getElementById('ci-kid').value }) })
+          .then(function () { alert('Linked! Your child is now in the classroom.'); history.replaceState(null, '', location.pathname); div.remove(); })
+          .catch(function () { alert('Invalid or expired invite.'); });
+      });
+    });
+  }
+  function boot() {
+    api('/api/auth/me').then(function (d) {
+      var user = d.user;
+      if (!user) { location.href = '/pages/login.html'; return; }
+      var roles = user.roles || [user.role || 'parent'];
+      user.roles = roles;
+      var isTeacher = roles.indexOf('teacher') !== -1 || roles.indexOf('admin') !== -1;
+      var isParent = roles.indexOf('parent') !== -1 || !isTeacher;
+
+      // Multi-role: show switcher
+      if (roles.indexOf('teacher') !== -1 && roles.indexOf('parent') !== -1) {
+        showRoleSwitcher(user);
+        return;
+      }
+      if (isTeacher) loadTeacher(user);
+      else { loadParent(user); checkClassInvite(); checkConsent(); }
+    }).catch(function () { location.href = '/pages/login.html'; });
+  }
+
+  function showRoleSwitcher(user) {
+    root.innerHTML = '<div class="dash-head">' + avatarHtml(user.name || user.email, user.avatarColor, user.avatarEmoji, 64, user.photoUrl) +
+      '<div><h1>' + esc(user.name || 'Dashboard') + '</h1><p class="sub">Choose your view</p></div></div>' +
+      '<div class="dash-roles"><button id="sw-parent" class="active">👨‍👩‍👧 Parent</button><button id="sw-teacher">🏫 Teacher</button></div>' +
+      '<div id="role-body"></div>';
+    var body = document.getElementById('role-body');
+    var bp = document.getElementById('sw-parent'), bt = document.getElementById('sw-teacher');
+    // Temporarily swap root for sub-renders
+    var realRoot = root;
+    function showParent() {
+      bp.classList.add('active'); bt.classList.remove('active');
+      root = body; loadParent(user); root = realRoot; checkClassInvite();
+    }
+    function showTeacher() {
+      bt.classList.add('active'); bp.classList.remove('active');
+      root = body; loadTeacher(user); root = realRoot;
+    }
+    bp.addEventListener('click', showParent);
+    bt.addEventListener('click', showTeacher);
+    showParent();
+  }
+
+  function loadParent(user) {
+    Promise.all([
+      api('/api/kids').catch(function () { return { kids: [] }; }),
+      api('/api/gamification/status').catch(function () { return { kids: [] }; }),
+    ]).then(function (rs) {
+      var kids = rs[0].kids || rs[0] || [];
+      _kidsCache = kids;
+      try {
+        if (kids.length && !localStorage.getItem('nexus_active_kid')) {
+          localStorage.setItem('nexus_active_kid', kids[0].id);
+        }
+      } catch (e) {}
+      var gam = {};
+      (rs[1].kids || []).forEach(function (k) { gam[k.id] = k; });
+      parentDash(user, kids, gam);
+    });
+  }
+
+  function loadTeacher(user) {
+    api('/api/classrooms').then(function (d) {
+      teacherDash(user, d.classrooms || d || []);
+    }).catch(function () {
+      teacherDash(user, []);
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+</body>
+</html>

@@ -2436,6 +2436,7 @@ app.listen(PORT, () => {
       });
 
       // Update manifest and article files in DATA_DIR
+      const manifestPath = path.join(DATA_DIR, 'manifest.json');
       if (fs.existsSync(manifestPath)) {
         const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
         let manifestChanged = false;

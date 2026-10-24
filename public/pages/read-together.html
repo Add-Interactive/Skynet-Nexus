@@ -1,143 +1,373 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Read Together — Skynet Nexus</title>
-<link rel="stylesheet" href="/assets/css/style.css"/>
-<style>
-  body { background: #0B1026; color: #e6ecf3; font-family: Inter, sans-serif; margin: 0; }
-  .rt-wrap { max-width: 860px; margin: 0 auto; padding: 24px 18px 80px; }
-  .rt-hero { text-align: center; padding: 30px 0; }
-  .rt-hero h1 { font-size: 2rem; margin: 0 0 8px; }
-  .rt-mode { display: flex; gap: 10px; justify-content: center; margin: 18px 0; }
-  .rt-mode button { padding: 12px 24px; border-radius: 12px; border: 2px solid rgba(0,229,255,.4); background: transparent; color: #e6ecf3; cursor: pointer; font-size: 15px; font-weight: 700; }
-  .rt-mode button.on { background: rgba(0,229,255,.15); border-color: #00e5ff; }
-  .rt-sec { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 22px; margin: 16px 0; }
-  .rt-sec h2 { margin: 0 0 12px; font-size: 1.2rem; }
-  .rt-sec.done { border-color: rgba(57,255,20,.5); }
-  .rt-sec.done h2::after { content: ' ✅'; }
-  .rt-body { line-height: 1.75; font-size: 16px; }
-  .rt-kidtake { background: rgba(168,85,247,.08); border-left: 4px solid #a855f7; padding: 16px; border-radius: 0 12px 12px 0; font-size: 17px; line-height: 1.7; }
-  .rt-q { background: rgba(255,209,102,.06); border: 1px solid rgba(255,209,102,.3); border-radius: 12px; padding: 14px 16px; margin: 10px 0; cursor: pointer; }
-  .rt-q.discussed { opacity: .55; text-decoration: line-through; }
-  .rt-gloss { display: grid; gap: 8px; }
-  .rt-gloss div { background: rgba(255,255,255,.03); padding: 10px 14px; border-radius: 8px; }
-  .rt-actions { text-align: center; margin-top: 24px; }
-  .btn { padding: 14px 32px; border-radius: 12px; border: none; background: linear-gradient(135deg,#00e5ff,#a855f7); color: #0B1026; font-weight: 800; font-size: 16px; cursor: pointer; }
-  .btn.ghost { background: transparent; border: 2px solid rgba(255,255,255,.25); color: #e6ecf3; }
-  .rt-progress { display: flex; gap: 8px; justify-content: center; margin: 16px 0; }
-  .rt-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.15); }
-  .rt-dot.on { background: #39ff14; }
-</style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>CO-PILOT COCKPIT // Skynet Nexus Holo-OS</title>
+  <meta name="description" content="Dual-seat co-op reading station for parents, kids, and teachers exploring STEM intelligence together."/>
+  <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Lexend:wght@400;600;700&family=JetBrains+Mono:wght@500;700;800&display=swap"/>
+  <link rel="stylesheet" href="/assets/css/game-ui.css?v=20261013-game3"/>
+  <style>
+    .co-op-cockpit-wrap {
+      position: relative;
+      z-index: 10;
+      max-width: 960px;
+      margin: 32px auto 80px;
+      padding: 0 20px;
+    }
+    .co-seat-selector {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin: 24px 0 32px;
+      flex-wrap: wrap;
+    }
+    .co-seat-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 28px;
+      border-radius: 18px;
+      background: rgba(10, 18, 38, 0.8);
+      border: 2px solid var(--hud-border);
+      color: #9cb5d6;
+      font-family: var(--font-game);
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .co-seat-btn.active {
+      border-color: var(--neon-cyan);
+      background: rgba(0, 229, 255, 0.15);
+      color: #fff;
+      box-shadow: 0 0 25px rgba(0, 229, 255, 0.4);
+      transform: translateY(-2px);
+    }
+    .checkpoint-bar {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    .checkpoint-node {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: rgba(4, 8, 20, 0.8);
+      border: 1px solid var(--hud-border);
+      font-family: var(--font-code);
+      font-size: 0.8rem;
+      color: #9cb5d6;
+    }
+    .checkpoint-node.done {
+      border-color: var(--neon-green);
+      color: var(--neon-green);
+      background: rgba(0, 255, 136, 0.1);
+    }
+    .co-section-card {
+      background: var(--hud-surface);
+      border: 1px solid var(--hud-border);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+      transition: border-color 0.2s;
+    }
+    .co-section-card.done {
+      border-color: var(--neon-green);
+    }
+  </style>
 </head>
 <body>
-<div class="rt-wrap">
-  <div class="rt-hero">
-    <div style="font-size:3rem">📖👨‍👧</div>
-    <h1>Read Together</h1>
-    <p style="color:#9fb0c3" id="rt-sub">Pick who you are, then read side by side.</p>
-    <div class="rt-mode" id="rt-mode">
-      <button data-role="parent" class="on">👩‍👧 I'm the parent</button>
-      <button data-role="kid">🧒 I'm the kid</button>
+
+  <!-- Ambient Holographic Canvas -->
+  <canvas id="space-canvas"></canvas>
+  <div class="holo-grid-bg"></div>
+  <div class="ambient-nebula nebula-1"></div>
+  <div class="ambient-nebula nebula-2"></div>
+
+  <!-- 1. TOP GAMER HUD BAR -->
+  <header class="game-hud-bar">
+    <a href="../index.html" class="game-brand" aria-label="Skynet Nexus Command">
+      <div class="brand-hologram-icon">📖</div>
+      <div>
+        <div class="brand-text-game">SKYNET NEXUS</div>
+        <div class="brand-sub-game">HOLO-OS // CO-PILOT COCKPIT</div>
+      </div>
+    </a>
+
+    <div class="game-hud-center">
+      <a href="../index.html" class="tactical-btn tactical-btn-ghost" style="padding:6px 14px;font-size:0.75rem;">
+        &larr; MISSION HUB
+      </a>
+      <a href="quiz.html" class="tactical-btn tactical-btn-purple" style="padding:6px 14px;font-size:0.75rem;">
+        🧠 QUIZ ARENA
+      </a>
+      <a href="kid.html" class="tactical-btn tactical-btn-cyan" style="padding:6px 14px;font-size:0.75rem;">
+        🚀 CADET SPACE
+      </a>
     </div>
-    <div class="rt-progress" id="rt-progress"></div>
-  </div>
-  <div id="rt-content"><p style="text-align:center;color:#7c8898">Loading story…</p></div>
-  <div class="rt-actions">
-    <button class="btn ghost" onclick="history.back()">← Back</button>
-    <button class="btn" id="rt-finish" style="margin-left:12px">Finish reading 🎉</button>
-  </div>
-</div>
-<script>
-(function () {
-  var q = new URLSearchParams(location.search);
-  var slug = q.get('slug'), kidId = q.get('kid'), sessionId = q.get('session');
-  var role = 'parent', article = null, progress = {};
-  var SECTIONS = ['story', 'kidtake', 'discuss', 'gloss'];
 
-  function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
-  function api(p, o) { return fetch(p, Object.assign({ credentials: 'same-origin', headers: { 'Content-Type': 'application/json' } }, o || {})).then(function (r) { if (!r.ok) throw new Error('err'); return r.json(); }); }
+    <div class="game-hud-stats">
+      <div class="hud-stat-pill">
+        <span>⭐ XP</span>
+        <strong id="hud-xp-val" class="xp-glow">340 XP</strong>
+      </div>
+      <button type="button" class="sfx-toggle-pill" id="sfx-toggle" title="Toggle Synthesized Audio SFX">
+        🔊 SFX ON
+      </button>
+      <div class="cadet-badge-mini" title="Active Cadet">
+        <span class="cadet-avatar-face">👨‍🚀</span>
+        <span class="cadet-level-tag">LVL 3</span>
+      </div>
+    </div>
+  </header>
 
-  document.querySelectorAll('#rt-mode button').forEach(function (b) {
-    b.addEventListener('click', function () {
-      document.querySelectorAll('#rt-mode button').forEach(function (x) { x.classList.remove('on'); });
-      b.classList.add('on'); role = b.getAttribute('data-role'); render();
-    });
-  });
+  <!-- 2. COCKPIT MAIN -->
+  <main class="co-op-cockpit-wrap">
 
-  function markDone(sec) {
-    progress[sec] = true;
-    if (sessionId) api('/api/coread/' + sessionId + '/progress', { method: 'POST', body: JSON.stringify({ progress: progress }) }).catch(function () {});
-    render();
-  }
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="font-family:var(--font-code);color:var(--neon-cyan);font-size:0.85rem;letter-spacing:0.12em;margin-bottom:6px;">
+        SYNCHRONIZED DUAL-SEAT READING STATION
+      </div>
+      <h1 style="font-family:var(--font-game);font-size:2.4rem;color:#fff;margin-bottom:10px;" id="co-story-title">
+        Loading Flight Transmission...
+      </h1>
+      <p style="color:#9cb5d6;font-size:1.05rem;">
+        Select your flight seat below to customize your reading stream:
+      </p>
 
-  function render() {
-    if (!article) return;
-    var c = document.getElementById('rt-content');
-    var h = '';
-    // Story
-    h += '<div class="rt-sec' + (progress.story ? ' done' : '') + '" id="sec-story"><h2>📰 The story</h2>';
-    if (role === 'kid') h += '<p style="color:#9fb0c3">Read this part with your parent — they can help with tricky words!</p>';
-    h += '<div class="rt-body">' + (article.body || '') + '</div>';
-    if (!progress.story) h += '<p><button class="btn ghost" data-done="story">We read it ✓</button></p></div>'; else h += '</div>';
-    // Kid Take
-    h += '<div class="rt-sec' + (progress.kidtake ? ' done' : '') + '"><h2>🧒 Kid Take</h2><div class="rt-kidtake">' + esc(article.kidTake || article.kid_take || 'No summary.') + '</div>';
-    if (!progress.kidtake) h += '<p><button class="btn ghost" data-done="kidtake">Got it ✓</button></p></div>'; else h += '</div>';
-    // Discussion (parent-led)
-    var qs = article.familyDiscussion || article.family_discussion || [];
-    h += '<div class="rt-sec' + (progress.discuss ? ' done' : '') + '"><h2>💬 Talk about it</h2>';
-    if (role === 'kid') h += '<p style="color:#9fb0c3">Your parent will ask you these — there are no wrong answers!</p>';
-    else h += '<p style="color:#9fb0c3">Tap each question after you discuss it together.</p>';
-    h += qs.map(function (qq, i) {
-      var done = (progress['q' + i]);
-      return '<div class="rt-q' + (done ? ' discussed' : '') + '" data-q="' + i + '">' + esc(qq) + '</div>';
-    }).join('');
-    if (!progress.discuss && qs.length) h += '<p><button class="btn ghost" data-done="discuss">We talked ✓</button></p>';
-    h += '</div>';
-    // Glossary
-    var g = article.glossary || [];
-    if (g.length) {
-      h += '<div class="rt-sec' + (progress.gloss ? ' done' : '') + '"><h2>📚 Words to know</h2><div class="rt-gloss">' +
-        g.map(function (x) { return '<div><b>' + esc(x.term) + '</b> — ' + esc(x.meaning || x.definition) + '</div>'; }).join('') + '</div>';
-      if (!progress.gloss) h += '<p><button class="btn ghost" data-done="gloss">Learned ✓</button></p></div>'; else h += '</div>';
-    }
-    c.innerHTML = h;
-    c.querySelectorAll('[data-done]').forEach(function (b) { b.addEventListener('click', function () { markDone(b.getAttribute('data-done')); }); });
-    c.querySelectorAll('[data-q]').forEach(function (el) {
-      el.addEventListener('click', function () {
-        var k = 'q' + el.getAttribute('data-q');
-        progress[k] = !progress[k];
-        if (sessionId) api('/api/coread/' + sessionId + '/progress', { method: 'POST', body: JSON.stringify({ progress: progress }) }).catch(function () {});
-        render();
+      <!-- Seat Selector -->
+      <div class="co-seat-selector">
+        <button type="button" class="co-seat-btn active" id="seat-parent" data-seat="parent">
+          <span>👩‍👧</span>
+          <span>PILOT (GUARDIAN / TEACHER)</span>
+        </button>
+        <button type="button" class="co-seat-btn" id="seat-kid" data-seat="kid">
+          <span>🧒</span>
+          <span>CO-PILOT (STUDENT CADET)</span>
+        </button>
+      </div>
+
+      <!-- Checkpoint Nodes -->
+      <div class="checkpoint-bar">
+        <div class="checkpoint-node" id="node-story">1. MISSION INTEL</div>
+        <div class="checkpoint-node" id="node-codex">2. CADET CODEX</div>
+        <div class="checkpoint-node" id="node-sparks">3. ALLIED SPARKS</div>
+        <div class="checkpoint-node" id="node-vocab">4. VOCABULARY</div>
+      </div>
+    </div>
+
+    <!-- Cockpit Sections Container -->
+    <div id="cockpit-content">
+      <!-- Section 1: Main Story Intel -->
+      <div class="co-section-card" id="card-story">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h2 style="font-family:var(--font-game);color:var(--neon-cyan);font-size:1.3rem;">
+            📡 FLIGHT INTEL &middot; MAIN STORY
+          </h2>
+          <button type="button" class="tactical-btn tactical-btn-ghost" onclick="markDone('story', this)">
+            MARK READ ✅
+          </button>
+        </div>
+        <div class="tactical-body-text" id="co-body-text">
+          <p>Decrypting transmission stream...</p>
+        </div>
+      </div>
+
+      <!-- Section 2: Cadet Codex -->
+      <div class="co-section-card" id="card-codex">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h2 style="font-family:var(--font-game);color:var(--neon-purple);font-size:1.3rem;">
+            🧒 CADET CODEX &middot; AGE 8 READING STREAM
+          </h2>
+          <button type="button" class="tactical-btn tactical-btn-ghost" onclick="markDone('codex', this)">
+            MARK READ ✅
+          </button>
+        </div>
+        <div class="cadet-codex-box" style="margin:0;">
+          <div class="cadet-codex-text" id="co-kidtake-text">
+            Loading simplified explanation...
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Discussion Sparks -->
+      <div class="co-section-card" id="card-sparks">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h2 style="font-family:var(--font-game);color:var(--neon-amber);font-size:1.3rem;">
+            💬 ALLIED SPARKS &middot; CREW DISCUSSION
+          </h2>
+          <button type="button" class="tactical-btn tactical-btn-ghost" onclick="markDone('sparks', this)">
+            MARK DISCUSSED ✅
+          </button>
+        </div>
+        <p style="color:#9cb5d6;font-size:0.95rem;margin-bottom:16px;">
+          Read through these questions aloud together:
+        </p>
+        <div id="co-sparks-list">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+      <!-- Section 4: Mission Glossary -->
+      <div class="co-section-card" id="card-vocab">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h2 style="font-family:var(--font-game);color:var(--neon-green);font-size:1.3rem;">
+            📚 MISSION CODEX &middot; VOCABULARY
+          </h2>
+          <button type="button" class="tactical-btn tactical-btn-ghost" onclick="markDone('vocab', this)">
+            MARK MASTERED ✅
+          </button>
+        </div>
+        <div class="codex-glossary-grid" id="co-vocab-list">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Complete Mission Action -->
+    <div style="text-align:center;margin-top:36px;padding:32px;background:rgba(4,8,20,0.8);border-radius:24px;border:1px solid var(--hud-border);">
+      <div style="font-family:var(--font-game);font-size:1.4rem;font-weight:900;color:#fff;margin-bottom:10px;">
+        CO-PILOT MISSION READY FOR FINAL LOG?
+      </div>
+      <p style="color:#9cb5d6;margin-bottom:24px;">
+        Logging this co-reading flight awards both Pilot and Co-Pilot full XP bonuses.
+      </p>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+        <button type="button" class="holo-claim-btn" id="finish-co-read-btn">
+          🎉 FINISH READING MISSION (+35 XP)
+        </button>
+        <a href="quiz.html" class="tactical-btn tactical-btn-purple" style="font-size:1rem;padding:16px 28px;">
+          🧠 CHALLENGE STORY QUIZ
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="/assets/js/game-engine.js?v=20261013-game3"></script>
+  <script>
+    (function () {
+      'use strict';
+      var params = new URLSearchParams(location.search);
+      var slug = params.get('slug') || '2026-09-30-welcome-back-to-the-nexus';
+      var activeSeat = 'parent';
+      var completedNodes = {};
+
+      function esc(s) {
+        return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+
+      // Seat toggling
+      var btnParent = document.getElementById('seat-parent');
+      var btnKid = document.getElementById('seat-kid');
+      var cardStory = document.getElementById('card-story');
+      var cardCodex = document.getElementById('card-codex');
+
+      btnParent.addEventListener('click', function () {
+        if (window.GameEngine && window.GameEngine.playSfx) window.GameEngine.playSfx('click');
+        btnParent.classList.add('active');
+        btnKid.classList.remove('active');
+        activeSeat = 'parent';
+        cardStory.style.display = 'block';
       });
-    });
-    document.getElementById('rt-progress').innerHTML = SECTIONS.map(function (s) {
-      return '<div class="rt-dot' + (progress[s] ? ' on' : '') + '"></div>';
-    }).join('');
-  }
 
-  document.getElementById('rt-finish').addEventListener('click', function () {
-    if (sessionId) api('/api/coread/' + sessionId + '/progress', { method: 'POST', body: JSON.stringify({ progress: progress, completed: true }) }).catch(function () {});
-    alert('🎉 Great reading together!'); history.back();
-  });
+      btnKid.addEventListener('click', function () {
+        if (window.GameEngine && window.GameEngine.playSfx) window.GameEngine.playSfx('click');
+        btnKid.classList.add('active');
+        btnParent.classList.remove('active');
+        activeSeat = 'kid';
+        cardStory.style.display = 'none'; // Cadets focus first on Cadet Codex!
+        cardCodex.scrollIntoView({ behavior: 'smooth' });
+      });
 
-  // Load article
-  fetch('/data/articles/' + slug + '.json').then(function (r) { return r.json(); }).then(function (a) {
-    article = a;
-    document.getElementById('rt-sub').textContent = a.title || '';
-    render();
-  }).catch(function () {
-    // Try manifest lookup
-    fetch('/api/manifest').then(function (r) { return r.json(); }).then(function (m) {
-      var found = null;
-      (m.articles || []).forEach(function (x) { if ((x.slug || x.path || '').indexOf(slug) !== -1) found = x; });
-      if (found) return fetch('/data/' + (found.path || '').replace(/^data\//, '')).then(function (r) { return r.json(); });
-      throw new Error('nf');
-    }).then(function (a) { article = a; document.getElementById('rt-sub').textContent = a.title || ''; render(); })
-    .catch(function () { document.getElementById('rt-content').innerHTML = '<p style="text-align:center;color:#ff2e63">Could not load this story.</p>'; });
-  });
-})();
-</script>
+      window.markDone = function (nodeKey, btn) {
+        if (window.GameEngine && window.GameEngine.playSfx) window.GameEngine.playSfx('success');
+        completedNodes[nodeKey] = true;
+        var nodeEl = document.getElementById('node-' + nodeKey);
+        if (nodeEl) nodeEl.classList.add('done');
+        var cardEl = document.getElementById('card-' + nodeKey);
+        if (cardEl) cardEl.classList.add('done');
+        if (btn) {
+          btn.textContent = 'COMPLETED ✅';
+          btn.style.borderColor = 'var(--neon-green)';
+          btn.style.color = 'var(--neon-green)';
+        }
+      };
+
+      // Load Article
+      fetch('/api/manifest')
+        .then(function (r) { return r.json(); })
+        .then(function (manifest) {
+          var articles = manifest.articles || [];
+          var story = articles.find(function (a) {
+            return a.id === slug || a.slug === slug;
+          }) || articles[0];
+
+          if (story) populate(story);
+        })
+        .catch(function () {
+          populate({
+            title: 'Autonomous Robotics on Deep Sea Moons',
+            body: '<p>Under 10 miles of cosmic ice on moons like Europa, micro-submarines swim through extraterrestrial oceans using artificial intelligence to navigate underwater caves.</p>',
+            kidTake: 'Mini robotic submarines can explore pitch-black alien oceans under thick ice without any human driving them.',
+            familyDiscussion: [
+              'What do you think is harder: exploring deep space or exploring the bottom of deep frozen oceans?',
+              'If we discover alien microbes or sea creatures, what should our first message to Earth be?'
+            ],
+            glossary: [
+              { term: 'Hydrothermal', definition: 'Hot water vents on the ocean floor that provide heat and chemicals for living organisms.' }
+            ]
+          });
+        });
+
+      function populate(story) {
+        document.getElementById('co-story-title').textContent = story.title || 'Untitled Mission';
+        document.getElementById('co-body-text').innerHTML = story.body || '<p>' + (story.excerpt || '') + '</p>';
+        document.getElementById('co-kidtake-text').textContent = story.kidTake || story.kid_take || 'Simplified story briefing.';
+
+        var sparks = story.familyDiscussion || [
+          'What was the most exciting thing you discovered while reading this story together?'
+        ];
+        document.getElementById('co-sparks-list').innerHTML = sparks.map(function (s, i) {
+          return (
+            '<div class="discussion-spark-card" style="margin-bottom:10px;">' +
+              '<div class="discussion-spark-title">SPARK ' + (i + 1) + '</div>' +
+              '<div class="discussion-spark-text">' + esc(s) + '</div>' +
+            '</div>'
+          );
+        }).join('');
+
+        var gloss = story.glossary || [
+          { term: 'Signal', definition: 'Clear STEM communication designed for explorers of all ages.' }
+        ];
+        document.getElementById('co-vocab-list').innerHTML = gloss.map(function (g) {
+          return (
+            '<div class="codex-glossary-item">' +
+              '<div class="codex-term">' + esc(g.term || '') + '</div>' +
+              '<div class="codex-def">' + esc(g.definition || g.meaning || '') + '</div>' +
+            '</div>'
+          );
+        }).join('');
+      }
+
+      document.getElementById('finish-co-read-btn').addEventListener('click', function () {
+        if (window.GameEngine && window.GameEngine.playSfx) window.GameEngine.playSfx('success');
+        if (window.GameEngine && window.GameEngine.player) {
+          window.GameEngine.player.xp += 35;
+          document.getElementById('hud-xp-val').textContent = window.GameEngine.player.xp + ' XP';
+        }
+        alert('🎉 CO-OP MISSION COMPLETE!\n\n+35 XP awarded to your family crew log.');
+        location.href = 'kid.html';
+      });
+
+    })();
+  </script>
 </body>
 </html>
