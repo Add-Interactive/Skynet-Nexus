@@ -99,10 +99,27 @@
       { id: 'm-train', em: '🚂', t: 'Spot a Starlink train' }
     ];
     var canvas = document.getElementById('scene');
-    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+    // Hardening: a WebGL failure used to throw here and leave the loading screen
+    // stuck on "ACQUIRING SATELLITES…" with no visible error. Show the failure instead.
+    var renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+    } catch (e) {
+      var _ld0 = document.getElementById('loading');
+      if (_ld0) _ld0.innerHTML = '<div>🛰️</div><div>3D GRAPHICS NOT AVAILABLE — TRY ANOTHER BROWSER OR DEVICE</div>';
+      throw e;
+    }
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     renderer.setSize(innerWidth, innerHeight);
     renderer.xr.enabled = true;
+    // Hardening: a lost GPU context used to leave a frozen 3D view with no error.
+    // Show the loading screen with a Reload path instead; a restored context restarts cleanly.
+    canvas.addEventListener('webglcontextlost', function (ev) {
+      ev.preventDefault();
+      var _ldL = document.getElementById('loading');
+      if (_ldL) { _ldL.style.display = 'flex'; _ldL.innerHTML = '<div>🛰️</div><div>GRAPHICS CONTEXT LOST — RELOAD TO RESTORE</div><div class="load-actions" style="display:flex"><button class="lbtn" type="button" onclick="window.location.reload()">Reload</button></div>'; }
+    });
+    canvas.addEventListener('webglcontextrestored', function () { window.location.reload(); });
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.01, 100);
     camera.position.set(0, 0.6, 3.2);
@@ -141,8 +158,8 @@
     // earth (4096px + max anisotropy for sharp close-ups; falls back to the 1024 file until the 4096 one is pushed)
     var earthTex = new THREE.TextureLoader().load('../assets/img/earth-blue-marble-4096.jpg', undefined, undefined,
       function () { earth.material.map = new THREE.TextureLoader().load('../assets/img/earth-blue-marble-1024.jpg');
-        earth.material.map.anisotropy = renderer.capabilities.getMaxAnisotropy(); earth.material.needsUpdate = true; });
-    earthTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        earth.material.map.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy()); earth.material.needsUpdate = true; });
+    earthTex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
     var earth = new THREE.Mesh(
       new THREE.SphereGeometry(R, 64, 64),
       new THREE.MeshPhongMaterial({ map: earthTex })
@@ -1097,9 +1114,25 @@ window.__scB = {
       }).catch(function () {});
     }
     // load satellites
+    // Hardening: this gate used to wait forever on a stalled fetch — the loading
+    // screen never cleared and no error appeared. Each TLE fetch now aborts after
+    // 15s and a non-200 response is treated as a failure, so a stall reaches the
+    // SIGNAL LOST path (and the watchdog's Reload) instead of hanging silently.
+    function fetchJsonTimeout(url, ms) {
+      var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, ms) : null;
+      return fetch(url, ctrl ? { signal: ctrl.signal } : {}).then(function (r) {
+        if (timer) clearTimeout(timer);
+        if (!r.ok) throw new Error('HTTP ' + r.status + ' for ' + url);
+        return r.json();
+      }).catch(function (e) {
+        if (timer) clearTimeout(timer);
+        throw e;
+      });
+    }
     Promise.all([
-      fetch('../assets/data/space-center/tle-snapshot-a.json').then(function (r) { return r.json(); }),
-      fetch('../assets/data/space-center/tle-snapshot-b.json').then(function (r) { return r.json(); })
+      fetchJsonTimeout('../assets/data/space-center/tle-snapshot-a.json', 15000),
+      fetchJsonTimeout('../assets/data/space-center/tle-snapshot-b.json', 15000)
     ]).then(function (parts) {
       var snap = { sats: (parts[0].sats || []).concat(parts[1].sats || []) };
       var list = snap.sats || [];
@@ -1179,8 +1212,9 @@ window.__scB = {
           pm.scale.setScalar(s);
           pm.material.color.setHex(urgent ? 0xff3b5c : 0xffb020);
         });
-        // spacetime grid ripples
-        rippleGrid(t);
+        // spacetime grid ripples — throttled to every 3rd frame (hardening:
+        // the full 12,768-vertex buffer was re-uploaded to the GPU every frame)
+        if (frameNo % 3 === 0) rippleGrid(t);
         // smooth tilt
         rotX += (targetRotX - rotX) * 0.08;
         world.rotation.x = rotX;

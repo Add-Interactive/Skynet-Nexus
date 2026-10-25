@@ -6,10 +6,19 @@
   <title>Space Center — Mission Control — Skynet Nexus</title>
   <meta name="description" content="Track 1,082 satellites live in 3D — photo profiles, guided tours, tonight’s flyover predictions, an orbit lab and orbit zones."/>
   <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap"/>
-  <link rel="stylesheet" href="../assets/css/style.css"/>
+  <!-- Hardening: site-wide style.css is not render-blocking for Space Center (its
+       critical selectors live in the page's own inline <style>). Load it async so a
+       stalled site-wide CSS/font chain cannot delay first paint of the loading screen. -->
+  <link rel="stylesheet" href="../assets/css/style.css" media="print" onload="this.media='all'"/>
+  <noscript><link rel="stylesheet" href="../assets/css/style.css"/></noscript>
   <script type="importmap">{ "imports": { "three": "../vendor/three/three.module.min.js" } }</script>
-  <script src="../vendor/satellite/satellite.min.js"></script>
+  <!-- Hardening: defer the parser-blocking satellite script so the loading screen
+       can paint before it downloads. Main module code only uses `satellite` inside
+       functions that run after all deferred scripts, so order is preserved. -->
+  <script defer src="../vendor/satellite/satellite.min.js"></script>
   <style>
     html,body{margin:0;height:100%;overflow:hidden;background:#02040a;font-family:Inter,sans-serif}
     /* AR DOM overlay: the room becomes the Space Center — camera shows through, full UI stays tappable */
