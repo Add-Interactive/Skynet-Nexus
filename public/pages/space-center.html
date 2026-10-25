@@ -247,6 +247,22 @@
        Full: video at the top, filling the view, animated in, autoplaying.
        Minimized: a small floating player, video keeps playing, 3D world visible. */
     #videopanel-slot:empty{display:none}
+    #videopanel-slot{margin:0 0 12px}
+    @keyframes vp-side-in{from{opacity:0;transform:translateX(24px) scale(.97)}to{opacity:1;transform:translateX(0) scale(1)}}
+    @keyframes vp-side-glow{0%,100%{box-shadow:0 0 12px rgba(0,229,255,.18)}50%{box-shadow:0 0 28px rgba(0,229,255,.45)}}
+    .vp-side{border:1px solid rgba(0,229,255,.45);border-radius:14px;padding:10px;background:linear-gradient(160deg,rgba(0,229,255,.14),rgba(124,108,255,.12) 55%,rgba(4,16,30,.92));animation:vp-side-in .45s ease,vp-side-glow 3.2s ease-in-out infinite}
+    .vp-side-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+    .vp-side-badge{flex:none;font:700 .6rem "JetBrains Mono",monospace;letter-spacing:.16em;color:#04101e;background:#00e5ff;border-radius:6px;padding:3px 6px}
+    .vp-side-title{flex:1;font-size:.8rem;font-weight:700;color:#bff3ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .vp-side-btn{flex:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:8px;width:28px;height:28px;font-size:.9rem;line-height:1;padding:0;cursor:pointer}
+    .vp-side-btn:hover{background:rgba(255,255,255,.18)}
+    .vp-side-wrap{position:relative}
+    .vp-side video{width:100%;border-radius:10px;background:#000;display:block}
+    .vp-side-play{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,4,10,.45);border:0;border-radius:10px;color:#fff;font-size:2.4rem;cursor:pointer}
+    .vp-side-note{display:none;font-size:.72rem;color:#ffb454;margin:8px 0 0;line-height:1.45}
+    .vp-side-hint{font-size:.68rem;color:var(--text-mute);margin:8px 0 0;line-height:1.45}
+    #infopanel.min .vp-side-head,#infopanel.min .vp-side-note,#infopanel.min .vp-side-hint{display:none}
+    #infopanel.min .vp-side{padding:6px}
     .vbtn{display:block;width:100%;margin:12px 0 2px;padding:10px 12px;border-radius:10px;border:1px solid rgba(0,229,255,.45);background:rgba(0,229,255,.14);color:#bff3ff;font:700 .78rem Inter,sans-serif;cursor:pointer}
     .vbtn:hover{background:rgba(0,229,255,.24)}
     @keyframes vp-in{from{opacity:0;transform:scale(.96) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
@@ -489,11 +505,11 @@
     <button class="fx" id="infomin" aria-label="Minimize" title="Minimize" style="right:40px">—</button>
     <div class="fk" id="infok">SATELLITE</div>
     <h3 id="infot">—</h3>
+    <div id="videopanel-slot"></div>
     <div id="infoprof"></div>
     <div class="datagrid" id="infodata"></div>
     <p id="infop">—</p>
     <div id="cmpzone"></div>
-    <div id="videopanel-slot"></div>
   </div>
   <div class="hud" id="timebar">
     <button id="pausebtn" title="Pause / resume time">⏸</button>

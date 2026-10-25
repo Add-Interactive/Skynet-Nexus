@@ -6,50 +6,39 @@ binary files, so they are NOT pushed through the Muse GitHub
 connector — push them from Jeff's local machine with git, as with
 other large files in this repo.
 
-## How the panels work (v2: video is the main view)
+## How the panels work (v3: the video IS the side panel)
 
 Selecting an object that has a video — clicking its dot in the 3D
-world, clicking its 3D model, or finding it through search — opens
-that object's video panel automatically. No extra click on a button
-in the side info panel is needed. The panel:
+world, clicking its 3D model, or finding it through search — shows
+that object's video at the TOP of its side info panel, autoplaying,
+in an animated card styled like the video dashboard cards: slide-in,
+glowing cyan border, ▶ VIDEO badge, title, and controls.
 
-- puts the video at the top, fills the view, animates in, and autoplays;
-- shrinks to a small floating player when you tap "—" (minimize) or
-  tap outside the panel, so you can see the 3D model and the world
-  behind it while the video keeps playing;
-- comes back full-size when you tap the floating player (or "⤢");
-- closes with "×" for that selection; the side info panel keeps a
-  "▶ Replay video" button, and selecting the object again after
-  selecting something else reopens it automatically.
+All the side panel's other windows stay around it, below the video,
+in order: the photo profile, the telemetry data grid, the
+description, and the compare zone. The 3D world stays visible beside
+the panel. Minimizing the side panel (its own "—" button) hides the
+other windows but keeps the video playing at the top, so the 3D
+model stays in view.
 
-If the browser blocks autoplay with sound, a big ▶ overlay appears
-on the video — one tap on it plays with sound.
+- Tap "⤢" on the video card for full screen. It picks up where the
+  side video left off; closing it hands playback back to the side
+  panel at the same spot.
+- Tap "×" on the video card to hide the video for that selection;
+  a small "▶ Show video" button takes its place, and selecting the
+  object again after selecting something else restores it.
+- If the browser blocks autoplay with sound, a big ▶ overlay appears
+  on the video — one tap on it plays with sound.
 
 Every future object works the same way: one `VIDEO_PANELS` entry,
 one video file, no change to `space-center-main.js`.
 
-## Hubble — first object (already in the panel code)
+## Hubble — first object (live)
 
-- File: `public/assets/video/hubble-2min.mp4`
-- Source video: the Hubble 2-minute video (2m 32s, 1280x720)
-  delivered in chat / on the Skynet Nexus — All Videos dashboard as #43.
-- Until this file lands, the Hubble video panel shows a note:
-  "Video file not yet uploaded to this site."
-
-Local-git steps (from the repo root, on main, after PR #141 merged):
-
-```bash
-git checkout main
-git pull
-# copy the Hubble video to public/assets/video/hubble-2min.mp4
-# (download it from chat or from the All Videos dashboard, #43)
-git add public/assets/video/hubble-2min.mp4
-git commit -m "Add Hubble 2-minute video for Space Center video panel"
-git push origin main
-```
-
-Then redeploy as usual. The panel will play the video once the
-file is on the deployed site.
+- File: `public/assets/video/hubble-2min.mp4` — live on main since
+  PR #143 (67,806,919 bytes, h264 1280x720, 2m 32s, clips-only cut).
+- Source video: the Hubble 2-minute video delivered in chat / on the
+  Skynet Nexus — All Videos dashboard.
 
 ## Adding the next object
 
@@ -59,6 +48,6 @@ file is on the deployed site.
    in the info panel title, e.g. `iss`, `jwst`).
 3. Push that video file the same way, to
    `public/assets/video/<key>-2min.mp4`, and point the entry at it.
-4. No change to `space-center-main.js` is needed — the panel
-   opens automatically when that object is selected, by dot, model,
-   or search.
+4. No change to `space-center-main.js` is needed — the video appears
+   at the top of that object's side panel automatically, by dot,
+   model, or search.
