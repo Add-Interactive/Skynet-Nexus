@@ -272,32 +272,6 @@
     .vp-side-hint{font-size:.68rem;color:var(--text-mute);margin:8px 0 0;line-height:1.45}
     #infopanel.min .vp-side-head,#infopanel.min .vp-side-note,#infopanel.min .vp-side-hint{display:none}
     #infopanel.min .vp-side{padding:6px}
-    /* Space video panels v5: SAFE grid rebuild (PR #145 v4 reverted in PR #147).
-       Same layout as v4, with two safety changes vs v4:
-       1) NO entrance animation (v4 animated scale/fade on a full-space panel).
-       2) The grid display rule is gated on .show, so a hidden panel can never
-          become a grid on load — grid layout only applies once the panel is
-          actually shown for a video selection. The class is still only added
-          by the module, on a video selection, never at load. */
-    #infopanel.vp-grid.show{left:14px;right:14px;top:76px;bottom:14px;width:auto;max-height:none;overflow-y:auto;display:grid;gap:14px;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);grid-template-rows:auto auto minmax(0,1fr) auto auto;grid-template-areas:"head head" "title title" "video prof" "video data" "desc cmp"}
-    #infopanel.vp-grid .fk{grid-area:head;margin-bottom:0}
-    #infopanel.vp-grid #infot{grid-area:title;margin-bottom:0}
-    #infopanel.vp-grid #videopanel-slot{grid-area:video;margin:0;min-height:0;min-width:0}
-    #infopanel.vp-grid #infoprof{grid-area:prof;min-width:0;min-height:0;overflow-y:auto}
-    #infopanel.vp-grid #infodata{grid-area:data;min-width:0;min-height:0}
-    #infopanel.vp-grid #infop{grid-area:desc;min-width:0;min-height:0}
-    #infopanel.vp-grid #cmpzone{grid-area:cmp;min-width:0;min-height:0}
-    #infopanel.vp-grid .vp-side{height:100%;display:flex;flex-direction:column}
-    #infopanel.vp-grid .vp-side-wrap{flex:1;min-height:0}
-    #infopanel.vp-grid .vp-side video{height:100%;object-fit:contain}
-    /* Minimized grid: shrink to a small floating bar so the model and
-       Earth behind it are visible; the video keeps playing. Tapping the
-       bar restores the grid (the panel's own click-to-expand behaviour). */
-    #infopanel.vp-grid.min{left:auto;right:14px;bottom:14px;top:auto;width:min(360px,calc(100vw - 28px));max-height:none;display:block;animation:none}
-    #infopanel.vp-grid.min .fk{display:none}
-    #infopanel.vp-grid.min .vp-side{height:auto}
-    #infopanel.vp-grid.min .vp-side video{height:auto;object-fit:contain}
-    @media (max-width:760px){#infopanel.vp-grid.show{left:8px;right:8px;top:70px;bottom:8px;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto auto auto auto auto;grid-template-areas:"head" "title" "video" "prof" "data" "desc" "cmp"}}
     .vbtn{display:block;width:100%;margin:12px 0 2px;padding:10px 12px;border-radius:10px;border:1px solid rgba(0,229,255,.45);background:rgba(0,229,255,.14);color:#bff3ff;font:700 .78rem Inter,sans-serif;cursor:pointer}
     .vbtn:hover{background:rgba(0,229,255,.24)}
     @keyframes vp-in{from{opacity:0;transform:scale(.96) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
