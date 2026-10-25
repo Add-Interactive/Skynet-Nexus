@@ -1,4 +1,4 @@
-// Space video panels — Skynet Nexus Space Center (v5: SAFE grid rebuild of v4 (grid gated on .show, no entrance animation))
+// Space video panels — Skynet Nexus Space Center (v3: the video IS the side panel)
 // Selecting an object that has a video — clicking its dot in the 3D world,
 // clicking its 3D model, or finding it through search — shows that object's
 // video at the TOP of its side info panel (#infopanel), autoplaying, with
@@ -88,16 +88,12 @@ function renderSide(key) {
     slot.dataset.mode = '';
     slot.dataset.key = '';
     sideKey = null;
-    const panelEl0 = document.getElementById('infopanel');
-    if (panelEl0) panelEl0.classList.remove('vp-grid');
     return;
   }
   // Already showing this object's video: keep playing, don't rebuild.
   if (slot.dataset.key === key && slot.dataset.mode === 'video' && sideVideo()) return;
   const panel = VIDEO_PANELS[key];
   sideKey = key;
-  const panelEl = document.getElementById('infopanel');
-  if (panelEl) panelEl.classList.add('vp-grid');
   slot.dataset.key = key;
   slot.dataset.mode = 'video';
   slot.innerHTML = '';
