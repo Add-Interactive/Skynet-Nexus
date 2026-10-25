@@ -1,13 +1,16 @@
-// Space video panels — Skynet Nexus Space Center (v3: the video IS the side panel)
+// Space video panels — Skynet Nexus Space Center (v4: the video side panel is a grid)
 // Selecting an object that has a video — clicking its dot in the 3D world,
 // clicking its 3D model, or finding it through search — shows that object's
-// video at the TOP of its side info panel (#infopanel), autoplaying, with
-// all the panel's other windows around it: the photo profile, the telemetry
-// data grid, the description, and the compare zone, in that order below the
-// video. No separate click is needed, and no full-screen modal opens on its
-// own. The side panel leaves the 3D world visible beside it, and minimizing
-// the side panel (its own "—" button) hides the other windows but keeps the
-// video playing at the top, so the 3D model stays in view.
+// at the TOP of a FULL-SPACE GRID panel (#infopanel), autoplaying, with
+// all the panel's other windows arranged as grid tiles around it: the video
+// large on the left, the photo profile and telemetry data grid on the
+// right, the description and compare zone across the bottom. It is NOT a
+// narrow one-column panel: it uses the full space available, so the model
+// and Earth behind it are covered until the user minimizes it. Minimizing
+// the panel (its own "—" button) shrinks it to a small floating bar with
+// just the title and the video still playing, revealing the 3D model and
+// Earth; tapping that bar restores the grid. No separate click is needed,
+// and no full-screen modal opens on its own.
 //   Full screen -> tap "⤢" on the video card. The full-screen panel opens
 //                  with the same video, picking up where the side video
 //                  left off. Closing it ("×", or Escape twice) returns
@@ -88,12 +91,16 @@ function renderSide(key) {
     slot.dataset.mode = '';
     slot.dataset.key = '';
     sideKey = null;
+    const panelEl0 = document.getElementById('infopanel');
+    if (panelEl0) panelEl0.classList.remove('vp-grid');
     return;
   }
   // Already showing this object's video: keep playing, don't rebuild.
   if (slot.dataset.key === key && slot.dataset.mode === 'video' && sideVideo()) return;
   const panel = VIDEO_PANELS[key];
   sideKey = key;
+  const panelEl = document.getElementById('infopanel');
+  if (panelEl) panelEl.classList.add('vp-grid');
   slot.dataset.key = key;
   slot.dataset.mode = 'video';
   slot.innerHTML = '';
