@@ -314,10 +314,63 @@
     #videopanel.open.minimized #vp-min{display:none}
     #videopanel.open:not(.minimized) #vp-expand{display:none}
     @media (max-width:760px){#videopanel.open.minimized .vp-box{left:12px;right:12px;bottom:12px;width:auto}}
+
+    /* Loading recovery: if the loading screen is still up after a while,
+       show Wait / Reload / Close buttons right on it, so the user is not
+       stuck with only the browser's own "page unresponsive" dialog. */
+    #loading .load-actions{display:none;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+    #loading.load-slow .load-actions{display:flex}
+    #loading .lbtn{pointer-events:auto;background:rgba(0,229,255,.16);border:1px solid rgba(0,229,255,.5);color:#bff3ff;border-radius:10px;padding:10px 16px;font:700 .85rem Inter,sans-serif;cursor:pointer}
+    #loading .lbtn:hover{background:rgba(0,229,255,.28)}
+    #loading .load-hint{display:none;font-size:.74rem;color:var(--text-mute);margin-top:10px;line-height:1.45}
+    #loading.load-slow .load-hint{display:block}
 </style>
 </head>
 <body>
-  <div id="loading"><div class="spin">🛰️</div><div>ACQUIRING SATELLITES…</div></div>
+  <div id="loading"><div class="spin">🛰️</div><div>ACQUIRING SATELLITES…</div><div class="load-actions"><button class="lbtn" id="load-wait" type="button">Wait</button><button class="lbtn" id="load-reload" type="button">Reload</button><button class="lbtn" id="load-close" type="button">Close</button></div><div class="load-hint">Still loading after a while. Wait keeps trying, Reload restarts Space Center, Close goes back to the Skynet Nexus home page.</div></div>
+  <script>
+  // Loading watchdog: a plain (non-module) script, so it runs even if a
+  // module later fails. If #loading is still visible after 15 seconds,
+  // show the recovery buttons. Wait hides them for another 30 seconds,
+  // Reload restarts the page, Close leaves Space Center for home.
+  // Honest limit: if the browser's main thread is locked in a single
+  // unbroken script, no page script — including this one — can run,
+  // and only the browser's own "page unresponsive" dialog can act.
+  // This covers the common case: a slow or stuck network / init step.
+  (function () {
+    var loading = document.getElementById('loading');
+    if (!loading) return;
+    var timer = null;
+    function stillLoading() {
+      return loading && loading.style.display !== 'none' && loading.offsetParent !== null;
+    }
+    function arm(ms) {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(function () {
+        if (stillLoading()) loading.classList.add('load-slow');
+      }, ms);
+    }
+    function bind(id, fn) {
+      var b = document.getElementById(id);
+      if (b) b.addEventListener('click', fn);
+    }
+    bind('load-wait', function () {
+      loading.classList.remove('load-slow');
+      arm(30000);
+    });
+    bind('load-reload', function () { window.location.reload(); });
+    bind('load-close', function () { window.location.href = '../index.html'; });
+    if (window.MutationObserver) {
+      new MutationObserver(function () {
+        if (!stillLoading()) {
+          loading.classList.remove('load-slow');
+          if (timer) clearTimeout(timer);
+        }
+      }).observe(loading, { attributes: true, attributeFilter: ['style', 'class'] });
+    }
+    arm(15000);
+  })();
+  </script>
   <canvas id="scene"></canvas>
   <div class="hud" id="topbar">
     <div>
