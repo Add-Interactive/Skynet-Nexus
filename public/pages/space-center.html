@@ -6,10 +6,19 @@
   <title>Space Center — Mission Control — Skynet Nexus</title>
   <meta name="description" content="Track 1,082 satellites live in 3D — photo profiles, guided tours, tonight’s flyover predictions, an orbit lab and orbit zones."/>
   <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap"/>
-  <link rel="stylesheet" href="../assets/css/style.css"/>
+  <!-- Hardening: site-wide style.css is not render-blocking for Space Center (its
+       critical selectors live in the page's own inline <style>). Load it async so a
+       stalled site-wide CSS/font chain cannot delay first paint of the loading screen. -->
+  <link rel="stylesheet" href="../assets/css/style.css" media="print" onload="this.media='all'"/>
+  <noscript><link rel="stylesheet" href="../assets/css/style.css"/></noscript>
   <script type="importmap">{ "imports": { "three": "../vendor/three/three.module.min.js" } }</script>
-  <script src="../vendor/satellite/satellite.min.js"></script>
+  <!-- Hardening: defer the parser-blocking satellite script so the loading screen
+       can paint before it downloads. Main module code only uses `satellite` inside
+       functions that run after all deferred scripts, so order is preserved. -->
+  <script defer src="../vendor/satellite/satellite.min.js"></script>
   <style>
     html,body{margin:0;height:100%;overflow:hidden;background:#02040a;font-family:Inter,sans-serif}
     /* AR DOM overlay: the room becomes the Space Center — camera shows through, full UI stays tappable */
@@ -263,6 +272,32 @@
     .vp-side-hint{font-size:.68rem;color:var(--text-mute);margin:8px 0 0;line-height:1.45}
     #infopanel.min .vp-side-head,#infopanel.min .vp-side-note,#infopanel.min .vp-side-hint{display:none}
     #infopanel.min .vp-side{padding:6px}
+    /* Space video panels v4: the side panel for a video object is a GRID,
+       not a narrow one-column stack. It uses the full space: video large
+       on the left, profile + telemetry on the right, description + compare
+       across the bottom. Only video objects get this class (added by the
+       module); every other satellite keeps the narrow panel. */
+    @keyframes vp-grid-in{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
+    #infopanel.vp-grid{left:14px;right:14px;top:76px;bottom:14px;width:auto;max-height:none;overflow-y:auto;display:grid;gap:14px;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);grid-template-rows:auto auto minmax(0,1fr) auto auto;grid-template-areas:"head head" "title title" "video prof" "video data" "desc cmp";animation:vp-grid-in .4s ease}
+    #infopanel.vp-grid.show{display:grid}
+    #infopanel.vp-grid .fk{grid-area:head;margin-bottom:0}
+    #infopanel.vp-grid #infot{grid-area:title;margin-bottom:0}
+    #infopanel.vp-grid #videopanel-slot{grid-area:video;margin:0;min-height:0;min-width:0}
+    #infopanel.vp-grid #infoprof{grid-area:prof;min-width:0;min-height:0;overflow-y:auto}
+    #infopanel.vp-grid #infodata{grid-area:data;min-width:0;min-height:0}
+    #infopanel.vp-grid #infop{grid-area:desc;min-width:0;min-height:0}
+    #infopanel.vp-grid #cmpzone{grid-area:cmp;min-width:0;min-height:0}
+    #infopanel.vp-grid .vp-side{height:100%;display:flex;flex-direction:column}
+    #infopanel.vp-grid .vp-side-wrap{flex:1;min-height:0}
+    #infopanel.vp-grid .vp-side video{height:100%;object-fit:contain}
+    /* Minimized grid: shrink to a small floating bar so the model and
+       Earth behind it are visible; the video keeps playing. Tapping the
+       bar restores the grid (the panel's own click-to-expand behaviour). */
+    #infopanel.vp-grid.min{left:auto;right:14px;bottom:14px;top:auto;width:min(360px,calc(100vw - 28px));max-height:none;display:block;animation:none}
+    #infopanel.vp-grid.min .fk{display:none}
+    #infopanel.vp-grid.min .vp-side{height:auto}
+    #infopanel.vp-grid.min .vp-side video{height:auto;object-fit:contain}
+    @media (max-width:760px){#infopanel.vp-grid{left:8px;right:8px;top:70px;bottom:8px;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto auto auto auto auto;grid-template-areas:"head" "title" "video" "prof" "data" "desc" "cmp"}}
     .vbtn{display:block;width:100%;margin:12px 0 2px;padding:10px 12px;border-radius:10px;border:1px solid rgba(0,229,255,.45);background:rgba(0,229,255,.14);color:#bff3ff;font:700 .78rem Inter,sans-serif;cursor:pointer}
     .vbtn:hover{background:rgba(0,229,255,.24)}
     @keyframes vp-in{from{opacity:0;transform:scale(.96) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
