@@ -243,17 +243,35 @@
 #mlab-viewer-canvas{display:block;width:100%;height:260px;border-radius:12px;background:#04101d;border:1px solid rgba(0,229,255,.2);touch-action:none;cursor:grab}
 #mlab-viewer-info{min-height:1.2em}
   
-    /* Space video panels: video panel opened from the info panel, first object Hubble */
+    /* Space video panels v2: the video IS the main view, first object Hubble.
+       Full: video at the top, filling the view, animated in, autoplaying.
+       Minimized: a small floating player, video keeps playing, 3D world visible. */
     #videopanel-slot:empty{display:none}
     .vbtn{display:block;width:100%;margin:12px 0 2px;padding:10px 12px;border-radius:10px;border:1px solid rgba(0,229,255,.45);background:rgba(0,229,255,.14);color:#bff3ff;font:700 .78rem Inter,sans-serif;cursor:pointer}
     .vbtn:hover{background:rgba(0,229,255,.24)}
+    @keyframes vp-in{from{opacity:0;transform:scale(.96) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    @keyframes vp-glow{0%,100%{box-shadow:0 0 0 rgba(0,229,255,0)}50%{box-shadow:0 0 34px rgba(0,229,255,.35)}}
     #videopanel{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(2,4,10,.88);padding:18px}
     #videopanel.open{display:flex}
-    #videopanel .vp-box{width:min(860px,100%);background:#04101e;border:1px solid rgba(0,229,255,.35);border-radius:16px;padding:16px}
-    #videopanel .vp-box h3{margin:0 0 6px;font-size:1.05rem}
-    #videopanel .vp-box p{margin:0 0 12px;font-size:.82rem;line-height:1.5;color:var(--text-dim)}
-    #videopanel video{width:100%;border-radius:10px;background:#000}
-    #videopanel .vp-close{float:right;background:none;border:0;color:var(--text-mute);font-size:1.2rem;cursor:pointer}
+    #videopanel .vp-box{width:min(960px,100%);background:#04101e;border:1px solid rgba(0,229,255,.35);border-radius:16px;padding:16px;animation:vp-in .35s ease, vp-glow 3.2s ease-in-out infinite}
+    #videopanel .vp-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+    #videopanel .vp-head h3{margin:0;font-size:1.05rem;flex:1}
+    #videopanel .vp-ctl{flex:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:8px;width:32px;height:32px;font-size:1rem;line-height:1;padding:0;cursor:pointer}
+    #videopanel .vp-ctl:hover{background:rgba(255,255,255,.18)}
+    #videopanel .vp-box p{margin:10px 0 0;font-size:.82rem;line-height:1.5;color:var(--text-dim)}
+    #videopanel .vp-video-wrap{position:relative}
+    #videopanel video{width:100%;max-height:70vh;border-radius:10px;background:#000;display:block}
+    #videopanel .vp-play{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,4,10,.45);border:0;border-radius:10px;color:#fff;font-size:3.2rem;cursor:pointer}
+    #videopanel .vp-mini-title{display:none}
+    /* Minimized: backdrop gone, box floats bottom-right, 3D world fully visible */
+    #videopanel.open.minimized{display:block;background:transparent;pointer-events:none;padding:0}
+    #videopanel.open.minimized .vp-box{position:fixed;right:14px;bottom:14px;width:min(360px,calc(100vw - 28px));pointer-events:auto;animation:vp-in .25s ease;cursor:pointer}
+    #videopanel.open.minimized video{max-height:none}
+    #videopanel.open.minimized .vp-box p,#videopanel.open.minimized .vp-head h3{display:none}
+    #videopanel.open.minimized .vp-box p.vp-mini-title{display:block;font-size:.78rem;color:#bff3ff;margin:8px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #videopanel.open.minimized #vp-min{display:none}
+    #videopanel.open:not(.minimized) #vp-expand{display:none}
+    @media (max-width:760px){#videopanel.open.minimized .vp-box{left:12px;right:12px;bottom:12px;width:auto}}
 </style>
 </head>
 <body>
@@ -521,10 +539,18 @@
 
   <div id="videopanel" role="dialog" aria-modal="true" aria-label="Space video panel">
     <div class="vp-box">
-      <button class="vp-close" id="vp-close" aria-label="Close video panel">×</button>
-      <h3 id="vp-title">—</h3>
+      <div class="vp-head">
+        <h3 id="vp-title">—</h3>
+        <button class="vp-ctl" id="vp-min" aria-label="Minimize video to see the 3D model" title="Minimize — keep playing, see the 3D model">—</button>
+        <button class="vp-ctl" id="vp-expand" aria-label="Expand video" title="Expand video">⤢</button>
+        <button class="vp-ctl" id="vp-close" aria-label="Close video panel">×</button>
+      </div>
+      <div class="vp-video-wrap">
+        <video id="vp-video" controls playsinline preload="none"></video>
+        <button class="vp-play" id="vp-play" aria-label="Play video">▶</button>
+      </div>
+      <p class="vp-mini-title" id="vp-mini-title">—</p>
       <p id="vp-desc">—</p>
-      <video id="vp-video" controls playsinline preload="none"></video>
       <p id="vp-note" style="display:none;font-size:.74rem;color:#ffb454">Video file not yet uploaded to this site. See public/assets/video/README.md for the local-git step to add it.</p>
     </div>
   </div>
