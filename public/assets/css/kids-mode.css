@@ -175,3 +175,106 @@ html[data-kids-mode="true"] #feed-grid .post-media { border-radius: calc(var(--k
   html[data-kids-mode="true"] .kids-hero-text { flex: 1 1 auto; }
   html[data-kids-mode="true"] .kids-welcome-card { flex: 0 0 340px; margin-top: 0; }
 }
+
+/* ---- Kids Mode quest board (piece d) ---- */
+/* kid.html primary: the Daily Cadet Protocols checklist becomes
+   the quest board. profile.html secondary: the kid tiles on the
+   family command deck get the quest-board treatment. Every rule
+   below is scoped under the marker (except the keyframes, which
+   are inert unless a quest-board animation references them), so
+   the straight site never sees any of this. Labels carry inline
+   border/background styles, so rings use box-shadow, never
+   !important, to avoid fighting inline styles. */
+/* Quest board section ring (the section itself keeps its
+   mission-card radius/border from piece a). */
+html[data-kids-mode="true"] #quest-board {
+  box-shadow: 0 0 0 2px rgba(255, 210, 63, 0.35), 0 10px 30px rgba(0, 0, 0, 0.30);
+}
+html[data-kids-mode="true"] .quest-board-kicker {
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: var(--kids-accent);
+  margin-bottom: 14px;
+}
+/* Quest cards: relative positioning anchors the confetti burst;
+   the gold ring marks a card as a quest. */
+html[data-kids-mode="true"] #quest-board label {
+  position: relative;
+  box-shadow: 0 0 0 1px rgba(255, 210, 63, 0.30);
+}
+html[data-kids-mode="true"] #quest-board label.quest-done {
+  box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.55);
+}
+/* Correspondent cheer line inside each quest card. */
+html[data-kids-mode="true"] .quest-cheer {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 210, 63, 0.40);
+}
+html[data-kids-mode="true"] .quest-cheer img {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  object-fit: cover;
+}
+html[data-kids-mode="true"] .quest-cheer-text {
+  font-size: 13px;
+  line-height: 1.45;
+  color: #dbe7f5;
+}
+html[data-kids-mode="true"] .quest-cheer-name {
+  font-weight: 800;
+  color: #fff;
+}
+/* Done-state badge on a completed quest card. */
+html[data-kids-mode="true"] .quest-complete-badge {
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(57, 255, 20, 0.16);
+  border: 1px solid rgba(57, 255, 20, 0.55);
+  color: #b6ffb0;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+/* Celebration: bounce on the card + falling confetti pieces
+   (created by kids-quest-board.js, removed after animating). */
+html[data-kids-mode="true"] #quest-board label.quest-celebrate {
+  animation: quest-bounce 0.5s ease;
+}
+@keyframes quest-bounce {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.02); }
+  70% { transform: scale(0.99); }
+  100% { transform: scale(1); }
+}
+html[data-kids-mode="true"] .quest-confetti {
+  position: absolute;
+  top: 10px;
+  width: 8px;
+  height: 12px;
+  z-index: 2;
+  pointer-events: none;
+  animation: quest-fall 0.9s ease-out forwards;
+}
+@keyframes quest-fall {
+  0% { transform: translateY(-4px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(52px) rotate(240deg); opacity: 0; }
+}
+/* profile.html secondary: kid tiles on the command deck only.
+   [data-kid-dash] is specific to the kids list (other .kid-card
+   lists — teachers, messages, family tree — are untouched). */
+html[data-kids-mode="true"] .kid-grid .kid-card[data-kid-dash] {
+  border-color: rgba(255, 210, 63, 0.65);
+  box-shadow: 0 0 0 1px rgba(255, 210, 63, 0.25), 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+html[data-kids-mode="true"] .kid-grid .kid-card[data-kid-dash] .k-av {
+  box-shadow: 0 0 0 3px rgba(255, 210, 63, 0.55), 0 0 20px rgba(0, 229, 255, 0.5);
+}
