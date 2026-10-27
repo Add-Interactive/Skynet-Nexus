@@ -42,11 +42,12 @@
   var ACTIVE_KID_KEY = 'nexus_active_kid';
   var AGE_KEY = 'skynet.activeKidBirthYear';
 
-  /* ★ OUTSTANDING INPUT: Jeff still needs to give the age cutoff.
-     null = age default disabled; mode stays off unless toggled
-     or locked (current behavior). Set to a number (e.g. 12) to
-     enable: kids at or under the cutoff default to Kids Mode. */
-  var KIDS_MODE_AGE_CUTOFF = null;
+  /* ★ Age cutoff decided by Jeff (Oct 27): 10. Ages 10 and under
+     default to Kids Mode ON; ages 11 and up default to the
+     straight site (mode off). Change this ONE constant to change
+     the cutoff everywhere — do not duplicate the number elsewhere
+     (the inline head snippets intentionally carry no cutoff). */
+  var KIDS_MODE_AGE_CUTOFF = 10;
 
   function readJSON(key) {
     try {
@@ -165,9 +166,8 @@
     return true;
   }
 
-  /* Best-effort age-default refresh. Runs ONLY when the cutoff is
-     set (it is null today, so this is a no-op until Jeff gives the
-     number). Learns the active kid's birth year from /api/kids,
+  /* Best-effort age-default refresh. Runs only when the cutoff is
+     set (10). Learns the active kid's birth year from /api/kids,
      caches it, and applies the age default when no lock or explicit
      preference exists. Never blocks rendering; failures are silent. */
   function refreshAgeDefault() {
