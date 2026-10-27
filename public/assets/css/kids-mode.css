@@ -319,3 +319,75 @@ html[data-kids-mode="true"] .kid-grid .kid-card[data-kid-dash] {
 html[data-kids-mode="true"] .kid-grid .kid-card[data-kid-dash] .k-av {
   box-shadow: 0 0 0 3px rgba(255, 210, 63, 0.55), 0 0 20px rgba(0, 229, 255, 0.5);
 }
+
+/* ---- Piece (f): Space Center kids mode ---- */
+/* Themed chrome ONLY around the 3D canvas. The canvas itself
+   (#scene, #mlab-viewer-canvas) and all satellite/3D code are
+   exempt: no rule below targets them, and no layout property
+   (display/position/transform/flex/grid) is changed anywhere.
+   Radii, colors, shadows, and backgrounds only, so the fixed HUD
+   keeps its exact geometry. The grid stays off live. */
+html[data-kids-mode="true"] #sidepanel {
+  border-color: rgba(255, 210, 63, 0.55);
+  border-radius: 20px;
+  background: rgba(10, 16, 34, 0.92);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 229, 255, 0.15);
+}
+html[data-kids-mode="true"] #sidepanel .tabs {
+  border-bottom-color: rgba(255, 210, 63, 0.35);
+}
+html[data-kids-mode="true"] #sidepanel .tab {
+  border-radius: 10px 10px 0 0;
+  color: #dbe7f5;
+}
+html[data-kids-mode="true"] #sidepanel .tab.on {
+  color: #ffd23f;
+  box-shadow: inset 0 -3px 0 #ffd23f;
+}
+html[data-kids-mode="true"] #sidepanel .tsub {
+  color: #dbe7f5;
+}
+html[data-kids-mode="true"] .tbtn {
+  border-radius: 14px;
+  border-color: rgba(255, 210, 63, 0.55);
+  background: rgba(255, 210, 63, 0.12);
+  color: #fff7d6;
+}
+html[data-kids-mode="true"] .rbtn {
+  border-radius: 16px;
+  border-color: rgba(255, 210, 63, 0.55);
+  background: rgba(10, 16, 34, 0.9);
+  color: #fff;
+}
+html[data-kids-mode="true"] .ticon {
+  border-color: rgba(255, 210, 63, 0.55);
+}
+html[data-kids-mode="true"] #topbar .title {
+  color: #ffd23f;
+  text-shadow: 0 0 14px rgba(255, 210, 63, 0.55);
+}
+html[data-kids-mode="true"] #topbar .sub {
+  color: #dbe7f5;
+}
+html[data-kids-mode="true"] #backbtn {
+  border-radius: 14px;
+  border-color: rgba(255, 210, 63, 0.55);
+  color: #fff7d6;
+  background: rgba(10, 16, 34, 0.75);
+}
+html[data-kids-mode="true"] #searchbox,
+html[data-kids-mode="true"] .tselect,
+html[data-kids-mode="true"] .tinput {
+  border-radius: 14px;
+  border-color: rgba(255, 210, 63, 0.55);
+}
+html[data-kids-mode="true"] .sc-empty {
+  border-radius: 20px;
+  border-color: rgba(255, 210, 63, 0.5);
+  color: #fff7d6;
+}
+html[data-kids-mode="true"] .fchip {
+  border-radius: 18px;
+  border-color: rgba(255, 210, 63, 0.5);
+  color: #fff7d6;
+}
