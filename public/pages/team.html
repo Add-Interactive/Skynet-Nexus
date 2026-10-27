@@ -91,6 +91,20 @@
     .qa-send { background: linear-gradient(90deg, #00e5ff, #a855f7); color: #0a0e17; }
     .qa-send:disabled { opacity: .5; cursor: default; }
     .qa-note { font: 500 12px/1.5 Inter, sans-serif; color: var(--muted, #9aa7bd); margin-top: 10px; }
+  
+    .corr-team { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 0 0 26px; }
+    .corr-team figure { margin: 0; text-align: center; }
+    .corr-team img { width: 100%; border-radius: 16px; border: 1px solid var(--border, rgba(255,255,255,.08)); }
+    .corr-team figcaption { margin-top: 8px; font-size: 14px; opacity: .85; }
+    .corr-portrait-btn { position: relative; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 50%; }
+    .corr-portrait-btn .corr-portrait { display: block; }
+    .corr-play { position: absolute; right: 8px; bottom: 8px; width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,.65); color: #fff; font-size: 20px; line-height: 44px; text-align: center; }
+    .corr-lightbox { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.85); display: none; align-items: center; justify-content: center; padding: 20px; }
+    .corr-lightbox.open { display: flex; }
+    .corr-lightbox-box { width: min(680px, 100%); text-align: center; }
+    .corr-lightbox-box video { width: 100%; border-radius: 16px; background: #000; }
+    .corr-lightbox-box h3 { margin: 0 0 12px; }
+    .corr-lightbox-close { margin-top: 12px; font-size: 15px; padding: 10px 22px; cursor: pointer; }
   </style>
 
   <meta property="og:type" content="website"/>
@@ -168,8 +182,17 @@
       <section class="hero">
         <span class="kicker">🛰️ The Newsroom Crew</span>
         <h1>Meet the Correspondents</h1>
-        <p>The reporters behind your favorite stories — pick how you want to see them! Each correspondent covers one channel and files stories for every daily edition. Tap a look below and the whole newsroom changes its style.</p>
+        <p>The reporters behind your favorite stories — pick how you want to see them! Each correspondent covers one channel and files stories for every daily edition. Tap a look below and the whole newsroom changes its style. Tap any portrait to watch that correspondent's introduction video.</p>
       </section>
+
+      <div class="section-title">
+        <h2><span class="accent-bar"></span> The whole crew</h2>
+      </div>
+      <div class="corr-team">
+        <figure><img src="/assets/img/team-humans.webp" alt="All 13 correspondents as humans" loading="lazy"/><figcaption>🧑 The correspondents as humans</figcaption></figure>
+        <figure><img src="/assets/img/team-animals.webp" alt="All 13 correspondents as animal mascots" loading="lazy"/><figcaption>🐾 The correspondents as animals</figcaption></figure>
+        <figure><img src="/assets/img/team-robots.webp" alt="All 13 correspondents as robots" loading="lazy"/><figcaption>🤖 The correspondents as Skynet Agents</figcaption></figure>
+      </div>
 
       <div class="corr-switcher" role="group" aria-label="Choose correspondent portrait style">
         <button class="chip" data-style="human" aria-pressed="false">🧑 Humans</button>
@@ -182,6 +205,14 @@
       </div>
 
       <section id="corr-grid" class="corr-grid" aria-live="polite"></section>
+
+      <div class="corr-lightbox" id="corr-lightbox" role="dialog" aria-modal="true" aria-label="Introduction video">
+        <div class="corr-lightbox-box">
+          <h3 id="corr-lightbox-title"></h3>
+          <video id="corr-lightbox-video" controls playsinline></video>
+          <div><button class="corr-lightbox-close" id="corr-lightbox-close">Close</button></div>
+        </div>
+      </div>
 
       <p class="prog-disclaimer">Tip: signed-in kids can pick their favorite style on their <a href="profile.html">family profile</a> and every story byline shows their choice.</p>
     </main>
@@ -336,7 +367,7 @@
         const src = esc(portraitUrl(c, state.style));
         const alt = esc('Portrait of ' + (c.displayName || c.slug || 'a correspondent') + ' in the ' + STYLE_LABEL[state.style] + ' style');
         const img = src
-          ? '<img class="corr-portrait" data-portrait="' + esc(c.slug) + '" src="' + src + '" alt="' + alt + '" loading="lazy"/>'
+          ? '<button class="corr-portrait-btn" data-intro="' + esc(c.slug) + '" aria-label="Watch ' + name + '\'s introduction video"><img class="corr-portrait" data-portrait="' + esc(c.slug) + '" src="' + src + '" alt="' + alt + '" loading="lazy"/><span class="corr-play" aria-hidden="true">▶</span></button>'
           : '';
         const storiesHref = c.channel ? '/pages/channel.html?c=' + encodeURIComponent(c.channel) : '';
         return '<article class="corr-card" id="' + anchor + '" style="--pc:' + color + '">' +
@@ -384,6 +415,39 @@
         const btn = e.target.closest('.chip'); if (!btn) return;
         setStyle(btn.getAttribute('data-style'));
       });
+
+      // ---- Introduction videos: tap a portrait to watch ----
+      const INTRO_VIDEOS = {
+        'agent-ai': 'adaeze-obi-intro-40s.mp4', 'agent-space': 'stella-reyes-intro-40s.mp4',
+        'agent-robotics': 'dexter-cole-intro-40s.mp4', 'agent-biotech': 'wren-hollis-intro-40s.mp4',
+        'agent-quantum': 'quinn-adler-intro-40s.mp4', 'agent-climate': 'rowan-field-intro-40s.mp4',
+        'agent-engineering': 'gus-delgado-intro-40s.mp4', 'agent-math': 'mira-solano-intro-40s.mp4',
+        'agent-cyber': 'juno-park-intro-40s.mp4', 'agent-gaming': 'kai-tanaka-intro-40s.mp4',
+        'agent-music': 'cadence-liu-intro-40s.mp4', 'agent-stem': 'lena-osei-intro-40s.mp4',
+        'agent-play': 'hazel-quinn-intro-40s.mp4'
+      };
+      const lightbox = document.getElementById('corr-lightbox');
+      const lightboxVideo = document.getElementById('corr-lightbox-video');
+      const lightboxTitle = document.getElementById('corr-lightbox-title');
+      function closeIntro() {
+        if (!lightbox) return;
+        lightboxVideo.pause();
+        lightboxVideo.removeAttribute('src');
+        lightboxVideo.load();
+        lightbox.classList.remove('open');
+      }
+      grid.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-intro]'); if (!btn) return;
+        const file = INTRO_VIDEOS[btn.getAttribute('data-intro')]; if (!file) return;
+        const c = state.correspondents.find(x => x.slug === btn.getAttribute('data-intro'));
+        lightboxTitle.textContent = (c ? (c.displayName || c.slug) : 'Correspondent') + ' — introduction video';
+        lightboxVideo.src = '/assets/video/intros/' + file;
+        lightbox.classList.add('open');
+        lightboxVideo.play().catch(() => {});
+      });
+      document.getElementById('corr-lightbox-close').addEventListener('click', closeIntro);
+      lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeIntro(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeIntro(); });
 
       grid.innerHTML = '<div class="corr-state"><h3>Loading correspondents…</h3><p>Fetching the newsroom crew.</p></div>';
 
