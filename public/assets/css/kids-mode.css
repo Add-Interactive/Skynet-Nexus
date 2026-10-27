@@ -175,3 +175,45 @@ html[data-kids-mode="true"] #feed-grid .post-media { border-radius: calc(var(--k
   html[data-kids-mode="true"] .kids-hero-text { flex: 1 1 auto; }
   html[data-kids-mode="true"] .kids-welcome-card { flex: 0 0 340px; margin-top: 0; }
 }
+
+/* ---- Piece (c): correspondent guides on channel pages ----
+   The strip container (#kids-guide) is the first child of <main>
+   on channel.html + the four topic pages (stem/robotics/play/
+   music). Hidden by default so straight pages are untouched;
+   shown only under the marker. No data-flow changes: the strip
+   greets, shows the kidBio, and links down to the page's existing
+   #feed-grid. Videos play on tap only (team-page lightbox). */
+#kids-guide { display: none; }
+html[data-kids-mode="true"] #kids-guide {
+  display: block;
+  margin: 0 0 20px;
+  border: 2px solid var(--gc, #00e5ff);
+  border-radius: var(--kids-radius);
+  background: linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+  box-shadow: 0 6px 24px rgba(0,0,0,.25);
+  padding: 16px;
+}
+html[data-kids-mode="true"] .kids-guide-inner { display: flex; gap: 16px; align-items: center; }
+html[data-kids-mode="true"] .kids-guide-portrait { position: relative; flex: 0 0 auto; padding: 0; border: 0; background: none; cursor: pointer; }
+html[data-kids-mode="true"] .kids-guide-portrait img { display: block; width: 96px; height: 96px; object-fit: cover; border-radius: 50%; border: 3px solid var(--gc, #00e5ff); }
+html[data-kids-mode="true"] .kids-guide-play { position: absolute; right: 0; bottom: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--gc, #00e5ff); color: #06121f; font-size: 14px; line-height: 30px; text-align: center; }
+html[data-kids-mode="true"] .kids-guide-text { flex: 1 1 auto; min-width: 0; }
+html[data-kids-mode="true"] .kids-guide-hello { font-size: 17px; font-weight: 800; margin-bottom: 6px; }
+html[data-kids-mode="true"] .kids-guide-bio { font-size: 15px; line-height: 1.5; margin: 0 0 12px; }
+html[data-kids-mode="true"] .kids-guide-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+html[data-kids-mode="true"] .kids-guide-watch { border: 0; border-radius: 999px; padding: 9px 18px; font-weight: 800; font-size: 14px; cursor: pointer; background: var(--gc, #00e5ff); color: #06121f; }
+html[data-kids-mode="true"] .kids-guide-stories { font-weight: 700; font-size: 14px; color: var(--gc, #00e5ff); text-decoration: none; }
+html[data-kids-mode="true"] .kids-guide-stories:hover { text-decoration: underline; }
+@media (max-width: 640px) {
+  html[data-kids-mode="true"] .kids-guide-inner { flex-direction: column; align-items: flex-start; }
+  html[data-kids-mode="true"] .kids-guide-portrait img { width: 84px; height: 84px; }
+}
+/* Guide intro lightbox (team-page pattern): created by
+   kids-guides.js on first tap; never autoplays. */
+html[data-kids-mode="true"] .kids-guide-lightbox { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.85); display: none; align-items: center; justify-content: center; padding: 20px; }
+html[data-kids-mode="true"] .kids-guide-lightbox.open { display: flex; }
+html[data-kids-mode="true"] .kids-guide-lightbox-box { width: min(680px, 100%); text-align: center; }
+html[data-kids-mode="true"] .kids-guide-lightbox-box video { width: 100%; border-radius: 16px; background: #000; }
+html[data-kids-mode="true"] .kids-guide-lightbox-title { margin: 0 0 12px; }
+html[data-kids-mode="true"] .kids-guide-lightbox-close { margin-top: 12px; font-size: 15px; padding: 10px 22px; cursor: pointer; }
+html[data-kids-mode="true"] .kids-guide-lightbox-note { font-size: 13px; opacity: 0.85; }
