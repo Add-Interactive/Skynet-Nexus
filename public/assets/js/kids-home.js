@@ -99,12 +99,48 @@
 
   /* ---- Marcus welcome lightbox (team-page pattern) ---- */
   var lightbox, lightboxVideo, lightboxFallback;
+  /* Viewport anchoring + scroll lock: game-ui.css puts perspective on
+     body, which degrades position:fixed to document-relative and lands
+     the player mid-document. Anchor the overlay to the viewport rect
+     on open instead. */
+  var savedScrollY = 0;
+  var savedBodyOverflow = '';
+  function anchorLightbox() {
+    savedScrollY = window.scrollY || 0;
+    savedBodyOverflow = document.body.style.overflow || '';
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    lightbox.style.position = 'absolute';
+    lightbox.style.top = savedScrollY + 'px';
+    lightbox.style.left = '0';
+    lightbox.style.width = '100%';
+    lightbox.style.height = window.innerHeight + 'px';
+    window.addEventListener('resize', reanchorLightbox);
+  }
+  function reanchorLightbox() {
+    if (!lightbox.classList.contains('open')) return;
+    lightbox.style.top = (window.scrollY || 0) + 'px';
+    lightbox.style.height = window.innerHeight + 'px';
+  }
+  function releaseLightbox() {
+    window.removeEventListener('resize', reanchorLightbox);
+    lightbox.style.position = '';
+    lightbox.style.top = '';
+    lightbox.style.left = '';
+    lightbox.style.width = '';
+    lightbox.style.height = '';
+    document.body.style.overflow = savedBodyOverflow;
+    document.documentElement.style.overflow = '';
+    window.scrollTo(0, savedScrollY);
+  }
   function closeWelcome() {
     if (!lightbox) return;
+    var wasOpen = lightbox.classList.contains('open');
     lightboxVideo.pause();
     lightboxVideo.removeAttribute('src');
     lightboxVideo.load();
     lightbox.classList.remove('open');
+    if (wasOpen) releaseLightbox();
   }
   function openWelcome() {
     if (!lightbox || !isOn()) return;
@@ -113,6 +149,7 @@
     lightboxVideo.poster = MARCUS_POSTER;
     lightboxVideo.src = MARCUS_VIDEO;
     lightbox.classList.add('open');
+    anchorLightbox();
     lightboxVideo.play().catch(function () {});
   }
   function initLightbox() {
