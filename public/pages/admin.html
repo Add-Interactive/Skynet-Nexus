@@ -10,6 +10,12 @@
   <link rel="stylesheet" href="/assets/css/style.css?v=20260705-1"/>
   <link rel="stylesheet" href="/assets/css/admin.css?v=20260705-1"/>
   <link rel="stylesheet" href="/assets/css/admin-security-team.css?v=20261007-1"/>
+  <style>
+    /* Kids Mode admin preview control (admin panel only) */
+    .admin-viewmode{display:inline-flex;align-items:center;gap:6px}
+    .admin-viewmode-label{opacity:.75;font-size:12px}
+    .admin-viewmode-btn.is-active{outline:2px solid #00e5ff;outline-offset:1px}
+  </style>
     <script type="importmap">
       { "imports": {
           "three": "/vendor/three/three.module.min.js",
@@ -59,6 +65,12 @@
       <button class="admin-btn admin-menu-btn" id="admin-menu-btn" aria-label="Menu">☰</button>
       <div class="admin-topbar-right">
         <span class="admin-env-pill" id="admin-role-pill">—</span>
+        <span class="admin-viewmode" role="group" aria-label="Preview view mode">
+          <span class="admin-viewmode-label">View mode:</span>
+          <button class="admin-btn admin-viewmode-btn" data-kids-mode-preview="kids" type="button" title="Preview the site in Kids Mode (this browser only, no kid settings changed)">🎨 Kids Mode</button>
+          <button class="admin-btn admin-viewmode-btn" data-kids-mode-preview="straight" type="button" title="Preview the straight site (this browser only, no kid settings changed)">Straight site</button>
+          <button class="admin-btn admin-viewmode-btn" data-kids-mode-preview="clear" type="button" title="Back to normal mode resolution">Normal</button>
+        </span>
         <a class="admin-btn" href="/index.html" target="_blank" rel="noopener">View site ↗</a>
         <span class="admin-whoami" id="admin-whoami">—</span>
         <button class="admin-btn admin-btn-ghost" id="admin-logout">Sign out</button>
@@ -96,6 +108,7 @@
   <script src="/assets/js/admin.js?v=20260930-1"></script>
   <script src="/assets/js/admin-security-team.js?v=20261007-1"></script>
   <script src="/assets/js/admin-models.js?v=20261016-1"></script>
+  <script src="/assets/js/kids-mode.js?v=20261027-1"></script>
 </body>
 </html>
 
