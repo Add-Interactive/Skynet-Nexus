@@ -9,6 +9,20 @@
   <link rel="stylesheet" href="/assets/css/style.css"/>
   <link rel="stylesheet" href="/assets/css/nexus-ui.css"/>
   <link rel="stylesheet" href="/assets/css/game-ui.css?v=20261024-mobile2"/>
+  <link rel="stylesheet" href="/assets/css/kids-mode.css"/>
+  <!-- Kids Mode: apply saved preference before first paint (no flash). Full logic: /assets/js/kids-mode.js -->
+  <script>
+    try {
+      var __kmLock = JSON.parse(localStorage.getItem('skynet.kidsModeLock') || '{}');
+      var __kmKid = localStorage.getItem('nexus_active_kid');
+      var __kmByKid = JSON.parse(localStorage.getItem('skynet.kidsModeByKid') || '{}');
+      var __kmOn = false;
+      if (__kmKid && __kmLock[__kmKid]) __kmOn = (__kmLock[__kmKid] === 'kids');
+      else if (__kmKid && Object.prototype.hasOwnProperty.call(__kmByKid, __kmKid)) __kmOn = !!__kmByKid[__kmKid];
+      else __kmOn = (localStorage.getItem('skynet.kidsMode') === 'on');
+      if (__kmOn) document.documentElement.setAttribute('data-kids-mode', 'true');
+    } catch (e) { /* private mode: straight site */ }
+  </script>
   <style>
     .dash-wrap { max-width: 1100px; margin: 24px auto 60px; padding: 0 20px; position: relative; z-index: 10; }
     .dash-head { display: flex; align-items: center; gap: 16px; margin: 18px 0 20px; flex-wrap: wrap; }
@@ -129,6 +143,7 @@
       <button type="button" class="sfx-toggle-pill" id="sfx-toggle" title="Toggle Synthesized Audio SFX">
         🔊 SFX ON
       </button>
+      <button type="button" class="sfx-toggle-pill kids-mode-toggle" data-kids-mode-toggle title="Tap to turn on Kids Mode">🎨 KIDS MODE</button>
       <div class="cadet-badge-mini" title="Fleet Command Profile">
         <span class="cadet-avatar-face">👨‍✈️</span>
         <span class="cadet-level-tag">COMMAND</span>
@@ -382,6 +397,14 @@
     api('/api/kids/' + kid.id + '/settings').then(function (d) {
       var s = d.settings || {};
       var allowed = s.channels && s.channels.length ? s.channels : CHANNELS.slice();
+      var lockVal = '';
+      try { lockVal = (window.KidsMode && window.KidsMode.getLock(kid.id)) || ''; } catch (e) {}
+      var lockHtml =
+        '<div style="font:700 13px/1 Inter,sans-serif;margin:16px 0 8px">🎨 Kids Mode lock</div>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"><input type="radio" name="km-lock" value="" ' + (lockVal === '' ? 'checked' : '') + '/> No lock — kid can toggle</label>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"><input type="radio" name="km-lock" value="kids" ' + (lockVal === 'kids' ? 'checked' : '') + '/> 🔒 Lock to Kids Mode</label>' +
+        '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"><input type="radio" name="km-lock" value="straight" ' + (lockVal === 'straight' ? 'checked' : '') + '/> 🔒 Lock to straight site</label>' +
+        '<div class="kids-mode-lock-note">Saved on this browser (device-level lock). Clearing browser storage, or another browser, bypasses this lock — a server pin is a planned follow-up.</div>';
       var b = document.getElementById('cm-body');
       b.innerHTML =
         '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:10px 0"><input type="checkbox" id="cm-listen" ' + (s.listenEnabled ? 'checked' : '') + '/> 🔊 Listen (read stories aloud)</label>' +
@@ -405,6 +428,7 @@
         '<div style="display:flex;gap:8px;align-items:center;font-size:13px"><span>From</span><input type="time" id="cm-qs" value="20:00" style="padding:6px;border-radius:6px;background:#0b1026;color:inherit;border:1px solid rgba(255,255,255,.2)"/><span>to</span><input type="time" id="cm-qe" value="07:00" style="padding:6px;border-radius:6px;background:#0b1026;color:inherit;border:1px solid rgba(255,255,255,.2)"/></div>' +
         '<div style="font:700 13px/1 Inter,sans-serif;margin:16px 0 8px">🎯 Weekly reading goal</div>' +
         '<div style="display:flex;gap:8px;align-items:center"><input type="number" id="cm-goal" min="1" max="20" value="3" style="width:70px;padding:8px;border-radius:8px;background:#0b1026;color:inherit;border:1px solid rgba(255,255,255,.2)"/><span style="font-size:13px">stories per week</span></div>' +
+        lockHtml +
         '<button class="btn" id="cm-save" style="width:100%;margin-top:16px">Save controls</button>';
       var selChannels = allowed.slice();
       b.querySelectorAll('[data-ch]').forEach(function (btn) {
@@ -428,6 +452,17 @@
         document.getElementById('cm-goal').value = g.target || 3;
       }).catch(function () {});
       document.getElementById('cm-save').addEventListener('click', function () {
+        try {
+          var lockChoice = document.querySelector('input[name="km-lock"]:checked');
+          var lockValue = lockChoice ? lockChoice.value : '';
+          if (window.KidsMode && window.KidsMode.setLock) window.KidsMode.setLock(kid.id, lockValue || null);
+          else {
+            var _locks = {};
+            try { _locks = JSON.parse(localStorage.getItem('skynet.kidsModeLock') || '{}'); } catch (e) {}
+            if (lockValue) _locks[kid.id] = lockValue; else delete _locks[kid.id];
+            try { localStorage.setItem('skynet.kidsModeLock', JSON.stringify(_locks)); } catch (e) {}
+          }
+        } catch (e) {}
         var quietP = api('/api/kids/' + kid.id + '/quiet', { method: 'PUT', body: JSON.stringify({
           enabled: document.getElementById('cm-quiet').checked,
           start: document.getElementById('cm-qs').value, end: document.getElementById('cm-qe').value }) });
@@ -1329,5 +1364,6 @@
 })();
 </script>
 <script src="/assets/js/nexus-ui.js" defer></script>
+  <script src="/assets/js/kids-mode.js"></script>
 </body>
 </html>
