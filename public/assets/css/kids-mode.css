@@ -96,3 +96,82 @@ html[data-kids-mode="true"] ::selection {
   background: var(--kids-accent);
   color: #1a1200;
 }
+
+/* ---- Kids Mode home variant (piece b) ---- */
+/* Hidden by default: the straight homepage never sees this section. */
+#kids-home { display: none; }
+html[data-kids-mode="true"] #kids-home { display: block; }
+/* In Kids Mode, the straight home's upper sections are replaced by the
+   kids hero. The edition feed, filter bar, and story wall stay: the
+   story wall below is the existing feed, restyled — no data flow changes. */
+html[data-kids-mode="true"] #cadet-station,
+html[data-kids-mode="true"] #guardian-station,
+html[data-kids-mode="true"] #commander-station,
+html[data-kids-mode="true"] #sky-welcome,
+html[data-kids-mode="true"] #drop-countdown,
+html[data-kids-mode="true"] .summer-promo { display: none; }
+/* Kids hero: flagship newsroom backdrop. The gradient layer paints even
+   before the media push lands, so the hero never renders broken. */
+html[data-kids-mode="true"] .kids-hero {
+  background-color: #0b1026;
+  background-image: linear-gradient(180deg, rgba(11,16,38,0.15), rgba(11,16,38,0.82)), url('/assets/img/newsroom/flagship-newsroom.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: var(--kids-radius);
+  padding: 26px 20px;
+  margin-bottom: 20px;
+  color: #fff;
+}
+html[data-kids-mode="true"] .kids-hero h2 { font-size: 1.6em; margin: 6px 0 8px; }
+html[data-kids-mode="true"] .kids-hero-kicker { font-weight: 800; letter-spacing: 0.04em; margin: 0; }
+html[data-kids-mode="true"] .kids-hero-sub { margin: 0; opacity: 0.92; }
+html[data-kids-mode="true"] .kids-missions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+html[data-kids-mode="true"] .kids-missions a {
+  display: inline-block; padding: 10px 16px; border-radius: 999px;
+  background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.35);
+  color: #fff; text-decoration: none; font-weight: 700; font-size: 14px;
+}
+html[data-kids-mode="true"] .kids-welcome-card {
+  display: flex; gap: 14px; align-items: center; margin-top: 18px;
+  background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.22);
+  border-radius: var(--kids-radius); padding: 14px;
+}
+html[data-kids-mode="true"] .kids-welcome-card img,
+html[data-kids-mode="true"] .kids-marcus-fallback:not([hidden]) {
+  width: 76px; height: 76px; flex: 0 0 auto; border-radius: 50%; object-fit: cover;
+}
+html[data-kids-mode="true"] .kids-marcus-fallback:not([hidden]) {
+  display: flex; align-items: center; justify-content: center; font-size: 34px;
+  background: rgba(255,255,255,0.14);
+}
+html[data-kids-mode="true"] .kids-welcome-text p { margin: 4px 0 10px; }
+html[data-kids-mode="true"] .kids-cast { margin-bottom: 20px; }
+html[data-kids-mode="true"] .kids-cast h3 { margin: 0 0 10px; }
+html[data-kids-mode="true"] .kids-cast-strip { display: flex; gap: 12px; overflow-x: auto; padding: 6px 2px 12px; }
+html[data-kids-mode="true"] .kids-cast-tile { flex: 0 0 auto; width: 88px; text-align: center; text-decoration: none; color: inherit; }
+html[data-kids-mode="true"] .kids-cast-tile img { width: 72px; height: 72px; object-fit: cover; border-radius: 50%; border: 3px solid var(--cc, #00e5ff); }
+html[data-kids-mode="true"] .kids-cast-tile span { display: block; font-size: 12px; font-weight: 700; margin-top: 6px; }
+html[data-kids-mode="true"] .kids-cast-more { margin: 0; }
+/* Marcus welcome lightbox (team-page pattern: tap-to-play only). */
+html[data-kids-mode="true"] .kids-lightbox { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; padding: 20px; }
+html[data-kids-mode="true"] .kids-lightbox.open { display: flex; }
+html[data-kids-mode="true"] .kids-lightbox-box { width: min(680px, 100%); text-align: center; }
+html[data-kids-mode="true"] .kids-lightbox-box video { width: 100%; border-radius: 16px; background: #000; }
+html[data-kids-mode="true"] .kids-lightbox-close { margin-top: 12px; font-size: 15px; padding: 10px 22px; cursor: pointer; }
+html[data-kids-mode="true"] .kids-lightbox-note { font-size: 13px; opacity: 0.85; }
+/* Story wall: the existing edition packages + feed grid, restyled.
+   No data flow changes — renderFeed/renderEditionPackages still own the cards. */
+html[data-kids-mode="true"] #edition-packages .edition-grid,
+html[data-kids-mode="true"] #feed-grid.feed-grid,
+html[data-kids-mode="true"] #feed-grid.rss-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+html[data-kids-mode="true"] #edition-packages .edition-pkg { margin-bottom: 28px; }
+html[data-kids-mode="true"] #edition-packages .post-card,
+html[data-kids-mode="true"] #feed-grid .post-card { border-radius: var(--kids-radius); }
+html[data-kids-mode="true"] #edition-packages .post-media,
+html[data-kids-mode="true"] #feed-grid .post-media { border-radius: calc(var(--kids-radius) - 6px); }
+@media (min-width: 720px) {
+  html[data-kids-mode="true"] .kids-hero { display: flex; gap: 24px; align-items: flex-end; }
+  html[data-kids-mode="true"] .kids-hero-text { flex: 1 1 auto; }
+  html[data-kids-mode="true"] .kids-welcome-card { flex: 0 0 340px; margin-top: 0; }
+}
