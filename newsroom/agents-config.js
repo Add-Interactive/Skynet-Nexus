@@ -22,9 +22,9 @@ const AGENTS = [
     kidBio: "Hi! I'm Adaeze, and I'm obsessed with how computers learn. I hunt down the coolest stories about machines that can think, draw, and talk — and I explain them so you can amaze your friends.",
     funFact: "Once taught a computer to recognize her cat's meow.",
     portraits: {
-      human: "/assets/img/channels/ai/portrait-human.png",
-      animal: "/assets/img/channels/ai/portrait-animal.png",
-      skynet: "/assets/img/channels/ai/portrait-skynet.png"
+      human: "/assets/img/channels/ai/portrait-human.webp",
+      animal: "/assets/img/channels/ai/portrait-animal.webp",
+      skynet: "/assets/img/channels/ai/portrait-skynet.webp"
     },
   },
   {
@@ -39,9 +39,9 @@ const AGENTS = [
     kidBio: "Stella here — professional star-chaser! I cover rockets, planets, and everything happening way, way above our heads. If it's launching, landing, or glowing in the night sky, I'm on it.",
     funFact: "Has named every crater she can see on the Moon.",
     portraits: {
-      human: "/assets/img/channels/space/portrait-human.png",
-      animal: "/assets/img/channels/space/portrait-animal.png",
-      skynet: "/assets/img/channels/space/portrait-skynet.png"
+      human: "/assets/img/channels/space/portrait-human.webp",
+      animal: "/assets/img/channels/space/portrait-animal.webp",
+      skynet: "/assets/img/channels/space/portrait-skynet.webp"
     },
   },
   {
@@ -56,9 +56,9 @@ const AGENTS = [
     kidBio: "Beep boop! I'm Dexter, and robots are my best friends. I find stories about machines that build, help, and play — and I love showing how they work, bolt by bolt.",
     funFact: "Built his first robot out of a toaster when he was nine.",
     portraits: {
-      human: "/assets/img/channels/robotics/portrait-human.png",
-      animal: "/assets/img/channels/robotics/portrait-animal.png",
-      skynet: "/assets/img/channels/robotics/portrait-skynet.png"
+      human: "/assets/img/channels/robotics/portrait-human.webp",
+      animal: "/assets/img/channels/robotics/portrait-animal.webp",
+      skynet: "/assets/img/channels/robotics/portrait-skynet.webp"
     },
   },
   {
@@ -73,9 +73,9 @@ const AGENTS = [
     kidBio: "I'm Wren, and I explore the tiniest living things on Earth! From DNA to new medicines, I cover the science that's keeping people and the planet healthy.",
     funFact: "Can spot a tardigrade (water bear!) under a microscope in under a minute.",
     portraits: {
-      human: "/assets/img/channels/biotech/portrait-human.png",
-      animal: "/assets/img/channels/biotech/portrait-animal.png",
-      skynet: "/assets/img/channels/biotech/portrait-skynet.png"
+      human: "/assets/img/channels/biotech/portrait-human.webp",
+      animal: "/assets/img/channels/biotech/portrait-animal.webp",
+      skynet: "/assets/img/channels/biotech/portrait-skynet.webp"
     },
   },
   {
@@ -90,9 +90,9 @@ const AGENTS = [
     kidBio: "Quinn here — I cover the weirdest science there is: quantum! It's the science of super-tiny particles that can be in two places at once. Mind-bending, right?",
     funFact: "Owns a pair of socks with Schrödinger's cat on them.",
     portraits: {
-      human: "/assets/img/channels/quantum/portrait-human.png",
-      animal: "/assets/img/channels/quantum/portrait-animal.png",
-      skynet: "/assets/img/channels/quantum/portrait-skynet.png"
+      human: "/assets/img/channels/quantum/portrait-human.webp",
+      animal: "/assets/img/channels/quantum/portrait-animal.webp",
+      skynet: "/assets/img/channels/quantum/portrait-skynet.webp"
     },
   },
   {
@@ -107,9 +107,9 @@ const AGENTS = [
     kidBio: "Hey, I'm Rowan! I report on planet Earth — clean energy, wild weather, and the kids and scientists protecting our home. The Earth is our beat, and it's a good one.",
     funFact: "Has planted over 200 trees and counting.",
     portraits: {
-      human: "/assets/img/channels/climate/portrait-human.png",
-      animal: "/assets/img/channels/climate/portrait-animal.png",
-      skynet: "/assets/img/channels/climate/portrait-skynet.png"
+      human: "/assets/img/channels/climate/portrait-human.webp",
+      animal: "/assets/img/channels/climate/portrait-animal.webp",
+      skynet: "/assets/img/channels/climate/portrait-skynet.webp"
     },
   },
   {
@@ -124,9 +124,9 @@ const AGENTS = [
     kidBio: "Gus in the house! I cover the builders — bridges, towers, gadgets, and the kids inventing the future with their own two hands. If it was built, I want to see how.",
     funFact: "Once built a working bridge out of 10,000 popsicle sticks.",
     portraits: {
-      human: "/assets/img/channels/engineering/portrait-human.png",
-      animal: "/assets/img/channels/engineering/portrait-animal.png",
-      skynet: "/assets/img/channels/engineering/portrait-skynet.png"
+      human: "/assets/img/channels/engineering/portrait-human.webp",
+      animal: "/assets/img/channels/engineering/portrait-animal.webp",
+      skynet: "/assets/img/channels/engineering/portrait-skynet.webp"
     },
   },
   {
@@ -141,9 +141,9 @@ const AGENTS = [
     kidBio: "I'm Mira, and I think numbers are magic! I cover math competitions, puzzles, and the hidden patterns that run the world. Math is way more fun than you think — I promise.",
     funFact: "Can recite pi to 100 digits (and will, if you ask).",
     portraits: {
-      human: "/assets/img/channels/math/portrait-human.png",
-      animal: "/assets/img/channels/math/portrait-animal.png",
-      skynet: "/assets/img/channels/math/portrait-skynet.png"
+      human: "/assets/img/channels/math/portrait-human.webp",
+      animal: "/assets/img/channels/math/portrait-animal.webp",
+      skynet: "/assets/img/channels/math/portrait-skynet.webp"
     },
   },
   {
@@ -158,9 +158,9 @@ const AGENTS = [
     kidBio: "Juno here — guardian of the internet! I cover cybersecurity, coding, and how to stay safe online. Think of me as your friendly neighborhood code-defender.",
     funFact: "Caught her first computer 'bug' at age seven — it was an actual moth.",
     portraits: {
-      human: "/assets/img/channels/cyber/portrait-human.png",
-      animal: "/assets/img/channels/cyber/portrait-animal.png",
-      skynet: "/assets/img/channels/cyber/portrait-skynet.png"
+      human: "/assets/img/channels/cyber/portrait-human.webp",
+      animal: "/assets/img/channels/cyber/portrait-animal.webp",
+      skynet: "/assets/img/channels/cyber/portrait-skynet.webp"
     },
   },
   {
@@ -175,9 +175,9 @@ const AGENTS = [
     kidBio: "Kai here — game on! I cover video games, esports, and the awesome people who make them. From epic tournaments to the coolest new releases, I play so you know.",
     funFact: "Has won a local esports tournament three years in a row.",
     portraits: {
-      human: "/assets/img/channels/gaming/portrait-human.png",
-      animal: "/assets/img/channels/gaming/portrait-animal.png",
-      skynet: "/assets/img/channels/gaming/portrait-skynet.png"
+      human: "/assets/img/channels/gaming/portrait-human.webp",
+      animal: "/assets/img/channels/gaming/portrait-animal.webp",
+      skynet: "/assets/img/channels/gaming/portrait-skynet.webp"
     },
   },
   {
@@ -192,9 +192,9 @@ const AGENTS = [
     kidBio: "I'm Cadence, and I follow the beat! I cover music festivals, young artists, and the sounds shaping our world. Life's better with a soundtrack.",
     funFact: "Can play four instruments and is learning a fifth.",
     portraits: {
-      human: "/assets/img/channels/music/portrait-human.png",
-      animal: "/assets/img/channels/music/portrait-animal.png",
-      skynet: "/assets/img/channels/music/portrait-skynet.png"
+      human: "/assets/img/channels/music/portrait-human.webp",
+      animal: "/assets/img/channels/music/portrait-animal.webp",
+      skynet: "/assets/img/channels/music/portrait-skynet.webp"
     },
   },
   {
@@ -209,9 +209,9 @@ const AGENTS = [
     kidBio: "Lena here — professional curiosity expert! I cover science fairs, student inventors, and the experiments that make you say 'whoa.' Science is for everyone, and I mean everyone.",
     funFact: "Her classroom volcano experiment once reached the ceiling. Twice.",
     portraits: {
-      human: "/assets/img/channels/stem/portrait-human.png",
-      animal: "/assets/img/channels/stem/portrait-animal.png",
-      skynet: "/assets/img/channels/stem/portrait-skynet.png"
+      human: "/assets/img/channels/stem/portrait-human.webp",
+      animal: "/assets/img/channels/stem/portrait-animal.webp",
+      skynet: "/assets/img/channels/stem/portrait-skynet.webp"
     },
   },
   {
@@ -226,9 +226,9 @@ const AGENTS = [
     kidBio: "Hazel at play! I cover games, toys, and the art of having fun — plus the brilliant kids designing the playgrounds of tomorrow. Play is serious business.",
     funFact: "Has designed over 50 board games and play-tested every single one.",
     portraits: {
-      human: "/assets/img/channels/play/portrait-human.png",
-      animal: "/assets/img/channels/play/portrait-animal.png",
-      skynet: "/assets/img/channels/play/portrait-skynet.png"
+      human: "/assets/img/channels/play/portrait-human.webp",
+      animal: "/assets/img/channels/play/portrait-animal.webp",
+      skynet: "/assets/img/channels/play/portrait-skynet.webp"
     },
   }
 ];
