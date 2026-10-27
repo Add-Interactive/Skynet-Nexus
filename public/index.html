@@ -11,6 +11,20 @@
   <link rel="stylesheet" href="/assets/css/auth.css"/>
   <link rel="stylesheet" href="/assets/css/game-ui.css?v=20261024-mobile2"/>
   <link rel="stylesheet" href="/assets/css/nexus-ui.css?v=20261024-live1"/>
+  <link rel="stylesheet" href="/assets/css/kids-mode.css"/>
+  <!-- Kids Mode: apply saved preference before first paint (no flash). Full logic: /assets/js/kids-mode.js -->
+  <script>
+    try {
+      var __kmLock = JSON.parse(localStorage.getItem('skynet.kidsModeLock') || '{}');
+      var __kmKid = localStorage.getItem('nexus_active_kid');
+      var __kmByKid = JSON.parse(localStorage.getItem('skynet.kidsModeByKid') || '{}');
+      var __kmOn = false;
+      if (__kmKid && __kmLock[__kmKid]) __kmOn = (__kmLock[__kmKid] === 'kids');
+      else if (__kmKid && Object.prototype.hasOwnProperty.call(__kmByKid, __kmKid)) __kmOn = !!__kmByKid[__kmKid];
+      else __kmOn = (localStorage.getItem('skynet.kidsMode') === 'on');
+      if (__kmOn) document.documentElement.setAttribute('data-kids-mode', 'true');
+    } catch (e) { /* private mode: straight site */ }
+  </script>
 
   <!-- Open Graph + link discovery (added by polish pass) -->
   <meta property="og:type" content="website"/>
@@ -72,6 +86,7 @@
         <button class="icon-btn only-mobile" id="menu-toggle" aria-label="Menu"><span id="ic-menu"></span></button>
         <a class="icon-btn" href="pages/guide.html" aria-label="How to use Skynet Nexus" title="How to use Skynet Nexus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.6 2.6 0 1 1 3.7 2.4c-.8.4-1.3.9-1.3 1.9"/><circle cx="12" cy="17" r="1.1" fill="currentColor" stroke="none"/></svg></a>
         <button class="icon-btn" id="theme-toggle" aria-label="Toggle theme"></button>
+        <button class="kids-mode-toggle" data-kids-mode-toggle type="button" aria-pressed="false" title="Tap to turn on Kids Mode">🎨 Kids Mode</button>
         
         
         <div class="sky-user-slot"></div>
@@ -605,5 +620,6 @@
   <script src="/assets/js/whatsnew-modal.js"></script>
   <script src="/assets/js/nexus-ui.js?v=20261024-live1"></script>
   <script src="/assets/js/game-engine.js?v=20261024-live1"></script>
+  <script src="/assets/js/kids-mode.js"></script>
 </body>
 </html>

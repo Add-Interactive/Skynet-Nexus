@@ -1,0 +1,98 @@
+/* ============================================================
+   SKYNET NEXUS — Kids Mode theme (piece a)
+   Layered AFTER style.css, auth.css, game-ui.css, nexus-ui.css.
+   NEVER edit the straight stylesheets: every rule below is either
+   (1) the Kids Mode toggle button itself (always visible), or
+   (2) scoped under html[data-kids-mode="true"].
+   When the marker is absent, this file changes nothing except
+   rendering the toggle button (the feature itself).
+   No layout properties are changed (no display/grid/position
+   overrides); only radii, colors, shadows, and transforms.
+   ============================================================ */
+
+/* ---- Toggle button (always rendered; theme-independent) ---- */
+.kids-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  background: rgba(0, 229, 255, 0.12);
+  color: #e6f1ff;
+  font: 700 13px/1 'Plus Jakarta Sans', system-ui, sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.kids-mode-toggle[aria-pressed="true"] {
+  background: #ffd23f;
+  border-color: #ffd23f;
+  color: #1a1200;
+}
+.kids-mode-toggle:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+.kids-mode-lock-note {
+  font-size: 12px;
+  color: #7c8898;
+  margin-top: 6px;
+}
+
+/* ---- Kids Mode theme (marker-scoped only) ---- */
+html[data-kids-mode="true"] {
+  --kids-radius: 22px;
+  --kids-accent: #ffd23f;
+  --kids-pink: #ff6ec7;
+  --kids-border-color: rgba(255, 210, 63, 0.55);
+}
+
+/* Rounder cards, tiles, and panels (radius + border color only). */
+html[data-kids-mode="true"] .panel,
+html[data-kids-mode="true"] .mission-card,
+html[data-kids-mode="true"] .tile,
+html[data-kids-mode="true"] .kid-card,
+html[data-kids-mode="true"] .corr-card,
+html[data-kids-mode="true"] .trophy-badge-item,
+html[data-kids-mode="true"] .command-hero-card {
+  border-radius: var(--kids-radius);
+  border-color: var(--kids-border-color);
+}
+
+/* Rounder buttons (radius only — no size or layout change). */
+html[data-kids-mode="true"] .btn,
+html[data-kids-mode="true"] .tactical-btn {
+  border-radius: 999px;
+}
+
+/* Cartoon underline on the shared bars (shadow, not border width). */
+html[data-kids-mode="true"] .topbar,
+html[data-kids-mode="true"] .game-hud-bar {
+  box-shadow: inset 0 -3px 0 var(--kids-accent);
+}
+
+/* Gentle hover bounce on cards (transform only — no layout shift). */
+html[data-kids-mode="true"] .tile,
+html[data-kids-mode="true"] .mission-card,
+html[data-kids-mode="true"] .kid-card {
+  transition: transform 0.15s ease;
+}
+html[data-kids-mode="true"] .tile:hover,
+html[data-kids-mode="true"] .mission-card:hover,
+html[data-kids-mode="true"] .kid-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Slightly bigger content headings (bars and HUD text untouched). */
+html[data-kids-mode="true"] main h1 {
+  font-size: 1.15em;
+}
+html[data-kids-mode="true"] main h2 {
+  font-size: 1.1em;
+}
+
+/* Cartoon text selection. */
+html[data-kids-mode="true"] ::selection {
+  background: var(--kids-accent);
+  color: #1a1200;
+}
