@@ -170,6 +170,52 @@
 
     <!-- Main Column -->
     <main class="main">
+      <!-- Kids Mode home variant (piece b): hidden unless data-kids-mode="true".
+           Straight homepage renders exactly as today when the marker is off.
+           Hero backdrop + Marcus media live at proposed repo paths (Jeff's
+           local-git media push); the section degrades gracefully if a
+           Marcus file is missing. -->
+      <section id="kids-home" aria-label="Kids Mode home">
+        <div class="kids-hero">
+          <div class="kids-hero-text">
+            <p class="kids-hero-kicker">🎨 Kids Mode</p>
+            <h2>Welcome to the Newsroom!</h2>
+            <p class="kids-hero-sub">Tap a correspondent to visit their channel, or dive into today's stories below.</p>
+            <div class="kids-missions">
+              <a href="/pages/quiz.html">🧠 Daily Quiz</a>
+              <a href="/pages/kid.html">🧑‍🚀 My Space</a>
+              <a href="/pages/weekend-lab.html">🧪 Weekend Lab</a>
+              <a href="/pages/team.html">🌟 Meet the Team</a>
+            </div>
+          </div>
+          <div class="kids-welcome-card">
+            <img id="kids-marcus-portrait" src="/assets/img/host/marcus-reed-portrait.webp" alt="Marcus Reed, the Skynet Nexus Host" onerror="this.style.display='none';document.getElementById('kids-marcus-fallback').hidden=false;"/>
+            <div id="kids-marcus-fallback" class="kids-marcus-fallback" hidden>🎙️</div>
+            <div class="kids-welcome-text">
+              <strong>Marcus Reed, your host</strong>
+              <p>Hi! I'm Marcus, and this is your newsroom.</p>
+              <button type="button" class="sky-btn sky-btn-primary" id="kids-welcome-play">▶ Watch Marcus's welcome</button>
+            </div>
+          </div>
+        </div>
+        <div class="kids-cast">
+          <h3>Meet your correspondents</h3>
+          <div id="kids-cast-strip" class="kids-cast-strip" aria-live="polite"></div>
+          <p class="kids-cast-more"><a href="/pages/team.html">Meet the whole team →</a></p>
+        </div>
+        <div class="kids-lightbox" id="kids-lightbox" role="dialog" aria-modal="true" aria-label="Marcus welcome video">
+          <div class="kids-lightbox-box">
+            <h3>Marcus Reed — welcome video</h3>
+            <video id="kids-lightbox-video" controls playsinline></video>
+            <div id="kids-lightbox-fallback" hidden>
+              <p>Marcus's welcome video isn't here yet — it arrives with the host media push.</p>
+              <p><a href="/pages/team.html">Meet the whole team →</a></p>
+            </div>
+            <p class="kids-lightbox-note">Video not playing? <a href="/pages/team.html">Meet the whole team →</a></p>
+            <div><button type="button" class="kids-lightbox-close" id="kids-lightbox-close">Close</button></div>
+          </div>
+        </div>
+      </section>
 
       <!-- 1. CADET / STUDENT MISSION STATION -->
       <section class="cadet-hero-card" id="cadet-station" style="margin-bottom:22px;">
@@ -621,5 +667,6 @@
   <script src="/assets/js/nexus-ui.js?v=20261024-live1"></script>
   <script src="/assets/js/game-engine.js?v=20261024-live1"></script>
   <script src="/assets/js/kids-mode.js"></script>
+  <script src="/assets/js/kids-home.js"></script>
 </body>
 </html>
