@@ -9,6 +9,20 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"/>
   <link rel="stylesheet" href="../assets/css/style.css"/>
   <link rel="stylesheet" href="/assets/css/auth.css"/>
+  <link rel="stylesheet" href="/assets/css/kids-mode.css"/>
+  <!-- Kids Mode: apply saved preference before first paint (no flash). Full logic: /assets/js/kids-mode.js -->
+  <script>
+    try {
+      var __kmLock = JSON.parse(localStorage.getItem('skynet.kidsModeLock') || '{}');
+      var __kmKid = localStorage.getItem('nexus_active_kid');
+      var __kmByKid = JSON.parse(localStorage.getItem('skynet.kidsModeByKid') || '{}');
+      var __kmOn = false;
+      if (__kmKid && __kmLock[__kmKid]) __kmOn = (__kmLock[__kmKid] === 'kids');
+      else if (__kmKid && Object.prototype.hasOwnProperty.call(__kmByKid, __kmKid)) __kmOn = !!__kmByKid[__kmKid];
+      else __kmOn = (localStorage.getItem('skynet.kidsMode') === 'on');
+      if (__kmOn) document.documentElement.setAttribute('data-kids-mode', 'true');
+    } catch (e) { /* private mode: straight site */ }
+  </script>
 
   <!-- Open Graph + link discovery (added by polish pass) -->
   <meta property="og:type" content="website"/>
@@ -106,6 +120,7 @@
     </aside>
 
     <main class="main">
+      <section id="kids-guide" data-guide-channel="music" aria-label="Channel guide"></section>
       <section class="hero">
         <span class="kicker">🎧 Music Channel</span>
         <h1>Music — Signal for the Next Generation</h1>
@@ -252,6 +267,8 @@
     initCategoryPage('music', '../');
   </script>
 
+  <script src="/assets/js/kids-mode.js"></script>
+  <script src="/assets/js/kids-guides.js"></script>
   <script src="/assets/js/auth.js" defer></script>
 </body>
 </html>
