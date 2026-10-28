@@ -99,10 +99,11 @@
     .corr-portrait-btn { position: relative; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 50%; }
     .corr-portrait-btn .corr-portrait { display: block; }
     .corr-play { position: absolute; right: 8px; bottom: 8px; width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,.65); color: #fff; font-size: 20px; line-height: 44px; text-align: center; }
-    .corr-lightbox { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.85); display: none; align-items: center; justify-content: center; padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left)); overflow-y: auto; }
+    .corr-lightbox { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.85); display: none; padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left)); overflow-y: auto; }
     .corr-lightbox.open { display: flex; }
-    .corr-lightbox-box { width: min(680px, 100%); text-align: center; margin: auto; max-height: calc(100vh - 40px); max-height: calc(100dvh - 40px); }
-    .corr-lightbox-box video { width: 100%; max-height: 70vh; max-height: 70dvh; object-fit: contain; border-radius: 16px; background: #000; }
+    .corr-lightbox-box { width: min(680px, 100%); text-align: center; margin: auto; display: flex; flex-direction: column; max-height: 100%; }
+    .corr-lightbox-box > :not(video) { flex-shrink: 0; }
+    .corr-lightbox-box video { width: 100%; max-height: 70vh; max-height: 70dvh; object-fit: contain; border-radius: 16px; background: #000; flex: 0 1 auto; min-height: 0; }
     .corr-lightbox-box h3 { margin: 0 0 12px; }
     .corr-lightbox-close { margin-top: 12px; font-size: 15px; padding: 10px 22px; cursor: pointer; }
   </style>
@@ -452,7 +453,12 @@
         return { top: savedScrollY, height: window.innerHeight };
       }
       function blockBackdropScroll(e) {
-        if (e.target === lightbox) e.preventDefault();
+        /* Block backdrop drags only when the lightbox has nothing to
+           scroll: on short portrait screens its content can overflow,
+           and a backdrop drag must then scroll the lightbox. The page
+           behind stays locked regardless (body position:fixed + html
+           overflow:hidden), so this never re-enables page scrolling. */
+        if (e.target === lightbox && lightbox.scrollHeight <= lightbox.clientHeight) e.preventDefault();
       }
       function anchorLightbox() {
         savedScrollY = window.scrollY || 0;
