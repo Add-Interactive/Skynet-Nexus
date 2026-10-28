@@ -1,5 +1,41 @@
 [
   {
+    "date": "2026-10-27",
+    "tag": "New",
+    "title": "🎨 Kids Mode is here!",
+    "body": "The whole site now has a cartoon mode for kids: a colorful newsroom home with the correspondent cast, guides on every channel page who introduce themselves, and a quest board on the kid dashboard. Kids 10 and under get it by default, parents can lock a profile to Kids Mode or the straight site, and the switch lives in the top bar, the kid profile, and the family command deck."
+  },
+  {
+    "date": "2026-10-27",
+    "tag": "New",
+    "title": "🚀 Stella guides Space Center",
+    "body": "Space Center in Kids Mode is now Stella Reyes's Mission Control classroom: Stella welcomes you and walks you through search, fleets, tonight's flyovers, Orbit Lab, tours, time controls, and the model library, one control at a time — and the menus got a cartoony makeover with big rounded buttons. Replay it anytime with the Tour with Stella button."
+  },
+  {
+    "date": "2026-10-27",
+    "tag": "New",
+    "title": "🎬 Meet the team — tap a portrait, watch their intro",
+    "body": "The Meet the Correspondents page now uses the new Pixar portraits and team photos, and tapping any portrait plays that correspondent's 40-second intro video. Say hello to the whole crew before you read their stories."
+  },
+  {
+    "date": "2026-10-27",
+    "tag": "New",
+    "title": "🛰️ Satellite orbits refresh every day",
+    "body": "Space Center's 1,082 satellites now get fresh orbital data from CelesTrak every day, so positions stay true. The page shows the honest data date under the top bar, so you always know how fresh the orbits are."
+  },
+  {
+    "date": "2026-10-27",
+    "tag": "Improved",
+    "title": "⭐ Starlink white, Others dark blue",
+    "body": "Starlink satellites now shine white on the globe while the Others fleet shows dark blue, so the two fleets that used to look alike are easy to tell apart at a glance. The fleet legend matches the globe."
+  },
+  {
+    "date": "2026-10-27",
+    "tag": "Fixed",
+    "title": "📱 Videos play centered on phones",
+    "body": "Intro and welcome videos now open centered in view on phones — in portrait and landscape, scrolled down the page or not — with the whole video and its Close button reachable. No more hunting for the player in empty space."
+  },
+  {
     "date": "2026-10-14",
     "tag": "New",
     "title": "🌌 Fly to the Moon and Mars",

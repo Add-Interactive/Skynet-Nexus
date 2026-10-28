@@ -541,3 +541,26 @@
     panel.appendChild(btn);
   } catch (e) {}
 })();
+
+// ---- Space Center What's New: October 27 upgrades ----
+(function () {
+  try {
+    var page = document.getElementById('page-whatsnew');
+    if (!page || page.querySelector('[data-wn="oct27"]')) return; // already injected
+    var tsub = page.querySelector('.tsub');
+    var items = [
+      '\n🛰️ **Fresh orbits, daily** — all 1,082 satellites now refresh from CelesTrak every day, and the page shows the honest data date under the top bar.\n',
+      '\n🚀 **Stella guides Mission Control** — in Kids Mode, Stella Reyes walks you through search, fleets, flyovers over your sky, Orbit Lab, tours, time controls, and the model library, one control at a time. Replay it with the Tour with Stella button.\n',
+      '\n🎨 **Cartoony menus** — in Kids Mode, Space Center menus get big rounded buttons, gold active states, and a squishy press.\n',
+      '\n⭐ **Starlink white, Others dark blue** — Starlink satellites shine white while the Others fleet shows dark blue, so the two fleets that used to look alike are easy to tell apart.\n'
+    ];
+    // insert in order right after the .tsub paragraph (newest first on top)
+    for (var i = items.length - 1; i >= 0; i--) {
+      var tmp = document.createElement('div');
+      tmp.innerHTML = items[i];
+      var node = tmp.firstChild;
+      if (tsub && tsub.nextSibling) page.insertBefore(node, tsub.nextSibling);
+      else page.appendChild(node);
+    }
+  } catch (e) {}
+})();
