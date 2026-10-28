@@ -2,12 +2,12 @@
    Chrome + guide ONLY. The 3D canvas, satellite code, TLE data, fleet colors,
    and all Space Center behavior are untouched; the grid stays off live.
    Runs only when Kids Mode is on (html[data-kids-mode="true"]).
-   Tour state is device-level localStorage only: 'skynet.scStellaTourSeen'.
+   Tour state is device-level localStorage only: 'skynet.scStellaTourSeenV2' (v2: re-shows once to devices that took the 8-step tour).
    Portrait: API-first (/api/correspondents, same pattern as kids-guides.js),
    falling back to the already-live channel portrait
    /assets/img/channels/space/portrait-<style>.webp. No new media. */
 (function () {
-  var SEEN_KEY = 'skynet.scStellaTourSeen';
+  var SEEN_KEY = 'skynet.scStellaTourSeenV2';
   var STYLE_KEY = 'skynet.corrStyle';
   var WIDE_TABS = ['launches', 'students', 'moonmars', 'stories', 'tonight',
     'orbitlab', 'zones', 'stem', 'science', 'tours', 'modellab'];
@@ -17,18 +17,36 @@
       line: "Hi, cadet! I'm Stella Reyes, and this is my Mission Control — my home in space! I'll show you around. Ready? Tap Next!" },
     { tab: 'search', sel: '#searchbox',
       line: "This is Search! Type a satellite's name — or tap a Quick Fly button like ISS — and the camera zooms right to it. And tapping any satellite dot in the sky opens its profile card with photos and facts!" },
+    { tab: 'missions', sel: '#mission-list',
+      line: "This is Missions — your challenge board! Finish challenges like saying hello to the ISS or spotting a Starlink train, and earn badges!" },
     { tab: 'fleets', sel: '#fleet-list',
-      line: "These are the fleets! Starlink shines white, and every other fleet is dark blue. Tap a fleet name to hide it from the sky — or bring it back!" },
+      line: "These are the fleets! Starlink shines white, the Others fleet is dark blue, and every other fleet has its own color. Tap a fleet name to hide it from the sky — or bring it back!" },
+    { tab: 'launches', sel: '#launch-grid',
+      line: "Launches is the launch board! The next big liftoff sits on top, with up to eight more upcoming launches below!" },
+    { tab: 'students', sel: '#student-grid',
+      line: "Students in space! These are real experiments built by students like you, riding on real rockets!" },
+    { tab: 'moonmars', sel: '#page-moonmars',
+      line: "The race back to the Moon — and on to Mars! This is the deep space board — meet the spacecraft exploring the Moon and Mars!" },
+    { tab: 'stories', sel: '#story-grid',
+      line: "Stories brings you the latest space reports from the Newsroom — real space news, right here in Mission Control!" },
     { tab: 'tonight', sel: '#pass-go',
       line: "See It Tonight finds satellites flying over YOUR backyard in the next 48 hours! Set your location, then tap Find my passes — and go look up!" },
     { tab: 'orbitlab', sel: '#lab-alt',
       line: "In Orbit Lab YOU build a satellite! Drag the Altitude slider and watch its orbit change around Earth. That's real space science, cadet!" },
+    { tab: 'zones', sel: '#page-zones',
+      line: "Orbit Zones shows how the sky is divided into neighborhoods — LEO, MEO, GEO, and more! You can even see the zones in 3D!" },
+    { tab: 'stem', sel: '#stem-grid',
+      line: "STEM Missions are satellites built by students like you, plus missions linking classrooms and citizen scientists to space. Proof you don't need a PhD to reach orbit!" },
+    { tab: 'science', sel: '#science-grid',
+      line: "Science Satellites are space telescopes and Earth detectives — they study black holes, hunt new planets, and take Earth's temperature!" },
     { tab: 'tours', sel: '#tour-list',
       line: "Guided Tours fly the camera from stop to stop while a guide tells each story. Pick one whenever you want a ride!" },
+    { tab: 'whatsnew', sel: '#page-whatsnew',
+      line: "What's New lists the freshest upgrades to Mission Control — check here whenever something new lands!" },
     { tab: null, sel: '#timebar',
       line: "Down here is time itself! Pause the sky, or speed it up 60× or 600× and watch the satellites race around Earth!" },
     { tab: 'modellab', sel: '#mlab-library',
-      line: "Last stop: the Model Library! Spin real 3D satellites around — or place one in your room in AR. You're ready, cadet — go explore! Tap Blast off to finish!" }
+      line: "Last stop: the Model Library! Spin real 3D satellites around — or place one in your room in AR. That's the whole tour — every menu in Mission Control! You're ready, cadet — go explore! Tap Blast off to finish!" }
   ];
 
   var card = null, lineEl = null, dotsEl = null, nextBtn = null, backBtn = null;
