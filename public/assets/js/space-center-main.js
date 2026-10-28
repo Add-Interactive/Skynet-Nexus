@@ -1130,11 +1130,43 @@ window.__scB = {
         throw e;
       });
     }
-    Promise.all([
-      fetchJsonTimeout('../assets/data/space-center/tle-snapshot-a.json', 15000),
-      fetchJsonTimeout('../assets/data/space-center/tle-snapshot-b.json', 15000)
-    ]).then(function (parts) {
-      var snap = { sats: (parts[0].sats || []).concat(parts[1].sats || []) };
+    // Daily TLE refresh: the server rebuilds this snapshot from CelesTrak once a
+    // day (see server/space-tle-refresh.js). Prefer the live endpoint; fall back
+    // to the bundled snapshots if it is unreachable, so the globe never goes blank.
+    function renderTleFreshness(upd) {
+      try {
+        if (!upd || document.querySelector('[data-tle="daily"]')) return;
+        var sub = document.querySelector('#topbar .sub');
+        if (!sub) return;
+        var days = Math.floor((Date.now() - new Date(upd + 'T00:00:00Z').getTime()) / 86400000);
+        if (isNaN(days) || days < 0) days = 0;
+        var age = days === 0 ? 'today' : (days === 1 ? 'yesterday' : days + ' days ago');
+        var el = document.createElement('div');
+        el.setAttribute('data-tle', 'daily');
+        if (days > 14) {
+          el.style.cssText = 'font-size:.62rem;color:#f0a35e;margin-top:3px;letter-spacing:.04em';
+          el.textContent = '⚠️ Satellite positions may be slightly stale — orbital data from ' + upd;
+        } else {
+          el.style.cssText = 'font-size:.62rem;color:#9fb8cc;margin-top:3px;letter-spacing:.04em';
+          el.textContent = '🛰 Orbital data: ' + upd + ' · ' + age;
+        }
+        sub.parentNode.insertBefore(el, sub.nextSibling);
+      } catch (e) {}
+    }
+    function loadSats() {
+      return fetchJsonTimeout('../api/space-center/tle', 15000).then(function (d) {
+        return { sats: d.sats || [], updated: d.updated || null };
+      }).catch(function () {
+        return Promise.all([
+          fetchJsonTimeout('../assets/data/space-center/tle-snapshot-a.json', 15000),
+          fetchJsonTimeout('../assets/data/space-center/tle-snapshot-b.json', 15000)
+        ]).then(function (parts) {
+          return { sats: (parts[0].sats || []).concat(parts[1].sats || []), updated: parts[0].updated || null };
+        });
+      });
+    }
+    loadSats().then(function (snap) {
+      renderTleFreshness(snap.updated);
       var list = snap.sats || [];
       var shown = 0;
       list.forEach(function (s) {
