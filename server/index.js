@@ -163,6 +163,8 @@ registerPlus(api, requireAuth, requireTeacher);
 try { require('./debug').registerDebug(api); } catch (e) { console.error('[debug] register failed:', e.message); }
 const { registerConnect } = require('./connect');
 registerConnect(api, requireAuth, requireTeacher);
+const { registerSpaceTle } = require('./space-tle-refresh');
+registerSpaceTle(api);
 
 // Server boot time for uptime reporting.
 const BOOT_TIME = Date.now();

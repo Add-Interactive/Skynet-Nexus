@@ -485,7 +485,9 @@
   } catch (e) {}
 })();
 
-// ---- Space Center gap fixes (Oct 14 evening): attribution, TLE staleness warning, profile sharing ----
+// ---- Space Center gap fixes (Oct 14 evening): attribution, profile sharing ----
+// (TLE freshness display moved to space-center-main.js, which renders it from
+// whichever source actually loaded — the daily endpoint or the bundled snapshots.)
 
 // 1. Attribution: credit CelesTrak, NASA, three.js, satellite.js at the bottom of the What's New tab
 (function () {
@@ -499,25 +501,6 @@
     el.style.fontSize = '.66rem';
     el.textContent = 'Satellite data: CelesTrak \u00B7 Earth/Moon/Mars imagery: NASA \u00B7 Built with three.js + satellite.js';
     page.appendChild(el);
-  } catch (e) {}
-})();
-
-// 2. TLE staleness warning: if the orbital snapshot is older than 14 days, say so under the topbar
-(function () {
-  try {
-    if (document.querySelector('[data-tle="oct14c"]')) return; // already injected
-    fetch('../assets/data/space-center/tle-snapshot-a.json').then(function (r) { return r.json(); }).then(function (d) {
-      var upd = d && d.updated; if (!upd) return;
-      var days = Math.floor((Date.now() - new Date(upd + 'T00:00:00Z').getTime()) / 86400000);
-      if (days <= 14) return; // fresh data: stay quiet
-      var sub = document.querySelector('#topbar .sub');
-      if (!sub || document.querySelector('[data-tle="oct14c"]')) return;
-      var el = document.createElement('div');
-      el.setAttribute('data-tle', 'oct14c');
-      el.style.cssText = 'font-size:.62rem;color:#f0a35e;margin-top:3px;letter-spacing:.04em';
-      el.textContent = '\u26A0\uFE0F Satellite positions may be slightly stale \u2014 orbital data from ' + upd;
-      sub.parentNode.insertBefore(el, sub.nextSibling);
-    }).catch(function () {});
   } catch (e) {}
 })();
 
