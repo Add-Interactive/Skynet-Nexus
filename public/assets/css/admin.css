@@ -236,6 +236,17 @@
 .user-temp code { display: inline-block; margin-top: 6px; font-size: 1rem; color: var(--accent-5); font-weight: 700; letter-spacing: 1px; }
 .user-actions { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
 
+/* ---------- Viewport anchor fix (2026-10-28) ----------
+   game-ui.css sets body { perspective: 1200px } (reached via style.css
+   @import). A non-none perspective on <body> makes it the containing block
+   for position:fixed descendants, so the review modal centered in the whole
+   DOCUMENT instead of the viewport: opening a draft from a scrolled-down
+   queue card put the modal header above the screen with body scroll locked.
+   This admin-only sheet loads AFTER style.css, so this same-specificity
+   rule wins here only; game pages never load admin.css, so their 3D
+   perspective is untouched. Same root cause as the #158 video-lightbox trap. */
+body { perspective: none; }
+
 /* ---------- Modal ---------- */
 .admin-modal-open { overflow: hidden; }
 .admin-modal-overlay {
