@@ -186,6 +186,7 @@
   var savedBodyPosition = '';
   var savedBodyTop = '';
   var savedBodyWidth = '';
+  var savedLightboxZIndex = '';
   function viewportRect() {
     var vv = window.visualViewport;
     if (vv) return { top: savedScrollY + (vv.offsetTop || 0), height: vv.height };
@@ -205,6 +206,12 @@
     savedBodyPosition = document.body.style.position || '';
     savedBodyTop = document.body.style.top || '';
     savedBodyWidth = document.body.style.width || '';
+    /* The Listen audio dock is a body child at z-index 9999, above
+       this lightbox's stylesheet z-index of 1000, so it paints over
+       the video. Sit above it while open; Listen keeps playing, its
+       controls return on close. */
+    savedLightboxZIndex = lightbox.style.zIndex || '';
+    lightbox.style.zIndex = '10000';
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
     document.body.style.position = 'fixed';
@@ -241,6 +248,7 @@
     lightbox.style.left = '';
     lightbox.style.width = '';
     lightbox.style.height = '';
+    lightbox.style.zIndex = savedLightboxZIndex;
     document.body.style.overflow = savedBodyOverflow;
     document.body.style.position = savedBodyPosition;
     document.body.style.top = savedBodyTop;

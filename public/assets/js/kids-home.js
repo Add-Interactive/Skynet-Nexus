@@ -115,6 +115,9 @@
   var savedBodyPosition = '';
   var savedBodyTop = '';
   var savedBodyWidth = '';
+  var lightboxHomeParent = null;
+  var lightboxHomeNext = null;
+  var savedLightboxZIndex = '';
   function viewportRect() {
     var vv = window.visualViewport;
     if (vv) return { top: savedScrollY + (vv.offsetTop || 0), height: vv.height };
@@ -134,6 +137,24 @@
     savedBodyPosition = document.body.style.position || '';
     savedBodyTop = document.body.style.top || '';
     savedBodyWidth = document.body.style.width || '';
+    /* The lightbox lives inside .app, and .app is position:relative,
+       so it -- not body -- is the lightbox's containing block. The
+       anchor's top = savedScrollY therefore lands the overlay at
+       .app's document top (mid-screen on pages with tall headers)
+       instead of the viewport top. Move the lightbox to body while
+       open so the anchor math lands at the viewport top; restored
+       to its home on close. */
+    if (lightbox.parentNode !== document.body) {
+      lightboxHomeParent = lightbox.parentNode;
+      lightboxHomeNext = lightbox.nextSibling;
+      document.body.appendChild(lightbox);
+    }
+    /* The Listen audio dock is a body child at z-index 9999, and the
+       lightbox is trapped in .app's z-index:1 stacking context, so
+       the dock paints over the video. As a body child, sit above it
+       while open; Listen keeps playing, its controls return on close. */
+    savedLightboxZIndex = lightbox.style.zIndex || '';
+    lightbox.style.zIndex = '10000';
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
     document.body.style.position = 'fixed';
@@ -170,6 +191,12 @@
     lightbox.style.left = '';
     lightbox.style.width = '';
     lightbox.style.height = '';
+    lightbox.style.zIndex = savedLightboxZIndex;
+    if (lightboxHomeParent) {
+      lightboxHomeParent.insertBefore(lightbox, lightboxHomeNext);
+      lightboxHomeParent = null;
+      lightboxHomeNext = null;
+    }
     document.body.style.overflow = savedBodyOverflow;
     document.body.style.position = savedBodyPosition;
     document.body.style.top = savedBodyTop;
