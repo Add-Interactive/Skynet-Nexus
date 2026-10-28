@@ -64,7 +64,7 @@
       if (tag === 'noaa' || n.indexOf('GOES') !== -1 || n.indexOf('METOP') !== -1) return 'noaa';
       return 'def';
     }
-    var COMPANY_COLORS = { iss: 0x1d4ed8, tiangong: 0x1d4ed8, hubble: 0x1d4ed8, spacex: 0xffffff, oneweb: 0x1d4ed8, kuiper: 0x1d4ed8, iridium: 0x1d4ed8, noaa: 0x1d4ed8, def: 0x1d4ed8 };
+    var COMPANY_COLORS = { iss: 0xffe27a, tiangong: 0xff9d7a, hubble: 0xc4b5fd, spacex: 0xffffff, oneweb: 0xa855f7, kuiper: 0xffb020, iridium: 0xff7ab8, noaa: 0x38d17c, def: 0x1d4ed8 };
     var COMPANY_FACT = { iss: 'iss', tiangong: 'tiangong', hubble: 'hubble', spacex: 'starlink', oneweb: 'oneweb', kuiper: 'kuiper', iridium: 'iridium', noaa: 'noaa', def: 'def' };
     var PADS = [
       { n: 'Kennedy LC-39A', lat: 28.608, lon: -80.604, d: 'Where astronauts launch to the Moon and the space station!', k: ['39a', 'kennedy'], prof: 'pad39a' },
