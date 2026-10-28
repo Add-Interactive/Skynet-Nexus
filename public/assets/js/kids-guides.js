@@ -192,7 +192,12 @@
     return { top: savedScrollY, height: window.innerHeight };
   }
   function blockBackdropScroll(e) {
-    if (e.target === lightbox) e.preventDefault();
+    /* Block backdrop drags only when the lightbox has nothing to
+       scroll: on short portrait screens its content can overflow,
+       and a backdrop drag must then scroll the lightbox. The page
+       behind stays locked regardless (body position:fixed + html
+       overflow:hidden), so this never re-enables page scrolling. */
+    if (e.target === lightbox && lightbox.scrollHeight <= lightbox.clientHeight) e.preventDefault();
   }
   function anchorLightbox() {
     savedScrollY = window.scrollY || 0;
