@@ -154,10 +154,10 @@ html[data-kids-mode="true"] .kids-cast-tile img { width: 72px; height: 72px; obj
 html[data-kids-mode="true"] .kids-cast-tile span { display: block; font-size: 12px; font-weight: 700; margin-top: 6px; }
 html[data-kids-mode="true"] .kids-cast-more { margin: 0; }
 /* Marcus welcome lightbox (team-page pattern: tap-to-play only). */
-html[data-kids-mode="true"] .kids-lightbox { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+html[data-kids-mode="true"] .kids-lightbox { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left)); overflow-y: auto; }
 html[data-kids-mode="true"] .kids-lightbox.open { display: flex; }
-html[data-kids-mode="true"] .kids-lightbox-box { width: min(680px, 100%); text-align: center; margin: auto; max-height: calc(100vh - 40px); }
-html[data-kids-mode="true"] .kids-lightbox-box video { width: 100%; max-height: 70vh; object-fit: contain; border-radius: 16px; background: #000; }
+html[data-kids-mode="true"] .kids-lightbox-box { width: min(680px, 100%); text-align: center; margin: auto; max-height: calc(100vh - 40px); max-height: calc(100dvh - 40px); }
+html[data-kids-mode="true"] .kids-lightbox-box video { width: 100%; max-height: 70vh; max-height: 70dvh; object-fit: contain; border-radius: 16px; background: #000; }
 html[data-kids-mode="true"] .kids-lightbox-close { margin-top: 12px; font-size: 15px; padding: 10px 22px; cursor: pointer; }
 html[data-kids-mode="true"] .kids-lightbox-note { font-size: 13px; opacity: 0.85; }
 /* Story wall: the existing edition packages + feed grid, restyled.
@@ -210,10 +210,10 @@ html[data-kids-mode="true"] .kids-guide-stories:hover { text-decoration: underli
 }
 /* Guide intro lightbox (team-page pattern): created by
    kids-guides.js on first tap; never autoplays. */
-html[data-kids-mode="true"] .kids-guide-lightbox { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.85); display: none; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+html[data-kids-mode="true"] .kids-guide-lightbox { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.85); display: none; align-items: center; justify-content: center; padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left)); overflow-y: auto; }
 html[data-kids-mode="true"] .kids-guide-lightbox.open { display: flex; }
-html[data-kids-mode="true"] .kids-guide-lightbox-box { width: min(680px, 100%); text-align: center; margin: auto; max-height: calc(100vh - 40px); }
-html[data-kids-mode="true"] .kids-guide-lightbox-box video { width: 100%; max-height: 70vh; object-fit: contain; border-radius: 16px; background: #000; }
+html[data-kids-mode="true"] .kids-guide-lightbox-box { width: min(680px, 100%); text-align: center; margin: auto; max-height: calc(100vh - 40px); max-height: calc(100dvh - 40px); }
+html[data-kids-mode="true"] .kids-guide-lightbox-box video { width: 100%; max-height: 70vh; max-height: 70dvh; object-fit: contain; border-radius: 16px; background: #000; }
 html[data-kids-mode="true"] .kids-guide-lightbox-title { margin: 0 0 12px; }
 html[data-kids-mode="true"] .kids-guide-lightbox-close { margin-top: 12px; font-size: 15px; padding: 10px 22px; cursor: pointer; }
 html[data-kids-mode="true"] .kids-guide-lightbox-note { font-size: 13px; opacity: 0.85; }

@@ -101,35 +101,74 @@
   var lightbox, lightboxVideo, lightboxFallback;
   /* Viewport anchoring + scroll lock: game-ui.css puts perspective on
      body, which degrades position:fixed to document-relative and lands
-     the player mid-document. Anchor the overlay to the viewport rect
-     on open instead. */
+     the player mid-document, so the overlay is anchored to the
+     viewport rect on open. Mobile follow-up: window.innerHeight is
+     NOT the visible height under dynamic mobile toolbars, and
+     overflow:hidden does not lock touch scrolling on iOS Safari --
+     the page scrolls under the overlay and the anchor goes stale.
+     Anchor to window.visualViewport instead, re-anchor on
+     visualViewport resize/scroll, and lock scrolling with
+     position:fixed on body (the iOS-proof lock), restoring the
+     exact scroll position on close. */
   var savedScrollY = 0;
   var savedBodyOverflow = '';
+  var savedBodyPosition = '';
+  var savedBodyTop = '';
+  var savedBodyWidth = '';
+  function viewportRect() {
+    var vv = window.visualViewport;
+    if (vv) return { top: savedScrollY + (vv.offsetTop || 0), height: vv.height };
+    return { top: savedScrollY, height: window.innerHeight };
+  }
+  function blockBackdropScroll(e) {
+    if (e.target === lightbox) e.preventDefault();
+  }
   function anchorLightbox() {
     savedScrollY = window.scrollY || 0;
     savedBodyOverflow = document.body.style.overflow || '';
+    savedBodyPosition = document.body.style.position || '';
+    savedBodyTop = document.body.style.top || '';
+    savedBodyWidth = document.body.style.width || '';
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = (-savedScrollY) + 'px';
+    document.body.style.width = '100%';
+    var rect = viewportRect();
     lightbox.style.position = 'absolute';
-    lightbox.style.top = savedScrollY + 'px';
+    lightbox.style.top = rect.top + 'px';
     lightbox.style.left = '0';
     lightbox.style.width = '100%';
-    lightbox.style.height = window.innerHeight + 'px';
+    lightbox.style.height = rect.height + 'px';
     window.addEventListener('resize', reanchorLightbox);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', reanchorLightbox);
+      window.visualViewport.addEventListener('scroll', reanchorLightbox);
+    }
+    lightbox.addEventListener('touchmove', blockBackdropScroll, { passive: false });
   }
   function reanchorLightbox() {
     if (!lightbox.classList.contains('open')) return;
-    lightbox.style.top = (window.scrollY || 0) + 'px';
-    lightbox.style.height = window.innerHeight + 'px';
+    var rect = viewportRect();
+    lightbox.style.top = rect.top + 'px';
+    lightbox.style.height = rect.height + 'px';
   }
   function releaseLightbox() {
     window.removeEventListener('resize', reanchorLightbox);
+    if (window.visualViewport) {
+      window.visualViewport.removeEventListener('resize', reanchorLightbox);
+      window.visualViewport.removeEventListener('scroll', reanchorLightbox);
+    }
+    lightbox.removeEventListener('touchmove', blockBackdropScroll);
     lightbox.style.position = '';
     lightbox.style.top = '';
     lightbox.style.left = '';
     lightbox.style.width = '';
     lightbox.style.height = '';
     document.body.style.overflow = savedBodyOverflow;
+    document.body.style.position = savedBodyPosition;
+    document.body.style.top = savedBodyTop;
+    document.body.style.width = savedBodyWidth;
     document.documentElement.style.overflow = '';
     window.scrollTo(0, savedScrollY);
   }
