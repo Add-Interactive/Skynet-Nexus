@@ -393,3 +393,201 @@ html[data-kids-mode="true"] .fchip {
   border-color: rgba(255, 210, 63, 0.5);
   color: #fff7d6;
 }
+
+/* ---- Piece (g): Space Center Stella tour + cartoony menus ---- */
+/* Extends the (f) Space Center theme in Kids Mode. Chrome ONLY around the
+   3D canvas: #scene, #mlab-viewer-canvas, and all satellite/3D code are
+   exempt — no rule below targets them, and no existing HUD element gets a
+   layout property (display/position/flex/grid/width/height) changed. The
+   only display/position rules here belong to the NEW tour elements
+   (#sc-stella-tour, #sc-stella-tour-btn), which do not exist in the
+   straight site. Everything else is radii, colors, shadows, and transforms
+   (hover bounce, button squish), so the fixed HUD keeps its exact geometry.
+   The grid stays off live. */
+html[data-kids-mode="true"] #sidepanel {
+  border-width: 2px;
+  border-radius: 22px;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.35), 0 16px 32px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 229, 255, 0.15);
+}
+html[data-kids-mode="true"] #sidepanel .tab.on {
+  background: rgba(255, 210, 63, 0.16);
+}
+html[data-kids-mode="true"] .rbtn {
+  border-width: 2px;
+  border-radius: 18px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
+  transition: transform 0.15s ease;
+}
+html[data-kids-mode="true"] .rbtn:hover {
+  transform: scale(1.12);
+}
+html[data-kids-mode="true"] .rbtn.on {
+  background: #ffd23f;
+  color: #1a1200;
+  border-color: #ffd23f;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35), 0 0 16px rgba(255, 210, 63, 0.55);
+}
+html[data-kids-mode="true"] .tbtn,
+html[data-kids-mode="true"] .wbtn {
+  border-width: 2px;
+  border-radius: 16px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.3);
+}
+html[data-kids-mode="true"] .tbtn:active,
+html[data-kids-mode="true"] .wbtn:active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+html[data-kids-mode="true"] .ticon {
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.3);
+}
+html[data-kids-mode="true"] #infopanel {
+  border-width: 2px;
+  border-color: rgba(255, 210, 63, 0.55);
+  border-radius: 20px;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.35), 0 16px 32px rgba(0, 0, 0, 0.45);
+}
+html[data-kids-mode="true"] #timebar {
+  border-width: 2px;
+  border-color: rgba(255, 210, 63, 0.55);
+  border-radius: 18px;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35), 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+html[data-kids-mode="true"] #searchbox,
+html[data-kids-mode="true"] .tselect,
+html[data-kids-mode="true"] .tinput {
+  border-width: 2px;
+  border-radius: 16px;
+}
+html[data-kids-mode="true"] .fchip.on {
+  background: #ffd23f;
+  color: #1a1200;
+  border-color: #ffd23f;
+}
+html[data-kids-mode="true"] .sc-card {
+  border-radius: 18px;
+  border-color: rgba(255, 210, 63, 0.35);
+}
+/* Stella tour button (topbar, Kids Mode only). */
+#sc-stella-tour-btn {
+  display: none;
+}
+html[data-kids-mode="true"] #sc-stella-tour-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 2px solid #ffd23f;
+  background: #ffd23f;
+  color: #1a1200;
+  font: 800 13px/1 'Plus Jakarta Sans', system-ui, sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
+}
+html[data-kids-mode="true"] #sc-stella-tour-btn.sc-tour-nudge {
+  animation: sc-tour-bob 2s ease-in-out infinite;
+}
+@keyframes sc-tour-bob {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.07); }
+}
+/* Stella tour card (created by space-center-stella-tour.js, Kids Mode only). */
+#sc-stella-tour {
+  display: none;
+}
+html[data-kids-mode="true"] #sc-stella-tour.open {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 96px;
+  width: min(560px, calc(100vw - 32px));
+  max-height: 52vh;
+  overflow-y: auto;
+  z-index: 70;
+  background: rgba(10, 16, 34, 0.96);
+  border: 2px solid rgba(255, 210, 63, 0.6);
+  border-radius: 22px;
+  padding: 16px;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.35), 0 16px 32px rgba(0, 0, 0, 0.5);
+}
+html[data-kids-mode="true"] .sc-tour-portrait {
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ffd23f;
+  box-shadow: 0 0 16px rgba(255, 210, 63, 0.5);
+}
+html[data-kids-mode="true"] .sc-tour-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+html[data-kids-mode="true"] .sc-tour-name {
+  font-weight: 800;
+  color: #ffd23f;
+  margin-bottom: 6px;
+}
+html[data-kids-mode="true"] .sc-tour-line {
+  margin: 0 0 10px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #eaffff;
+}
+html[data-kids-mode="true"] .sc-tour-dots {
+  margin: 0 0 10px;
+}
+html[data-kids-mode="true"] .sc-tour-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 210, 63, 0.3);
+  margin-right: 6px;
+}
+html[data-kids-mode="true"] .sc-tour-dot.on {
+  background: #ffd23f;
+  box-shadow: 0 0 8px #ffd23f;
+}
+html[data-kids-mode="true"] .sc-tour-actions {
+  margin-bottom: 0;
+}
+html[data-kids-mode="true"] .sc-tour-close {
+  flex: 0 0 auto;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+/* Coach-mark spotlight: ring + pulse. Box-shadow/outline only — the
+   highlighted control never moves, so HUD geometry is untouched. */
+html[data-kids-mode="true"] .sc-tour-spotlight {
+  outline: 4px solid #ffd23f !important;
+  outline-offset: 4px;
+  box-shadow: 0 0 0 8px rgba(255, 210, 63, 0.22), 0 0 28px rgba(255, 210, 63, 0.55);
+  animation: sc-tour-pulse 1.6s ease-in-out infinite;
+}
+@keyframes sc-tour-pulse {
+  0%, 100% { box-shadow: 0 0 0 8px rgba(255, 210, 63, 0.22), 0 0 28px rgba(255, 210, 63, 0.55); }
+  50% { box-shadow: 0 0 0 12px rgba(255, 210, 63, 0.12), 0 0 36px rgba(255, 210, 63, 0.75); }
+}
+@media (max-width: 560px) {
+  html[data-kids-mode="true"] #sc-stella-tour.open {
+    bottom: 88px;
+    padding: 12px;
+  }
+  html[data-kids-mode="true"] .sc-tour-portrait {
+    width: 52px;
+    height: 52px;
+  }
+}
