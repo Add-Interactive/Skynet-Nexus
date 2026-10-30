@@ -663,6 +663,42 @@ window.__scB = {
       var lo = focusSat ? 0.06 : 1.7; // zoom right into a satellite when focused
       camGoalDist = Math.max(lo, Math.min(8, camGoalDist + e.deltaY * 0.002));
     }, { passive: false });
+    // ---- Camera preset views (2026-10-30, Jeff's request) ----
+    // One tap swings the globe to a canonical angle: Front (the home view),
+    // Back, Left, Right, Top (north pole), or Reset (front + home zoom,
+    // unfocused). The swing eases in the render loop below; any canvas
+    // drag cancels it. Choosing a view while a satellite is focused flies
+    // home first so the preset owns the camera.
+    var camPreset = null;
+    var viewBar = document.createElement('div');
+    viewBar.id = 'sc-views';
+    viewBar.innerHTML = '<span class="scv-label">📷 Views</span>' + [['front', 'Front'], ['back', 'Back'], ['left', '◀ Left'], ['right', 'Right ▶'], ['top', 'Top'], ['reset', '⟲ Reset']].map(function (v) {
+      return '<button type="button" data-view="' + v[0] + '">' + v[1] + '</button>';
+    }).join('');
+    document.body.appendChild(viewBar);
+    var viewStyle = document.createElement('style');
+    viewStyle.textContent = '#sc-views{position:fixed;left:50%;transform:translateX(-50%);bottom:68px;z-index:40;display:flex;gap:6px;align-items:center;pointer-events:none}' +
+      '#sc-views .scv-label{color:#9fd8ef;font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.85}' +
+      '#sc-views button{pointer-events:auto;background:rgba(8,20,36,.85);color:#cfeeff;border:1px solid rgba(0,229,255,.45);border-radius:999px;padding:5px 11px;font-size:12px;cursor:pointer;font-family:inherit}' +
+      '#sc-views button:active{background:rgba(0,229,255,.35)}' +
+      '@media (max-width:760px){#sc-views{bottom:62px;gap:4px}#sc-views button{padding:4px 8px;font-size:11px}#sc-views .scv-label{display:none}}';
+    document.head.appendChild(viewStyle);
+    function goView(name) {
+      var TWO_PI = Math.PI * 2;
+      var base = Math.round(world.rotation.y / TWO_PI) * TWO_PI;
+      var off = 0, tilt = 0.35;
+      if (name === 'back') off = Math.PI;
+      else if (name === 'left') off = -Math.PI / 2;
+      else if (name === 'right') off = Math.PI / 2;
+      else if (name === 'top') { off = null; tilt = 1.2; }
+      if (focusSat || name === 'reset') flyHome();
+      camPreset = { y: off === null ? world.rotation.y : base + off, x: tilt };
+      lastInteract = performance.now();
+    }
+    viewBar.querySelectorAll('[data-view]').forEach(function (b) {
+      b.addEventListener('click', function () { goView(b.getAttribute('data-view')); });
+    });
+    canvas.addEventListener('pointerdown', function () { camPreset = null; });
     // picking
     var ray = new THREE.Raycaster(), ptr = new THREE.Vector2(), selected = null;
     var label = document.getElementById('satlabel');
@@ -1344,6 +1380,12 @@ window.__scB = {
         // smooth tilt
         rotX += (targetRotX - rotX) * 0.08;
         world.rotation.x = rotX;
+        // camera preset easing — swings spin + tilt to the chosen view
+        if (camPreset) {
+          world.rotation.y += (camPreset.y - world.rotation.y) * 0.07;
+          targetRotX += (camPreset.x - targetRotX) * 0.07;
+          if (Math.abs(camPreset.y - world.rotation.y) < 0.002 && Math.abs(camPreset.x - targetRotX) < 0.002) camPreset = null;
+        }
         // selected label (hidden in AR)
         if (selected && !arMode) {
           var v = selected.position.clone().applyMatrix4(world.matrixWorld).project(camera);
