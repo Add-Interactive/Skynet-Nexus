@@ -354,6 +354,16 @@
       #trackchip{top:56px}
       #timebar{padding:5px 10px;gap:6px}
     }
+    /* ---- Landscape timebar lift 2026-10-30 (Jeff): in phone landscape the
+       time controls sat half under the browser's bottom edge. The layout
+       viewport (100vh) runs taller than the visible one (100dvh) by exactly
+       the browser chrome's height, so the bar now rides that difference
+       plus the safe-area inset, and compacts harder on short screens. */
+    #timebar{bottom:calc(10px + (100vh - 100dvh) + env(safe-area-inset-bottom,0px))}
+    @media (orientation:landscape) and (max-height:500px){
+      #timebar{bottom:calc(12px + (100vh - 100dvh) + env(safe-area-inset-bottom,0px));padding:4px 8px;gap:5px;font-size:.72rem;max-width:88vw;flex-wrap:nowrap}
+      #timebar .warp button{padding:3px 8px}
+    }
   </style>
 </head>
 <body>
