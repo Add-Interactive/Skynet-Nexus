@@ -1,5 +1,5 @@
 // AGI/ASI countdown predictions — loaded before app.js
-// Updated 2026-10-23. Source: public statements from each predictor.
+// Updated 2026-10-30. Source: public statements from each predictor.
 const AGI_PREDICTIONS = {
   elon: {
     name: 'Elon Musk',
@@ -19,8 +19,8 @@ const AGI_PREDICTIONS = {
     name: 'Sam Altman',
     credits: 'CEO of OpenAI. Creator of ChatGPT, GPT-4, and Sora. Pioneer in scaling reinforcement learning models.',
     date: new Date('2026-12-31T23:59:59'),
-    desc: 'Altman told TIME (Aug 2026) OpenAI will have an internal system he\'d call AGI by end of 2026; CRO says they\'re \'80% of the way there.\'',
-    link: 'https://aistify.com/altman-openai-internal-agi-2026-astra/'
+    desc: 'Altman told Vanity Fair (taped Sept 11 and Oct 2, 2026) that whether AGI has already arrived is "subjective" but "it\'s close" — reaffirming his TIME (Aug 2026) call of an internal system he\'d call AGI by end of 2026.',
+    link: 'https://pjfp.com/sam-altman-vanity-fair-interview-musk-paused-models-extinction-risk/'
   },
   dario: {
     name: 'Dario Amodei',
@@ -103,8 +103,8 @@ const AGI_PREDICTIONS = {
     name: 'Richard Sutton',
     credits: 'Professor at Univ. of Alberta & Chief Scientist at Keen Tech. Co-author of "Reinforcement Learning: An Introduction".',
     date: new Date('2040-12-31T23:59:59'),
-    desc: 'Sutton now champions the \'Age of Experience\' over LLMs, projecting human-level AI by ~2040 via exponential compute growth (Apr 2025 lecture).',
-    link: 'https://medium.com/@chima_ai/the-path-to-human-level-ai-by-2040-rich-suttons-vision-and-the-enterprise-imperative-2cb407543ea8'
+    desc: 'Sutton reaffirmed at WAIC 2026 (Shanghai, July 17, 2026) that AGI "may still need 5, 10, or even 20 years" via the "Age of Experience" — bracketing his ~2040 projection.',
+    link: 'https://happyrock.cloud/blog/2026-07-20_richard_sutton_experience_era_rl_father_waic_keynote_data_to_experience_paradigm_shift_en/'
   },
   mensch: {
     name: 'Arthur Mensch',
@@ -117,8 +117,8 @@ const AGI_PREDICTIONS = {
     name: 'Geoffrey Hinton',
     credits: 'Professor Emeritus at Univ. of Toronto. Turing Award winner. Pioneer of deep learning, backpropagation, and neural nets.',
     date: new Date('2033-12-31T23:59:59'),
-    desc: 'Hinton sees \'a good chance\' of very capable AI within 10 years or less, and full superintelligence within 20 years (July 2026).',
-    link: 'https://Www.techtimes.com/articles/320786/20260716/geoffrey-hinton-ai-conscious-corporate-incentives-are-real-risk.htm'
+    desc: 'Hinton told CNN (Oct 2026) machines significantly more intelligent than humans could emerge within the next decade, noting most experts expect superintelligence within ~10 years — tightening his July 2026 "within 20 years" framing.',
+    link: 'https://energynow.com/2026/10/perspective-godfather-of-ai-geoffrey-hinton-warns-superintelligence-could-arrive-within-10-years-and-humanity-may-not-be-ready/'
   },
   bengio: {
     name: 'Yoshua Bengio',
