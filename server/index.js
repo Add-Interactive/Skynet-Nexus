@@ -1861,6 +1861,57 @@ api.post('/newsroom/images/purge', (req, res) => {
   }
 });
 
+// -------------- RESTORE AGENT HERO IMAGES --------------
+// One-shot repair for the self-healing scramble (fixed 2026-10-30): the old
+// boot code replaced agent hero images with random repo-pool images in the
+// manifest + article files, while the real artwork stayed on the volume.
+// Agent filenames are deterministic (<date>-agent-<channel>-<edition>.jpg),
+// so a scrambled article can be re-pointed at its real file when that file
+// exists on the volume. Idempotent; {dryRun:true} reports without writing.
+api.post('/newsroom/restore-hero-images', (req, res) => {
+  const expected = process.env.NEWSROOM_API_KEY;
+  if (!expected) return res.status(503).json({ error: 'newsroom ingestion not configured' });
+  const got = String(req.headers['x-newsroom-key'] || '');
+  if (!got || got !== expected) return res.status(401).json({ error: 'unauthorized' });
+  try {
+    const dryRun = !!(req.body && req.body.dryRun);
+    const { USERS_DIR } = require('./storage');
+    const manifestPath = path.join(DATA_DIR, 'manifest.json');
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const report = { checked: 0, restored: 0, alreadyAgent: 0, noFile: 0, examples: [] };
+    (manifest.articles || []).forEach(art => {
+      if (!art.date || !art.cat || !art.edition) return;
+      report.checked++;
+      if (String(art.heroImage || '').includes('-agent-')) { report.alreadyAgent++; return; }
+      const stem = `${art.date}-agent-${art.cat}-${art.edition}`;
+      const found = ['.jpg', '.png', '.webp'].map(ext => stem + ext)
+        .find(fn => fs.existsSync(path.join(USERS_DIR, art.cat, fn)));
+      if (!found) { report.noFile++; return; }
+      const newImg = `/assets/img/channels/${art.cat}/${found}`;
+      report.restored++;
+      if (report.examples.length < 25) report.examples.push({ id: art.id, from: art.heroImage, to: newImg });
+      if (!dryRun) {
+        art.heroImage = newImg;
+        const artFilePath = path.resolve(path.join(DATA_DIR, String(art.path || '').replace(/^data\//, '')));
+        if (art.path && fs.existsSync(artFilePath)) {
+          try {
+            const article = JSON.parse(fs.readFileSync(artFilePath, 'utf8'));
+            article.heroImage = newImg;
+            fs.writeFileSync(artFilePath, JSON.stringify(article, null, 2));
+          } catch (e) {}
+        }
+      }
+    });
+    if (!dryRun && report.restored > 0) {
+      fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+    }
+    console.log(`[newsroom] hero restore${dryRun ? ' (dry run)' : ''}: restored=${report.restored} checked=${report.checked} noFile=${report.noFile}`);
+    res.json({ ok: true, dryRun, report });
+  } catch (e) {
+    res.status(500).json({ error: 'hero restore failed: ' + e.message });
+  }
+});
+
 // -------------- GIZMO NEWSROOM TASK PICKUP --------------
 // Lets the correspondent pipeline see tasks Jeff assigns in the admin panel
 // (Agents & Staff -> Assign task) and report them delivered. Same
