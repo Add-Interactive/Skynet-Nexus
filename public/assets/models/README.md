@@ -15,6 +15,7 @@ you click / fly to a satellite and zoom in close.
 | `jwst.glb` | 1.19 MB | NASA 3D Resources — public domain |
 | `terra.glb` | 2.05 MB | NASA 3D Resources — public domain |
 | `aqua.glb` | 1.90 MB | NASA 3D Resources — public domain |
+| `space-bay.glb` | 2.29 MB | Original — Stella's Space Bay set, modeled + textured in Blender (2026-10-30) |
 
 All models: NASA 3D Resources (https://science.nasa.gov/3d-resources/),
 US government work = public domain. Draco compression decoded at build time so
