@@ -99,6 +99,17 @@
       var right = document.createElement('span');
       right.textContent = en.when;
       row.appendChild(left); row.appendChild(right);
+      if (window.__fkCrew && window.__fkCrew.crews.length && apiModeFor(en.mode)) {
+        var sb = document.createElement('button');
+        sb.type = 'button'; sb.className = 'fk-share-btn';
+        var key = en.when + '|' + en.result;
+        if (window.__fkCrew.shared.has(key)) { sb.textContent = '✓ SHARED'; sb.disabled = true; }
+        else {
+          sb.textContent = '📡 SHARE';
+          sb.addEventListener('click', function () { window.__fkShareEntry(en, sb); });
+        }
+        row.appendChild(sb);
+      }
       list.appendChild(row);
     });
     stampNext = false;
@@ -407,6 +418,21 @@
   })();
 
 
+  /* ---- crew mode mapping ---- */
+  function apiModeFor(displayMode) {
+    if (!displayMode) return null;
+    if (displayMode.indexOf('Motion') > -1) return 'motion';
+    if (displayMode.indexOf('Sound') > -1) return 'sound';
+    if (displayMode.indexOf('Compass') > -1) return 'compass';
+    if (displayMode.indexOf('Astro') > -1) return 'astro';
+    if (displayMode.indexOf('Mission') > -1) return 'mission';
+    return null;
+  }
+  function modeLabel(apiMode) {
+    return { motion: '📐 Motion Lab', sound: '🔊 Sound Lab', compass: '🧭 Geo Compass', astro: '🛰️ Astro Scanner', mission: '🎯 Mission' }[apiMode] || apiMode;
+  }
+  function baseMode(displayMode) { return apiModeFor(displayMode) || displayMode; }
+
   /* ================= GUIDED MISSIONS =================
      Predict -> Scan -> Explain, played properly. Starting a
      mission arms a listener: when the cadet LOGS a scan of
@@ -529,17 +555,27 @@
     var m = String(en.result).match(/-?\d+(\.\d+)?/);
     return m ? parseFloat(m[0]) : null;
   }
+  window.__fkAllEntries = function () {
+    var out = [];
+    readLog().forEach(function (en, i) {
+      var v = entryValue(en);
+      if (v != null) out.push({ key: 'L' + i, mode: en.mode, result: en.result, when: en.when, value: v, who: 'Mine' });
+    });
+    if (window.__fkCrew) window.__fkCrew.feed.forEach(function (s) {
+      if (typeof s.value === 'number') out.push({ key: 'C' + s.id, mode: modeLabel(s.mode), result: s.result, when: s.created_at, value: s.value, who: s.kid_name });
+    });
+    return out;
+  };
   window.__fkRefreshCompare = function () {
     var a = $('fk-cmp-a'), bsel = $('fk-cmp-b'); if (!a || !bsel) return;
-    var entries = readLog().map(function (en, i) { return { en: en, i: i, v: entryValue(en) }; })
-      .filter(function (x) { return x.v != null; });
+    var entries = window.__fkAllEntries();
     var keepA = a.value, keepB = bsel.value;
     function fill(sel, keep) {
       sel.innerHTML = '';
       entries.forEach(function (x) {
         var o = document.createElement('option');
-        o.value = String(x.i);
-        o.textContent = x.en.mode + ' — ' + x.en.result + ' (' + x.en.when + ')';
+        o.value = x.key;
+        o.textContent = x.who + ' · ' + x.mode + ' — ' + x.result;
         sel.appendChild(o);
       });
       if (keep && sel.querySelector('option[value="' + keep + '"]')) sel.value = keep;
@@ -550,20 +586,20 @@
   var cmpBtn = $('fk-cmp-btn');
   if (cmpBtn) cmpBtn.addEventListener('click', function () {
     var out = $('fk-cmp-out');
-    var entries = readLog();
-    var ea = entries[Number($('fk-cmp-a').value)], eb = entries[Number($('fk-cmp-b').value)];
-    if (!ea || !eb) { out.innerHTML = '<p class="fk-cmp-verdict">Log at least two scans first, cadet — comparisons need data!</p>'; return; }
-    var va = entryValue(ea), vb = entryValue(eb);
-    if (va == null || vb == null) { out.innerHTML = '<p class="fk-cmp-verdict">Those two don\u2019t carry numbers to compare.</p>'; return; }
-    if (ea.mode !== eb.mode) { out.innerHTML = '<p class="fk-cmp-verdict">Scientists compare like with like — pick two scans of the same kind. (A sound peak vs a compass heading isn\u2019t a fair fight!)</p>'; return; }
+    var all = {};
+    window.__fkAllEntries().forEach(function (x) { all[x.key] = x; });
+    var ea = all[$('fk-cmp-a').value], eb = all[$('fk-cmp-b').value];
+    if (!ea || !eb) { out.innerHTML = '<p class="fk-cmp-verdict">Log or share at least two scans first, cadet — comparisons need data!</p>'; return; }
+    var va = ea.value, vb = eb.value;
+    if (baseMode(ea.mode) !== baseMode(eb.mode)) { out.innerHTML = '<p class="fk-cmp-verdict">Scientists compare like with like — pick two scans of the same kind. (A sound peak vs a compass heading isn\u2019t a fair fight!)</p>'; return; }
     var max = Math.max(Math.abs(va), Math.abs(vb), 0.0001);
     function row(en, v, c) {
-      return '<div class="fk-cmp-row"><div class="fk-cmp-label">' + esc(en.mode) + ' — ' + esc(en.result) + ' · ' + esc(en.when) + '</div>' +
+      return '<div class="fk-cmp-row"><div class="fk-cmp-label">' + esc(en.who) + ' · ' + esc(en.mode) + ' — ' + esc(en.result) + '</div>' +
         '<div class="fk-cmp-bar"><i style="width:4%;background:' + c + ';box-shadow:0 0 12px ' + c + ';" data-w="' + Math.max(4, Math.abs(v) / max * 100) + '"></i></div></div>';
     }
     var diff = Math.abs(va - vb);
     var verdict = va === vb ? 'Dead tie — identical readings!' :
-      'Difference: ' + (diff % 1 ? diff.toFixed(1) : diff) + ' between the two scans. ' + (va > vb ? 'The first scan measured higher.' : 'The second scan measured higher.');
+      'Difference: ' + (diff % 1 ? diff.toFixed(1) : diff) + ' between the two scans. ' + (va > vb ? ea.who + ' measured higher.' : eb.who + ' measured higher.');
     out.innerHTML = row(ea, va, CMP_COLORS[0]) + row(eb, vb, CMP_COLORS[1]) + '<p class="fk-cmp-verdict">⚖️ ' + esc(verdict) + '</p>';
     requestAnimationFrame(function () {
       out.querySelectorAll('.fk-cmp-bar i').forEach(function (bar) { bar.style.width = bar.getAttribute('data-w') + '%'; });
@@ -584,6 +620,109 @@
       '<p style="margin-top:24px;"><button onclick="window.print()">🖨️ Print this report</button></p></body></html>');
     w.document.close();
   });
+
+
+  /* ================= CREW LINK (Phase A) =================
+     Crews = the kid's existing classroom(s) / family. All
+     calls go to /api/fieldkit/* with the session cookie;
+     the server verifies kid ownership + crew membership.
+     Signed-out or crew-less cadets simply never see this. */
+  var FK = { kidId: null, crews: [], crew: null, feed: [], shared: new Set() };
+  window.__fkCrew = FK;
+  function fkApi(path, opts) {
+    return fetch(path, Object.assign({ credentials: 'same-origin', headers: { 'Content-Type': 'application/json' } }, opts || {}))
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, status: r.status, data: d }; }); });
+  }
+  function fkStatus(msg) { var el = $('fk-crew-status'); if (el) el.textContent = msg || ''; }
+  function renderCrewFeed() {
+    var box = $('fk-crew-feed'); if (!box) return;
+    if (!FK.feed.length) { box.innerHTML = '<p class="fk-empty">No crew scans yet. Be the first cadet to share one from your Logbook! 📡</p>'; return; }
+    box.innerHTML = '';
+    FK.feed.forEach(function (s) {
+      var row = document.createElement('div');
+      row.className = 'fk-feed-item' + (s.mine ? ' mine' : '');
+      var av = document.createElement('span'); av.className = 'fk-feed-av'; av.textContent = s.avatar_emoji || '🚀';
+      if (s.avatar_color) av.style.borderColor = s.avatar_color;
+      var mid = document.createElement('div');
+      var when = '';
+      try { when = new Date(String(s.created_at).replace(' ', 'T') + 'Z').toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); } catch (e) {}
+      mid.innerHTML = '<b>' + esc(s.kid_name) + '</b> · ' + esc(modeLabel(s.mode)) + '<br/>' + esc(s.result) +
+        (s.place_label ? ' · 📍 ' + esc(s.place_label) : '') +
+        '<div class="fk-feed-meta">' + esc(when) + (s.mine ? ' · yours' : '') + '</div>';
+      row.appendChild(av); row.appendChild(mid);
+      if (s.mine) {
+        var del = document.createElement('button');
+        del.type = 'button'; del.className = 'fk-share-btn'; del.textContent = '🗑️';
+        del.title = 'Remove this share';
+        del.addEventListener('click', function () {
+          fkApi('/api/fieldkit/shares/' + s.id, { method: 'DELETE' }).then(function (r) {
+            if (r.ok) { fkStatus('Share removed.'); loadCrewFeed(); }
+          });
+        });
+        row.appendChild(del);
+      }
+      box.appendChild(row);
+    });
+  }
+  function renderCrewPills() {
+    var box = $('fk-crew-pills'); if (!box) return;
+    box.innerHTML = '';
+    FK.crews.forEach(function (c) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'fk-crew-pill' + (FK.crew && FK.crew.type === c.type && FK.crew.id === c.id ? ' active' : '');
+      b.textContent = (c.type === 'classroom' ? '🏫 ' : '🏠 ') + c.name + ' · ' + c.memberCount + (c.type === 'classroom' ? ' cadets' : ' cadets');
+      b.addEventListener('click', function () { FK.crew = c; renderCrewPills(); loadCrewFeed(); syncCrewTile(); });
+      box.appendChild(b);
+    });
+  }
+  function syncCrewTile() {
+    tileVal('fk-tile-crew-val', FK.crew ? FK.crew.name.toUpperCase().slice(0, 18) : 'LINK UP');
+  }
+  function loadCrewFeed() {
+    if (!FK.crew) return;
+    fkApi('/api/fieldkit/shares?kid_id=' + FK.kidId + '&crew_type=' + FK.crew.type + '&crew_id=' + FK.crew.id)
+      .then(function (r) {
+        if (r.ok) { FK.feed = r.data.shares || []; renderCrewFeed(); if (window.__fkRefreshCompare) window.__fkRefreshCompare(); }
+        else fkStatus('Crew feed could not load right now.');
+      })
+      .catch(function () { fkStatus('Crew feed could not load right now.'); });
+  }
+  window.__fkShareEntry = function (en, btn) {
+    if (!FK.crew) { fkStatus('Pick a crew first!'); openSection('fk-crew-sec', true); return; }
+    var mode = apiModeFor(en.mode);
+    if (!mode) return;
+    var placeSel = $('fk-place');
+    var body = { kid_id: FK.kidId, crew_type: FK.crew.type, crew_id: FK.crew.id, mode: mode,
+      result: en.result, value: (typeof en.value === 'number' ? en.value : entryValue(en)),
+      place_label: placeSel && placeSel.value ? placeSel.value : null };
+    if (btn) { btn.disabled = true; btn.textContent = '📡 SENDING…'; }
+    fkApi('/api/fieldkit/shares', { method: 'POST', body: JSON.stringify(body) }).then(function (r) {
+      if (r.ok) {
+        FK.shared.add(en.when + '|' + en.result);
+        fkStatus('Shared with ' + FK.crew.name + '! 📡');
+        buzz(25); renderLog(); loadCrewFeed();
+      } else {
+        if (btn) { btn.disabled = false; btn.textContent = '📡 SHARE'; }
+        fkStatus(r.data && r.data.error ? 'Share failed: ' + r.data.error : 'Share failed — try again.');
+        if (r.status === 401) fkStatus('Sign in with your family account to use Crew Link.');
+      }
+    }).catch(function () { if (btn) { btn.disabled = false; btn.textContent = '📡 SHARE'; } });
+  };
+  (function initCrew() {
+    var raw = null;
+    try { raw = localStorage.getItem('nexus_active_kid'); } catch (e) {}
+    var kidId = raw ? parseInt(raw, 10) : NaN;
+    if (!kidId) return; /* anonymous tricorder: no crew tile, exactly as before */
+    FK.kidId = kidId;
+    fkApi('/api/fieldkit/crews?kid_id=' + kidId).then(function (r) {
+      if (!r.ok || !r.data.crews || !r.data.crews.length) return;
+      FK.crews = r.data.crews; FK.crew = FK.crews[0];
+      var tile = $('fk-tile-crew'); if (tile) tile.style.display = '';
+      renderCrewPills(); syncCrewTile(); loadCrewFeed(); renderLog();
+      if (location.hash === '#crew') openSection('fk-crew-sec', true);
+    }).catch(function () { /* crew link unavailable: page works as before */ });
+  })();
 
   renderLog();
 })();
