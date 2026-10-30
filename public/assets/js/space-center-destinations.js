@@ -574,7 +574,11 @@ function init() {
       // Night-side city lights: sun direction in the world's local frame, so the
       // lights stay glued to the true night side as the globe spins/tilts.
       if (nightMat && nightMesh && nightMesh.visible) {
-        nightMat.uniforms.sunDirLocal.value.copy(sunLocalDir(now));
+        // The globe spins with simulated time now (main.js): ride the same
+        // rotation so the cities stay on their continents, and mask with the
+        // sun-anchored direction main uses for its light.
+        nightMesh.rotation.y = b.earth ? b.earth.rotation.y : 0;
+        nightMat.uniforms.sunDirLocal.value.copy(sunLocalDir(b.sunRefDate ? b.sunRefDate() : now));
       }
       if (pulsing) {
         var el = (performance.now() - pulsing.t0) / 1000;
