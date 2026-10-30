@@ -10,6 +10,10 @@ function registerConnect(api, requireAuth, requireTeacher) {
   try { require('./consent').registerConsent(api, { db, requireAuth }); }
   catch (e) { console.warn('[connect] consent module failed:', e.message); }
 
+  // Field Kit Crew Link — mounted here like the consent module.
+  try { require('./fieldkit').registerFieldKit(api, requireAuth, requireTeacher); }
+  catch (e) { console.warn('[connect] fieldkit module failed:', e.message); }
+
   // ---------- 1. PARENT-TEACHER MESSAGING ----------
   // GET /api/pt/threads — my threads (as parent or teacher)
   api.get('/pt/threads', requireAuth, (req, res) => {
