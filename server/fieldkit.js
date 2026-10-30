@@ -47,6 +47,23 @@ function registerFieldKit(api, requireAuth, requireTeacher) {
       completed_at   TEXT
     );
     CREATE INDEX IF NOT EXISTS idx_fk_tm_crew ON fieldkit_team_missions(crew_type, crew_id, status);
+    CREATE TABLE IF NOT EXISTS fieldkit_experiments (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      crew_type  TEXT NOT NULL CHECK (crew_type IN ('classroom','family')),
+      crew_id    INTEGER NOT NULL,
+      created_by INTEGER NOT NULL REFERENCES users(id),
+      template   TEXT NOT NULL,
+      title      TEXT NOT NULL,
+      question   TEXT NOT NULL,
+      mode       TEXT NOT NULL,
+      unit       TEXT NOT NULL,
+      slots      TEXT NOT NULL,
+      status     TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','closed')),
+      conclusion TEXT,
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+      closed_at  TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_fk_exp_crew ON fieldkit_experiments(crew_type, crew_id, status);
   `);
   // Phase B: tag columns on shares (guarded — the Phase A table already exists in prod).
   try {
@@ -73,6 +90,18 @@ function registerFieldKit(api, requireAuth, requireTeacher) {
   function socialAllowed(kidId) {
     const s = db.prepare('SELECT comments_enabled FROM kid_settings WHERE kid_id = ?').get(kidId);
     return !s || s.comments_enabled !== 0;
+  }
+  // Who may create experiments for a crew: the classroom's teacher,
+  // or an adult member of the family (the session account itself).
+  function canCreateFor(req, crewType, crewId) {
+    if (crewType === 'classroom') {
+      const c = db.prepare('SELECT user_id FROM classrooms WHERE id = ?').get(crewId);
+      return !!(c && c.user_id === req.user.id);
+    }
+    if (crewType === 'family') {
+      return !!db.prepare('SELECT 1 FROM family_members WHERE family_id = ? AND user_id = ?').get(crewId, req.user.id);
+    }
+    return false;
   }
   function kidCrews(kid) {
     const classes = db.prepare(
@@ -190,7 +219,8 @@ function registerFieldKit(api, requireAuth, requireTeacher) {
       const kid = getKid(req, req.query.kid_id);
       if (!kid) return res.status(404).json({ error: 'kid not found' });
       if (!socialAllowed(kid.id)) return res.json({ crews: [], socialOff: true });
-      res.json({ crews: kidCrews(kid) });
+      const crews = kidCrews(kid).map(c => ({ ...c, canCreate: canCreateFor(req, c.type, c.id) }));
+      res.json({ crews });
     } catch (e) { res.status(500).json({ error: 'failed' }); }
   });
 
@@ -297,6 +327,159 @@ function registerFieldKit(api, requireAuth, requireTeacher) {
         .all(crewType, crewId);
       res.json({ missions: rows.map(missionView),
         catalog: Object.entries(TEAM_MISSIONS).map(([key, d]) => ({ key, name: d.name, guide: d.guide, icon: d.icon, kind: d.kind, mode: d.mode, explain: d.explain })) });
+    } catch (e) { res.status(500).json({ error: 'failed' }); }
+  });
+
+  // ---------------- Phase C: experiments ----------------
+  const EXP_TEMPLATES = {
+    'sound-map': { name: 'Sound Map', icon: '🔊', mode: 'sound', unit: 'dBrel',
+      title: 'Sound Map of Our World', question: 'Which of our places is loudest — and which is quietest?',
+      slots: ['Classroom', 'Cafeteria', 'Gym', 'Library', 'Playground', 'Hallway', 'Outside'] },
+    'pendulum-lab': { name: 'Pendulum Lab', icon: '📐', mode: 'motion', unit: 'm/s²',
+      title: 'Pendulum Lab: Swing Size vs Peak Power', question: 'Does a bigger swing hit a higher peak acceleration?',
+      slots: ['Short swing', 'Medium swing', 'Long swing'] },
+    'north-census': { name: 'North Census', icon: '🧭', mode: 'compass', unit: 'deg',
+      title: 'North Census: Before & After Calibration', question: 'Does a figure-eight calibration make the crew agree on north?',
+      slots: ['Before calibration', 'After calibration'] },
+    'custom-scan': { name: 'Custom Scan', icon: '🧪', mode: null, unit: null,
+      title: 'Custom Experiment', question: 'What will we measure?',
+      slots: [] }
+  };
+  function expView(row, kid) {
+    let slots = []; try { slots = JSON.parse(row.slots); } catch (e) {}
+    const shares = db.prepare(
+      `SELECT s.id, s.kid_id, s.value, s.place_label, s.created_at, k.name AS kid_name
+         FROM fieldkit_shares s JOIN kid_profiles k ON k.id = s.kid_id
+        WHERE s.experiment_id = ? ORDER BY s.id`).all(row.id);
+    const bySlot = slots.map(slot => {
+      const rows = shares.filter(s => s.place_label === slot && typeof s.value === 'number');
+      const vals = rows.map(r => r.value).sort((a, b) => a - b);
+      const n = vals.length;
+      const median = n ? (n % 2 ? vals[(n - 1) / 2] : (vals[n / 2 - 1] + vals[n / 2]) / 2) : null;
+      const mad = n ? vals.map(v => Math.abs(v - median)).sort((a, b) => a - b)[Math.floor(n / 2)] : 0;
+      return { slot, n,
+        mean: n ? Math.round((vals.reduce((a, b) => a + b, 0) / n) * 10) / 10 : null,
+        min: n ? vals[0] : null, max: n ? vals[n - 1] : null,
+        entries: rows.map(r => ({ kid_id: r.kid_id, kid_name: r.kid_name, value: r.value,
+          mine: kid ? r.kid_id === kid.id : false,
+          outlier: n >= 4 && mad > 0 && Math.abs(r.value - median) > 3 * mad })) };
+    });
+    return { id: row.id, template: row.template, title: row.title, question: row.question,
+      mode: row.mode, unit: row.unit, status: row.status, conclusion: row.conclusion,
+      created_by: row.created_by, created_at: row.created_at, closed_at: row.closed_at,
+      total: shares.length, slots: bySlot,
+      mine: kid ? shares.filter(s => s.kid_id === kid.id).map(s => s.place_label) : [] };
+  }
+  function getExperiment(id) { return db.prepare('SELECT * FROM fieldkit_experiments WHERE id = ?').get(Number(id)) || null; }
+  function cleanText(s, max) {
+    const t = String(s || '').trim().slice(0, max);
+    if (containsProfanity && containsProfanity(t)) return null;
+    return t;
+  }
+
+  // POST /api/fieldkit/experiments — teacher (classroom) or adult family member creates
+  api.post('/fieldkit/experiments', requireAuth, (req, res) => {
+    try {
+      const b = req.body || {};
+      const crewType = String(b.crew_type || ''), crewId = Number(b.crew_id);
+      if (!canCreateFor(req, crewType, crewId)) return res.status(403).json({ error: 'only the crew teacher or a family adult can start an experiment' });
+      const tpl = EXP_TEMPLATES[String(b.template || '')];
+      if (!tpl) return res.status(400).json({ error: 'unknown template' });
+      const mode = tpl.mode || String(b.mode || '');
+      if (!MODES[mode] || mode === 'astro' || mode === 'mission') return res.status(400).json({ error: 'experiments use the motion, sound, or compass scanner' });
+      let slots = Array.isArray(b.slots) && b.slots.length ? b.slots : tpl.slots;
+      slots = slots.map(s => cleanText(s, 24)).filter(Boolean);
+      slots = [...new Set(slots)].slice(0, 8);
+      if (slots.length < 2) return res.status(400).json({ error: 'an experiment needs at least two places or conditions' });
+      const title = cleanText(b.title, 80) || tpl.title;
+      const question = cleanText(b.question, 200) || tpl.question;
+      if (!title || !question) return res.status(400).json({ error: 'title or question not allowed' });
+      const info = db.prepare('INSERT INTO fieldkit_experiments (crew_type, crew_id, created_by, template, title, question, mode, unit, slots) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
+        .run(crewType, crewId, req.user.id, String(b.template), title, question, mode, MODES[mode].unit, JSON.stringify(slots));
+      res.status(201).json({ experiment: expView(getExperiment(info.lastInsertRowid), null) });
+    } catch (e) { res.status(500).json({ error: 'failed' }); }
+  });
+
+  // GET /api/fieldkit/experiments?kid_id=&crew_type=&crew_id= — crew list with pooled stats
+  api.get('/fieldkit/experiments', requireAuth, (req, res) => {
+    try {
+      const kid = getKid(req, req.query.kid_id);
+      const crewType = String(req.query.crew_type || ''), crewId = Number(req.query.crew_id);
+      if (!crewAccess(req, kid, crewType, crewId)) return res.status(403).json({ error: 'not your crew' });
+      const rows = db.prepare('SELECT * FROM fieldkit_experiments WHERE crew_type = ? AND crew_id = ? ORDER BY id DESC LIMIT 10').all(crewType, crewId);
+      res.json({ experiments: rows.map(r => expView(r, kid)),
+        templates: Object.entries(EXP_TEMPLATES).map(([key, t]) => ({ key, name: t.name, icon: t.icon, mode: t.mode, title: t.title, question: t.question, slots: t.slots })) });
+    } catch (e) { res.status(500).json({ error: 'failed' }); }
+  });
+
+  // POST /api/fieldkit/experiments/:id/contribute — one measurement per kid per slot; re-measuring replaces
+  api.post('/fieldkit/experiments/:id/contribute', requireAuth, (req, res) => {
+    try {
+      const exp = getExperiment(req.params.id);
+      if (!exp) return res.status(404).json({ error: 'experiment not found' });
+      if (exp.status !== 'open') return res.status(400).json({ error: 'this experiment is closed' });
+      const b = req.body || {};
+      const kid = getKid(req, b.kid_id);
+      if (!kid) return res.status(404).json({ error: 'kid not found' });
+      if (!socialAllowed(kid.id)) return res.status(403).json({ error: 'sharing is turned off for this cadet' });
+      if (!crewAccess(req, kid, exp.crew_type, exp.crew_id)) return res.status(403).json({ error: 'not your crew' });
+      let slots = []; try { slots = JSON.parse(exp.slots); } catch (e) {}
+      const slot = String(b.slot || '');
+      if (!slots.includes(slot)) return res.status(400).json({ error: 'unknown slot for this experiment' });
+      const value = b.value;
+      const range = MODES[exp.mode];
+      if (typeof value !== 'number' || !isFinite(value) || value < range.min || value > range.max) {
+        return res.status(400).json({ error: 'value out of range for this scanner' });
+      }
+      if (!rateOk(kid.id)) return res.status(429).json({ error: 'sharing limit reached — try again in a bit' });
+      const result = cleanText(b.result, 120) || (slot + ': ' + value + ' ' + exp.unit);
+      if (!result) return res.status(400).json({ error: 'result not allowed' });
+      db.prepare('DELETE FROM fieldkit_shares WHERE experiment_id = ? AND kid_id = ? AND place_label = ?').run(exp.id, kid.id, slot);
+      db.prepare('INSERT INTO fieldkit_shares (kid_id, crew_type, crew_id, mode, result, value, unit, place_label, experiment_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
+        .run(kid.id, exp.crew_type, exp.crew_id, exp.mode, result, value, exp.unit, slot, exp.id);
+      res.status(201).json({ experiment: expView(exp, kid) });
+    } catch (e) { res.status(500).json({ error: 'failed' }); }
+  });
+
+  // POST /api/fieldkit/experiments/:id/close + /conclusion — creator only
+  api.post('/fieldkit/experiments/:id/close', requireAuth, (req, res) => {
+    try {
+      const exp = getExperiment(req.params.id);
+      if (!exp) return res.status(404).json({ error: 'experiment not found' });
+      if (exp.created_by !== req.user.id) return res.status(403).json({ error: 'only the creator can close this experiment' });
+      db.prepare("UPDATE fieldkit_experiments SET status = 'closed', closed_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?").run(exp.id);
+      res.json({ experiment: expView(getExperiment(exp.id), null) });
+    } catch (e) { res.status(500).json({ error: 'failed' }); }
+  });
+  api.post('/fieldkit/experiments/:id/conclusion', requireAuth, (req, res) => {
+    try {
+      const exp = getExperiment(req.params.id);
+      if (!exp) return res.status(404).json({ error: 'experiment not found' });
+      if (exp.created_by !== req.user.id) return res.status(403).json({ error: 'only the creator can write the conclusion' });
+      const text = cleanText((req.body || {}).text, 200);
+      if (!text) return res.status(400).json({ error: 'conclusion not allowed' });
+      db.prepare('UPDATE fieldkit_experiments SET conclusion = ? WHERE id = ?').run(text, exp.id);
+      res.json({ experiment: expView(getExperiment(exp.id), null) });
+    } catch (e) { res.status(500).json({ error: 'failed' }); }
+  });
+
+  // GET /api/fieldkit/experiments/:id/export.csv — creator or classroom teacher
+  api.get('/fieldkit/experiments/:id/export.csv', requireAuth, (req, res) => {
+    try {
+      const exp = getExperiment(req.params.id);
+      if (!exp) return res.status(404).json({ error: 'experiment not found' });
+      let allowed = exp.created_by === req.user.id;
+      if (!allowed && exp.crew_type === 'classroom') allowed = canCreateFor(req, 'classroom', exp.crew_id);
+      if (!allowed) return res.status(403).json({ error: 'not allowed' });
+      const rows = db.prepare(
+        `SELECT k.name AS kid_name, s.place_label AS slot, s.value, s.created_at
+           FROM fieldkit_shares s JOIN kid_profiles k ON k.id = s.kid_id
+          WHERE s.experiment_id = ? ORDER BY s.place_label, s.id`).all(exp.id);
+      const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+      const csv = ['cadet,slot,value,unit,measured_at', ...rows.map(r => [esc(r.kid_name), esc(r.slot), r.value, esc(exp.unit), esc(r.created_at)].join(','))].join('\n');
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename="fieldkit-experiment-' + exp.id + '.csv"');
+      res.send(csv);
     } catch (e) { res.status(500).json({ error: 'failed' }); }
   });
 }
