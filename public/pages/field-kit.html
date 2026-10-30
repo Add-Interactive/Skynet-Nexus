@@ -181,6 +181,26 @@
     .fk-cmp-bar i { display:block; height:100%; border-radius:7px; transition: width .8s cubic-bezier(.2,.9,.3,1); }
     .fk-cmp-verdict { font-family:var(--font-code); color:var(--neon-amber); font-size:.88rem; margin-top:10px; }
 
+
+    /* ---------- visual menu grid: everything visible, tap to expand ---------- */
+    .fk-menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(102px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .fk-tile { --fk-accent:#00e5ff; appearance: none; cursor: pointer; text-align: center; padding: 14px 6px 11px; border-radius: 16px;
+      background: linear-gradient(165deg, rgba(255,255,255,.07), rgba(0,0,0,.35)); border: 1.5px solid rgba(120,180,255,.22);
+      color: #c6d6ee; font-family: var(--font-code); transition: transform .15s, border-color .2s, box-shadow .2s; position: relative; }
+    .fk-tile:hover { transform: translateY(-2px); border-color: var(--fk-accent); }
+    .fk-tile .fk-tile-icon { font-size: 30px; display: block; line-height: 1.15; filter: drop-shadow(0 0 10px rgba(0,229,255,.35)); }
+    .fk-tile .fk-tile-name { display: block; font-size: .68rem; font-weight: 800; letter-spacing: .1em; color: #fff; margin-top: 5px; }
+    .fk-tile .fk-tile-val { display: block; font-size: .64rem; color: #9cb5d6; margin-top: 3px; min-height: 1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .fk-tile .fk-chev { position: absolute; top: 6px; right: 9px; font-size: .6rem; color: #5f7799; transition: transform .25s; }
+    .fk-tile.active { border-color: var(--fk-accent); box-shadow: 0 0 0 1px var(--fk-accent), 0 0 22px -6px var(--fk-accent); background: linear-gradient(165deg, rgba(255,255,255,.12), rgba(0,0,0,.25)); }
+    .fk-tile.active .fk-chev { transform: rotate(180deg); color: var(--fk-accent); }
+    .fk-tile.live { animation: fkTilePulse 1.6s ease-in-out infinite; }
+    @keyframes fkTilePulse { 0%,100% { box-shadow: 0 0 0 1px var(--fk-accent), 0 0 14px -4px var(--fk-accent); } 50% { box-shadow: 0 0 0 1px var(--fk-accent), 0 0 30px -2px var(--fk-accent); } }
+    .fk-deck { display: flex; flex-direction: column; gap: 18px; }
+    .fk-expand { display: none; }
+    .fk-expand.open { display: block; animation: fkExpand .45s cubic-bezier(.2,.9,.3,1); }
+    @keyframes fkExpand { from { opacity: 0; transform: translateY(16px) scale(.992); } to { opacity: 1; transform: none; } }
+
     @media (prefers-reduced-motion: reduce) {
       .fk-ring, .fk-orbit-dot, .fk-holo .fk-core, .fk-panel, .fk-panel.scanning .fk-sweep,
       .fk-panel.scanning .fk-chip::after, .fk-panel.scanning .fk-sweep-cone, .fk-led { animation: none !important; }
@@ -223,7 +243,7 @@
       </div>
       <div class="fk-kicker">NEXUS FIELD KIT</div>
       <h1>YOUR PHONE IS A TRICORDER.</h1>
-      <p>Starfleet cadets carry a tricorder. You carry a phone — and inside it are real science sensors: motion, sound, and a compass, all waiting for a mission. Every glow, graph, and gauge below is fed by <b style="color:#fff;">real data from your device, live</b>. Pick a scanner, make a prediction, take a measurement, and log what the world actually did. No fake readings, ever: if a sensor isn't on your device, the Field Kit tells you.</p>
+      <p>Starfleet cadets carry a tricorder. You carry a phone — and inside it are real science sensors: motion, sound, and a compass, all waiting for a mission. Every glow, graph, and gauge below is fed by <b style="color:#fff;">real data from your device, live</b>. Tap an instrument on the menu grid below — every tool is right there, no endless scrolling — make a prediction, take a measurement, and log what the world actually did. No fake readings, ever: if a sensor isn't on your device, the Field Kit tells you.</p>
       <div class="fk-syscheck" id="fk-syscheck"><span class="fk-sys-title">⚙️ FIELD UNIT SYSTEMS CHECK</span><span id="fk-sys-body">Checking this device's sensors…</span></div>
     </div>
 
@@ -235,8 +255,17 @@
         <span>LOCAL TIME <b id="fk-clock">--:--</b> · ALL DATA LIVE</span>
       </div>
 
-      <div class="fk-grid">
-        <section class="mission-card fk-panel" id="fk-motion" style="--fk-accent:#f97316;">
+            <nav class="fk-menu" id="fk-menu" aria-label="Field Kit instruments">
+        <button type="button" class="fk-tile active" data-target="fk-motion" style="--fk-accent:#f97316;"><span class="fk-chev">▾</span><span class="fk-tile-icon">📐</span><span class="fk-tile-name">MOTION LAB</span><span class="fk-tile-val" id="fk-tile-motion-val">GUS · ENGINEERING</span></button>
+        <button type="button" class="fk-tile" data-target="fk-sound" style="--fk-accent:#e879f9;"><span class="fk-chev">▾</span><span class="fk-tile-icon">🔊</span><span class="fk-tile-name">SOUND LAB</span><span class="fk-tile-val" id="fk-tile-sound-val">CADENCE · MUSIC</span></button>
+        <button type="button" class="fk-tile" data-target="fk-compass" style="--fk-accent:#34d399;"><span class="fk-chev">▾</span><span class="fk-tile-icon">🧭</span><span class="fk-tile-name">GEO COMPASS</span><span class="fk-tile-val" id="fk-tile-compass-val">ROWAN · CLIMATE</span></button>
+        <button type="button" class="fk-tile" data-target="fk-astro" style="--fk-accent:#818cf8;"><span class="fk-chev">▾</span><span class="fk-tile-icon">🛰️</span><span class="fk-tile-name">ASTRO</span><span class="fk-tile-val" id="fk-tile-astro-val">STELLA · SPACE</span></button>
+        <button type="button" class="fk-tile" data-target="fk-missions-sec" style="--fk-accent:#39ff14;"><span class="fk-chev">▾</span><span class="fk-tile-icon">🎯</span><span class="fk-tile-name">MISSIONS</span><span class="fk-tile-val" id="fk-tile-missions-val">3 FIELD MISSIONS</span></button>
+        <button type="button" class="fk-tile" data-target="fk-logbook-sec" style="--fk-accent:#ffd23f;"><span class="fk-chev">▾</span><span class="fk-tile-icon">📓</span><span class="fk-tile-name">LOGBOOK</span><span class="fk-tile-val" id="fk-tile-log-val">0 LOGGED</span></button>
+      </nav>
+
+      <div class="fk-deck">
+        <section class="mission-card fk-panel fk-expand open" id="fk-motion" style="--fk-accent:#f97316;">
           <div class="fk-sweep"></div>
           <h2>📐 MOTION LAB <span class="fk-live">● LIVE</span></h2>
           <div class="fk-guide" style="color:#f97316;"><span class="fk-chip">🔧</span><span>GUIDE: GUS DELGADO · ENGINEERING</span></div>
@@ -255,7 +284,7 @@
           <div class="fk-status" id="fk-motion-status"></div>
         </section>
 
-        <section class="mission-card fk-panel" id="fk-sound" style="--fk-accent:#e879f9;">
+        <section class="mission-card fk-panel fk-expand" id="fk-sound" style="--fk-accent:#e879f9;">
           <div class="fk-sweep"></div>
           <h2>🔊 SOUND LAB <span class="fk-live">● LIVE</span></h2>
           <div class="fk-guide" style="color:#e879f9;"><span class="fk-chip">🎵</span><span>GUIDE: CADENCE LIU · MUSIC</span></div>
@@ -272,7 +301,7 @@
           <div class="fk-status" id="fk-sound-status"></div>
         </section>
 
-        <section class="mission-card fk-panel" id="fk-compass" style="--fk-accent:#34d399;">
+        <section class="mission-card fk-panel fk-expand" id="fk-compass" style="--fk-accent:#34d399;">
           <div class="fk-sweep"></div>
           <h2>🧭 GEO COMPASS <span class="fk-live">● LIVE</span></h2>
           <div class="fk-guide" style="color:#34d399;"><span class="fk-chip">🌍</span><span>GUIDE: ROWAN FIELD · CLIMATE</span></div>
@@ -287,7 +316,7 @@
           <div class="fk-status" id="fk-compass-status" style="text-align:center;"></div>
         </section>
 
-        <section class="mission-card fk-panel" id="fk-astro" style="--fk-accent:#818cf8;">
+        <section class="mission-card fk-panel fk-expand" id="fk-astro" style="--fk-accent:#818cf8;">
           <div class="fk-sweep"></div>
           <h2>🛰️ ASTRO SCANNER <span class="fk-live">● LIVE</span></h2>
           <div class="fk-guide" style="color:#818cf8;"><span class="fk-chip">🚀</span><span>GUIDE: STELLA REYES · SPACE</span></div>
@@ -304,7 +333,7 @@
     </div>
 
     <!-- ================= FIELD MISSIONS ================= -->
-    <section class="mission-card" style="padding:28px;margin:26px 0;">
+    <section class="mission-card fk-expand" id="fk-missions-sec" style="padding:28px;margin:26px 0;">
       <h2 style="font-family:var(--font-game);font-size:1.3rem;color:var(--neon-green);margin:0 0 6px;">🎯 FIELD MISSIONS</h2>
       <p class="fk-note">Every mission works the same way — the scientist's way: <b>Predict</b> first, then <b>Scan</b>, then <b>Explain</b> what the data showed. Teachers and guardians: any mission can be assigned as homework or a family challenge — just name the mission!</p>
       <div class="fk-player" id="fk-player" hidden>
@@ -353,7 +382,7 @@
     </section>
 
     <!-- ================= LOGBOOK ================= -->
-    <section class="mission-card" style="padding:28px;margin-bottom:26px;">
+    <section class="mission-card fk-expand" id="fk-logbook-sec" style="padding:28px;margin-bottom:26px;">
       <h2 style="font-family:var(--font-game);font-size:1.3rem;color:var(--neon-cyan);margin:0 0 6px;">📓 FIELD LOGBOOK</h2>
       <p class="fk-note" style="margin-bottom:16px;">Your scan logs live <b>on this device only</b> — nothing is uploaded, tracked, or shared. Show your logbook to your teacher or guardian to prove your field work!</p>
       <div class="fk-lab">
@@ -382,6 +411,6 @@
   </main>
 
   <script src="/assets/js/kids-mode.js"></script>
-  <script src="/assets/js/field-kit.js?v=20261029d"></script>
+  <script src="/assets/js/field-kit.js?v=20261029e"></script>
 </body>
 </html>

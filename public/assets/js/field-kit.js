@@ -40,7 +40,7 @@
   function panelOf(el) { return el ? el.closest('.fk-panel') : null; }
   function setScanning(btn, on) {
     var p = panelOf(btn);
-    if (p) p.classList.toggle('scanning', on);
+    if (p) { p.classList.toggle('scanning', on); tileLive(p.id, on); }
     setLive(on);
   }
   (function clock() {
@@ -83,6 +83,7 @@
     var entries = readLog();
     var count = $('fk-scan-count');
     if (count) count.textContent = entries.length + ' LOGGED';
+    tileVal('fk-tile-log-val', entries.length + ' LOGGED');
     var list = $('fk-log-list');
     if (!list) return;
     if (!entries.length) {
@@ -119,6 +120,25 @@
   renderLog = function () { _renderLog(); refreshCompare(); };
   var clearBtn = $('fk-log-clear');
   if (clearBtn) clearBtn.addEventListener('click', function () { writeLog([]); renderLog(); });
+
+  /* ---------------- visual menu grid ----------------
+     Every instrument is visible as a tile; tapping one
+     expands its section in place. Tiles also carry LIVE
+     readouts fed by the same real sensor data. */
+  function openSection(id, scroll) {
+    document.querySelectorAll('.fk-expand').forEach(function (s) { s.classList.toggle('open', s.id === id); });
+    document.querySelectorAll('.fk-tile').forEach(function (t) { t.classList.toggle('active', t.getAttribute('data-target') === id); });
+    if (scroll) { var el = $(id); if (el) setTimeout(function () { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 40); }
+  }
+  window.__fkOpenSection = openSection;
+  document.querySelectorAll('.fk-tile').forEach(function (t) {
+    t.addEventListener('click', function () { openSection(t.getAttribute('data-target'), true); buzz(10); });
+  });
+  function tileVal(id, txt) { var el = $(id); if (el) el.textContent = txt; }
+  function tileLive(panelId, on) {
+    var t = document.querySelector('.fk-tile[data-target="' + panelId + '"]');
+    if (t) t.classList.toggle('live', on);
+  }
 
   /* ---------------- motion strip chart (grid + glow + fill + peak dot) ---------------- */
   function stripChart(canvas, color) {
@@ -169,7 +189,7 @@
       var mag = Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
       var g = mag / 9.81;
       if (mag > peak) { peak = mag; peakEl.textContent = 'PEAK: ' + peak.toFixed(1) + ' m/s\u00b2 (' + (peak / 9.81).toFixed(2) + ' g)'; }
-      val.textContent = mag.toFixed(1) + ' m/s\u00b2';
+      val.textContent = mag.toFixed(1) + ' m/s\u00b2'; tileVal('fk-tile-motion-val', mag.toFixed(1) + ' m/s\u00b2 LIVE');
       chart.push(mag, 30);
       if (gFill) gFill.style.width = Math.min(100, g / 3 * 100) + '%';
       if (gVal) gVal.textContent = g.toFixed(2) + ' g';
@@ -280,7 +300,7 @@
           var rms = Math.sqrt(sum / buf.length);
           var db = rms > 0.0001 ? (20 * Math.log10(rms)) : -80; /* dBFS, relative */
           if (db > peak) { peak = db; peakEl.textContent = 'PEAK: ' + Math.max(-60, Math.round(peak)) + ' (relative)'; }
-          val.textContent = Math.max(-60, Math.round(db)) + ' / 0 loudness';
+          val.textContent = Math.max(-60, Math.round(db)) + ' / 0 loudness'; tileVal('fk-tile-sound-val', Math.max(-60, Math.round(db)) + ' LOUDNESS LIVE');
           if (lvl) lvl.style.width = Math.min(100, Math.max(0, (db + 60) / 60 * 100)) + '%';
           drawSpectrum(analyser);
           logBtn.disabled = false;
@@ -324,7 +344,7 @@
       if (h == null) return;
       heading = (h + 360) % 360;
       needle.style.transform = 'rotate(' + heading + 'deg)';
-      val.textContent = Math.round(heading) + '° ' + DIRS[Math.round(heading / 45) % 8];
+      val.textContent = Math.round(heading) + '° ' + DIRS[Math.round(heading / 45) % 8]; tileVal('fk-tile-compass-val', Math.round(heading) + '° ' + DIRS[Math.round(heading / 45) % 8] + ' LIVE');
       var off = Math.min(heading, 360 - heading);
       if (off <= 3) delta.textContent = '★ TRUE NORTH — YOU FOUND IT!';
       else delta.textContent = '▲ ' + Math.round(off) + '° FROM TRUE NORTH — TURN ' + (heading <= 180 ? 'LEFT' : 'RIGHT');
@@ -373,7 +393,7 @@
         pos.innerHTML = '<small>YOUR SKY POSITION · MEASURED JUST NOW, SHOWN ONLY HERE</small>' +
           'LAT ' + c.latitude.toFixed(3) + '° · LON ' + c.longitude.toFixed(3) + '°<br/>' +
           '<small>FIX ACCURACY ±' + Math.round(c.accuracy) + ' m · NOW OPEN THE SPACE CENTER AND FIND WHAT IS OVER THIS SKY</small>';
-        if (status) status.textContent = 'Position fix locked. Nothing was stored or sent. 📍';
+        if (status) status.textContent = 'Position fix locked. Nothing was stored or sent. 📍'; tileVal('fk-tile-astro-val', 'FIX \u00b1' + Math.round(c.accuracy) + ' m \u00b7 LIVE');
         buzz(25);
       }, function () {
         if (status) status.textContent = 'Position permission was not granted — that\u2019s okay, the Space Center still works!';
@@ -413,6 +433,8 @@
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
   function renderMission() {
     var box = $('fk-player'); if (!box) return;
+    var mtile = document.querySelector('.fk-tile[data-target="fk-missions-sec"]');
+    if (mtile) { mtile.classList.toggle('live', !!mission); tileVal('fk-tile-missions-val', mission ? 'MISSION IN PROGRESS' : '3 FIELD MISSIONS'); }
     if (!mission) { box.hidden = true; return; }
     var M = MISSIONS[mission.key];
     box.hidden = false;
@@ -445,9 +467,10 @@
         '<div class="fk-progress">SCANS LOGGED: ' + mission.scans.length + ' / ' + M.need + '</div>' +
         '<button type="button" class="tactical-btn tactical-btn-cyan" id="fk-goto">🛰️ GO TO THE SCANNER</button>';
       $('fk-goto').addEventListener('click', function () {
+        openSection(M.panel, false);
         var panel = $(M.panel);
         if (panel) {
-          panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(function () { panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 60);
           panel.classList.remove('fk-target'); void panel.offsetWidth; panel.classList.add('fk-target');
         }
       });
@@ -471,7 +494,7 @@
         '<div style="text-align:center;"><button type="button" class="tactical-btn tactical-btn-cyan" id="fk-done-close">📓 SEE MY LOGBOOK</button></div>';
       $('fk-done-close').addEventListener('click', function () {
         mission = null; renderMission();
-        var lb = $('fk-log-list'); if (lb) lb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        openSection('fk-logbook-sec', true);
       });
     }
   }
@@ -480,9 +503,14 @@
     var M = MISSIONS[mission.key];
     if (mode !== M.mode) return;
     mission.scans.push(result);
-    if (mission.scans.length >= M.need) mission.step = 'explain';
-    renderMission();
-    var box = $('fk-player'); if (box) box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (mission.scans.length >= M.need) {
+      mission.step = 'explain';
+      renderMission();
+      openSection('fk-missions-sec', false);
+      var box = $('fk-player'); if (box) setTimeout(function () { box.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 80);
+    } else {
+      renderMission();
+    }
   };
   document.querySelectorAll('.fk-begin').forEach(function (b) {
     b.addEventListener('click', function () {
