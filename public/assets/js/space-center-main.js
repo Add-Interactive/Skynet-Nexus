@@ -132,12 +132,16 @@
     var focusSat = null, _sv = new THREE.Vector3();
     function flyTo(sp) {
       focusSat = sp; camGoalDist = sp.userData.isPad ? 0.9 : sp.userData.destDist || 0.5;
+      // Space Bay: travelling re-skins the bay walls to the destination.
+      var _bs = baySceneFor(sp);
+      if (_bs) baySetScene(_bs); else if (!(sp.userData && sp.userData.isDestination)) baySetScene('earth');
       var u = sp.userData;
       document.getElementById('trackname').textContent = u.isPad ? u.pad.n : (u.name.length > 24 ? u.name.slice(0, 24) + '…' : u.name);
       document.getElementById('trackchip').classList.add('show');
     }
     function flyHome() {
       focusSat = null; camGoal.set(0, 0, 0); camGoalDist = 3.26;
+      baySetScene('earth');
       document.getElementById('trackchip').classList.remove('show');
     }
     document.getElementById('trackx').onclick = function () {
@@ -177,48 +181,176 @@
       })(), transparent: true, depthWrite: false
     }));
     glow.scale.setScalar(2.55); world.add(glow);
-    // ---- spacetime grid: gravity-well warped lattice ----
-    // Earth's mass bends the fabric of space — the grid dips into a funnel
-    // around the planet, with faint ripples radiating outward.
-    var GRID_N = 56, GRID_HALF = 3.5, GRID_Y = -1.45;
-    function gridWell(r) { return -1.05 * Math.exp(-Math.pow(r / 1.4, 2)); }
-    var gridCount = (GRID_N + 1) * GRID_N * 2 * 2;
-    var gp = new Float32Array(gridCount * 3), gc = new Float32Array(gridCount * 3), gb = new Float32Array(gridCount * 2);
-    (function buildGrid() {
-      var gi = 0, ci = 0, bi = 0;
-      function vert(x, z) {
-        var r = Math.sqrt(x * x + z * z);
-        var y = GRID_Y + gridWell(r);
-        gp[gi++] = x; gp[gi++] = y; gp[gi++] = z;
-        var k = 0.30 + 0.70 * Math.exp(-r / 2.2); // brighter near the planet
-        gc[ci++] = 0.1 * k; gc[ci++] = 0.9 * k; gc[ci++] = 1.0 * k;
-        gb[bi++] = y; gb[bi++] = r;
-      }
-      for (var a = 0; a <= GRID_N; a++) {
-        var c = -GRID_HALF + (a / GRID_N) * GRID_HALF * 2;
-        for (var b = 0; b < GRID_N; b++) {
-          var c0 = -GRID_HALF + (b / GRID_N) * GRID_HALF * 2;
-          var c1 = -GRID_HALF + ((b + 1) / GRID_N) * GRID_HALF * 2;
-          vert(c0, c); vert(c1, c);
-          vert(c, c0); vert(c, c1);
+    // ---- Stella's Space Bay (2026-10-30, Jeff's direction) ----
+    // The simulation no longer floats in open space: it is a hologram inside
+    // a starship holo bay. The Earth and its live satellites hover over the
+    // bay's projector platform, and the emitter walls re-skin per destination
+    // (Earth orbit / Moon / Mars — see baySetScene). The bay lives in `scene`,
+    // never in `world`, so spinning the globe never spins the room. This block
+    // replaces the spacetime warp grid, removed at Jeff's direction.
+    var bayGroup = new THREE.Group(); scene.add(bayGroup);
+    var bayState = { ready: false, sceneName: 'earth', wallMat: null, coneMat: null, shellMat: null, light: null, tex: {} };
+    function bayCanvas(w, h, draw) {
+      var c = document.createElement('canvas'); c.width = w; c.height = h;
+      draw(c.getContext('2d'), w, h);
+      var t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t;
+    }
+    function bayRoundRect(x, px, py, pw, ph, r) {
+      x.beginPath();
+      x.moveTo(px + r, py);
+      x.arcTo(px + pw, py, px + pw, py + ph, r); x.arcTo(px + pw, py + ph, px, py + ph, r);
+      x.arcTo(px, py + ph, px, py, r); x.arcTo(px, py, px + pw, py, r);
+      x.closePath();
+    }
+    function paintBayWalls(x, w, h, kind) {
+      var g = x.createLinearGradient(0, 0, 0, h);
+      g.addColorStop(0, '#0a1220'); g.addColorStop(0.55, '#081020'); g.addColorStop(1, '#05080f');
+      x.fillStyle = g; x.fillRect(0, 0, w, h);
+      // holo-emitter grid across the upper walls
+      x.strokeStyle = 'rgba(0,229,255,0.10)'; x.lineWidth = 1;
+      for (var gx = 0; gx <= w; gx += 42) { x.beginPath(); x.moveTo(gx, 0); x.lineTo(gx, h * 0.62); x.stroke(); }
+      for (var gy = 0; gy <= h * 0.62; gy += 42) { x.beginPath(); x.moveTo(0, gy); x.lineTo(w, gy); x.stroke(); }
+      // hull panel seams + amber strip lights
+      x.strokeStyle = 'rgba(140,180,230,0.16)'; x.lineWidth = 2;
+      for (var px = 0; px <= w; px += 256) { x.beginPath(); x.moveTo(px, 0); x.lineTo(px, h); x.stroke(); }
+      x.beginPath(); x.moveTo(0, h * 0.62); x.lineTo(w, h * 0.62); x.stroke();
+      x.fillStyle = 'rgba(255,176,32,0.85)';
+      for (var ax = 128; ax < w; ax += 256) x.fillRect(ax - 30, h * 0.635, 60, 5);
+      // destination horizon along the lower wall band — the walls ARE the scenery
+      var horizon = h * 0.70;
+      if (kind === 'moon') {
+        var mg = x.createLinearGradient(0, horizon, 0, h);
+        mg.addColorStop(0, '#8d9299'); mg.addColorStop(0.25, '#6f747b'); mg.addColorStop(1, '#3a3e44');
+        x.fillStyle = mg; x.fillRect(0, horizon, w, h - horizon);
+        x.fillStyle = 'rgba(168,174,181,0.5)'; x.beginPath(); x.moveTo(0, horizon + 8);
+        for (var rx = 0; rx <= w; rx += 64) x.lineTo(rx, horizon + 8 + Math.sin(rx * 0.011) * 7);
+        x.lineTo(w, horizon + 30); x.lineTo(0, horizon + 30); x.closePath(); x.fill();
+        for (var s1 = 0; s1 < 480; s1++) { x.fillStyle = 'rgba(255,255,255,' + (Math.random() * 0.09) + ')'; x.fillRect(Math.random() * w, horizon + Math.random() * (h - horizon), 2, 2); }
+        for (var ci = 0; ci < 26; ci++) {
+          x.strokeStyle = 'rgba(18,20,24,0.35)'; x.lineWidth = 2; x.beginPath();
+          x.ellipse(Math.random() * w, horizon + 24 + Math.random() * (h - horizon - 34), 4 + Math.random() * 13, (4 + Math.random() * 13) * 0.36, 0, 0, 6.2832); x.stroke();
         }
+      } else if (kind === 'mars') {
+        var sg = x.createLinearGradient(0, horizon - 90, 0, horizon);
+        sg.addColorStop(0, 'rgba(216,164,110,0)'); sg.addColorStop(1, 'rgba(216,164,110,0.30)');
+        x.fillStyle = sg; x.fillRect(0, horizon - 90, w, 90);
+        var rg = x.createLinearGradient(0, horizon, 0, h);
+        rg.addColorStop(0, '#c47a44'); rg.addColorStop(0.4, '#9c4f24'); rg.addColorStop(1, '#5a2a10');
+        x.fillStyle = rg; x.fillRect(0, horizon, w, h - horizon);
+        [['rgba(74,32,13,0.55)', 0.011, 22], ['rgba(43,17,6,0.7)', 0.017, 44]].forEach(function (layer) {
+          x.fillStyle = layer[0]; x.beginPath(); x.moveTo(0, h);
+          for (var dx = 0; dx <= w; dx += 32) x.lineTo(dx, horizon + layer[2] + Math.sin(dx * layer[1] + layer[2]) * 12);
+          x.lineTo(w, h); x.closePath(); x.fill();
+        });
+        for (var s2 = 0; s2 < 260; s2++) { x.fillStyle = 'rgba(255,214,170,' + (Math.random() * 0.10) + ')'; x.fillRect(Math.random() * w, horizon + Math.random() * (h - horizon), 2, 2); }
+      } else {
+        x.fillStyle = '#04070d'; x.fillRect(0, horizon, w, h - horizon);
+        x.fillStyle = 'rgba(0,229,255,0.5)'; x.fillRect(0, horizon, w, 3);
       }
-    })();
-    var gridGeo = new THREE.BufferGeometry();
-    gridGeo.setAttribute('position', new THREE.BufferAttribute(gp, 3));
-    gridGeo.setAttribute('color', new THREE.BufferAttribute(gc, 3));
-    var spacetime = new THREE.LineSegments(gridGeo, new THREE.LineBasicMaterial({
-      vertexColors: true, transparent: true, opacity: 0.55,
-      blending: THREE.AdditiveBlending, depthWrite: false
-    }));
-    world.add(spacetime);
-    function rippleGrid(t) {
-      var arr = gridGeo.attributes.position.array;
-      for (var vi = 0; vi < gridCount; vi++) {
-        var y0 = gb[vi * 2], r = gb[vi * 2 + 1];
-        arr[vi * 3 + 1] = y0 + 0.035 * Math.sin(5.5 * r - 3.2 * t) * Math.exp(-r / 3);
+      // viewports: punch real openings (alphaTest discards) so the true starfield shows through
+      x.globalCompositeOperation = 'destination-out';
+      [0.09, 0.42, 0.72].forEach(function (fx) { bayRoundRect(x, w * fx, h * 0.15, w * 0.17, h * 0.30, 26); x.fill(); });
+      x.globalCompositeOperation = 'source-over';
+      x.strokeStyle = 'rgba(165,205,245,0.55)'; x.lineWidth = 6;
+      [0.09, 0.42, 0.72].forEach(function (fx) { bayRoundRect(x, w * fx, h * 0.15, w * 0.17, h * 0.30, 26); x.stroke(); });
+    }
+    ['earth', 'moon', 'mars'].forEach(function (kind) {
+      bayState.tex[kind] = bayCanvas(2048, 1024, function (x, w, h) { paintBayWalls(x, w, h, kind); });
+    });
+    bayState.wallMat = new THREE.MeshBasicMaterial({ map: bayState.tex.earth, side: THREE.BackSide, alphaTest: 0.5 });
+    var bayWalls = new THREE.Mesh(new THREE.CylinderGeometry(15, 15, 10, 64, 1, true), bayState.wallMat);
+    bayWalls.position.y = 2; bayGroup.add(bayWalls);
+    var bayCeil = new THREE.Mesh(new THREE.CircleGeometry(15, 64), new THREE.MeshBasicMaterial({
+      map: bayCanvas(1024, 1024, function (x, w, h) {
+        x.fillStyle = '#070c16'; x.fillRect(0, 0, w, h);
+        x.strokeStyle = 'rgba(0,229,255,0.12)'; x.lineWidth = 1;
+        for (var i = 0; i <= w; i += 46) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, h); x.stroke(); x.beginPath(); x.moveTo(0, i); x.lineTo(w, i); x.stroke(); }
+        var cg = x.createRadialGradient(w / 2, h / 2, 40, w / 2, h / 2, 320);
+        cg.addColorStop(0, 'rgba(170,242,255,0.9)'); cg.addColorStop(0.25, 'rgba(0,229,255,0.32)'); cg.addColorStop(1, 'rgba(0,229,255,0)');
+        x.fillStyle = cg; x.beginPath(); x.arc(w / 2, h / 2, 320, 0, 6.2832); x.fill();
+      }) }));
+    bayCeil.rotation.x = Math.PI / 2; bayCeil.position.y = 7; bayGroup.add(bayCeil);
+    var bayFloor = new THREE.Mesh(new THREE.CircleGeometry(15, 64), new THREE.MeshBasicMaterial({
+      map: bayCanvas(1024, 1024, function (x, w, h) {
+        var fg = x.createRadialGradient(w / 2, h / 2, 60, w / 2, h / 2, w / 2);
+        fg.addColorStop(0, '#0d1626'); fg.addColorStop(0.6, '#081020'); fg.addColorStop(1, '#04070d');
+        x.fillStyle = fg; x.fillRect(0, 0, w, h);
+        [0.30, 0.45, 0.62, 0.8].forEach(function (r) {
+          x.strokeStyle = 'rgba(0,229,255,0.35)'; x.lineWidth = r === 0.45 ? 5 : 2;
+          x.beginPath(); x.arc(w / 2, h / 2, r * w / 2, 0, 6.2832); x.stroke();
+        });
+        x.strokeStyle = 'rgba(0,229,255,0.16)'; x.lineWidth = 3;
+        for (var a = 0; a < 12; a++) { var an = a / 12 * 6.2832; x.beginPath(); x.moveTo(w / 2 + Math.cos(an) * w * 0.31, h / 2 + Math.sin(an) * h * 0.31); x.lineTo(w / 2 + Math.cos(an) * w * 0.49, h / 2 + Math.sin(an) * h * 0.49); x.stroke(); }
+      }) }));
+    bayFloor.rotation.x = -Math.PI / 2; bayFloor.position.y = -3; bayGroup.add(bayFloor);
+    // the projector platform the hologram rises from
+    var projector = new THREE.Group(); projector.position.y = -1.62; bayGroup.add(projector);
+    projector.add(new THREE.Mesh(new THREE.CylinderGeometry(1.45, 1.68, 0.26, 48),
+      new THREE.MeshPhongMaterial({ color: 0x1a2436, emissive: 0x050d16, shininess: 70, specular: 0x7fb2ff })));
+    var projTop = new THREE.Mesh(new THREE.CircleGeometry(1.45, 48), new THREE.MeshBasicMaterial({
+      map: bayCanvas(512, 512, function (x, w, h) {
+        x.fillStyle = '#0a1424'; x.fillRect(0, 0, w, h);
+        var pg = x.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w / 2);
+        pg.addColorStop(0, 'rgba(225,255,255,0.95)'); pg.addColorStop(0.22, 'rgba(0,229,255,0.55)'); pg.addColorStop(0.6, 'rgba(0,160,220,0.16)'); pg.addColorStop(1, 'rgba(0,80,140,0)');
+        x.fillStyle = pg; x.beginPath(); x.arc(w / 2, h / 2, w / 2, 0, 6.2832); x.fill();
+        x.strokeStyle = 'rgba(185,250,255,0.8)';
+        [0.36, 0.58, 0.8].forEach(function (r) { x.lineWidth = 3; x.beginPath(); x.arc(w / 2, h / 2, r * w / 2, 0, 6.2832); x.stroke(); });
+      }), transparent: true }));
+    projTop.rotation.x = -Math.PI / 2; projTop.position.y = 0.135; projector.add(projTop);
+    // light cone from the projector into the hologram
+    bayState.coneMat = new THREE.MeshBasicMaterial({
+      map: bayCanvas(32, 256, function (x, w, h) {
+        var lg = x.createLinearGradient(0, h, 0, 0);
+        lg.addColorStop(0, 'rgba(150,242,255,0.6)'); lg.addColorStop(1, 'rgba(150,242,255,0)');
+        x.fillStyle = lg; x.fillRect(0, 0, w, h);
+      }), transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+    var cone = new THREE.Mesh(new THREE.CylinderGeometry(0.92, 0.32, 0.55, 48, 1, true), bayState.coneMat);
+    cone.position.y = -1.22; bayGroup.add(cone);
+    bayState.light = new THREE.PointLight(0x66d9ff, 30, 13, 1.8);
+    bayState.light.position.set(0, -0.9, 0); bayGroup.add(bayState.light);
+    // hologram treatment for the Earth itself: fresnel shell + faint lat/long wire
+    bayState.shellMat = new THREE.ShaderMaterial({
+      uniforms: { uColor: { value: new THREE.Color(0x35c8ff) }, uStr: { value: 0.85 } },
+      vertexShader: 'varying vec3 vN; varying vec3 vP; void main(){ vN = normalize(normalMatrix * normal); vec4 mv = modelViewMatrix * vec4(position, 1.0); vP = mv.xyz; gl_Position = projectionMatrix * mv; }',
+      fragmentShader: 'uniform vec3 uColor; uniform float uStr; varying vec3 vN; varying vec3 vP; void main(){ vec3 v = normalize(-vP); float f = pow(1.0 - abs(dot(v, normalize(vN))), 3.2); gl_FragColor = vec4(uColor, 1.0) * f * uStr; }',
+      blending: THREE.AdditiveBlending, transparent: true, depthWrite: false });
+    earth.add(new THREE.Mesh(new THREE.SphereGeometry(1.045, 48, 48), bayState.shellMat));
+    earth.add(new THREE.Mesh(new THREE.SphereGeometry(1.02, 24, 16),
+      new THREE.MeshBasicMaterial({ color: 0x35c8ff, wireframe: true, transparent: true, opacity: 0.05, blending: THREE.AdditiveBlending, depthWrite: false })));
+    bayState.ready = true;
+    function baySceneFor(sp) {
+      var u = (sp && sp.userData) || {};
+      if (u.destKind === 'moon') return 'moon';
+      if (u.destKind === 'mars') return 'mars';
+      if (u.event && u.event.body) return u.event.body === 'mars' ? 'mars' : 'moon';
+      var n = sp, hops = 0;
+      while (n && hops < 5) {
+        if (n.userData && n.userData.destKind === 'moon') return 'moon';
+        if (n.userData && n.userData.destKind === 'mars') return 'mars';
+        if (n.children) for (var i = 0; i < n.children.length; i++) {
+          var cd = n.children[i].userData || {};
+          if (cd.destKind === 'moon') return 'moon';
+          if (cd.destKind === 'mars') return 'mars';
+        }
+        n = n.parent; hops++;
       }
-      gridGeo.attributes.position.needsUpdate = true;
+      return null;
+    }
+    function baySetScene(name) {
+      if (!bayState.ready || !bayState.tex[name]) return;
+      bayState.sceneName = name;
+      bayState.wallMat.map = bayState.tex[name]; bayState.wallMat.needsUpdate = true;
+      if (bayState.light) bayState.light.color.setHex(name === 'moon' ? 0xbfd4e6 : name === 'mars' ? 0xffb37a : 0x66d9ff);
+    }
+    window.__scBay = { setScene: baySetScene, sceneFor: baySceneFor, get sceneName() { return bayState.sceneName; } };
+    function bayPulse(t) {
+      // the room hides itself in AR (the tabletop Earth is a guest in YOUR room there)
+      bayGroup.visible = !arMode && !(renderer.xr && renderer.xr.isPresenting);
+      if (!bayGroup.visible) return;
+      var p = 0.5 + 0.5 * Math.sin(t * 2.2);
+      if (bayState.light) bayState.light.intensity = 26 + 8 * p;
+      if (bayState.coneMat) bayState.coneMat.opacity = 0.12 + 0.05 * p;
+      if (bayState.shellMat) bayState.shellMat.uniforms.uStr.value = 0.78 + 0.14 * Math.sin(t * 1.7);
     }
     var sun = new THREE.DirectionalLight(0xffffff, 1.6); scene.add(sun);
     var _sunQ = new THREE.Quaternion(), _sunDir = new THREE.Vector3();
@@ -1244,9 +1376,8 @@ window.__scB = {
           pm.scale.setScalar(s);
           pm.material.color.setHex(urgent ? 0xff3b5c : 0xffb020);
         });
-        // spacetime grid ripples — throttled to every 3rd frame (hardening:
-        // the full 12,768-vertex buffer was re-uploaded to the GPU every frame)
-        if (frameNo % 3 === 0) rippleGrid(t);
+        // Space Bay projector pulse — throttled to every 3rd frame
+        if (frameNo % 3 === 0) bayPulse(t);
         // smooth tilt
         rotX += (targetRotX - rotX) * 0.08;
         world.rotation.x = rotX;
