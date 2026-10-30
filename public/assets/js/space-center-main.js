@@ -133,15 +133,20 @@
     function flyTo(sp) {
       focusSat = sp; camGoalDist = sp.userData.isPad ? 0.9 : sp.userData.destDist || 0.5;
       // Space Bay: travelling re-skins the bay walls to the destination.
-      var _bs = baySceneFor(sp);
-      if (_bs) baySetScene(_bs); else if (!(sp.userData && sp.userData.isDestination)) baySetScene('earth');
+      // Armored (2026-10-30): the bay is decoration — it must never be able
+      // to break selection or flying, so its hook swallows its own errors
+      // and takes the fast path for ordinary satellites and pads.
+      try {
+        if (sp.userData && sp.userData.isDestination) { var _bs = baySceneFor(sp); if (_bs) baySetScene(_bs); }
+        else baySetScene('earth');
+      } catch (e) { /* bay stays as-is; flying is unaffected */ }
       var u = sp.userData;
       document.getElementById('trackname').textContent = u.isPad ? u.pad.n : (u.name.length > 24 ? u.name.slice(0, 24) + '…' : u.name);
       document.getElementById('trackchip').classList.add('show');
     }
     function flyHome() {
       focusSat = null; camGoal.set(0, 0, 0); camGoalDist = 3.26;
-      baySetScene('earth');
+      try { baySetScene('earth'); } catch (e) { /* bay only */ }
       document.getElementById('trackchip').classList.remove('show');
     }
     document.getElementById('trackx').onclick = function () {
@@ -161,7 +166,8 @@
     })();
     // earth (4096px + max anisotropy for sharp close-ups; falls back to the 1024 file until the 4096 one is pushed)
     var earthTex = new THREE.TextureLoader().load('../assets/img/earth-blue-marble-4096.jpg', undefined, undefined,
-      function () { earth.material.map = new THREE.TextureLoader().load('../assets/img/earth-blue-marble-1024.jpg');
+      function () { var fb = new THREE.TextureLoader().load('../assets/img/earth-blue-marble-1024.jpg');
+        earth.material.map = fb; if (earth.material.emissiveMap) earth.material.emissiveMap = fb;
         earth.material.map.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy()); earth.material.needsUpdate = true; });
     earthTex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
     var earth = new THREE.Mesh(
@@ -316,7 +322,21 @@
       blending: THREE.AdditiveBlending, transparent: true, depthWrite: false });
     earth.add(new THREE.Mesh(new THREE.SphereGeometry(1.045, 48, 48), bayState.shellMat));
     earth.add(new THREE.Mesh(new THREE.SphereGeometry(1.02, 24, 16),
-      new THREE.MeshBasicMaterial({ color: 0x35c8ff, wireframe: true, transparent: true, opacity: 0.05, blending: THREE.AdditiveBlending, depthWrite: false })));
+      new THREE.MeshBasicMaterial({ color: 0x35c8ff, wireframe: true, transparent: true, opacity: 0.09, blending: THREE.AdditiveBlending, depthWrite: false })));
+    // The imagery itself is the hologram (Jeff, 2026-10-30: the glow used to
+    // sit BEHIND the photographic globe). The Blue Marble texture now glows
+    // with itself via emissiveMap — same texture object the runtime de-seam
+    // repairs, so the fix applies to the glow too — cyan-tinted, scanlined,
+    // while the real sun shading and night side keep working on top.
+    earth.material.color.set(0xa8c8e0);
+    earth.material.emissive = new THREE.Color(0x2fb9e8);
+    earth.material.emissiveMap = earthTex;
+    earth.material.emissiveIntensity = 0.55;
+    earth.material.onBeforeCompile = function (sh) {
+      sh.fragmentShader = sh.fragmentShader.replace('#include <emissivemap_fragment>',
+        '#include <emissivemap_fragment>\n\ttotalEmissiveRadiance *= 0.90 + 0.10 * sin(gl_FragCoord.y * 1.9);');
+    };
+    earth.material.needsUpdate = true;
     bayState.ready = true;
     function baySceneFor(sp) {
       var u = (sp && sp.userData) || {};
@@ -344,6 +364,9 @@
     }
     window.__scBay = { setScene: baySetScene, sceneFor: baySceneFor, get sceneName() { return bayState.sceneName; } };
     function bayPulse(t) {
+      try { bayPulseInner(t); } catch (e) { /* the pulse must never break the render loop */ }
+    }
+    function bayPulseInner(t) {
       // the room hides itself in AR (the tabletop Earth is a guest in YOUR room there)
       bayGroup.visible = !arMode && !(renderer.xr && renderer.xr.isPresenting);
       if (!bayGroup.visible) return;
