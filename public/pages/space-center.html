@@ -102,6 +102,7 @@
     #timebar .warp{display:flex;gap:6px;align-items:center}
     .wbtn{font:700 .72rem "JetBrains Mono",monospace;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.3);color:var(--text);border-radius:8px;padding:7px 11px;cursor:pointer}
     .wbtn.on{background:var(--accent);color:#04121a;border-color:var(--accent)}
+    #nowbtn{font:700 .72rem "JetBrains Mono",monospace;background:rgba(255,176,32,.12);border:1px solid rgba(255,176,32,.45);color:var(--text);border-radius:8px;padding:7px 11px;cursor:pointer}
     #trackchip{top:64px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:8px;font:700 .68rem "JetBrains Mono",monospace;letter-spacing:.1em;color:#bff3ff;background:rgba(4,8,18,.85);border:1px solid rgba(0,229,255,.35);padding:7px 8px 7px 14px;border-radius:20px;box-shadow:0 0 18px rgba(0,229,255,.25)}
     #trackchip.show{display:flex}
     #trackchip b{color:#fff}
@@ -640,6 +641,7 @@
       <button class="wbtn" data-warp="60">60×</button>
       <button class="wbtn" data-warp="600">600×</button>
     </div>
+    <button id="nowbtn" title="Back to now — real time">⌂ Now</button>
   </div>
   <div id="satlabel"></div>
   <div id="hoverlabel"></div>

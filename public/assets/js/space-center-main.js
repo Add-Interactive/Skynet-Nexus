@@ -355,10 +355,11 @@ window.__scB = {
       get sats() { return sats; }, get satById() { return satById; },
       get padMeshes() { return padMeshes; }, get heroSats() { return heroSats; },
       get profById() { return profById; }, get selected() { return selected; },
-      get world() { return world; }, get camera() { return camera; },
+      get world() { return world; }, get earth() { return earth; }, get camera() { return camera; },
       get scene() { return scene; }, get renderer() { return renderer; },
       get infopanel() { return infopanel; }, get lastLaunches() { return lastLaunchList; },
       selectSat, showInfo, flyTo, flyHome, toast, openTab, complete, escapeHtml, simDate, closeSidepanel,
+      sunRefDate: function () { return sunRefDate; },
       findSatProfile, satLiveData, satRows, satOrbitShape, fleetName, profileCardHtml,
       makeLabelSprite, arStatus, THREE, satellite,
       cmp: {}, wireCompare: null, renderCompare: null, tools: null
@@ -396,7 +397,7 @@ window.__scB = {
       sp.scale.setScalar(0.05);
       sp.position.copy(llToVec3(p.lat, p.lon, 30));
       sp.userData = { pad: p, isPad: true };
-      world.add(sp); padMeshes.push(sp);
+      earth.add(sp); padMeshes.push(sp); // on the globe itself, so pads ride its time-spin
     });
     // missions
     var done = {};
@@ -790,6 +791,11 @@ window.__scB = {
     });
     // time warp — simulated clock starts at real now, preserved across warp changes
     var warp = 1, warpStart = Date.now(), warpStartOffset = Date.now();
+    // Sun anchor for the Earth's own spin (Jeff, 2026-10-30): the sun stays
+    // fixed at this reference date while the globe rotates under it with
+    // simulated time — one full turn per simulated day. Re-anchored on load
+    // and by the Back-to-Now button, so day/night stays truthful.
+    var sunRefDate = new Date();
     function simDate() { return new Date(warpStartOffset + (Date.now() - warpStart) * warp); }
     document.querySelectorAll('.wbtn').forEach(function (b) {
       b.onclick = function () {
@@ -801,6 +807,15 @@ window.__scB = {
         warp = +b.getAttribute('data-warp');
       };
     });
+    // Back to now: re-sync the sim clock to real time at 1x, sun re-anchored.
+    document.getElementById('nowbtn').onclick = function () {
+      var _n = Date.now();
+      warp = 1; paused = false;
+      document.getElementById('pausebtn').textContent = '\u23f8';
+      warpStart = _n; warpStartOffset = _n; sunRefDate = new Date(_n);
+      document.querySelectorAll('.wbtn').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-warp') === '1'); });
+      toast('\u23f0 Back to now \u2014 live time');
+    };
     /* ---------- Space Center content: launches / students / moon+mars / stories ---------- */
     function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
     var LL2 = 'https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=15';
@@ -1391,12 +1406,19 @@ window.__scB = {
           }
           if (window.ARPlacement) { try { window.ARPlacement.onFrame(frame); } catch (e) {} }
         }
-        // sun — sunDirection() is in the world's local frame (same as llToVec3);
-        // rotate into scene space so the terminator stays accurate while Earth spins/tilts
-        _sunDir.copy(sunDirection(now));
+        // sun — anchored at sunRefDate while the Earth rotates with sim time
+        // below; sunDirection() is in the world's local frame (same as
+        // llToVec3), rotated into scene space for the light.
+        _sunDir.copy(sunDirection(sunRefDate));
         world.getWorldQuaternion(_sunQ);
         _sunDir.applyQuaternion(_sunQ);
         sun.position.copy(_sunDir.multiplyScalar(10));
+        // Earth turns WITH the clock (Jeff, 2026-10-30): geography rotates
+        // eastward one full turn per simulated day (sign verified against
+        // llToVec3: +rotation.y moves a point's longitude east). At 600x a
+        // day passes in ~2.4 minutes, so the planet visibly spins under the
+        // satellites; pause freezes it, Back-to-Now re-zeros it.
+        earth.rotation.y = ((now.getTime() - sunRefDate.getTime()) / 86400000 * Math.PI * 2) % (Math.PI * 2);
         // satellites (staggered: 1/3 per frame keeps 1000+ sats at full speed)
         for (var i = 0; i < sats.length; i++) {
           if ((i + frameNo) % 3 !== 0) continue;
