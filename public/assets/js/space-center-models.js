@@ -241,7 +241,7 @@ function tick() {
 // builds its fallback room on a timer — nothing here can break the page.
 (function loadSpaceBay() {
   try {
-    new GLTFLoader().load(MODEL_BASE + 'space-bay.glb', function (gltf) {
+    new GLTFLoader().load(MODEL_BASE + 'space-bay-v2.glb', function (gltf) {
       let tries = 0;
       (function hand() {
         if (window.__scBay && window.__scBay.attachSet) { window.__scBay.attachSet(gltf.scene); return; }
