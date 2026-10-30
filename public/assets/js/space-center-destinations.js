@@ -6,9 +6,10 @@
  * landing-history.json, a Destinations tab UI (fly-to cards + history),
  * and fly-to support reusing the page's flyTo/flyHome/camera system.
  * Also adds night-side city lights on Earth (NASA Black Marble texture on a
- * second sphere, R*1.002, child of `world`; shader uniform holds the sun
- * direction in the world's local frame so lights stay on the true night
- * side as the globe spins — degrades to invisible until the texture is pushed).
+ * second sphere, R*1.002, child of `world`; the shader masks them with the
+ * sun direction in view space — the same direction the Earth shader's
+ * terminator uses — so lights stay on the true night side as the globe
+ * spins; degrades to invisible until the texture is pushed).
  *
  * The catalog's 1,082 objects are all Earth-orbiting TLEs — lunar orbiters
  * have no public TLEs, so orbiters here use clearly-labeled approximate orbits.
@@ -96,12 +97,9 @@ function marsSubpoint(date) {
 }
 
 /* Sun direction in the world's LOCAL frame (the exact vector the page's
- * sunDirection() returns; PR #116 rotates it into scene space each frame).
- * The night-lights mesh is a child of `world` with no own transform, so its
- * local normals live in this same frame — setting the uniform to this vector
- * keeps city lights glued to the true night side no matter how the globe is
- * spun or tilted. Mathematically identical to
- * _sunDir.clone().applyQuaternion(_sunQ.clone().invert()). */
+ * sunDirection() returns). The night-lights tick rotates this world -> scene
+ * -> view each frame to feed the shader's sunDirView uniform, matching the
+ * Earth shader's terminator frame. */
 var _sunTmp = null;
 function sunLocalDir(date) {
   var jd = date.getTime() / 86400000 + 2440587.5, n = jd - 2451545.0;
@@ -120,30 +118,36 @@ function sunLocalDir(date) {
 // with Earth. Additive shader paints NASA Black Marble city lights only on
 // the night side. If the texture 404s (not yet pushed via HANDOFF), the mesh
 // stays invisible and the day side is unaffected.
+// Terminator frame (2026-10-30 day/night rework): the mask is computed in
+// VIEW space — normals via normalMatrix, and the tick feeds sunDirView, the
+// same view-space sun direction the Earth shader in main.js uses — so the
+// city lights sit exactly on the Earth shader's night side at any spin or
+// tilt. (Before the rework this compared local-frame normals against the
+// un-rotated sun vector, which only agreed with the lit globe near load.)
 var nightMesh = null, nightMat = null;
 function initNightLights() {
   if (!b.world) return;
   nightMat = new T.ShaderMaterial({
     uniforms: {
       nightMap: { value: null },
-      sunDirLocal: { value: new T.Vector3(1, 0, 0) }
+      sunDirView: { value: new T.Vector3(1, 0, 0) }
     },
     vertexShader: [
       'varying vec2 vUv;',
-      'varying vec3 vNormalLocal;',
+      'varying vec3 vNormalView;',
       'void main() {',
       '  vUv = uv;',
-      '  vNormalLocal = normal;',
+      '  vNormalView = normalize(normalMatrix * normal);',
       '  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
       '}'
     ].join('\n'),
     fragmentShader: [
       'uniform sampler2D nightMap;',
-      'uniform vec3 sunDirLocal;',
+      'uniform vec3 sunDirView;',
       'varying vec2 vUv;',
-      'varying vec3 vNormalLocal;',
+      'varying vec3 vNormalView;',
       'void main() {',
-      '  float d = dot(normalize(vNormalLocal), normalize(sunDirLocal));',
+      '  float d = dot(normalize(vNormalView), normalize(sunDirView));',
       '  float night = 1.0 - smoothstep(-0.2, 0.12, d);',
       '  vec3 city = texture2D(nightMap, vUv).rgb;',
       '  gl_FragColor = vec4(city * night * 1.35, 1.0);',
@@ -544,6 +548,7 @@ function init() {
 
   // Per-frame: real positions, face-Earth orientation, orbiter motion, pin pulse.
   var _mc = new T.Vector3(), _sc = new T.Vector3();
+  var _wq = new T.Quaternion(), _cq = new T.Quaternion(), _sv = new T.Vector3();
   (function tick() {
     requestAnimationFrame(tick);
     var now;
@@ -571,14 +576,17 @@ function init() {
           try { b.modelShowing = true; } catch (e) {}
         }
       }
-      // Night-side city lights: sun direction in the world's local frame, so the
-      // lights stay glued to the true night side as the globe spins/tilts.
+      // Night-side city lights: ride the globe's spin so the cities stay on
+      // their continents, and mask with the sun direction in VIEW space —
+      // sunLocalDir gives the world-frame vector (anchored at sunRefDate,
+      // exactly as main.js computes it), rotated world -> scene -> view,
+      // the identical direction the Earth shader's terminator uses.
       if (nightMat && nightMesh && nightMesh.visible) {
-        // The globe spins with simulated time now (main.js): ride the same
-        // rotation so the cities stay on their continents, and mask with the
-        // sun-anchored direction main uses for its light.
         nightMesh.rotation.y = b.earth ? b.earth.rotation.y : 0;
-        nightMat.uniforms.sunDirLocal.value.copy(sunLocalDir(b.sunRefDate ? b.sunRefDate() : now));
+        _sv.copy(sunLocalDir(b.sunRefDate ? b.sunRefDate() : now));
+        if (b.world && b.world.getWorldQuaternion) { b.world.getWorldQuaternion(_wq); _sv.applyQuaternion(_wq); }
+        if (b.camera && b.camera.getWorldQuaternion) { b.camera.getWorldQuaternion(_cq); _sv.applyQuaternion(_cq.invert()); }
+        nightMat.uniforms.sunDirView.value.copy(_sv);
       }
       if (pulsing) {
         var el = (performance.now() - pulsing.t0) / 1000;
