@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>NEXUS FIELD KIT // Skynet Nexus Holo-OS</title>
+  <meta name="description" content="The Nexus Field Kit turns your phone into a science tricorder: real motion, sound and compass scanners, correspondent-led field missions, and a scan logbook that lives on your device."/>
+  <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Lexend:wght@400;600;700&family=JetBrains+Mono:wght@500;700;800&display=swap"/>
+  <link rel="stylesheet" href="/assets/css/game-ui.css?v=20261024-mobile2"/>
+  <link rel="stylesheet" href="/assets/css/kids-mode.css"/>
+  <!-- Kids Mode: apply saved preference before first paint (no flash). Full logic: /assets/js/kids-mode.js -->
+  <script>
+    try {
+      var __kmLock = JSON.parse(localStorage.getItem('skynet.kidsModeLock') || '{}');
+      var __kmKid = localStorage.getItem('nexus_active_kid');
+      var __kmByKid = JSON.parse(localStorage.getItem('skynet.kidsModeByKid') || '{}');
+      var __kmOn = false;
+      if (__kmKid && __kmLock[__kmKid]) __kmOn = (__kmLock[__kmKid] === 'kids');
+      else if (__kmKid && Object.prototype.hasOwnProperty.call(__kmByKid, __kmKid)) __kmOn = !!__kmByKid[__kmKid];
+      else __kmOn = (localStorage.getItem('skynet.kidsMode') === 'on');
+      if (__kmOn) document.documentElement.setAttribute('data-kids-mode', 'true');
+    } catch (e) { /* private mode: straight site */ }
+  </script>
+  <style>
+    .fk-wrap { max-width: 1060px; margin: 0 auto; padding: 28px 18px 64px; }
+    .fk-hero { text-align: center; padding: 26px 10px 8px; }
+    .fk-hero h1 { font-family: var(--font-game); font-size: clamp(1.7rem, 5vw, 2.6rem); color: #fff; margin: 10px 0 8px; }
+    .fk-hero p { color: #9cb5d6; max-width: 62ch; margin: 0 auto; line-height: 1.6; }
+    .fk-kicker { font-family: var(--font-code); color: var(--neon-amber); font-size: .85rem; letter-spacing: .18em; }
+    .fk-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; margin: 26px 0; }
+    .fk-panel { padding: 22px; }
+    .fk-panel h2 { font-family: var(--font-game); font-size: 1.15rem; color: #fff; margin: 0 0 4px; display: flex; gap: 10px; align-items: center; }
+    .fk-guide { font-family: var(--font-code); font-size: .78rem; margin-bottom: 10px; }
+    .fk-perm { font-size: .82rem; color: #9cb5d6; line-height: 1.55; margin: 8px 0 14px; }
+    .fk-readout { font-family: var(--font-code); font-size: 1.9rem; font-weight: 800; color: #fff; line-height: 1.1; }
+    .fk-readout small { font-size: .8rem; color: #9cb5d6; font-weight: 500; display: block; margin-top: 2px; }
+    .fk-peak { font-family: var(--font-code); font-size: .85rem; color: var(--neon-amber); margin-top: 6px; }
+    .fk-canvas { width: 100%; height: 84px; background: rgba(0,0,0,.35); border: 1px solid var(--hud-border); border-radius: 10px; margin: 12px 0; display: block; }
+    .fk-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .fk-status { font-family: var(--font-code); font-size: .8rem; color: var(--neon-green); min-height: 1.2em; margin-top: 10px; }
+    .fk-compass { width: 150px; height: 150px; margin: 10px auto; border-radius: 50%; border: 2px solid var(--hud-border); position: relative; background: radial-gradient(circle at 50% 42%, rgba(0,229,255,.10), rgba(0,0,0,.35)); }
+    .fk-needle { position: absolute; left: 50%; top: 50%; width: 4px; height: 62px; margin-left: -2px; margin-top: -62px; background: linear-gradient(#ff5252 55%, #e8f4ff 55%); border-radius: 2px; transform-origin: 50% 100%; }
+    .fk-compass .fk-n { position: absolute; left: 50%; top: 6px; transform: translateX(-50%); font-family: var(--font-code); font-weight: 800; color: #ff5252; }
+    .fk-mission h3 { font-family: var(--font-game); color: #fff; font-size: 1.05rem; margin: 0 0 8px; }
+    .fk-mission p, .fk-mission li { color: #9cb5d6; font-size: .9rem; line-height: 1.6; }
+    .fk-mission ol { margin: 8px 0 0 18px; padding: 0; }
+    .fk-log-item { display: flex; justify-content: space-between; gap: 12px; padding: 10px 14px; border: 1px solid var(--hud-border); border-radius: 10px; background: rgba(255,255,255,.03); margin-bottom: 8px; font-size: .88rem; }
+    .fk-log-item b { color: #fff; font-family: var(--font-game); font-size: .85rem; }
+    .fk-log-item span { color: #9cb5d6; font-family: var(--font-code); font-size: .78rem; text-align: right; }
+    .fk-empty { color: #9cb5d6; font-size: .9rem; }
+    .fk-note { color: #9cb5d6; font-size: .88rem; line-height: 1.65; }
+    .fk-note b { color: #fff; }
+    button.fk-log[disabled] { opacity: .45; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+  <canvas id="space-canvas"></canvas>
+  <div class="holo-grid-bg"></div>
+  <div class="ambient-nebula nebula-1"></div>
+  <div class="ambient-nebula nebula-2"></div>
+
+  <!-- TOP GAMER HUD BAR (same chrome as the Flight Deck) -->
+  <header class="game-hud-bar">
+    <a href="../index.html" class="game-brand" aria-label="Skynet Nexus Command">
+      <div class="brand-hologram-icon">🚀</div>
+      <div>
+        <div class="brand-text-game">SKYNET NEXUS</div>
+        <div class="brand-sub-game">HOLO-OS // NEXUS FIELD KIT</div>
+      </div>
+    </a>
+    <div class="game-hud-center">
+      <a href="../index.html" class="tactical-btn tactical-btn-ghost" style="padding:6px 14px;font-size:0.75rem;">&larr; MISSION HUB</a>
+      <a href="kid.html" class="tactical-btn tactical-btn-cyan" style="padding:6px 14px;font-size:0.75rem;">🛩️ FLIGHT DECK</a>
+      <a href="quiz.html" class="tactical-btn tactical-btn-purple" style="padding:6px 14px;font-size:0.75rem;">🧠 QUIZ ARENA</a>
+    </div>
+    <div class="game-hud-stats">
+      <div class="hud-stat-pill"><span>🔬 SCANS</span><strong id="fk-scan-count" class="xp-glow">0 LOGGED</strong></div>
+      <button type="button" class="sfx-toggle-pill kids-mode-toggle" data-kids-mode-toggle title="Tap to turn on Kids Mode">🎨 KIDS MODE</button>
+    </div>
+  </header>
+
+  <main class="fk-wrap">
+    <div class="fk-hero">
+      <div style="font-size:52px;">🛰️</div>
+      <div class="fk-kicker">NEXUS FIELD KIT</div>
+      <h1>YOUR PHONE IS A TRICORDER.</h1>
+      <p>Starfleet cadets carry a tricorder. You carry a phone — and inside it are real science sensors: motion, sound, and a compass, all waiting for a mission. Pick a scanner, make a prediction, take a real measurement, and log what the world actually did. No fake readings, ever: if a sensor isn't on your device, the Field Kit tells you.</p>
+    </div>
+
+    <!-- ================= LIVE SCANNERS ================= -->
+    <div class="fk-grid">
+
+      <section class="mission-card fk-panel" id="fk-motion">
+        <h2>📐 MOTION LAB</h2>
+        <div class="fk-guide" style="color:#f97316;">GUIDE: GUS DELGADO · ENGINEERING 🔧</div>
+        <p class="fk-perm"><b style="color:#fff;">Motion</b> lets the Field Kit feel how your phone moves and shakes. Nothing is recorded or sent anywhere. Try it: swing your phone gently like a pendulum, or set it on a wobbly table.</p>
+        <div class="fk-readout"><span id="fk-motion-val">—</span><small>acceleration right now (m/s², including gravity ≈ 9.8 still)</small></div>
+        <div class="fk-peak" id="fk-motion-peak">PEAK: —</div>
+        <canvas class="fk-canvas" id="fk-motion-graph" width="520" height="84"></canvas>
+        <div class="fk-row">
+          <button type="button" class="tactical-btn tactical-btn-cyan" id="fk-motion-btn">▶ START SCAN</button>
+          <button type="button" class="tactical-btn tactical-btn-ghost fk-log" id="fk-motion-log" disabled>📓 LOG THIS SCAN</button>
+        </div>
+        <div class="fk-status" id="fk-motion-status"></div>
+      </section>
+
+      <section class="mission-card fk-panel" id="fk-sound">
+        <h2>🔊 SOUND LAB</h2>
+        <div class="fk-guide" style="color:#e879f9;">GUIDE: CADENCE LIU · MUSIC 🎵</div>
+        <p class="fk-perm"><b style="color:#fff;">Microphone</b> lets the Field Kit listen to how loud your world is. Sound is measured on your phone only — nothing is recorded or sent anywhere. Honest note: phone mics aren't calibrated lab meters, so this shows <i>relative</i> loudness — perfect for comparing places.</p>
+        <div class="fk-readout"><span id="fk-sound-val">—</span><small>relative loudness right now</small></div>
+        <div class="fk-peak" id="fk-sound-peak">PEAK: —</div>
+        <canvas class="fk-canvas" id="fk-sound-graph" width="520" height="84"></canvas>
+        <div class="fk-row">
+          <button type="button" class="tactical-btn tactical-btn-cyan" id="fk-sound-btn">▶ START SCAN</button>
+          <button type="button" class="tactical-btn tactical-btn-ghost fk-log" id="fk-sound-log" disabled>📓 LOG THIS SCAN</button>
+        </div>
+        <div class="fk-status" id="fk-sound-status"></div>
+      </section>
+
+      <section class="mission-card fk-panel" id="fk-compass">
+        <h2>🧭 GEO COMPASS</h2>
+        <div class="fk-guide" style="color:#34d399;">GUIDE: ROWAN FIELD · CLIMATE 🌍</div>
+        <p class="fk-perm"><b style="color:#fff;">Compass</b> lets the Field Kit know which way your phone is pointing. Walk around with it flat — metal and magnets nearby can confuse it, and waving it in a figure-eight helps it calibrate. That's real instrument science!</p>
+        <div class="fk-compass"><span class="fk-n">N</span><div class="fk-needle" id="fk-needle"></div></div>
+        <div class="fk-readout" style="text-align:center;"><span id="fk-compass-val">—</span><small>heading</small></div>
+        <div class="fk-row" style="justify-content:center;margin-top:12px;">
+          <button type="button" class="tactical-btn tactical-btn-cyan" id="fk-compass-btn">▶ START SCAN</button>
+          <button type="button" class="tactical-btn tactical-btn-ghost fk-log" id="fk-compass-log" disabled>📓 LOG THIS SCAN</button>
+        </div>
+        <div class="fk-status" id="fk-compass-status" style="text-align:center;"></div>
+      </section>
+
+      <section class="mission-card fk-panel" id="fk-astro">
+        <h2>🛰️ ASTRO SCANNER</h2>
+        <div class="fk-guide" style="color:#818cf8;">GUIDE: STELLA REYES · SPACE 🚀</div>
+        <p class="fk-perm">Your Astro Scanner is already on duty — it's the <b style="color:#fff;">Space Center</b>, tracking 1,000+ real satellites over your head right now. Stella's mission: open the Space Center, find the next ISS pass, then go outside and watch it cross the sky. Log it here when you've seen it!</p>
+        <div class="fk-row">
+          <a href="space-center.html" class="tactical-btn tactical-btn-cyan">🛰️ OPEN SPACE CENTER</a>
+          <button type="button" class="tactical-btn tactical-btn-ghost fk-log" id="fk-astro-log">📓 LOG: I SAW A SATELLITE</button>
+        </div>
+        <div class="fk-status" id="fk-astro-status"></div>
+      </section>
+    </div>
+
+    <!-- ================= FIELD MISSIONS ================= -->
+    <section class="mission-card" style="padding:28px;margin-bottom:26px;">
+      <h2 style="font-family:var(--font-game);font-size:1.3rem;color:var(--neon-green);margin:0 0 6px;">🎯 FIELD MISSIONS</h2>
+      <p class="fk-note">Every mission works the same way — the scientist's way: <b>Predict</b> first, then <b>Scan</b>, then <b>Explain</b> what the data showed. Teachers and guardians: any mission can be assigned as homework or a family challenge — just name the mission!</p>
+      <div class="fk-grid" style="margin-bottom:0;">
+        <div class="fk-mission">
+          <h3>📐 Mission 1 · The Pendulum Test <span style="color:#f97316;">(Gus)</span></h3>
+          <p>Can your phone measure gravity?</p>
+          <ol>
+            <li><b>Predict:</b> a longer pendulum swings slower or faster?</li>
+            <li><b>Scan:</b> hold your phone gently, swing it like a pendulum, run Motion Lab for 10 swings.</li>
+            <li><b>Explain:</b> count the graph's waves — time ÷ swings = your period. Did it match your prediction?</li>
+          </ol>
+        </div>
+        <div class="fk-mission">
+          <h3>🔊 Mission 2 · Sound Map of Your World <span style="color:#e879f9;">(Cadence)</span></h3>
+          <p>Where is your world loudest — and quietest?</p>
+          <ol>
+            <li><b>Predict:</b> rank 4 places from quietest to loudest before you measure.</li>
+            <li><b>Scan:</b> run Sound Lab in each place for 10 seconds and log the peak.</li>
+            <li><b>Explain:</b> compare your logs with your prediction. Any surprises?</li>
+          </ol>
+        </div>
+        <div class="fk-mission">
+          <h3>🧭 Mission 3 · The North Hunt <span style="color:#34d399;">(Rowan)</span></h3>
+          <p>Can you navigate by instrument alone?</p>
+          <ol>
+            <li><b>Predict:</b> point at where you think north is. No peeking!</li>
+            <li><b>Scan:</b> start the Geo Compass and check your heading.</li>
+            <li><b>Explain:</b> how far off were you, in degrees? Log your true-north find.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= LOGBOOK ================= -->
+    <section class="mission-card" style="padding:28px;margin-bottom:26px;">
+      <h2 style="font-family:var(--font-game);font-size:1.3rem;color:var(--neon-cyan);margin:0 0 6px;">📓 FIELD LOGBOOK</h2>
+      <p class="fk-note" style="margin-bottom:16px;">Your scan logs live <b>on this device only</b> — nothing is uploaded, tracked, or shared. Show your logbook to your teacher or guardian to prove your field work!</p>
+      <div id="fk-log-list"><p class="fk-empty">No scans logged yet. Run a scanner above and tap “Log this scan.”</p></div>
+      <div class="fk-row" style="margin-top:14px;">
+        <button type="button" class="tactical-btn tactical-btn-ghost" id="fk-log-clear">🗑️ CLEAR LOGBOOK</button>
+        <a href="kid.html" class="tactical-btn tactical-btn-cyan">🛩️ BACK TO FLIGHT DECK</a>
+      </div>
+    </section>
+
+    <section class="mission-card" style="padding:24px 28px;">
+      <h2 style="font-family:var(--font-game);font-size:1.1rem;color:#fff;margin:0 0 8px;">🔒 FOR GUARDIANS &amp; TEACHERS</h2>
+      <p class="fk-note">The Field Kit uses only the sensors a learner taps “Start” on, explains each permission in plain language first, and stores scan logs in the browser on this device. It never records audio, never uploads photos, and never tracks location — the compass shows a heading, not a position. Phone sensors are teaching-grade, not lab-grade: missions are built around comparisons and patterns, and learning that every instrument has error is part of the science.</p>
+    </section>
+  </main>
+
+  <script src="/assets/js/kids-mode.js"></script>
+  <script src="/assets/js/field-kit.js?v=20261029"></script>
+</body>
+</html>

@@ -48,6 +48,9 @@
       <a href="quiz.html" class="tactical-btn tactical-btn-purple" style="padding:6px 14px;font-size:0.75rem;">
         🧠 QUIZ ARENA
       </a>
+      <a href="field-kit.html" class="tactical-btn tactical-btn-cyan" style="padding:6px 14px;font-size:0.75rem;">
+        🛰️ FIELD KIT
+      </a>
       <a href="profile.html" class="tactical-btn tactical-btn-cyan" style="padding:6px 14px;font-size:0.75rem;">
         👨‍👩‍👧 GUARDIAN VIEW
       </a>
@@ -213,6 +216,15 @@
           </div>
           <span style="font-family:var(--font-code);color:var(--neon-purple);font-weight:700;">+15 XP AVAILABLE</span>
         </label>
+
+        <label style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid var(--hud-border);cursor:pointer;">
+          <input type="checkbox" id="chk-fieldkit" style="width:20px;height:20px;accent-color:var(--neon-cyan);"/>
+          <div style="flex:1;">
+            <div style="font-family:var(--font-game);font-size:0.95rem;color:#fff;">4. Field Kit Mission with Your Phone Tricorder</div>
+            <div style="font-size:0.8rem;color:#9cb5d6;">Open the <a href="field-kit.html" style="color:var(--neon-cyan);">Nexus Field Kit</a>, run a real sensor scan, and log it in your Field Logbook</div>
+          </div>
+          <span style="font-family:var(--font-code);color:var(--neon-cyan);font-weight:700;">+15 XP AVAILABLE</span>
+        </label>
       </div>
     </section>
 
@@ -223,6 +235,9 @@
       </a>
       <a href="quiz.html" class="tactical-btn tactical-btn-purple" style="font-size:1rem;padding:16px 32px;">
         🧠 ENTER QUIZ ARENA
+      </a>
+      <a href="field-kit.html" class="tactical-btn tactical-btn-cyan" style="font-size:1rem;padding:16px 32px;">
+        🛰️ OPEN FIELD KIT
       </a>
     </div>
 
@@ -257,7 +272,7 @@
       });
 
       // Interactive checkbox sounds
-      ['chk-quiz', 'chk-coread'].forEach(function (id) {
+      ['chk-quiz', 'chk-coread', 'chk-fieldkit'].forEach(function (id) {
         var el = document.getElementById(id);
         if (el) {
           el.addEventListener('change', function () {
