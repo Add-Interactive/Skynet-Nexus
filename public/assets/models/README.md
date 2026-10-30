@@ -25,3 +25,4 @@ they load with stock three.js GLTFLoader (no decoder download, no CSP change).
 The loader degrades cleanly: if a `.glb` 404s, the satellite keeps its dot and
 the user sees a one-time "3D model not on server yet" toast. Procedural
 stand-ins (Starlink / Tiangong / CubeSat) are built in code and always work.
+| `space-bay.glb` | 2.29 MB | Original — Stella's Space Bay set, modeled + textured in Blender (2026-10-30) |
