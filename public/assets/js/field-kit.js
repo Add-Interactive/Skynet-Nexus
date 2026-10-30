@@ -102,14 +102,21 @@
     });
     stampNext = false;
   }
-  function addLog(mode, result) {
+  var missionNotify = function () {}; /* replaced by the mission engine below */
+  function addLog(mode, result, value) {
     var entries = readLog();
     var now = new Date();
     var when = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    entries.unshift({ mode: mode, result: result, when: when });
+    var en = { mode: mode, result: result, when: when };
+    if (typeof value === 'number' && isFinite(value)) en.value = value;
+    entries.unshift(en);
     stampNext = true;
     writeLog(entries); renderLog(); buzz(25);
+    missionNotify(mode, result);
   }
+  function refreshCompare() { if (window.__fkRefreshCompare) window.__fkRefreshCompare(); }
+  var _renderLog = renderLog;
+  renderLog = function () { _renderLog(); refreshCompare(); };
   var clearBtn = $('fk-log-clear');
   if (clearBtn) clearBtn.addEventListener('click', function () { writeLog([]); renderLog(); });
 
@@ -204,7 +211,7 @@
     });
     logBtn.addEventListener('click', function () {
       if (!peak) return;
-      addLog('📐 Motion Lab', 'peak ' + peak.toFixed(1) + ' m/s\u00b2 (' + (peak / 9.81).toFixed(2) + ' g)');
+      addLog('📐 Motion Lab', 'peak ' + peak.toFixed(1) + ' m/s\u00b2 (' + (peak / 9.81).toFixed(2) + ' g)', peak);
       status.textContent = 'Logged! Check your Field Logbook below. 📓';
     });
   })();
@@ -285,7 +292,7 @@
     });
     logBtn.addEventListener('click', function () {
       if (peak === -Infinity) return;
-      addLog('🔊 Sound Lab', 'peak loudness ' + Math.max(-60, Math.round(peak)) + ' (relative)');
+      addLog('🔊 Sound Lab', 'peak loudness ' + Math.max(-60, Math.round(peak)) + ' (relative)', Math.max(-60, Math.round(peak)));
       status.textContent = 'Logged! Check your Field Logbook below. 📓';
     });
   })();
@@ -347,7 +354,7 @@
     });
     logBtn.addEventListener('click', function () {
       if (heading == null) return;
-      addLog('🧭 Geo Compass', 'heading ' + Math.round(heading) + '° ' + DIRS[Math.round(heading / 45) % 8]);
+      addLog('🧭 Geo Compass', 'heading ' + Math.round(heading) + '° ' + DIRS[Math.round(heading / 45) % 8], Math.round(heading));
       status.textContent = 'Logged! Check your Field Logbook below. 📓';
     });
   })();
@@ -378,6 +385,177 @@
       if (status) status.textContent = 'Logged! Stella is proud of you. 🚀';
     });
   })();
+
+
+  /* ================= GUIDED MISSIONS =================
+     Predict -> Scan -> Explain, played properly. Starting a
+     mission arms a listener: when the cadet LOGS a scan of
+     the mission's kind, the mission advances by itself —
+     the logbook stays the single source of truth. */
+  var MISSIONS = {
+    pendulum: { name: 'Mission 1 · The Pendulum Test', guide: 'GUS DELGADO · ENGINEERING', chip: '🔧', color: '#f97316',
+      panel: 'fk-motion', mode: '📐 Motion Lab', need: 1,
+      predictQ: 'Before you scan: a LONGER pendulum swings…',
+      options: ['Slower — longer means slower swings', 'Faster — longer means faster swings', 'The same — length won\u2019t matter'],
+      scanText: 'Start MOTION LAB (top of the Sensor Deck), hold your phone gently and swing it like a pendulum. Count the glowing waves for 10 swings — then tap LOG THIS SCAN inside Motion Lab. The mission hears the log and moves on by itself.' },
+    soundmap: { name: 'Mission 2 · Sound Map of Your World', guide: 'CADENCE LIU · MUSIC', chip: '🎵', color: '#e879f9',
+      panel: 'fk-sound', mode: '🔊 Sound Lab', need: 2,
+      predictQ: 'Before you scan: which place will measure LOUDEST?',
+      options: ['The kitchen', 'Outside', 'My room / living room', 'Somewhere else entirely'],
+      scanText: 'Start SOUND LAB in your first place, let it listen about 10 seconds, and LOG the scan. Then carry the Field Kit to a second place and LOG again. Two logs complete the scan step.' },
+    northhunt: { name: 'Mission 3 · The North Hunt', guide: 'ROWAN FIELD · CLIMATE', chip: '🌍', color: '#34d399',
+      panel: 'fk-compass', mode: '🧭 Geo Compass', need: 1,
+      predictQ: 'FIRST — put the phone down and POINT at where you think north is. No peeking! How close will you be?',
+      options: ['Within 10° — great sense of direction', 'Within 45° — pretty close', 'Way off — more than 45°'],
+      scanText: 'Start the GEO COMPASS and follow the amber readout until it calls ★ TRUE NORTH — then tap LOG THIS SCAN inside the compass panel.' }
+  };
+  var mission = null;
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function renderMission() {
+    var box = $('fk-player'); if (!box) return;
+    if (!mission) { box.hidden = true; return; }
+    var M = MISSIONS[mission.key];
+    box.hidden = false;
+    box.style.setProperty('--fk-accent', M.color);
+    $('fk-player-chip').textContent = M.chip;
+    $('fk-player-guide').textContent = 'GUIDE: ' + M.guide;
+    $('fk-player-title').textContent = M.name;
+    var steps = ['predict', 'scan', 'explain'];
+    var dots = $('fk-player-dots').querySelectorAll('b');
+    dots.forEach(function (d) {
+      var idx = steps.indexOf(d.getAttribute('data-step'));
+      d.classList.toggle('on', steps.indexOf(mission.step) >= idx || mission.step === 'done');
+    });
+    $('fk-player-step').textContent = mission.step === 'predict' ? 'STEP 1 OF 3 · PREDICT' :
+      mission.step === 'scan' ? 'STEP 2 OF 3 · SCAN' :
+      mission.step === 'explain' ? 'STEP 3 OF 3 · EXPLAIN' : 'MISSION COMPLETE';
+    var body = $('fk-player-body');
+    if (mission.step === 'predict') {
+      body.innerHTML = '<p>' + esc(M.predictQ) + '</p>' + M.options.map(function (o, i) {
+        return '<button type="button" class="tactical-btn tactical-btn-ghost fk-opt" data-pick="' + i + '">' + esc(o) + '</button>';
+      }).join('');
+      body.querySelectorAll('[data-pick]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          mission.prediction = M.options[Number(b.getAttribute('data-pick'))];
+          mission.step = 'scan'; mission.scans = []; renderMission(); buzz(15);
+        });
+      });
+    } else if (mission.step === 'scan') {
+      body.innerHTML = '<p><b style="color:#fff;">Your prediction:</b> ' + esc(mission.prediction) + '</p><p>' + esc(M.scanText) + '</p>' +
+        '<div class="fk-progress">SCANS LOGGED: ' + mission.scans.length + ' / ' + M.need + '</div>' +
+        '<button type="button" class="tactical-btn tactical-btn-cyan" id="fk-goto">🛰️ GO TO THE SCANNER</button>';
+      $('fk-goto').addEventListener('click', function () {
+        var panel = $(M.panel);
+        if (panel) {
+          panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          panel.classList.remove('fk-target'); void panel.offsetWidth; panel.classList.add('fk-target');
+        }
+      });
+    } else if (mission.step === 'explain') {
+      var found = mission.scans.map(function (s) { return esc(s); }).join(' · ');
+      body.innerHTML = '<p><b style="color:#fff;">Your prediction:</b> ' + esc(mission.prediction) + '</p>' +
+        '<p><b style="color:#fff;">Your real data:</b> ' + found + '</p>' +
+        '<p>Well, cadet — did the universe agree with you?</p>' +
+        '<button type="button" class="tactical-btn tactical-btn-green fk-opt" data-verdict="matched">✅ THE DATA MATCHED MY PREDICTION</button>' +
+        '<button type="button" class="tactical-btn tactical-btn-purple fk-opt" data-verdict="surprised">🤯 THE DATA SURPRISED ME</button>';
+      body.querySelectorAll('[data-verdict]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var verdict = b.getAttribute('data-verdict') === 'matched' ? 'prediction MATCHED the data ✅' : 'data SURPRISED the prediction 🤯';
+          addLog('🎯 ' + M.name, 'predicted \u201c' + mission.prediction + '\u201d · found: ' + mission.scans.join(' · ') + ' · ' + verdict);
+          mission.step = 'done'; renderMission(); buzz([30, 60, 30]);
+        });
+      });
+    } else {
+      body.innerHTML = '<div class="fk-done">★ MISSION COMPLETE ★</div>' +
+        '<p style="text-align:center;">Filed in your Field Logbook below, cadet. Predict, scan, explain — that\u2019s the whole scientific method, and you just ran it.</p>' +
+        '<div style="text-align:center;"><button type="button" class="tactical-btn tactical-btn-cyan" id="fk-done-close">📓 SEE MY LOGBOOK</button></div>';
+      $('fk-done-close').addEventListener('click', function () {
+        mission = null; renderMission();
+        var lb = $('fk-log-list'); if (lb) lb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
+  }
+  missionNotify = function (mode, result) {
+    if (!mission || mission.step !== 'scan') return;
+    var M = MISSIONS[mission.key];
+    if (mode !== M.mode) return;
+    mission.scans.push(result);
+    if (mission.scans.length >= M.need) mission.step = 'explain';
+    renderMission();
+    var box = $('fk-player'); if (box) box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+  document.querySelectorAll('.fk-begin').forEach(function (b) {
+    b.addEventListener('click', function () {
+      mission = { key: b.getAttribute('data-mission'), step: 'predict', prediction: null, scans: [] };
+      renderMission(); buzz(15);
+      var box = $('fk-player'); if (box) box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+  var cancelBtn = $('fk-player-cancel');
+  if (cancelBtn) cancelBtn.addEventListener('click', function () { mission = null; renderMission(); });
+
+  /* ================= DATA LAB: compare + field report ================= */
+  var CMP_COLORS = ['#00e5ff', '#e879f9'];
+  function entryValue(en) {
+    if (typeof en.value === 'number') return en.value;
+    var m = String(en.result).match(/-?\d+(\.\d+)?/);
+    return m ? parseFloat(m[0]) : null;
+  }
+  window.__fkRefreshCompare = function () {
+    var a = $('fk-cmp-a'), bsel = $('fk-cmp-b'); if (!a || !bsel) return;
+    var entries = readLog().map(function (en, i) { return { en: en, i: i, v: entryValue(en) }; })
+      .filter(function (x) { return x.v != null; });
+    var keepA = a.value, keepB = bsel.value;
+    function fill(sel, keep) {
+      sel.innerHTML = '';
+      entries.forEach(function (x) {
+        var o = document.createElement('option');
+        o.value = String(x.i);
+        o.textContent = x.en.mode + ' — ' + x.en.result + ' (' + x.en.when + ')';
+        sel.appendChild(o);
+      });
+      if (keep && sel.querySelector('option[value="' + keep + '"]')) sel.value = keep;
+    }
+    fill(a, keepA); fill(bsel, keepB);
+    if (bsel.options.length > 1 && a.value === bsel.value) bsel.selectedIndex = 1;
+  };
+  var cmpBtn = $('fk-cmp-btn');
+  if (cmpBtn) cmpBtn.addEventListener('click', function () {
+    var out = $('fk-cmp-out');
+    var entries = readLog();
+    var ea = entries[Number($('fk-cmp-a').value)], eb = entries[Number($('fk-cmp-b').value)];
+    if (!ea || !eb) { out.innerHTML = '<p class="fk-cmp-verdict">Log at least two scans first, cadet — comparisons need data!</p>'; return; }
+    var va = entryValue(ea), vb = entryValue(eb);
+    if (va == null || vb == null) { out.innerHTML = '<p class="fk-cmp-verdict">Those two don\u2019t carry numbers to compare.</p>'; return; }
+    if (ea.mode !== eb.mode) { out.innerHTML = '<p class="fk-cmp-verdict">Scientists compare like with like — pick two scans of the same kind. (A sound peak vs a compass heading isn\u2019t a fair fight!)</p>'; return; }
+    var max = Math.max(Math.abs(va), Math.abs(vb), 0.0001);
+    function row(en, v, c) {
+      return '<div class="fk-cmp-row"><div class="fk-cmp-label">' + esc(en.mode) + ' — ' + esc(en.result) + ' · ' + esc(en.when) + '</div>' +
+        '<div class="fk-cmp-bar"><i style="width:4%;background:' + c + ';box-shadow:0 0 12px ' + c + ';" data-w="' + Math.max(4, Math.abs(v) / max * 100) + '"></i></div></div>';
+    }
+    var diff = Math.abs(va - vb);
+    var verdict = va === vb ? 'Dead tie — identical readings!' :
+      'Difference: ' + (diff % 1 ? diff.toFixed(1) : diff) + ' between the two scans. ' + (va > vb ? 'The first scan measured higher.' : 'The second scan measured higher.');
+    out.innerHTML = row(ea, va, CMP_COLORS[0]) + row(eb, vb, CMP_COLORS[1]) + '<p class="fk-cmp-verdict">⚖️ ' + esc(verdict) + '</p>';
+    requestAnimationFrame(function () {
+      out.querySelectorAll('.fk-cmp-bar i').forEach(function (bar) { bar.style.width = bar.getAttribute('data-w') + '%'; });
+    });
+  });
+  var repBtn = $('fk-report-btn');
+  if (repBtn) repBtn.addEventListener('click', function () {
+    var entries = readLog();
+    var rows = entries.map(function (en) {
+      return '<tr><td>' + esc(en.when) + '</td><td>' + esc(en.mode) + '</td><td>' + esc(en.result) + '</td></tr>';
+    }).join('');
+    var w = window.open('', '_blank');
+    if (!w) return;
+    w.document.write('<!DOCTYPE html><html><head><title>Cadet Field Report — Nexus Field Kit</title>' +
+      '<style>body{font-family:Georgia,serif;color:#12212f;margin:40px;}h1{letter-spacing:.06em;}table{border-collapse:collapse;width:100%;}td,th{border:1px solid #9db8cc;padding:8px 10px;text-align:left;font-size:14px;}th{background:#e8f2f9;}p{color:#456;}@media print{button{display:none;}}</style></head><body>' +
+      '<h1>🛰️ CADET FIELD REPORT</h1><p>Nexus Field Kit · Skynet Nexus · Generated ' + esc(new Date().toLocaleString()) + ' from the on-device Field Logbook (' + entries.length + ' scans). All measurements were taken live by the cadet\u2019s own device sensors.</p>' +
+      (entries.length ? '<table><tr><th>When</th><th>Scanner / Mission</th><th>Result</th></tr>' + rows + '</table>' : '<p>No scans logged yet.</p>') +
+      '<p style="margin-top:24px;"><button onclick="window.print()">🖨️ Print this report</button></p></body></html>');
+    w.document.close();
+  });
 
   renderLog();
 })();
