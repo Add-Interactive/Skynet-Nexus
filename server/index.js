@@ -2360,173 +2360,55 @@ app.listen(PORT, () => {
     const rawDb = new DatabaseSync(DB_PATH);
     const fs = require('fs');
     const path = require('path');
-    // 3. Self-healing: Resolve and repair missing placeholder JPG cover images in persistent DATA_DIR
+    // 3. Hero images: REPORT a missing file, NEVER rewrite the pointer.
+    // (Fix 2026-10-30) Agent artwork is uploaded to the persistent volume
+    // (USERS_DIR/<channel>/) and served from there, but the old self-healing
+    // only checked the repo folder + the ComfyUI path. On every boot it
+    // therefore judged every agent image "missing" and permanently replaced
+    // heroImage with a RANDOM repo-pool image in the queued stories, the
+    // manifest, and the article files -- which is why every deploy scrambled
+    // the article artwork while the real files sat untouched on the volume.
+    // A heroImage is editorial data: check every place the file can
+    // legitimately live (volume first, then repo, then ComfyUI), warn if it
+    // is truly absent, and otherwise leave it exactly as filed. The old
+    // duplicate-image random reassignment is removed for the same reason.
     try {
       const repoChannelsDir = path.join(ROOT, 'public', 'assets', 'img', 'channels');
-      const channelsList = ['ai', 'biotech', 'climate', 'cyber', 'engineering', 'gaming', 'math', 'music', 'play', 'quantum', 'robotics', 'space', 'stem', 'network', 'skynet'];
-      const channelImages = {};
-
+      const { USERS_DIR } = require('./storage');
       const { COMFY_PATH } = require('./sync-comfy-helper');
-
-      function getImagesForChannel(ch) {
-        const list = new Set();
-        function walk(baseDir, currentSubdir = '') {
-          const dirPath = path.join(baseDir, currentSubdir);
-          if (!fs.existsSync(dirPath) || !fs.statSync(dirPath).isDirectory()) return;
-          fs.readdirSync(dirPath).forEach(item => {
-            const rel = currentSubdir ? `${currentSubdir}/${item}` : item;
-            const full = path.join(baseDir, rel);
-            if (fs.statSync(full).isDirectory()) {
-              walk(baseDir, rel);
-            } else if (/\.(jpe?g|png|webp|gif|svg)$/i.test(item)) {
-              list.add(rel.replace(/\\/g, '/'));
-            }
-          });
-        }
-
-        const repoPath = path.join(repoChannelsDir, ch);
-        walk(repoPath);
-
+      function heroFileExists(ch, filename) {
+        const candidates = [
+          path.join(USERS_DIR, ch, filename),
+          path.join(repoChannelsDir, ch, filename)
+        ];
         if (COMFY_PATH && fs.existsSync(COMFY_PATH)) {
-          const comfyDirs = fs.readdirSync(COMFY_PATH);
-          const matchedDir = comfyDirs.find(d => d.toLowerCase() === ch.toLowerCase());
-          if (matchedDir) {
-            walk(path.join(COMFY_PATH, matchedDir));
-          }
+          try {
+            const matched = fs.readdirSync(COMFY_PATH).find(d => d.toLowerCase() === String(ch).toLowerCase());
+            if (matched) candidates.push(path.join(COMFY_PATH, matched, filename));
+          } catch (e) {}
         }
-        return Array.from(list);
+        return candidates.some(p => { try { return fs.existsSync(p) && fs.statSync(p).isFile(); } catch (e) { return false; } });
       }
-
-      channelsList.forEach(ch => {
-        channelImages[ch] = getImagesForChannel(ch);
-      });
-
-      function imageExists(ch, filename) {
-        const p1 = path.join(repoChannelsDir, ch, filename);
-        if (fs.existsSync(p1) && fs.statSync(p1).isFile()) return true;
-        if (COMFY_PATH && fs.existsSync(COMFY_PATH)) {
-          const comfyDirs = fs.readdirSync(COMFY_PATH);
-          const matchedDir = comfyDirs.find(d => d.toLowerCase() === ch.toLowerCase());
-          if (matchedDir) {
-            const p2 = path.join(COMFY_PATH, matchedDir, filename);
-            if (fs.existsSync(p2) && fs.statSync(p2).isFile()) return true;
-          }
+      function warnIfMissing(heroImage, owner) {
+        if (!heroImage || !heroImage.startsWith('/assets/img/channels/')) return;
+        const parts = heroImage.replace('/assets/img/channels/', '').split('/');
+        if (!heroFileExists(parts[0], parts.slice(1).join('/'))) {
+          console.warn(`[skynet] hero image file not found, left unchanged: ${heroImage} (${owner})`);
         }
-        return false;
       }
-
-      // Update DB queued stories
       const queued = rawDb.prepare("SELECT id, payload FROM queued_stories").all();
       queued.forEach(row => {
-        try {
-          const payload = JSON.parse(row.payload);
-          if (payload.heroImage && payload.heroImage.startsWith('/assets/img/channels/')) {
-            const parts = payload.heroImage.replace('/assets/img/channels/', '').split('/');
-            const ch = parts[0];
-            const filename = parts.slice(1).join('/');
-
-            if (!imageExists(ch, filename)) {
-              const list = channelImages[ch] || [];
-              if (list.length > 0) {
-                const rand = list[Math.floor(Math.random() * list.length)];
-                payload.heroImage = `/assets/img/channels/${ch}/${rand}`;
-                rawDb.prepare("UPDATE queued_stories SET payload = ? WHERE id = ?").run(JSON.stringify(payload), row.id);
-              }
-            }
-          }
-        } catch (e) {}
+        try { warnIfMissing(JSON.parse(row.payload).heroImage, 'queued ' + row.id); } catch (e) {}
       });
-
-      // Update manifest and article files in DATA_DIR
       const manifestPath = path.join(DATA_DIR, 'manifest.json');
       if (fs.existsSync(manifestPath)) {
         const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-        let manifestChanged = false;
         if (Array.isArray(manifest.articles)) {
-          manifest.articles.forEach(art => {
-            if (art.heroImage && art.heroImage.startsWith('/assets/img/channels/')) {
-              const parts = art.heroImage.replace('/assets/img/channels/', '').split('/');
-              const ch = parts[0];
-              const filename = parts.slice(1).join('/');
-
-              if (!imageExists(ch, filename)) {
-                const list = channelImages[ch] || [];
-                if (list.length > 0) {
-                  const rand = list[Math.floor(Math.random() * list.length)];
-                  const newImg = `/assets/img/channels/${ch}/${rand}`;
-                  art.heroImage = newImg;
-                  manifestChanged = true;
-
-                  const artFilePath = path.resolve(path.join(DATA_DIR, art.path.replace(/^data\//, '')));
-                  if (fs.existsSync(artFilePath)) {
-                    try {
-                      const article = JSON.parse(fs.readFileSync(artFilePath, 'utf8'));
-                      article.heroImage = newImg;
-                      fs.writeFileSync(artFilePath, JSON.stringify(article, null, 2));
-                    } catch (e) {}
-                  }
-                }
-              }
-            }
-          });
-        }
-
-        // 3b. Self-healing: Resolve and repair duplicate heroImage usage across articles in persistent manifest
-        try {
-          const imageMap = {};
-          let duplicateImagesChanged = false;
-
-          manifest.articles.forEach(art => {
-            if (!art.heroImage) return;
-            // Ignore pins / welcome articles
-            if (art.id === '2026-07-01-welcome-to-skynet-nexus' || art.id === '2026-07-04-franklin-stem-excellence') return;
-            if (art.heroImage.includes('skywelcome') || art.heroImage.includes('franklin_stem') || art.heroImage.includes('whitney_stem')) return;
-
-            if (!imageMap[art.heroImage]) imageMap[art.heroImage] = [];
-            imageMap[art.heroImage].push(art);
-          });
-
-          for (const [imgUrl, arts] of Object.entries(imageMap)) {
-            if (arts.length > 1) {
-              console.log(`[skynet] Self-healing: Found duplicate image use for "${imgUrl}" across ${arts.length} articles.`);
-              for (let i = 1; i < arts.length; i++) {
-                const art = arts[i];
-                const ch = art.cat;
-                const list = channelImages[ch] || [];
-                if (list.length > 0) {
-                  const cleanImgUrl = imgUrl.replace(`/assets/img/channels/${ch}/`, '');
-                  const filteredList = list.filter(item => item !== cleanImgUrl);
-                  const replacementList = filteredList.length > 0 ? filteredList : list;
-                  const rand = replacementList[Math.floor(Math.random() * replacementList.length)];
-                  const newImg = `/assets/img/channels/${ch}/${rand}`;
-
-                  console.log(`  -> Reassigning [${art.id}]: ${art.heroImage} -> ${newImg}`);
-                  art.heroImage = newImg;
-                  duplicateImagesChanged = true;
-
-                  const artFilePath = path.resolve(path.join(DATA_DIR, art.path.replace(/^data\//, '')));
-                  if (fs.existsSync(artFilePath)) {
-                    try {
-                      const article = JSON.parse(fs.readFileSync(artFilePath, 'utf8'));
-                      article.heroImage = newImg;
-                      fs.writeFileSync(artFilePath, JSON.stringify(article, null, 2));
-                    } catch (e) {}
-                  }
-                }
-              }
-            }
-          }
-
-          if (duplicateImagesChanged) {
-            fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-            console.log('[skynet] Self-healing: Successfully resolved duplicate images in persistent manifest.');
-          }
-        } catch (dupImgErr) {
-          console.error('[skynet] Self-healing duplicate images failed:', dupImgErr.message);
+          manifest.articles.forEach(art => warnIfMissing(art.heroImage, 'article ' + art.id));
         }
       }
     } catch (e) {
-      console.error('[skynet] Self-healing missing images failed:', e.message);
+      console.error('[skynet] Hero image check failed:', e.message);
     }
 
     // 4. Self-healing: Remove duplicate articles (same title) from persistent manifest.json
