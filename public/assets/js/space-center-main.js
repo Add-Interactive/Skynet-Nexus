@@ -275,6 +275,29 @@
         bayState.fallbackMeshes = [];
         set.position.y = -2.4;
         bayGroup.add(set);
+        // Painted-backdrop hardening (2026-10-30): the set's vista and
+        // emitter panels carry their artwork ONLY in emissive textures
+        // over a black base. On some real-GPU Chrome setups those panels
+        // render plain white — the painting never shows — while the same
+        // file renders correctly in software WebGL. These surfaces are
+        // paintings, not lit geometry, so pin them to unlit materials
+        // that display the artwork texture directly: identical on every
+        // GPU, immune to scene light and to the emissive path entirely.
+        // The floor keeps its lit material but its emissive glow is
+        // dimmed — its outer ring was blowing out to white the same way.
+        try {
+          set.traverse(function (o) {
+            if (!o.isMesh || !o.material) return;
+            var m = o.material, n = m.name || '';
+            if (n.indexOf('Vista') === 0 && m.emissiveMap) {
+              o.material = new THREE.MeshBasicMaterial({ map: m.emissiveMap, side: THREE.DoubleSide });
+            } else if (n === 'EmitterMat' && (m.emissiveMap || m.map)) {
+              o.material = new THREE.MeshBasicMaterial({ map: m.emissiveMap || m.map, side: THREE.DoubleSide });
+            } else if (n === 'FloorMat') {
+              m.emissiveIntensity = 0.45;
+            }
+          });
+        } catch (e) { /* hardening is best-effort; the set still renders without it */ }
         ['earth', 'moon', 'mars'].forEach(function (k) {
           var v = set.getObjectByName('Vista' + k.charAt(0).toUpperCase() + k.slice(1));
           if (v) { bayState.vistas[k] = v; v.visible = (k === bayState.sceneName); }
