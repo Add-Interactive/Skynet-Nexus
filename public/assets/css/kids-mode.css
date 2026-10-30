@@ -591,3 +591,53 @@ html[data-kids-mode="true"] .sc-tour-spotlight {
     height: 52px;
   }
 }
+
+/* ---- Piece (g2): Stella tour overlap fix (2026-10-30, Jeff) ----
+   The tour card was a 560px-wide, up-to-52vh block centered at the
+   bottom of the screen. On phones that is nearly the whole width and
+   the whole bottom half — directly on top of the side menu (icon rail
+   + side panel) the tour itself opens, and over the satellite profile
+   panel too. Fix: on small screens the card becomes a compact sheet,
+   and while the tour is open the menu panels shrink/re-anchor into
+   the space the card does not use, so the highlighted menu stays
+   fully visible. Desktop geometry is untouched. */
+@media (max-width: 900px) {
+  html[data-kids-mode="true"] #sc-stella-tour.open {
+    width: calc(100vw - 24px);
+    max-height: 38vh;
+    bottom: 84px;
+    padding: 12px;
+  }
+  /* While the tour runs, the side panel ends above the card. */
+  html[data-kids-mode="true"]:has(#sc-stella-tour.open) #sidepanel {
+    bottom: calc(38vh + 96px);
+  }
+  html[data-kids-mode="true"]:has(#sc-stella-tour.open) #infopanel {
+    max-height: max(120px, calc(100dvh - 38vh - 300px));
+  }
+}
+@media (max-width: 900px) and (orientation: portrait) {
+  /* Rail re-anchors under the top bar and caps above the card. */
+  html[data-kids-mode="true"]:has(#sc-stella-tour.open) #iconrail {
+    top: 118px;
+    transform: none;
+    max-height: calc(100dvh - 118px - 38vh - 104px);
+  }
+}
+@media (max-width: 900px) and (orientation: landscape) {
+  /* Landscape: the card docks right, clear of the rail and panel. */
+  html[data-kids-mode="true"] #sc-stella-tour.open {
+    left: auto;
+    right: 12px;
+    transform: none;
+    width: max(230px, calc(100vw - 480px));
+    max-height: 62vh;
+    bottom: 76px;
+  }
+  html[data-kids-mode="true"]:has(#sc-stella-tour.open) #sidepanel {
+    bottom: 64px;
+  }
+  html[data-kids-mode="true"]:has(#sc-stella-tour.open) #infopanel {
+    max-height: calc(100dvh - 140px);
+  }
+}
