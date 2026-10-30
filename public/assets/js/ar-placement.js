@@ -554,7 +554,7 @@ function pickModelAt(x, y) {
   if (!b || !b.camera) return null;
   var rect = b.renderer.domElement.getBoundingClientRect();
   var nx = ((x - rect.left) / rect.width) * 2 - 1;
-  var ny = -((y - rect.top) / rect.height) * 2 + 1);
+  var ny = -((y - rect.top) / rect.height) * 2 + 1;
   raycaster.setFromCamera({ x: nx, y: ny }, b.camera);
   var hits = raycaster.intersectObjects(placedGroups(), true);
   return hits.length ? rootOf(hits[0].object) : null;
