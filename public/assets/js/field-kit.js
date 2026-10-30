@@ -672,7 +672,7 @@
       b.type = 'button';
       b.className = 'fk-crew-pill' + (FK.crew && FK.crew.type === c.type && FK.crew.id === c.id ? ' active' : '');
       b.textContent = (c.type === 'classroom' ? '🏫 ' : '🏠 ') + c.name + ' · ' + c.memberCount + (c.type === 'classroom' ? ' cadets' : ' cadets');
-      b.addEventListener('click', function () { FK.crew = c; renderCrewPills(); loadCrewFeed(); syncCrewTile(); });
+      b.addEventListener('click', function () { FK.crew = c; renderCrewPills(); loadCrewFeed(); loadTeamMissions(); syncCrewTile(); });
       box.appendChild(b);
     });
   }
@@ -696,11 +696,13 @@
     var body = { kid_id: FK.kidId, crew_type: FK.crew.type, crew_id: FK.crew.id, mode: mode,
       result: en.result, value: (typeof en.value === 'number' ? en.value : entryValue(en)),
       place_label: placeSel && placeSel.value ? placeSel.value : null };
+    if (FK.teamTag && FK.teamTag.mode === mode) { body.team_mission_id = FK.teamTag.missionId; body.step_key = FK.teamTag.stepKey; }
     if (btn) { btn.disabled = true; btn.textContent = '📡 SENDING…'; }
     fkApi('/api/fieldkit/shares', { method: 'POST', body: JSON.stringify(body) }).then(function (r) {
       if (r.ok) {
         FK.shared.add(en.when + '|' + en.result);
-        fkStatus('Shared with ' + FK.crew.name + '! 📡');
+        if (body.team_mission_id) { fkStatus('Shared — and it was your team step! Check the mission below. 🎯'); clearTeamTag(); loadTeamMissions(); }
+        else fkStatus('Shared with ' + FK.crew.name + '! 📡');
         buzz(25); renderLog(); loadCrewFeed();
       } else {
         if (btn) { btn.disabled = false; btn.textContent = '📡 SHARE'; }
@@ -719,10 +721,91 @@
       if (!r.ok || !r.data.crews || !r.data.crews.length) return;
       FK.crews = r.data.crews; FK.crew = FK.crews[0];
       var tile = $('fk-tile-crew'); if (tile) tile.style.display = '';
-      renderCrewPills(); syncCrewTile(); loadCrewFeed(); renderLog();
+      renderCrewPills(); syncCrewTile(); loadCrewFeed(); loadTeamMissions(); renderLog();
       if (location.hash === '#crew') openSection('fk-crew-sec', true);
     }).catch(function () { /* crew link unavailable: page works as before */ });
   })();
+
+
+  /* ================= TEAM MISSIONS (Phase B) ================= */
+  FK.teamTag = null; FK.missions = []; FK.catalog = [];
+  function panelForMode(mode) { return { motion: 'fk-motion', sound: 'fk-sound', compass: 'fk-compass', astro: 'fk-astro' }[mode] || 'fk-motion'; }
+  function clearTeamTag() {
+    FK.teamTag = null;
+    var chip = $('fk-team-tag'); if (chip) { chip.classList.remove('show'); chip.textContent = ''; }
+  }
+  function setTeamTag(mission, step, mode) {
+    FK.teamTag = { missionId: mission.id, stepKey: step.key, mode: mode };
+    var chip = $('fk-team-tag');
+    if (chip) {
+      chip.textContent = '🎯 YOUR STEP: ' + step.label + ' — run the scanner, LOG the scan, then tap 📡 SHARE on it in the Logbook. The mission checks your step off by itself!';
+      chip.classList.add('show');
+    }
+    openSection(panelForMode(mode), true);
+    fkStatus('Your step is armed. The scanner is open — measure, log, share!');
+  }
+  function myKidId() { return FK.kidId; }
+  function renderTeamMissions() {
+    var box = $('fk-team-list'); if (!box) return;
+    box.innerHTML = '';
+    if (!FK.catalog.length) { box.innerHTML = '<p class="fk-empty">Team missions could not load right now.</p>'; return; }
+    FK.catalog.forEach(function (cat) {
+      var active = FK.missions.find(function (m) { return m.mission_key === cat.key && m.status === 'active'; });
+      var done = FK.missions.find(function (m) { return m.mission_key === cat.key && m.status === 'complete'; });
+      var m = active || done;
+      var card = document.createElement('div');
+      card.className = 'fk-team-card' + (m && m.status === 'complete' ? ' complete' : '');
+      var head = '<h4>' + cat.icon + ' ' + esc(cat.name) + ' <span style="color:#9cb5d6;font-size:.75rem;font-family:var(--font-code);">· with ' + esc(cat.guide) + '</span></h4>';
+      if (!m) {
+        card.innerHTML = head + '<p class="fk-note">Not started yet for this crew.</p>' +
+          '<button type="button" class="tactical-btn tactical-btn-green" data-start="' + cat.key + '">▶ START FOR OUR CREW</button>';
+      } else if (m.status === 'complete') {
+        var lines = m.steps.map(function (s) {
+          if (m.kind === 'census') return '<div class="fk-team-step"><span>' + esc(s.label) + '</span><span class="who">👥 ' + s.count + ' cadets · spread ' + (s.spread == null ? '—' : s.spread + '°') + '</span></div>';
+          return '<div class="fk-team-step"><span>' + esc(s.label) + '</span><span class="who">✅ ' + esc(s.kid_name || '') + (s.value != null ? ' · ' + s.value : '') + '</span></div>';
+        }).join('');
+        card.innerHTML = head + '<div style="color:var(--neon-green);font-family:var(--font-game);">★ CREW MISSION COMPLETE ★</div>' + lines +
+          '<p class="fk-note" style="margin-top:8px;"><b style="color:#fff;">Explain:</b> ' + esc(m.explain) + '</p>' +
+          '<button type="button" class="tactical-btn tactical-btn-ghost" data-start="' + cat.key + '">↻ RUN IT AGAIN</button>';
+      } else {
+        var stepsHtml = m.steps.map(function (s) {
+          if (m.kind === 'census') {
+            var iAmIn = (s.participants || []).some(function (pt) { return pt.kid_id === myKidId(); });
+            return '<div class="fk-team-step"><span>' + esc(s.label) + '</span><span class="who">👥 ' + s.count + ' / ' + s.goal + ' cadets' +
+              (iAmIn ? ' · ✅ you are in' : ' <button type="button" class="fk-share-btn" data-tag="' + m.id + ':' + s.key + ':' + cat.mode + '">THIS IS MY STEP</button>') + '</span></div>';
+          }
+          if (s.kid_id) return '<div class="fk-team-step"><span>' + esc(s.label) + '</span><span class="who">✅ ' + esc(s.kid_name || 'a cadet') + '</span></div>';
+          var iStepped = m.steps.some(function (x) { return x.kid_id === myKidId(); });
+          return '<div class="fk-team-step"><span>' + esc(s.label) + '</span><span class="who">' +
+            (iStepped ? 'waiting for a crewmate…' : '<button type="button" class="fk-share-btn" data-tag="' + m.id + ':' + s.key + ':' + cat.mode + '">THIS IS MY STEP</button>') + '</span></div>';
+        }).join('');
+        card.innerHTML = head + stepsHtml + '<p class="fk-note" style="margin-top:8px;">' + esc(m.explain) + '</p>';
+      }
+      box.appendChild(card);
+    });
+    box.querySelectorAll('[data-start]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        fkApi('/api/fieldkit/team-missions', { method: 'POST', body: JSON.stringify({ kid_id: FK.kidId, crew_type: FK.crew.type, crew_id: FK.crew.id, mission_key: b.getAttribute('data-start') }) })
+          .then(function (r) { if (r.ok) { fkStatus('Team mission started for ' + FK.crew.name + '! 🎯'); loadTeamMissions(); } else fkStatus('Could not start that mission.'); });
+      });
+    });
+    box.querySelectorAll('[data-tag]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var parts = b.getAttribute('data-tag').split(':');
+        var m = FK.missions.find(function (x) { return x.id === Number(parts[0]); });
+        var s = m ? m.steps.find(function (x) { return x.key === parts[1]; }) : null;
+        if (m && s) setTeamTag(m, s, parts[2]);
+      });
+    });
+  }
+  function loadTeamMissions() {
+    if (!FK.crew) return;
+    fkApi('/api/fieldkit/team-missions?kid_id=' + FK.kidId + '&crew_type=' + FK.crew.type + '&crew_id=' + FK.crew.id)
+      .then(function (r) {
+        if (r.ok) { FK.missions = r.data.missions || []; FK.catalog = r.data.catalog || []; renderTeamMissions(); }
+      })
+      .catch(function () {});
+  }
 
   renderLog();
 })();
