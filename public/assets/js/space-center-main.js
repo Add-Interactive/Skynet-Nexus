@@ -167,12 +167,63 @@
     // earth (4096px + max anisotropy for sharp close-ups; falls back to the 1024 file until the 4096 one is pushed)
     var earthTex = new THREE.TextureLoader().load('../assets/img/earth-blue-marble-4096.jpg', undefined, undefined,
       function () { var fb = new THREE.TextureLoader().load('../assets/img/earth-blue-marble-1024.jpg');
-        earth.material.map = fb; if (earth.material.emissiveMap) earth.material.emissiveMap = fb;
-        earth.material.map.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy()); earth.material.needsUpdate = true; });
+        fb.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+        if (earth.material.uniforms) earth.material.uniforms.uMap.value = fb; });
     earthTex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+    // Day/night is simulated ON THE GLOBE (Jeff, 2026-10-30): there is no sun
+    // light in the scene any more. This shader paints the terminator itself —
+    // uSunDir holds the sun direction in VIEW space (refreshed every frame in
+    // the render loop from the same sunDirection(sunRefDate) vector the old
+    // light used), and the normals are view-space too, so the terminator is
+    // exactly the one the old lit material produced, spin and tilt included.
+    // The day texture shows on the lit side; the night side falls back to a
+    // dim residue so the city-lights layer (destinations.js, fed the same
+    // view-space direction) reads on top. The hologram character is baked in
+    // here too: a cyan self-glow from the imagery itself plus the scanline
+    // shimmer the old Phong onBeforeCompile used to add.
+    var earthMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uMap: { value: earthTex },
+        uSunDir: { value: new THREE.Vector3(1, 0, 0) },
+        uTint: { value: new THREE.Color(0xa8c8e0) },
+        uGlow: { value: new THREE.Color(0x2fb9e8) },
+        uGlowStr: { value: 0.55 }
+      },
+      vertexShader: [
+        'varying vec2 vUv;',
+        'varying vec3 vN;',
+        'void main() {',
+        '  vUv = uv;',
+        '  vN = normalize(normalMatrix * normal);',
+        '  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
+        '}'
+      ].join('\n'),
+      fragmentShader: [
+        'uniform sampler2D uMap;',
+        'uniform vec3 uSunDir;',
+        'uniform vec3 uTint;',
+        'uniform vec3 uGlow;',
+        'uniform float uGlowStr;',
+        'varying vec2 vUv;',
+        'varying vec3 vN;',
+        'void main() {',
+        '  vec3 tex = texture2D(uMap, vUv).rgb;',
+        '  float d = dot(normalize(vN), normalize(uSunDir));',
+        '  float day = smoothstep(-0.12, 0.35, d);',
+        '  vec3 col = tex * uTint * mix(0.16, 1.25, day);',
+        '  col += tex * uGlow * uGlowStr * mix(0.45, 1.0, day);',
+        '  col *= 0.90 + 0.10 * sin(gl_FragCoord.y * 1.9);',
+        // custom shaders skip the renderer output encoding the old Phong
+        // material got for free; re-apply it so the globe keeps its old
+        // brightness instead of rendering in dark linear values
+        '  col = pow(col, vec3(0.4545));',
+        '  gl_FragColor = vec4(col, 1.0);',
+        '}'
+      ].join('\n')
+    });
     var earth = new THREE.Mesh(
       new THREE.SphereGeometry(R, 64, 64),
-      new THREE.MeshPhongMaterial({ map: earthTex })
+      earthMat
     );
     world.add(earth);
     // atmosphere glow
@@ -250,7 +301,7 @@
       }), transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
     var cone = new THREE.Mesh(new THREE.CylinderGeometry(0.92, 0.32, 0.55, 48, 1, true), bayState.coneMat);
     cone.position.y = -1.22; bayGroup.add(cone);
-    bayState.light = new THREE.PointLight(0x66d9ff, 30, 13, 1.8);
+    bayState.light = new THREE.PointLight(0x66d9ff, 13, 13, 1.8);
     bayState.light.position.set(0, -0.9, 0); bayGroup.add(bayState.light);
     // hologram treatment for the Earth itself: fresnel shell + faint lat/long wire
     bayState.shellMat = new THREE.ShaderMaterial({
@@ -262,19 +313,17 @@
     earth.add(new THREE.Mesh(new THREE.SphereGeometry(1.02, 24, 16),
       new THREE.MeshBasicMaterial({ color: 0x35c8ff, wireframe: true, transparent: true, opacity: 0.09, blending: THREE.AdditiveBlending, depthWrite: false })));
     // The imagery itself is the hologram (Jeff, 2026-10-30: the glow used to
-    // sit BEHIND the photographic globe). The Blue Marble texture now glows
-    // with itself via emissiveMap — same texture object the runtime de-seam
-    // repairs, so the fix applies to the glow too — cyan-tinted, scanlined,
-    // while the real sun shading and night side keep working on top.
-    earth.material.color.set(0xa8c8e0);
-    earth.material.emissive = new THREE.Color(0x2fb9e8);
-    earth.material.emissiveMap = earthTex;
-    earth.material.emissiveIntensity = 0.55;
-    earth.material.onBeforeCompile = function (sh) {
-      sh.fragmentShader = sh.fragmentShader.replace('#include <emissivemap_fragment>',
-        '#include <emissivemap_fragment>\n\ttotalEmissiveRadiance *= 0.90 + 0.10 * sin(gl_FragCoord.y * 1.9);');
-    };
-    earth.material.needsUpdate = true;
+    // sit BEHIND the photographic globe). The Blue Marble texture glows with
+    // itself — same texture object the runtime de-seam repairs, so the fix
+    // applies to the glow too — cyan-tinted and scanlined. Those settings
+    // used to be Phong emissive properties; since the day/night rework the
+    // globe is a shader material, so they land on its uniforms instead (the
+    // shader carries the same values and the same scanline shimmer).
+    if (earthMat.uniforms) {
+      earthMat.uniforms.uTint.value.set(0xa8c8e0);
+      earthMat.uniforms.uGlow.value.set(0x2fb9e8);
+      earthMat.uniforms.uGlowStr.value = 0.55;
+    }
     bayState.ready = true;
     function baySceneFor(sp) {
       var u = (sp && sp.userData) || {};
@@ -311,13 +360,23 @@
       bayGroup.visible = !arMode && !(renderer.xr && renderer.xr.isPresenting);
       if (!bayGroup.visible) return;
       var p = 0.5 + 0.5 * Math.sin(t * 2.2);
-      if (bayState.light) bayState.light.intensity = 26 + 8 * p;
+      if (bayState.light) bayState.light.intensity = 11 + 4 * p;
       if (bayState.coneMat) bayState.coneMat.opacity = 0.12 + 0.05 * p;
       if (bayState.shellMat) bayState.shellMat.uniforms.uStr.value = 0.78 + 0.14 * Math.sin(t * 1.7);
     }
-    var sun = new THREE.DirectionalLight(0xffffff, 1.6); scene.add(sun);
-    var _sunQ = new THREE.Quaternion(), _sunDir = new THREE.Vector3();
-    scene.add(new THREE.AmbientLight(0x334455, 0.7));
+    // Scene lighting (reworked 2026-10-30, Jeff's direction): the sun light
+    // and the old ambient are GONE. The directional sun used to blast the
+    // whole scene — fine on the dark v1 bay, but the cream v2 set blew out
+    // to white under it. Earth no longer needs it (its shader simulates
+    // day/night from the sun-direction uniform), so what remains is only
+    // the room's own gentle house lighting: a warm hemisphere wash plus a
+    // whisper of ambient, tuned so the modeled set reads like its Blender
+    // previews — cream, teal and coral visible, nothing clipped to white.
+    // The satellite models and the Moon/Mars globes also drink from these;
+    // they were never the blowout problem and stay softly, evenly lit.
+    var _sunQ = new THREE.Quaternion(), _viewQ = new THREE.Quaternion(), _sunDir = new THREE.Vector3(1, 0, 0);
+    scene.add(new THREE.HemisphereLight(0xfff3e2, 0x54626b, 1.2));
+    scene.add(new THREE.AmbientLight(0xffe9d2, 0.3));
     function llToVec3(lat, lon, altKm) {
       var phi = (90 - lat) * Math.PI / 180, theta = (lon + 180) * Math.PI / 180;
       var r = R * (1 + altKm / 6371);
@@ -1406,13 +1465,20 @@ window.__scB = {
           }
           if (window.ARPlacement) { try { window.ARPlacement.onFrame(frame); } catch (e) {} }
         }
-        // sun — anchored at sunRefDate while the Earth rotates with sim time
-        // below; sunDirection() is in the world's local frame (same as
-        // llToVec3), rotated into scene space for the light.
+        // day/night — simulated on the globe itself (Jeff, 2026-10-30):
+        // the sun direction stays anchored at sunRefDate in the world's
+        // local frame (the same vector sunDirection() has always returned),
+        // then rotates world -> scene -> view to feed the Earth shader's
+        // terminator uniform; the destinations.js night-lights shader is
+        // fed the same view-space direction, so the city lights stay glued
+        // to the shader's night side. No scene light is involved, so the
+        // room is never sunlit.
         _sunDir.copy(sunDirection(sunRefDate));
         world.getWorldQuaternion(_sunQ);
         _sunDir.applyQuaternion(_sunQ);
-        sun.position.copy(_sunDir.multiplyScalar(10));
+        camera.getWorldQuaternion(_viewQ);
+        _sunDir.applyQuaternion(_viewQ.invert());
+        if (earthMat.uniforms) earthMat.uniforms.uSunDir.value.copy(_sunDir);
         // Earth turns WITH the clock (Jeff, 2026-10-30): geography rotates
         // eastward one full turn per simulated day (sign verified against
         // llToVec3: +rotation.y moves a point's longitude east). At 600x a
