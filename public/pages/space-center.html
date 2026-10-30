@@ -322,7 +322,39 @@
     #loading .lbtn:hover{background:rgba(0,229,255,.28)}
     #loading .load-hint{display:none;font-size:.74rem;color:var(--text-mute);margin-top:10px;line-height:1.45}
     #loading.load-slow .load-hint{display:block}
-</style>
+    /* ---- Mobile visibility fix 2026-10-29 (Jeff): top menu + side rail reachable in BOTH orientations ----
+       Portrait: the top bar's contents are wider than a phone screen and body overflow is hidden,
+       so the right side clipped away. The bar now wraps, shrinks, and everything fits.
+       Landscape: the icon rail is 15 buttons (~740px) capped at 72vh (~270px on a phone) and,
+       as a click-through HUD layer, touch-scroll gestures fell through to the globe — the lower
+       items were unreachable. The rail now takes its own touches and scrolls vertically. */
+    #topbar{flex-wrap:wrap;row-gap:8px}
+    #topbar>div:first-child{min-width:0}
+    #iconrail{pointer-events:auto;touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;max-height:calc(100dvh - 170px)}
+    #timebar{flex-wrap:wrap;justify-content:center;max-width:94vw}
+    @media (max-width:760px){
+      #topbar{padding:10px 12px;gap:8px}
+      #topbar .title{font-size:.8rem}
+      #topbar .sub{font-size:.56rem;letter-spacing:.1em}
+      .topright{flex-wrap:wrap;justify-content:flex-end;row-gap:6px;column-gap:6px}
+      #topbar .kids-mode-toggle{font-size:.68rem;padding:6px 9px}
+      #backbtn,#fieldkitbtn{padding:7px 9px;font-size:.68rem}
+      .ticon{width:32px;height:32px}
+      #sidepanel{top:118px;bottom:76px}
+      #infopanel{top:118px;max-height:calc(100% - 210px)}
+      #trackchip{top:108px}
+    }
+    @media (orientation:landscape) and (max-height:500px){
+      #topbar{padding:6px 12px;row-gap:4px}
+      #topbar .sub{display:none}
+      #iconrail{max-height:calc(100dvh - 120px);gap:6px}
+      #iconrail .rbtn{width:36px;height:36px;font-size:1rem;border-radius:9px}
+      #sidepanel{top:60px;bottom:64px}
+      #infopanel{top:60px;max-height:calc(100% - 130px)}
+      #trackchip{top:56px}
+      #timebar{padding:5px 10px;gap:6px}
+    }
+  </style>
 </head>
 <body>
   <div id="loading"><div class="spin">🛰️</div><div>ACQUIRING SATELLITES…</div><div class="load-actions"><button class="lbtn" id="load-wait" type="button">Wait</button><button class="lbtn" id="load-reload" type="button">Reload</button><button class="lbtn" id="load-close" type="button">Close</button></div><div class="load-hint">Still loading after a while. Wait keeps trying, Reload restarts Space Center, Close goes back to the Skynet Nexus home page.</div></div>
