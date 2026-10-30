@@ -23,35 +23,142 @@
     } catch (e) { /* private mode: straight site */ }
   </script>
   <style>
-    .fk-wrap { max-width: 1060px; margin: 0 auto; padding: 28px 18px 64px; }
-    .fk-hero { text-align: center; padding: 26px 10px 8px; }
-    .fk-hero h1 { font-family: var(--font-game); font-size: clamp(1.7rem, 5vw, 2.6rem); color: #fff; margin: 10px 0 8px; }
+    .fk-wrap { max-width: 1060px; margin: 0 auto; padding: 28px 14px 64px; }
+
+    /* ---------- hero: holo rings + orbiting satellite ---------- */
+    .fk-hero { text-align: center; padding: 30px 10px 4px; position: relative; }
+    .fk-holo { position: relative; width: 132px; height: 132px; margin: 0 auto 6px; }
+    .fk-holo .fk-core { position: absolute; inset: 0; display: grid; place-items: center; font-size: 52px; filter: drop-shadow(0 0 18px rgba(0,229,255,.55)); animation: fkFloat 5s ease-in-out infinite; }
+    .fk-ring { position: absolute; border-radius: 50%; border: 1.5px solid transparent; }
+    .fk-ring.r1 { inset: 6px; border-top-color: rgba(0,229,255,.85); border-right-color: rgba(0,229,255,.25); animation: fkSpin 7s linear infinite; }
+    .fk-ring.r2 { inset: 18px; border-bottom-color: rgba(168,85,247,.8); border-left-color: rgba(168,85,247,.25); animation: fkSpinR 11s linear infinite; }
+    .fk-ring.r3 { inset: 0; border: 1px dashed rgba(255,210,63,.35); animation: fkSpin 22s linear infinite; }
+    .fk-orbit-dot { position: absolute; top: 50%; left: 50%; width: 9px; height: 9px; margin: -4.5px; border-radius: 50%; background: #ffd23f; box-shadow: 0 0 12px #ffd23f; transform: rotate(0deg) translateX(64px); animation: fkOrbit 6s linear infinite; }
+    @keyframes fkSpin { to { transform: rotate(360deg); } }
+    @keyframes fkSpinR { to { transform: rotate(-360deg); } }
+    @keyframes fkOrbit { from { transform: rotate(0deg) translateX(64px) rotate(0deg); } to { transform: rotate(360deg) translateX(64px) rotate(-360deg); } }
+    @keyframes fkFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    .fk-hero h1 { font-family: var(--font-game); font-size: clamp(1.7rem, 5vw, 2.6rem); color: #fff; margin: 10px 0 8px; text-shadow: 0 0 26px rgba(0,229,255,.45); }
     .fk-hero p { color: #9cb5d6; max-width: 62ch; margin: 0 auto; line-height: 1.6; }
     .fk-kicker { font-family: var(--font-code); color: var(--neon-amber); font-size: .85rem; letter-spacing: .18em; }
+    .fk-syscheck { font-family: var(--font-code); font-size: .78rem; color: var(--neon-green); max-width: 640px; margin: 16px auto 0; padding: 10px 14px; border: 1px solid rgba(57,255,20,.25); border-radius: 10px; background: rgba(0,0,0,.35); line-height: 1.9; text-align: left; }
+    .fk-syscheck .fk-sys-title { color: #fff; letter-spacing: .14em; display: block; text-align: center; margin-bottom: 2px; }
+    .fk-syscheck b { color: #fff; font-weight: 700; }
+    .fk-syscheck .wait { color: var(--neon-amber); }
+    .fk-syscheck .off { color: #ff7a7a; }
+
+    /* ---------- the tricorder device frame ---------- */
+    .fk-device { margin: 26px 0 8px; border-radius: 26px; padding: 12px; position: relative;
+      background: linear-gradient(160deg, #1b2745 0%, #0c1428 45%, #131f3a 100%);
+      border: 1px solid rgba(120,180,255,.35);
+      box-shadow: 0 30px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.14), inset 0 -14px 34px rgba(0,0,0,.5); }
+    .fk-device::before, .fk-device::after { content: ""; position: absolute; width: 22px; height: 22px; border: 2.5px solid rgba(0,229,255,.75); }
+    .fk-device::before { top: 7px; left: 7px; border-right: none; border-bottom: none; border-radius: 10px 0 0 0; }
+    .fk-device::after { bottom: 7px; right: 7px; border-left: none; border-top: none; border-radius: 0 0 10px 0; }
+    .fk-device-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+      font-family: var(--font-code); font-size: .74rem; letter-spacing: .14em; color: #9cb5d6;
+      padding: 6px 10px 12px; border-bottom: 1px solid rgba(120,180,255,.18); margin-bottom: 14px; }
+    .fk-device-bar b { color: #fff; }
+    .fk-leds { display: inline-flex; gap: 6px; align-items: center; }
+    .fk-led { width: 9px; height: 9px; border-radius: 50%; background: #2b3c5f; box-shadow: inset 0 0 3px rgba(0,0,0,.7); transition: background .3s, box-shadow .3s; }
+    .fk-device.live .fk-led:nth-child(1) { background: #39ff14; box-shadow: 0 0 10px #39ff14; animation: fkBlink 1.1s steps(2) infinite; }
+    .fk-device.live .fk-led:nth-child(2) { background: #00e5ff; box-shadow: 0 0 10px #00e5ff; animation: fkBlink 1.7s steps(2) infinite; }
+    .fk-device.live .fk-led:nth-child(3) { background: #ffd23f; box-shadow: 0 0 10px #ffd23f; animation: fkBlink 2.3s steps(2) infinite; }
+    @keyframes fkBlink { 50% { opacity: .35; } }
+    .fk-device .fk-grid { margin: 0; }
+
+    /* ---------- scanner panels ---------- */
     .fk-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; margin: 26px 0; }
-    .fk-panel { padding: 22px; }
+    .fk-panel { padding: 22px; position: relative; overflow: hidden; --fk-accent: #00e5ff;
+      animation: fkBoot .7s cubic-bezier(.2,.9,.25,1) backwards; }
+    .fk-panel:nth-child(2) { animation-delay: .12s; } .fk-panel:nth-child(3) { animation-delay: .24s; }
+    .fk-panel:nth-child(4) { animation-delay: .36s; }
+    @keyframes fkBoot { from { opacity: 0; transform: translateY(18px) scale(.985); } to { opacity: 1; transform: none; } }
+    .fk-panel::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--fk-accent), transparent); opacity: .85; }
+    .fk-panel.scanning { border-color: var(--fk-accent) !important;
+      box-shadow: 0 0 0 1px var(--fk-accent), 0 0 34px -6px var(--fk-accent), 0 24px 60px rgba(0,0,0,.5); }
+    .fk-sweep { position: absolute; left: 0; right: 0; top: -18%; height: 18%; pointer-events: none; opacity: 0;
+      background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--fk-accent) 26%, transparent), transparent); }
+    .fk-panel.scanning .fk-sweep { opacity: 1; animation: fkSweep 2.2s linear infinite; }
+    @keyframes fkSweep { from { top: -18%; } to { top: 104%; } }
     .fk-panel h2 { font-family: var(--font-game); font-size: 1.15rem; color: #fff; margin: 0 0 4px; display: flex; gap: 10px; align-items: center; }
-    .fk-guide { font-family: var(--font-code); font-size: .78rem; margin-bottom: 10px; }
+    .fk-live { margin-left: auto; font-family: var(--font-code); font-size: .68rem; letter-spacing: .16em; color: #0a0e17;
+      background: #2b3c5f; padding: 3px 9px; border-radius: 999px; transition: .25s; }
+    .fk-panel.scanning .fk-live { background: #ff5252; color: #fff; box-shadow: 0 0 14px rgba(255,82,82,.8); animation: fkBlink 1s steps(2) infinite; }
+    .fk-guide { display: flex; align-items: center; gap: 10px; font-family: var(--font-code); font-size: .78rem; margin: 10px 0 4px; }
+    .fk-chip { width: 38px; height: 38px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center; font-size: 19px;
+      background: rgba(0,0,0,.4); border: 2px solid var(--fk-accent); position: relative; }
+    .fk-panel.scanning .fk-chip::after { content: ""; position: absolute; inset: -7px; border-radius: 50%;
+      border: 1.5px dashed var(--fk-accent); animation: fkSpin 5s linear infinite; }
     .fk-perm { font-size: .82rem; color: #9cb5d6; line-height: 1.55; margin: 8px 0 14px; }
-    .fk-readout { font-family: var(--font-code); font-size: 1.9rem; font-weight: 800; color: #fff; line-height: 1.1; }
-    .fk-readout small { font-size: .8rem; color: #9cb5d6; font-weight: 500; display: block; margin-top: 2px; }
+    .fk-readout { font-family: var(--font-code); font-size: 1.9rem; font-weight: 800; color: #fff; line-height: 1.1;
+      text-shadow: 0 0 18px color-mix(in srgb, var(--fk-accent) 65%, transparent); }
+    .fk-readout small { font-size: .8rem; color: #9cb5d6; font-weight: 500; display: block; margin-top: 2px; text-shadow: none; }
     .fk-peak { font-family: var(--font-code); font-size: .85rem; color: var(--neon-amber); margin-top: 6px; }
     .fk-canvas { width: 100%; height: 84px; background: rgba(0,0,0,.35); border: 1px solid var(--hud-border); border-radius: 10px; margin: 12px 0; display: block; }
     .fk-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
     .fk-status { font-family: var(--font-code); font-size: .8rem; color: var(--neon-green); min-height: 1.2em; margin-top: 10px; }
-    .fk-compass { width: 150px; height: 150px; margin: 10px auto; border-radius: 50%; border: 2px solid var(--hud-border); position: relative; background: radial-gradient(circle at 50% 42%, rgba(0,229,255,.10), rgba(0,0,0,.35)); }
-    .fk-needle { position: absolute; left: 50%; top: 50%; width: 4px; height: 62px; margin-left: -2px; margin-top: -62px; background: linear-gradient(#ff5252 55%, #e8f4ff 55%); border-radius: 2px; transform-origin: 50% 100%; }
-    .fk-compass .fk-n { position: absolute; left: 50%; top: 6px; transform: translateX(-50%); font-family: var(--font-code); font-weight: 800; color: #ff5252; }
+
+    /* motion extras: G bar + tilt level */
+    .fk-gbar { height: 12px; border-radius: 6px; background: rgba(255,255,255,.07); border: 1px solid var(--hud-border); overflow: hidden; margin: 10px 0 2px; }
+    .fk-gbar i { display: block; height: 100%; width: 4%; border-radius: 6px; transition: width .09s linear;
+      background: linear-gradient(90deg, #39ff14, #ffd23f 55%, #ff5252); box-shadow: 0 0 12px rgba(255,210,63,.6); }
+    .fk-glabel { font-family: var(--font-code); font-size: .72rem; color: #9cb5d6; display: flex; justify-content: space-between; }
+    .fk-level { width: 92px; height: 92px; margin: 12px auto 2px; border-radius: 50%; position: relative;
+      border: 2px solid rgba(249,115,22,.55); background:
+      radial-gradient(circle, transparent 30%, rgba(249,115,22,.10) 31%, transparent 34%),
+      radial-gradient(circle, rgba(0,0,0,.35), rgba(0,0,0,.15)); }
+    .fk-level::before, .fk-level::after { content: ""; position: absolute; background: rgba(255,255,255,.16); }
+    .fk-level::before { left: 50%; top: 6px; bottom: 6px; width: 1px; } .fk-level::after { top: 50%; left: 6px; right: 6px; height: 1px; }
+    .fk-bubble { position: absolute; width: 20px; height: 20px; border-radius: 50%; left: 50%; top: 50%; margin: -10px;
+      background: radial-gradient(circle at 35% 30%, #ffe9c9, #f97316); box-shadow: 0 0 14px rgba(249,115,22,.85); transition: transform .08s linear; }
+    .fk-level-cap { text-align: center; font-family: var(--font-code); font-size: .7rem; color: #9cb5d6; letter-spacing: .12em; }
+
+    /* sound extras: level bar */
+    .fk-lvlbar { height: 14px; border-radius: 7px; background: rgba(255,255,255,.07); border: 1px solid var(--hud-border); overflow: hidden; margin: 10px 0 2px; }
+    .fk-lvlbar i { display: block; height: 100%; width: 0%; transition: width .06s linear;
+      background: linear-gradient(90deg, #00e5ff, #39ff14 55%, #ffd23f 78%, #ff5252); box-shadow: 0 0 12px rgba(0,229,255,.55); }
+
+    /* compass: radar dial */
+    .fk-compass { width: 168px; height: 168px; margin: 12px auto; border-radius: 50%; position: relative;
+      border: 2px solid rgba(52,211,153,.5);
+      background: radial-gradient(circle, rgba(52,211,153,.10) 0 26%, transparent 27%),
+                  radial-gradient(circle, transparent 0 52%, rgba(52,211,153,.08) 53%, transparent 54%),
+                  radial-gradient(circle, rgba(0,0,0,.4), rgba(0,0,0,.2)); }
+    .fk-compass .fk-sweep-cone { position: absolute; inset: 0; border-radius: 50%; opacity: 0;
+      background: conic-gradient(from 0deg, rgba(57,255,20,.35), transparent 70deg); }
+    .fk-panel.scanning .fk-sweep-cone { opacity: 1; animation: fkSpin 3.2s linear infinite; }
+    .fk-tick { position: absolute; left: 50%; top: 50%; font-family: var(--font-code); font-size: .62rem; color: #9cb5d6; }
+    .fk-needle { position: absolute; left: 50%; top: 50%; width: 5px; height: 68px; margin-left: -2.5px; margin-top: -68px;
+      background: linear-gradient(#ff5252 55%, #e8f4ff 55%); border-radius: 3px; transform-origin: 50% 100%;
+      filter: drop-shadow(0 0 7px rgba(255,82,82,.8)); }
+    .fk-compass .fk-n { position: absolute; left: 50%; top: 7px; transform: translateX(-50%); font-family: var(--font-code); font-weight: 800; color: #ff5252; z-index: 2; }
+    .fk-compass .fk-hub { position: absolute; left: 50%; top: 50%; width: 13px; height: 13px; margin: -6.5px; border-radius: 50%; background: #e8f4ff; box-shadow: 0 0 10px rgba(232,244,255,.9); }
+    .fk-delta { text-align: center; font-family: var(--font-code); font-size: .8rem; color: var(--neon-amber); min-height: 1.2em; }
+
+    /* astro: position fix */
+    .fk-pos { font-family: var(--font-code); font-size: .92rem; color: #fff; line-height: 1.8; }
+    .fk-pos small { color: #9cb5d6; display: block; font-size: .72rem; letter-spacing: .1em; }
+
+    /* missions + logbook */
     .fk-mission h3 { font-family: var(--font-game); color: #fff; font-size: 1.05rem; margin: 0 0 8px; }
     .fk-mission p, .fk-mission li { color: #9cb5d6; font-size: .9rem; line-height: 1.6; }
     .fk-mission ol { margin: 8px 0 0 18px; padding: 0; }
     .fk-log-item { display: flex; justify-content: space-between; gap: 12px; padding: 10px 14px; border: 1px solid var(--hud-border); border-radius: 10px; background: rgba(255,255,255,.03); margin-bottom: 8px; font-size: .88rem; }
     .fk-log-item b { color: #fff; font-family: var(--font-game); font-size: .85rem; }
     .fk-log-item span { color: #9cb5d6; font-family: var(--font-code); font-size: .78rem; text-align: right; }
+    .fk-log-item.fk-new { animation: fkStamp .8s cubic-bezier(.2,1.4,.3,1); border-color: var(--neon-green); box-shadow: 0 0 18px -4px var(--neon-green); }
+    @keyframes fkStamp { 0% { transform: scale(1.06) rotate(-.6deg); opacity: 0; } 60% { opacity: 1; } 100% { transform: none; } }
     .fk-empty { color: #9cb5d6; font-size: .9rem; }
     .fk-note { color: #9cb5d6; font-size: .88rem; line-height: 1.65; }
     .fk-note b { color: #fff; }
     button.fk-log[disabled] { opacity: .45; cursor: not-allowed; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fk-ring, .fk-orbit-dot, .fk-holo .fk-core, .fk-panel, .fk-panel.scanning .fk-sweep,
+      .fk-panel.scanning .fk-chip::after, .fk-panel.scanning .fk-sweep-cone, .fk-led { animation: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -83,70 +190,95 @@
 
   <main class="fk-wrap">
     <div class="fk-hero">
-      <div style="font-size:52px;">🛰️</div>
+      <div class="fk-holo" aria-hidden="true">
+        <div class="fk-ring r3"></div><div class="fk-ring r1"></div><div class="fk-ring r2"></div>
+        <div class="fk-orbit-dot"></div>
+        <div class="fk-core">🛰️</div>
+      </div>
       <div class="fk-kicker">NEXUS FIELD KIT</div>
       <h1>YOUR PHONE IS A TRICORDER.</h1>
-      <p>Starfleet cadets carry a tricorder. You carry a phone — and inside it are real science sensors: motion, sound, and a compass, all waiting for a mission. Pick a scanner, make a prediction, take a real measurement, and log what the world actually did. No fake readings, ever: if a sensor isn't on your device, the Field Kit tells you.</p>
+      <p>Starfleet cadets carry a tricorder. You carry a phone — and inside it are real science sensors: motion, sound, and a compass, all waiting for a mission. Every glow, graph, and gauge below is fed by <b style="color:#fff;">real data from your device, live</b>. Pick a scanner, make a prediction, take a measurement, and log what the world actually did. No fake readings, ever: if a sensor isn't on your device, the Field Kit tells you.</p>
+      <div class="fk-syscheck" id="fk-syscheck"><span class="fk-sys-title">⚙️ FIELD UNIT SYSTEMS CHECK</span><span id="fk-sys-body">Checking this device's sensors…</span></div>
     </div>
 
-    <!-- ================= LIVE SCANNERS ================= -->
-    <div class="fk-grid">
+    <!-- ================= THE DEVICE ================= -->
+    <div class="fk-device" id="fk-device">
+      <div class="fk-device-bar">
+        <span><b>NEXUS FIELD UNIT</b> · MK-I SENSOR DECK</span>
+        <span class="fk-leds"><i class="fk-led"></i><i class="fk-led"></i><i class="fk-led"></i></span>
+        <span>LOCAL TIME <b id="fk-clock">--:--</b> · ALL DATA LIVE</span>
+      </div>
 
-      <section class="mission-card fk-panel" id="fk-motion">
-        <h2>📐 MOTION LAB</h2>
-        <div class="fk-guide" style="color:#f97316;">GUIDE: GUS DELGADO · ENGINEERING 🔧</div>
-        <p class="fk-perm"><b style="color:#fff;">Motion</b> lets the Field Kit feel how your phone moves and shakes. Nothing is recorded or sent anywhere. Try it: swing your phone gently like a pendulum, or set it on a wobbly table.</p>
-        <div class="fk-readout"><span id="fk-motion-val">—</span><small>acceleration right now (m/s², including gravity ≈ 9.8 still)</small></div>
-        <div class="fk-peak" id="fk-motion-peak">PEAK: —</div>
-        <canvas class="fk-canvas" id="fk-motion-graph" width="520" height="84"></canvas>
-        <div class="fk-row">
-          <button type="button" class="tactical-btn tactical-btn-cyan" id="fk-motion-btn">▶ START SCAN</button>
-          <button type="button" class="tactical-btn tactical-btn-ghost fk-log" id="fk-motion-log" disabled>📓 LOG THIS SCAN</button>
-        </div>
-        <div class="fk-status" id="fk-motion-status"></div>
-      </section>
+      <div class="fk-grid">
+        <section class="mission-card fk-panel" id="fk-motion" style="--fk-accent:#f97316;">
+          <div class="fk-sweep"></div>
+          <h2>📐 MOTION LAB <span class="fk-live">● LIVE</span></h2>
+          <div class="fk-guide" style="color:#f97316;"><span class="fk-chip">🔧</span><span>GUIDE: GUS DELGADO · ENGINEERING</span></div>
+          <p class="fk-perm"><b style="color:#fff;">Motion</b> lets the Field Kit feel how your phone moves and shakes. Nothing is recorded or sent anywhere. Try it: swing your phone gently like a pendulum, or set it on a wobbly table.</p>
+          <div class="fk-readout"><span id="fk-motion-val">—</span><small>acceleration right now (m/s², including gravity ≈ 9.8 still)</small></div>
+          <div class="fk-peak" id="fk-motion-peak">PEAK: —</div>
+          <canvas class="fk-canvas" id="fk-motion-graph" width="520" height="84"></canvas>
+          <div class="fk-gbar"><i id="fk-gbar-fill"></i></div>
+          <div class="fk-glabel"><span>G-FORCE</span><span id="fk-g-val">— g</span><span>3 g</span></div>
+          <div class="fk-level"><div class="fk-bubble" id="fk-bubble"></div></div>
+          <div class="fk-level-cap">TILT LEVEL · THE BUBBLE FOLLOWS YOUR PHONE'S REAL TILT</div>
+          <div class="fk-row" style="margin-top:14px;">
+            <button type="button" class="tactical-btn tactical-btn-cyan" id="fk-motion-btn">▶ START SCAN</button>
+            <button type="button" class="tactical-btn tactical-btn-ghost fk-log" id="fk-motion-log" disabled>📓 LOG THIS SCAN</button>
+          </div>
+          <div class="fk-status" id="fk-motion-status"></div>
+        </section>
 
-      <section class="mission-card fk-panel" id="fk-sound">
-        <h2>🔊 SOUND LAB</h2>
-        <div class="fk-guide" style="color:#e879f9;">GUIDE: CADENCE LIU · MUSIC 🎵</div>
-        <p class="fk-perm"><b style="color:#fff;">Microphone</b> lets the Field Kit listen to how loud your world is. Sound is measured on your phone only — nothing is recorded or sent anywhere. Honest note: phone mics aren't calibrated lab meters, so this shows <i>relative</i> loudness — perfect for comparing places.</p>
-        <div class="fk-readout"><span id="fk-sound-val">—</span><small>relative loudness right now</small></div>
-        <div class="fk-peak" id="fk-sound-peak">PEAK: —</div>
-        <canvas class="fk-canvas" id="fk-sound-graph" width="520" height="84"></canvas>
-        <div class="fk-row">
-          <button type="button" class="tactical-btn tactical-btn-cyan" id="fk-sound-btn">▶ START SCAN</button>
-          <button type="button" class="tactical-btn tactical-btn-ghost fk-log" id="fk-sound-log" disabled>📓 LOG THIS SCAN</button>
-        </div>
-        <div class="fk-status" id="fk-sound-status"></div>
-      </section>
+        <section class="mission-card fk-panel" id="fk-sound" style="--fk-accent:#e879f9;">
+          <div class="fk-sweep"></div>
+          <h2>🔊 SOUND LAB <span class="fk-live">● LIVE</span></h2>
+          <div class="fk-guide" style="color:#e879f9;"><span class="fk-chip">🎵</span><span>GUIDE: CADENCE LIU · MUSIC</span></div>
+          <p class="fk-perm"><b style="color:#fff;">Microphone</b> lets the Field Kit listen to how loud your world is. Sound is measured on your phone only — nothing is recorded or sent anywhere. Honest note: phone mics aren't calibrated lab meters, so this shows <i>relative</i> loudness — perfect for comparing places. The bars below are the real sound spectrum: low rumbles on the left, high squeaks on the right.</p>
+          <div class="fk-readout"><span id="fk-sound-val">—</span><small>relative loudness right now</small></div>
+          <div class="fk-peak" id="fk-sound-peak">PEAK: —</div>
+          <canvas class="fk-canvas" id="fk-sound-graph" width="520" height="84"></canvas>
+          <div class="fk-lvlbar"><i id="fk-lvl-fill"></i></div>
+          <div class="fk-glabel"><span>QUIET</span><span>LOUD</span></div>
+          <div class="fk-row" style="margin-top:14px;">
+            <button type="button" class="tactical-btn tactical-btn-cyan" id="fk-sound-btn">▶ START SCAN</button>
+            <button type="button" class="tactical-btn tactical-btn-ghost fk-log" id="fk-sound-log" disabled>📓 LOG THIS SCAN</button>
+          </div>
+          <div class="fk-status" id="fk-sound-status"></div>
+        </section>
 
-      <section class="mission-card fk-panel" id="fk-compass">
-        <h2>🧭 GEO COMPASS</h2>
-        <div class="fk-guide" style="color:#34d399;">GUIDE: ROWAN FIELD · CLIMATE 🌍</div>
-        <p class="fk-perm"><b style="color:#fff;">Compass</b> lets the Field Kit know which way your phone is pointing. Walk around with it flat — metal and magnets nearby can confuse it, and waving it in a figure-eight helps it calibrate. That's real instrument science!</p>
-        <div class="fk-compass"><span class="fk-n">N</span><div class="fk-needle" id="fk-needle"></div></div>
-        <div class="fk-readout" style="text-align:center;"><span id="fk-compass-val">—</span><small>heading</small></div>
-        <div class="fk-row" style="justify-content:center;margin-top:12px;">
-          <button type="button" class="tactical-btn tactical-btn-cyan" id="fk-compass-btn">▶ START SCAN</button>
-          <button type="button" class="tactical-btn tactical-btn-ghost fk-log" id="fk-compass-log" disabled>📓 LOG THIS SCAN</button>
-        </div>
-        <div class="fk-status" id="fk-compass-status" style="text-align:center;"></div>
-      </section>
+        <section class="mission-card fk-panel" id="fk-compass" style="--fk-accent:#34d399;">
+          <div class="fk-sweep"></div>
+          <h2>🧭 GEO COMPASS <span class="fk-live">● LIVE</span></h2>
+          <div class="fk-guide" style="color:#34d399;"><span class="fk-chip">🌍</span><span>GUIDE: ROWAN FIELD · CLIMATE</span></div>
+          <p class="fk-perm"><b style="color:#fff;">Compass</b> lets the Field Kit know which way your phone is pointing. Walk around with it flat — metal and magnets nearby can confuse it, and waving it in a figure-eight helps it calibrate. That's real instrument science!</p>
+          <div class="fk-compass" id="fk-dial"><div class="fk-sweep-cone"></div><span class="fk-n">N</span><div class="fk-needle" id="fk-needle"></div><div class="fk-hub"></div></div>
+          <div class="fk-readout" style="text-align:center;"><span id="fk-compass-val">—</span><small>heading</small></div>
+          <div class="fk-delta" id="fk-delta"></div>
+          <div class="fk-row" style="justify-content:center;margin-top:12px;">
+            <button type="button" class="tactical-btn tactical-btn-cyan" id="fk-compass-btn">▶ START SCAN</button>
+            <button type="button" class="tactical-btn tactical-btn-ghost fk-log" id="fk-compass-log" disabled>📓 LOG THIS SCAN</button>
+          </div>
+          <div class="fk-status" id="fk-compass-status" style="text-align:center;"></div>
+        </section>
 
-      <section class="mission-card fk-panel" id="fk-astro">
-        <h2>🛰️ ASTRO SCANNER</h2>
-        <div class="fk-guide" style="color:#818cf8;">GUIDE: STELLA REYES · SPACE 🚀</div>
-        <p class="fk-perm">Your Astro Scanner is already on duty — it's the <b style="color:#fff;">Space Center</b>, tracking 1,000+ real satellites over your head right now. Stella's mission: open the Space Center, find the next ISS pass, then go outside and watch it cross the sky. Log it here when you've seen it!</p>
-        <div class="fk-row">
-          <a href="space-center.html" class="tactical-btn tactical-btn-cyan">🛰️ OPEN SPACE CENTER</a>
-          <button type="button" class="tactical-btn tactical-btn-ghost fk-log" id="fk-astro-log">📓 LOG: I SAW A SATELLITE</button>
-        </div>
-        <div class="fk-status" id="fk-astro-status"></div>
-      </section>
+        <section class="mission-card fk-panel" id="fk-astro" style="--fk-accent:#818cf8;">
+          <div class="fk-sweep"></div>
+          <h2>🛰️ ASTRO SCANNER <span class="fk-live">● LIVE</span></h2>
+          <div class="fk-guide" style="color:#818cf8;"><span class="fk-chip">🚀</span><span>GUIDE: STELLA REYES · SPACE</span></div>
+          <p class="fk-perm">Your Astro Scanner is already on duty — it's the <b style="color:#fff;">Space Center</b>, tracking 1,000+ real satellites over your head right now. First, get a position fix from your own device so you know your sky — your coordinates are shown to you here and <b style="color:#fff;">never stored or sent</b>. Then Stella's mission: open the Space Center, find the next ISS pass, go outside, and watch it cross the sky.</p>
+          <div class="fk-pos" id="fk-pos"><small>YOUR SKY POSITION</small>Not measured yet — tap the fix button!</div>
+          <div class="fk-row" style="margin-top:14px;">
+            <button type="button" class="tactical-btn tactical-btn-purple" id="fk-pos-btn">📍 GET MY POSITION FIX</button>
+            <a href="space-center.html" class="tactical-btn tactical-btn-cyan">🛰️ OPEN SPACE CENTER</a>
+            <button type="button" class="tactical-btn tactical-btn-ghost fk-log" id="fk-astro-log">📓 LOG: I SAW A SATELLITE</button>
+          </div>
+          <div class="fk-status" id="fk-astro-status"></div>
+        </section>
+      </div>
     </div>
 
     <!-- ================= FIELD MISSIONS ================= -->
-    <section class="mission-card" style="padding:28px;margin-bottom:26px;">
+    <section class="mission-card" style="padding:28px;margin:26px 0;">
       <h2 style="font-family:var(--font-game);font-size:1.3rem;color:var(--neon-green);margin:0 0 6px;">🎯 FIELD MISSIONS</h2>
       <p class="fk-note">Every mission works the same way — the scientist's way: <b>Predict</b> first, then <b>Scan</b>, then <b>Explain</b> what the data showed. Teachers and guardians: any mission can be assigned as homework or a family challenge — just name the mission!</p>
       <div class="fk-grid" style="margin-bottom:0;">
@@ -155,8 +287,8 @@
           <p>Can your phone measure gravity?</p>
           <ol>
             <li><b>Predict:</b> a longer pendulum swings slower or faster?</li>
-            <li><b>Scan:</b> hold your phone gently, swing it like a pendulum, run Motion Lab for 10 swings.</li>
-            <li><b>Explain:</b> count the graph's waves — time ÷ swings = your period. Did it match your prediction?</li>
+            <li><b>Scan:</b> hold your phone gently, swing it like a pendulum, run Motion Lab for 10 swings. Count the glowing waves on the graph!</li>
+            <li><b>Explain:</b> time ÷ swings = your period. Did it match your prediction?</li>
           </ol>
         </div>
         <div class="fk-mission">
@@ -173,8 +305,8 @@
           <p>Can you navigate by instrument alone?</p>
           <ol>
             <li><b>Predict:</b> point at where you think north is. No peeking!</li>
-            <li><b>Scan:</b> start the Geo Compass and check your heading.</li>
-            <li><b>Explain:</b> how far off were you, in degrees? Log your true-north find.</li>
+            <li><b>Scan:</b> start the Geo Compass — the amber line tells you live how many degrees you are from true north.</li>
+            <li><b>Explain:</b> how far off were you? Log your true-north find.</li>
           </ol>
         </div>
       </div>
@@ -193,11 +325,11 @@
 
     <section class="mission-card" style="padding:24px 28px;">
       <h2 style="font-family:var(--font-game);font-size:1.1rem;color:#fff;margin:0 0 8px;">🔒 FOR GUARDIANS &amp; TEACHERS</h2>
-      <p class="fk-note">The Field Kit uses only the sensors a learner taps “Start” on, explains each permission in plain language first, and stores scan logs in the browser on this device. It never records audio, never uploads photos, and never tracks location — the compass shows a heading, not a position. Phone sensors are teaching-grade, not lab-grade: missions are built around comparisons and patterns, and learning that every instrument has error is part of the science.</p>
+      <p class="fk-note">The Field Kit uses only the sensors a learner taps “Start” on, explains each permission in plain language first, and stores scan logs in the browser on this device. It never records audio, never uploads photos, and never stores location — the Astro Scanner shows a position fix on screen only, and the compass shows a heading, not a position. Every display on this page is driven by live sensor data; decorative animation is used only for the device frame itself, never to imitate a reading. Phone sensors are teaching-grade, not lab-grade: missions are built around comparisons and patterns, and learning that every instrument has error is part of the science.</p>
     </section>
   </main>
 
   <script src="/assets/js/kids-mode.js"></script>
-  <script src="/assets/js/field-kit.js?v=20261029"></script>
+  <script src="/assets/js/field-kit.js?v=20261029c"></script>
 </body>
 </html>
