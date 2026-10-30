@@ -226,6 +226,12 @@
     .fk-tag-chip { display:none; font-family:var(--font-code); font-size:.78rem; color:#0a0e17; background:var(--neon-amber); border-radius:8px; padding:8px 12px; margin:10px 0; }
     .fk-tag-chip.show { display:block; }
 
+
+    .fk-exp-slot { margin:10px 0; }
+    .fk-exp-slot .fk-cmp-label { display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+    .fk-exp-entries { font-family:var(--font-code); font-size:.72rem; color:#9cb5d6; margin-top:4px; line-height:1.7; }
+    .fk-exp-form select, .fk-exp-form input { background:#0a1122; color:#e8f4ff; border:1px solid var(--hud-border); border-radius:10px; padding:9px 12px; font-family:var(--font-code); font-size:.8rem; max-width:100%; }
+
     @media (prefers-reduced-motion: reduce) {
       .fk-ring, .fk-orbit-dot, .fk-holo .fk-core, .fk-panel, .fk-panel.scanning .fk-sweep,
       .fk-panel.scanning .fk-chip::after, .fk-panel.scanning .fk-sweep-cone, .fk-led { animation: none !important; }
@@ -452,6 +458,23 @@
         <div class="fk-tag-chip" id="fk-team-tag"></div>
         <div id="fk-team-list"><p class="fk-empty">Loading team missions…</p></div>
       </div>
+      <div id="fk-exp-wrap">
+        <h3 style="font-family:var(--font-game);color:#fff;font-size:1.05rem;margin:20px 0 4px;">🧪 CREW EXPERIMENTS</h3>
+        <p class="fk-note" style="margin-bottom:10px;">A teacher or parent poses a question, <b>every cadet measures</b>, and all the readings pool into <b>one crew dataset</b> — with averages, ranges, and the class graph growing live. Re-measure any slot: your newest reading replaces the old one, like real science.</p>
+        <div class="fk-exp-form" id="fk-exp-create" hidden style="border:1px dashed rgba(0,229,255,.4);border-radius:12px;padding:14px 16px;margin-bottom:12px;">
+          <div style="font-family:var(--font-game);color:#fff;margin-bottom:8px;">➕ START AN EXPERIMENT (teachers &amp; parents)</div>
+          <div class="fk-row">
+            <select id="fk-exp-tpl" aria-label="Experiment template"></select>
+            <select id="fk-exp-mode" aria-label="Scanner for custom experiment" hidden>
+              <option value="sound">🔊 Sound</option><option value="motion">📐 Motion</option><option value="compass">🧭 Compass</option>
+            </select>
+            <input id="fk-exp-slots" type="text" placeholder="Custom places/conditions, comma-separated" style="flex:1;min-width:200px;" hidden/>
+            <button type="button" class="tactical-btn tactical-btn-green" id="fk-exp-start">🧪 START EXPERIMENT</button>
+          </div>
+        </div>
+        <div class="fk-tag-chip" id="fk-exp-tag"></div>
+        <div id="fk-exp-list"><p class="fk-empty">Loading experiments…</p></div>
+      </div>
       <p class="fk-note" style="margin-top:10px;">To share one of your scans, open the <b>Logbook</b> and tap 📡 SHARE on any entry. To compare against a crewmate, open the <b>Data Lab</b> in the Logbook — crew scans appear in the compare lists with their cadet's name.</p>
     </section>
 
@@ -462,6 +485,6 @@
   </main>
 
   <script src="/assets/js/kids-mode.js"></script>
-  <script src="/assets/js/field-kit.js?v=20261029g"></script>
+  <script src="/assets/js/field-kit.js?v=20261029h"></script>
 </body>
 </html>

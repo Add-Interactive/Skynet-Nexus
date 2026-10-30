@@ -109,6 +109,12 @@
           sb.addEventListener('click', function () { window.__fkShareEntry(en, sb); });
         }
         row.appendChild(sb);
+        if (window.__fkCrew && window.__fkCrew.expTag && apiModeFor(en.mode) === window.__fkCrew.expTag.mode) {
+          var cb = document.createElement('button');
+          cb.type = 'button'; cb.className = 'fk-share-btn'; cb.textContent = '🧪 CONTRIBUTE';
+          cb.addEventListener('click', function () { window.__fkContributeEntry(en, cb); });
+          row.appendChild(cb);
+        }
       }
       list.appendChild(row);
     });
@@ -672,7 +678,7 @@
       b.type = 'button';
       b.className = 'fk-crew-pill' + (FK.crew && FK.crew.type === c.type && FK.crew.id === c.id ? ' active' : '');
       b.textContent = (c.type === 'classroom' ? '🏫 ' : '🏠 ') + c.name + ' · ' + c.memberCount + (c.type === 'classroom' ? ' cadets' : ' cadets');
-      b.addEventListener('click', function () { FK.crew = c; renderCrewPills(); loadCrewFeed(); loadTeamMissions(); syncCrewTile(); });
+      b.addEventListener('click', function () { FK.crew = c; renderCrewPills(); loadCrewFeed(); loadTeamMissions(); loadExperiments(); syncCrewTile(); });
       box.appendChild(b);
     });
   }
@@ -721,7 +727,8 @@
       if (!r.ok || !r.data.crews || !r.data.crews.length) return;
       FK.crews = r.data.crews; FK.crew = FK.crews[0];
       var tile = $('fk-tile-crew'); if (tile) tile.style.display = '';
-      renderCrewPills(); syncCrewTile(); loadCrewFeed(); loadTeamMissions(); renderLog();
+      renderCrewPills(); syncCrewTile(); loadCrewFeed(); loadTeamMissions(); loadExperiments(); renderLog();
+      fkApi('/api/auth/me').then(function (r) { if (r.ok && r.data && r.data.user) FK.userId = r.data.user.id; if (r.ok && r.data && r.data.id) FK.userId = r.data.id; loadExperiments(); }).catch(function () {});
       if (location.hash === '#crew') openSection('fk-crew-sec', true);
     }).catch(function () { /* crew link unavailable: page works as before */ });
   })();
@@ -806,6 +813,169 @@
       })
       .catch(function () {});
   }
+
+
+  /* ================= CREW EXPERIMENTS (Phase C) ================= */
+  FK.experiments = []; FK.templates = []; FK.expTag = null; FK.userId = null;
+  function clearExpTag() {
+    FK.expTag = null;
+    if (window.__fkCrew) window.__fkCrew.expTag = null;
+    var chip = $('fk-exp-tag'); if (chip) { chip.classList.remove('show'); chip.textContent = ''; }
+  }
+  function setExpTag(exp, slot) {
+    FK.expTag = { expId: exp.id, slot: slot, mode: exp.mode, title: exp.title };
+    if (window.__fkCrew) window.__fkCrew.expTag = FK.expTag;
+    var chip = $('fk-exp-tag');
+    if (chip) {
+      chip.textContent = '🧪 MEASURING FOR “' + exp.title + '” — ' + slot + ': run the scanner, LOG the scan, then tap 🧪 CONTRIBUTE on it in the Logbook. Your reading joins the crew dataset!';
+      chip.classList.add('show');
+    }
+    openSection(panelForMode(exp.mode), true);
+    renderLog();
+  }
+  window.__fkContributeEntry = function (en, btn) {
+    if (!FK.expTag) return;
+    var value = (typeof en.value === 'number' ? en.value : entryValue(en));
+    if (value == null) { fkStatus('That log has no number to contribute — run the scanner again.'); return; }
+    if (btn) { btn.disabled = true; btn.textContent = '🧪 SENDING…'; }
+    fkApi('/api/fieldkit/experiments/' + FK.expTag.expId + '/contribute', { method: 'POST',
+      body: JSON.stringify({ kid_id: FK.kidId, slot: FK.expTag.slot, value: value, result: en.result }) }).then(function (r) {
+      if (r.ok) {
+        fkStatus('Contribution pooled! The crew dataset just grew. 🧪');
+        buzz(25); clearExpTag(); loadExperiments(); loadCrewFeed(); renderLog();
+      } else {
+        if (btn) { btn.disabled = false; btn.textContent = '🧪 CONTRIBUTE'; }
+        fkStatus(r.data && r.data.error ? 'Contribute failed: ' + r.data.error : 'Contribute failed — try again.');
+      }
+    }).catch(function () { if (btn) { btn.disabled = false; btn.textContent = '🧪 CONTRIBUTE'; } });
+  };
+  function renderExperiments() {
+    var box = $('fk-exp-list'); if (!box) return;
+    var form = $('fk-exp-create');
+    if (form && FK.crew) {
+      form.hidden = !FK.crew.canCreate;
+      var sel = $('fk-exp-tpl');
+      if (sel && !sel.options.length) {
+        FK.templates.forEach(function (t) {
+          var o = document.createElement('option'); o.value = t.key; o.textContent = t.icon + ' ' + t.name; sel.appendChild(o);
+        });
+        sel.addEventListener('change', function () {
+          var custom = sel.value === 'custom-scan';
+          $('fk-exp-mode').hidden = !custom; $('fk-exp-slots').hidden = !custom;
+        });
+      }
+    }
+    box.innerHTML = '';
+    if (!FK.experiments.length) { box.innerHTML = '<p class="fk-empty">No experiments yet for this crew. Teachers and parents can start one above!</p>'; return; }
+    FK.experiments.forEach(function (exp) {
+      var card = document.createElement('div');
+      card.className = 'fk-team-card' + (exp.status === 'closed' ? ' complete' : '');
+      var means = exp.slots.map(function (s) { return s.mean; }).filter(function (v) { return v != null; });
+      var maxAbs = Math.max.apply(null, means.map(Math.abs).concat([0.0001]));
+      var slotsHtml = exp.slots.map(function (s) {
+        var mine = s.entries.find(function (e) { return e.mine; });
+        var bar = s.mean == null ? 4 : Math.max(4, Math.abs(s.mean) / maxAbs * 100);
+        var entries = s.entries.map(function (e) {
+          return esc(e.kid_name) + ' ' + e.value + (e.outlier ? ' ⚠️' : '');
+        }).join(' · ');
+        var action = '';
+        if (exp.status === 'open') {
+          action = mine
+            ? '<button type="button" class="fk-share-btn" data-exp="' + exp.id + '" data-slot="' + esc(s.slot) + '">↻ RE-MEASURE</button>'
+            : '<button type="button" class="fk-share-btn" data-exp="' + exp.id + '" data-slot="' + esc(s.slot) + '">📏 MEASURE</button>';
+        }
+        return '<div class="fk-exp-slot"><div class="fk-cmp-label"><span><b style="color:#fff;">' + esc(s.slot) + '</b> · ' + s.n + ' cadet' + (s.n === 1 ? '' : 's') +
+          (s.mean != null ? ' · avg ' + s.mean + ' ' + esc(exp.unit) + ' (' + s.min + '–' + s.max + ')' : ' · no readings yet') +
+          (mine ? ' · ✅ yours: ' + mine.value : '') + '</span>' + action + '</div>' +
+          '<div class="fk-cmp-bar"><i style="width:' + bar + '%;background:#22d3ee;box-shadow:0 0 12px #22d3ee;"></i></div>' +
+          (entries ? '<div class="fk-exp-entries">' + entries + '</div>' : '') + '</div>';
+      }).join('');
+      var foot = '';
+      if (exp.status === 'closed') {
+        foot = '<p class="fk-note" style="margin-top:8px;">🏁 <b style="color:#fff;">Closed.</b> ' +
+          (exp.conclusion ? '<b style="color:#fff;">Crew conclusion:</b> ' + esc(exp.conclusion) : 'No conclusion written yet.') + '</p>';
+      } else {
+        foot = '<p class="fk-note" style="margin-top:8px;">' + exp.total + ' readings pooled so far. ⚠️ marks a reading far from the crew middle — not wrong, just worth a second look. Measurement error is part of the science!</p>';
+      }
+      var creator = FK.userId && FK.userId === exp.created_by;
+      var tools = '';
+      if (creator) {
+        tools = '<div class="fk-row" style="margin-top:10px;">' +
+          '<a class="tactical-btn tactical-btn-ghost" style="font-size:.75rem;padding:7px 12px;" href="/api/fieldkit/experiments/' + exp.id + '/export.csv">⬇️ CSV</a>' +
+          '<button type="button" class="tactical-btn tactical-btn-ghost" style="font-size:.75rem;padding:7px 12px;" data-print="' + exp.id + '">🖨️ CLASS REPORT</button>' +
+          (exp.status === 'open' ? '<button type="button" class="tactical-btn tactical-btn-purple" style="font-size:.75rem;padding:7px 12px;" data-close="' + exp.id + '">🏁 CLOSE + CONCLUDE</button>' : '') +
+          '</div><div class="fk-row" style="margin-top:8px;" id="fk-concl-' + exp.id + '" hidden>' +
+          '<input type="text" id="fk-concl-text-' + exp.id + '" placeholder="Our crew conclusion, in one sentence…" style="flex:1;min-width:220px;background:#0a1122;color:#e8f4ff;border:1px solid var(--hud-border);border-radius:10px;padding:9px 12px;font-family:var(--font-code);font-size:.8rem;"/>' +
+          '<button type="button" class="tactical-btn tactical-btn-green" style="font-size:.75rem;padding:7px 12px;" data-conclude="' + exp.id + '">SAVE + CLOSE</button></div>';
+      }
+      card.innerHTML = '<h4>🧪 ' + esc(exp.title) + ' <span style="color:#9cb5d6;font-size:.72rem;font-family:var(--font-code);">· ' + (exp.status === 'open' ? 'OPEN' : 'CLOSED') + '</span></h4>' +
+        '<p class="fk-note" style="margin:2px 0 6px;">' + esc(exp.question) + '</p>' + slotsHtml + foot + tools;
+      box.appendChild(card);
+    });
+    box.querySelectorAll('[data-exp]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var exp = FK.experiments.find(function (x) { return x.id === Number(b.getAttribute('data-exp')); });
+        if (exp) setExpTag(exp, b.getAttribute('data-slot'));
+      });
+    });
+    box.querySelectorAll('[data-close]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var row = $('fk-concl-' + b.getAttribute('data-close')); if (row) row.hidden = !row.hidden;
+      });
+    });
+    box.querySelectorAll('[data-conclude]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-conclude');
+        var text = ($('fk-concl-text-' + id) || {}).value || '';
+        var chain = text.trim() ? fkApi('/api/fieldkit/experiments/' + id + '/conclusion', { method: 'POST', body: JSON.stringify({ text: text.trim() }) }) : Promise.resolve({ ok: true });
+        chain.then(function () { return fkApi('/api/fieldkit/experiments/' + id + '/close', { method: 'POST', body: '{}' }); })
+          .then(function () { fkStatus('Experiment closed. 🏁'); loadExperiments(); });
+      });
+    });
+    box.querySelectorAll('[data-print]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var exp = FK.experiments.find(function (x) { return x.id === Number(b.getAttribute('data-print')); });
+        if (!exp) return;
+        var rowsHtml = '';
+        exp.slots.forEach(function (s) {
+          s.entries.forEach(function (e) { rowsHtml += '<tr><td>' + esc(s.slot) + '</td><td>' + esc(e.kid_name) + '</td><td>' + e.value + ' ' + esc(exp.unit) + '</td></tr>'; });
+        });
+        var w = window.open('', '_blank'); if (!w) return;
+        w.document.write('<!DOCTYPE html><html><head><title>Class Field Report — ' + esc(exp.title) + '</title>' +
+          '<style>body{font-family:Georgia,serif;color:#12212f;margin:40px;}table{border-collapse:collapse;width:100%;}td,th{border:1px solid #9db8cc;padding:8px 10px;text-align:left;font-size:14px;}th{background:#e8f2f9;}@media print{button{display:none;}}</style></head><body>' +
+          '<h1>🧪 CLASS FIELD REPORT</h1><p><b>' + esc(exp.title) + '</b> · ' + esc(exp.question) + '<br/>Crew dataset: ' + exp.total + ' readings · Skynet Nexus Field Kit</p>' +
+          '<table><tr><th>Place / Condition</th><th>Cadet</th><th>Measurement</th></tr>' + rowsHtml + '</table>' +
+          (exp.conclusion ? '<p><b>Crew conclusion:</b> ' + esc(exp.conclusion) + '</p>' : '') +
+          '<p style="margin-top:24px;"><button onclick="window.print()">🖨️ Print</button></p></body></html>');
+        w.document.close();
+      });
+    });
+  }
+  function loadExperiments() {
+    if (!FK.crew) return;
+    fkApi('/api/fieldkit/experiments?kid_id=' + FK.kidId + '&crew_type=' + FK.crew.type + '&crew_id=' + FK.crew.id)
+      .then(function (r) {
+        if (r.ok) { FK.experiments = r.data.experiments || []; FK.templates = r.data.templates || []; renderExperiments(); }
+      })
+      .catch(function () {});
+  }
+  (function wireExpCreate() {
+    var btn = $('fk-exp-start');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      if (!FK.crew) return;
+      var tpl = ($('fk-exp-tpl') || {}).value || 'sound-map';
+      var body = { crew_type: FK.crew.type, crew_id: FK.crew.id, template: tpl };
+      if (tpl === 'custom-scan') {
+        body.mode = ($('fk-exp-mode') || {}).value || 'sound';
+        body.slots = (($('fk-exp-slots') || {}).value || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+      }
+      fkApi('/api/fieldkit/experiments', { method: 'POST', body: JSON.stringify(body) }).then(function (r) {
+        if (r.ok) { fkStatus('Experiment started! Cadets: find your slot and measure. 🧪'); loadExperiments(); }
+        else fkStatus(r.data && r.data.error ? 'Could not start: ' + r.data.error : 'Could not start that experiment.');
+      });
+    });
+  })();
 
   renderLog();
 })();
