@@ -53,6 +53,7 @@ function renderSkyNav(base) {
     link(P('summer.html'), '🏕️', 'Summer STEM') +
     link(P('quiz.html'), '🧠', 'Daily Quiz') +
     link(P('space-center.html'), '🚀', 'Space Center') +
+    link(P('field-kit.html'), '🛰️', 'Nexus Field Kit') +
     link(P('submit.html'), '✍️', 'Submit a Story');
 
   var readHtml =
@@ -233,7 +234,8 @@ function renderSkyFooter(base) {
     [P('events.html'), '\uD83D\uDCC5 Events'],
     [P('summer.html'), '\uD83C\uDFD5\uFE0F Summer STEM'],
     [P('quiz.html'), '\uD83E\uDDE0 Daily Quiz'],
-    [P('space-center.html'), '\uD83D\uDE80 Space Center']
+    [P('space-center.html'), '\uD83D\uDE80 Space Center'],
+    [P('field-kit.html'), '\uD83D\uDEF0\uFE0F Nexus Field Kit']
   ]);
   var readCol = col('Read', [
     [base + 'index.html', 'Home'],
