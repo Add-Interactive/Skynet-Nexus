@@ -38,7 +38,10 @@
      - Mira Solano (math): "Math is way more fun than you
        think — I promise" + hidden patterns and puzzles.
      - Hazel Quinn (play): 50+ board games designed and
-       play-tested; "Play is serious business". */
+       play-tested; "Play is serious business".
+     - Gus Delgado (engineering): "If it was built, I want to
+       see how" + a bridge built from 10,000 popsicle sticks;
+       his quest sends cadets to the Field Kit (piece: tricorder). */
   var QUESTS = [
     {
       channel: 'stem', name: 'Lena Osei', emoji: '🔬', accent: '#00e5ff',
@@ -51,6 +54,10 @@
     {
       channel: 'play', name: 'Hazel Quinn', emoji: '🎨', accent: '#39ff14',
       cheer: 'Hazel has designed 50+ board games and play-tested every one \u2014 she says the best part of a story is talking it over together!'
+    },
+    {
+      channel: 'engineering', name: 'Gus Delgado', emoji: '🔧', accent: '#f97316',
+      cheer: '\u201cIf it was built, I want to see how!\u201d Gus once built a bridge out of 10,000 popsicle sticks \u2014 now he wants to see what your phone can measure. Open the Field Kit and scan something real!'
     }
   ];
   var CONFETTI_COLORS = ['#ffd23f', '#ff6ec7', '#00e5ff', '#39ff14', '#a855f7'];
