@@ -233,3 +233,20 @@ function tick() {
     if (++tries < 80) setTimeout(wait, 250);
   })();
 })();
+
+// ---- Stella's Space Bay set (2026-10-30) ----
+// The Blender-modeled bay rides this module's proven static GLTFLoader
+// path and is handed to the bay code in space-center-main.js via
+// window.__scBay.attachSet. If the file is missing or fails, main.js
+// builds its fallback room on a timer — nothing here can break the page.
+(function loadSpaceBay() {
+  try {
+    new GLTFLoader().load(MODEL_BASE + 'space-bay.glb', function (gltf) {
+      let tries = 0;
+      (function hand() {
+        if (window.__scBay && window.__scBay.attachSet) { window.__scBay.attachSet(gltf.scene); return; }
+        if (++tries < 20) setTimeout(hand, 500);
+      })();
+    }, undefined, function () { /* main.js fallback timer covers a missing set */ });
+  } catch (e) { /* the bay is decoration */ }
+})();

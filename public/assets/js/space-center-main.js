@@ -208,22 +208,29 @@
     // replaces the first-pass procedural room. It carries its own
     // destination vistas — VistaEarth / VistaMoon / VistaMars backdrops
     // outside the windows — which baySetScene toggles per destination.
-    // Loaded async + armored: if the model cannot load, a minimal dark
-    // room stands in so the hologram never floats in a void.
-    import('../../vendor/three/addons/loaders/GLTFLoader.js').then(function (mod) {
-      new mod.GLTFLoader().load('../assets/models/space-bay.glb', function (gltf) {
-        try {
-          var set = gltf.scene;
-          set.position.y = -2.4;
-          bayGroup.add(set);
-          ['earth', 'moon', 'mars'].forEach(function (k) {
-            var v = set.getObjectByName('Vista' + k.charAt(0).toUpperCase() + k.slice(1));
-            if (v) { bayState.vistas[k] = v; v.visible = (k === bayState.sceneName); }
-          });
-          bayState.setLoaded = true;
-        } catch (e) { bayFallbackRoom(); }
-      }, undefined, function () { bayFallbackRoom(); });
-    }).catch(function () { bayFallbackRoom(); });
+    // The set is carried by space-center-models.js, the module that already
+    // brings GLTFLoader in statically for the satellite models, and handed
+    // over through bayAttachSet below. (The first cut loaded it from here
+    // via a dynamic import; on the live page the set never arrived and the
+    // fallback room appeared, so the proven path carries it now.) If no
+    // set attaches within a few seconds, the fallback room builds so the
+    // hologram never floats in a void.
+    var baySetTimer = setTimeout(function () { if (!bayState.setLoaded) bayFallbackRoom(); }, 6000);
+    function bayAttachSet(set) {
+      try {
+        if (bayState.setLoaded || !set) return;
+        clearTimeout(baySetTimer);
+        (bayState.fallbackMeshes || []).forEach(function (m) { bayGroup.remove(m); });
+        bayState.fallbackMeshes = [];
+        set.position.y = -2.4;
+        bayGroup.add(set);
+        ['earth', 'moon', 'mars'].forEach(function (k) {
+          var v = set.getObjectByName('Vista' + k.charAt(0).toUpperCase() + k.slice(1));
+          if (v) { bayState.vistas[k] = v; v.visible = (k === bayState.sceneName); }
+        });
+        bayState.setLoaded = true;
+      } catch (e) { bayFallbackRoom(); }
+    }
     function bayFallbackRoom() {
       try {
         var fl = new THREE.Mesh(new THREE.CircleGeometry(15, 48), new THREE.MeshBasicMaterial({ color: 0x0a1424 }));
@@ -231,6 +238,7 @@
         var pr = new THREE.Mesh(new THREE.CylinderGeometry(1.45, 1.68, 0.26, 40),
           new THREE.MeshPhongMaterial({ color: 0x1a2436, emissive: 0x050d16, shininess: 70, specular: 0x7fb2ff }));
         pr.position.y = -1.62; bayGroup.add(pr);
+        bayState.fallbackMeshes = [fl, pr];
       } catch (e) { /* the room is decoration; never break the page */ }
     }
     // light cone from the projector into the hologram
@@ -294,7 +302,7 @@
       });
       if (bayState.light) bayState.light.color.setHex(name === 'moon' ? 0xbfd4e6 : name === 'mars' ? 0xffb37a : 0x66d9ff);
     }
-    window.__scBay = { setScene: baySetScene, sceneFor: baySceneFor, get sceneName() { return bayState.sceneName; } };
+    window.__scBay = { setScene: baySetScene, sceneFor: baySceneFor, attachSet: bayAttachSet, get sceneName() { return bayState.sceneName; } };
     function bayPulse(t) {
       try { bayPulseInner(t); } catch (e) { /* the pulse must never break the render loop */ }
     }
