@@ -609,6 +609,17 @@ window.__scB = {
     // custom orbit controls
     var rotX = 0.35, targetRotX = 0.35, spinAccum = 0;
     var dragging = false, px = 0, py = 0;
+    var dragMode = 'spin';   // 'spin' turns the globe; 'orbit' moves the camera (drag began in empty space)
+    function orbitCamDir(dx, dy) {
+      _orbQ.setFromAxisAngle(_upY, -dx * 0.005);
+      camDir.applyQuaternion(_orbQ);
+      _camDirPrev.copy(camDir);
+      _right.crossVectors(camDir, _upY).normalize();
+      _orbQ.setFromAxisAngle(_right, -dy * 0.004);
+      camDir.applyQuaternion(_orbQ).normalize();
+      var polar = Math.acos(Math.max(-1, Math.min(1, camDir.y)));
+      if (polar < 0.15 || polar > Math.PI - 0.15) camDir.copy(_camDirPrev); // keep the camera off the poles
+    }
     var pointers = {}, pinchStart = 0, pinched = false;
     canvas.addEventListener('pointerdown', function (e) {
       if (arMode) return;
@@ -618,7 +629,16 @@ window.__scB = {
         var pts = Object.keys(pointers).map(function (k) { return pointers[k]; });
         pinchStart = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
         pinched = true; dragging = false;
-      } else if (n === 1) { pinched = false; dragging = true; px = e.clientX; py = e.clientY; moved = 0; }
+      } else if (n === 1) {
+        pinched = false; dragging = true; px = e.clientX; py = e.clientY; moved = 0;
+        // Jeff's split (2026-10-30): a drag that starts ON the Earth spins
+        // the globe; a drag that starts in empty space moves the camera.
+        try {
+          ptr.x = (e.clientX / innerWidth) * 2 - 1; ptr.y = -(e.clientY / innerHeight) * 2 + 1;
+          ray.setFromCamera(ptr, camera);
+          dragMode = ray.intersectObject(earth, false).length ? 'spin' : 'orbit';
+        } catch (err) { dragMode = 'spin'; }
+      }
     });
     function endPointer(e) {
       delete pointers[e.pointerId];
@@ -643,14 +663,10 @@ window.__scB = {
       moved += Math.abs(dx) + Math.abs(dy);
       if (focusSat && window.__scB && window.__scB.modelShowing) {
         // orbit the camera around the close-up 3D model instead of spinning the world
-        _orbQ.setFromAxisAngle(_upY, -dx * 0.005);
-        camDir.applyQuaternion(_orbQ);
-        _camDirPrev.copy(camDir);
-        _right.crossVectors(camDir, _upY).normalize();
-        _orbQ.setFromAxisAngle(_right, -dy * 0.004);
-        camDir.applyQuaternion(_orbQ).normalize();
-        var polar = Math.acos(Math.max(-1, Math.min(1, camDir.y)));
-        if (polar < 0.15 || polar > Math.PI - 0.15) camDir.copy(_camDirPrev); // keep the camera off the poles
+        orbitCamDir(dx, dy);
+      } else if (dragMode === 'orbit') {
+        // drag began in empty space: move the camera around the globe
+        orbitCamDir(dx, dy);
       } else {
         world.rotation.y += dx * 0.005; spinAccum += Math.abs(dx * 0.005);
         targetRotX = Math.max(-1.2, Math.min(1.2, targetRotX + dy * 0.004));
@@ -663,42 +679,72 @@ window.__scB = {
       var lo = focusSat ? 0.06 : 1.7; // zoom right into a satellite when focused
       camGoalDist = Math.max(lo, Math.min(8, camGoalDist + e.deltaY * 0.002));
     }, { passive: false });
-    // ---- Camera preset views (2026-10-30, Jeff's request) ----
-    // One tap swings the globe to a canonical angle: Front (the home view),
-    // Back, Left, Right, Top (north pole), or Reset (front + home zoom,
-    // unfocused). The swing eases in the render loop below; any canvas
-    // drag cancels it. Choosing a view while a satellite is focused flies
-    // home first so the preset owns the camera.
+    // ---- Camera views (2026-10-30, Jeff's direction) ----
+    // REWORK of the first preset cut: Jeff wants the CAMERA to move, not
+    // the world — viewport-style views like Cinema 4D's view grid. The
+    // gadget (bottom right) opens a spatial icon grid; choosing a view
+    // eases camDir to that side of the current target (the globe at home,
+    // or the focused satellite). Dragging gets the same split: a drag
+    // that starts ON the Earth spins the globe; a drag that starts in
+    // empty space orbits the camera around it. Reset flies home and
+    // restores the home camera.
     var camPreset = null;
-    var viewBar = document.createElement('div');
-    viewBar.id = 'sc-views';
-    viewBar.innerHTML = '<span class="scv-label">📷 Views</span>' + [['front', 'Front'], ['back', 'Back'], ['left', '◀ Left'], ['right', 'Right ▶'], ['top', 'Top'], ['reset', '⟲ Reset']].map(function (v) {
-      return '<button type="button" data-view="' + v[0] + '">' + v[1] + '</button>';
-    }).join('');
-    document.body.appendChild(viewBar);
-    var viewStyle = document.createElement('style');
-    viewStyle.textContent = '#sc-views{position:fixed;left:50%;transform:translateX(-50%);bottom:68px;z-index:40;display:flex;gap:6px;align-items:center;pointer-events:none}' +
-      '#sc-views .scv-label{color:#9fd8ef;font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.85}' +
-      '#sc-views button{pointer-events:auto;background:rgba(8,20,36,.85);color:#cfeeff;border:1px solid rgba(0,229,255,.45);border-radius:999px;padding:5px 11px;font-size:12px;cursor:pointer;font-family:inherit}' +
-      '#sc-views button:active{background:rgba(0,229,255,.35)}' +
-      '@media (max-width:760px){#sc-views{bottom:62px;gap:4px}#sc-views button{padding:4px 8px;font-size:11px}#sc-views .scv-label{display:none}}';
-    document.head.appendChild(viewStyle);
+    var CAM_HOME_DIR = new THREE.Vector3(0, 0.6, 3.2).normalize();
     function goView(name) {
-      var TWO_PI = Math.PI * 2;
-      var base = Math.round(world.rotation.y / TWO_PI) * TWO_PI;
-      var off = 0, tilt = 0.35;
-      if (name === 'back') off = Math.PI;
-      else if (name === 'left') off = -Math.PI / 2;
-      else if (name === 'right') off = Math.PI / 2;
-      else if (name === 'top') { off = null; tilt = 1.2; }
-      if (focusSat || name === 'reset') flyHome();
-      camPreset = { y: off === null ? world.rotation.y : base + off, x: tilt };
-      lastInteract = performance.now();
+      var d = null;
+      if (name === 'front') d = CAM_HOME_DIR.clone();
+      else if (name === 'back') d = new THREE.Vector3(0, 0.6, -3.2).normalize();
+      else if (name === 'left') d = new THREE.Vector3(-3.2, 0.6, 0).normalize();
+      else if (name === 'right') d = new THREE.Vector3(3.2, 0.6, 0).normalize();
+      else if (name === 'top') d = new THREE.Vector3(0, Math.cos(0.15), Math.sin(0.15));
+      else if (name === 'reset') { flyHome(); d = CAM_HOME_DIR.clone(); }
+      if (d) { camPreset = { dir: d }; lastInteract = performance.now(); }
     }
-    viewBar.querySelectorAll('[data-view]').forEach(function (b) {
-      b.addEventListener('click', function () { goView(b.getAttribute('data-view')); });
+    function viewIcon(kind) {
+      var globe = '<circle cx="12" cy="12" r="6.5" fill="none" stroke="#7fd4f2" stroke-width="1.4"/>' +
+        '<ellipse cx="12" cy="12" rx="3" ry="6.5" fill="none" stroke="#7fd4f2" stroke-width="0.8" opacity="0.65"/>' +
+        '<line x1="5.5" y1="12" x2="18.5" y2="12" stroke="#7fd4f2" stroke-width="0.8" opacity="0.65"/>';
+      var mark = '';
+      if (kind === 'top') mark = '<path d="M12 0.8 L14.8 4.6 L9.2 4.6 Z" fill="#ffc233"/>';
+      else if (kind === 'left') mark = '<path d="M0.8 12 L4.6 9.2 L4.6 14.8 Z" fill="#ffc233"/>';
+      else if (kind === 'right') mark = '<path d="M23.2 12 L19.4 9.2 L19.4 14.8 Z" fill="#ffc233"/>';
+      else if (kind === 'front') mark = '<circle cx="12" cy="12" r="2.3" fill="#ffc233"/>';
+      else if (kind === 'back') mark = '<circle cx="12" cy="12" r="2.3" fill="none" stroke="#ffc233" stroke-width="1.6"/>';
+      if (kind === 'reset') return '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M12.5 3.5 A8.5 8.5 0 1 1 3.6 9" fill="none" stroke="#7fd4f2" stroke-width="1.8" stroke-linecap="round"/><path d="M3.2 3.8 L3.6 9.2 L8.8 8.6" fill="none" stroke="#ffc233" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      return '<svg viewBox="0 0 24 24" width="22" height="22">' + globe + mark + '</svg>';
+    }
+    var viewGadget = document.createElement('div');
+    viewGadget.id = 'sc-viewgadget';
+    viewGadget.innerHTML =
+      '<div id="sc-viewgrid" hidden>' +
+      '<span></span>' + '<button type="button" data-view="top">' + viewIcon('top') + '<span>Top</span></button>' + '<span></span>' +
+      '<button type="button" data-view="left">' + viewIcon('left') + '<span>Left</span></button>' +
+      '<button type="button" data-view="front">' + viewIcon('front') + '<span>Front</span></button>' +
+      '<button type="button" data-view="right">' + viewIcon('right') + '<span>Right</span></button>' +
+      '<span></span>' + '<button type="button" data-view="back">' + viewIcon('back') + '<span>Back</span></button>' +
+      '<button type="button" data-view="reset">' + viewIcon('reset') + '<span>Reset</span></button>' +
+      '</div>' +
+      '<button type="button" id="sc-viewbtn" title="Camera views">' +
+      '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 2.8 L21 7.8 L12 12.8 L3 7.8 Z" fill="none" stroke="#7fd4f2" stroke-width="1.5" stroke-linejoin="round"/><path d="M3 7.8 L3 16.2 L12 21.2 L12 12.8" fill="none" stroke="#7fd4f2" stroke-width="1.5" stroke-linejoin="round"/><path d="M21 7.8 L21 16.2 L12 21.2" fill="none" stroke="#7fd4f2" stroke-width="1.5" stroke-linejoin="round"/></svg>' +
+      '<span>View</span></button>';
+    document.body.appendChild(viewGadget);
+    var viewStyle = document.createElement('style');
+    viewStyle.textContent = '#sc-viewgadget{position:fixed;right:14px;bottom:78px;z-index:41;display:flex;flex-direction:column;align-items:flex-end;gap:8px}' +
+      '#sc-viewbtn{pointer-events:auto;display:flex;flex-direction:column;align-items:center;gap:1px;background:rgba(8,20,36,.88);color:#cfeeff;border:1px solid rgba(0,229,255,.5);border-radius:12px;padding:7px 10px 5px;cursor:pointer;font-family:inherit}' +
+      '#sc-viewbtn span{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#9fd8ef}' +
+      '#sc-viewgrid{display:grid;grid-template-columns:repeat(3,56px);gap:6px;background:rgba(6,14,26,.94);border:1px solid rgba(0,229,255,.4);border-radius:14px;padding:8px}' +
+      '#sc-viewgrid[hidden]{display:none}' +
+      '#sc-viewgrid button{pointer-events:auto;display:flex;flex-direction:column;align-items:center;gap:2px;background:rgba(16,34,56,.9);border:1px solid rgba(0,229,255,.28);border-radius:10px;padding:6px 0 4px;cursor:pointer;font-family:inherit}' +
+      '#sc-viewgrid button:active{background:rgba(0,229,255,.3)}' +
+      '#sc-viewgrid button span{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#cfeeff}' +
+      '@media (max-width:760px){#sc-viewgadget{right:10px;bottom:70px}#sc-viewgrid{grid-template-columns:repeat(3,50px)}}';
+    document.head.appendChild(viewStyle);
+    var viewGrid = viewGadget.querySelector('#sc-viewgrid');
+    viewGadget.querySelector('#sc-viewbtn').addEventListener('click', function () { viewGrid.hidden = !viewGrid.hidden; });
+    viewGrid.querySelectorAll('[data-view]').forEach(function (b) {
+      b.addEventListener('click', function () { goView(b.getAttribute('data-view')); viewGrid.hidden = true; });
     });
-    canvas.addEventListener('pointerdown', function () { camPreset = null; });
+    canvas.addEventListener('pointerdown', function () { camPreset = null; viewGrid.hidden = true; });
     // picking
     var ray = new THREE.Raycaster(), ptr = new THREE.Vector2(), selected = null;
     var label = document.getElementById('satlabel');
@@ -1380,12 +1426,6 @@ window.__scB = {
         // smooth tilt
         rotX += (targetRotX - rotX) * 0.08;
         world.rotation.x = rotX;
-        // camera preset easing — swings spin + tilt to the chosen view
-        if (camPreset) {
-          world.rotation.y += (camPreset.y - world.rotation.y) * 0.07;
-          targetRotX += (camPreset.x - targetRotX) * 0.07;
-          if (Math.abs(camPreset.y - world.rotation.y) < 0.002 && Math.abs(camPreset.x - targetRotX) < 0.002) camPreset = null;
-        }
         // selected label (hidden in AR)
         if (selected && !arMode) {
           var v = selected.position.clone().applyMatrix4(world.matrixWorld).project(camera);
@@ -1406,6 +1446,11 @@ window.__scB = {
         // camera navigation (skipped in VR — headset drives the camera)
         if (!renderer.xr.isPresenting) {
           if (focusSat) { focusSat.getWorldPosition(_sv); camGoal.copy(_sv); }
+          // camera view easing — swings the CAMERA (never the world) to the chosen view
+          if (camPreset) {
+            camDir.lerp(camPreset.dir, 0.08).normalize();
+            if (camDir.angleTo(camPreset.dir) < 0.003) { camDir.copy(camPreset.dir); camPreset = null; }
+          }
           camTarget.lerp(camGoal, 0.1);
           camDist += (camGoalDist - camDist) * 0.12;
           camera.position.copy(camTarget).addScaledVector(camDir, camDist);
