@@ -129,7 +129,37 @@
     function resize() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+      checkAnchorTrap();
     }
+
+    // Viewport anchoring (fix 2026-10-30): game-ui.css sets
+    // `body { perspective: 1200px }` for the 3D card effects, and an element
+    // with perspective becomes the containing block for its fixed
+    // descendants -- so this "position: fixed" canvas actually anchors to
+    // the TOP OF THE DOCUMENT and scrolls away with the page, leaving
+    // everything past the first screen starless. While the perspective is
+    // in effect, track the scroll offset so the starfield stays pinned
+    // behind the viewport across the entire site. Where there is no
+    // perspective (the <=768px layout strips it), the canvas is genuinely
+    // fixed already and is left untouched.
+    var anchorTrap = false;
+    var anchoredY = -1;
+    function checkAnchorTrap() {
+      anchorTrap = window.getComputedStyle(document.body).perspective !== 'none';
+      if (!anchorTrap && anchoredY !== -1) {
+        canvas.style.transform = '';
+        anchoredY = -1;
+      }
+    }
+    function anchorToViewport() {
+      if (!anchorTrap) return;
+      var y = window.scrollY || 0;
+      if (y !== anchoredY) {
+        anchoredY = y;
+        canvas.style.transform = 'translateY(' + y + 'px)';
+      }
+    }
+
     window.addEventListener('resize', resize);
     resize();
 
@@ -154,6 +184,7 @@
     }
 
     function render() {
+      anchorToViewport();
       // Smooth interpolation for mouse parallax
       mouseCurX += (mouseTargetX - mouseCurX) * 0.05;
       mouseCurY += (mouseTargetY - mouseCurY) * 0.05;
