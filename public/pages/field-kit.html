@@ -155,6 +155,32 @@
     .fk-note b { color: #fff; }
     button.fk-log[disabled] { opacity: .45; cursor: not-allowed; }
 
+
+    /* ---------- guided mission player ---------- */
+    .fk-player { --fk-accent:#39ff14; border:1.5px solid var(--fk-accent); border-radius:16px; padding:20px 22px; margin:18px 0 6px;
+      background: linear-gradient(160deg, rgba(0,0,0,.45), rgba(0,0,0,.25)); box-shadow: 0 0 30px -8px var(--fk-accent); animation: fkBoot .5s ease backwards; }
+    .fk-player-top { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .fk-dots { margin-left:auto; font-family:var(--font-code); font-size:.7rem; letter-spacing:.1em; color:#5f7799; display:flex; gap:12px; }
+    .fk-dots b { color:#5f7799; font-weight:500; } .fk-dots b.on { color:var(--fk-accent); font-weight:800; text-shadow:0 0 10px var(--fk-accent); }
+    .fk-player h3 { font-family:var(--font-game); color:#fff; font-size:1.2rem; margin:12px 0 4px; }
+    .fk-step-label { font-family:var(--font-code); font-size:.72rem; letter-spacing:.18em; color:var(--fk-accent); }
+    .fk-player p { color:#c6d6ee; line-height:1.65; font-size:.95rem; margin:8px 0; }
+    .fk-opt { display:block; width:100%; text-align:left; margin:8px 0; padding:12px 16px; }
+    .fk-progress { font-family:var(--font-code); color:var(--neon-amber); font-size:.85rem; margin:10px 0; }
+    .fk-done { text-align:center; font-family:var(--font-game); font-size:1.35rem; color:var(--neon-green); text-shadow:0 0 18px rgba(57,255,20,.5); margin:10px 0 4px; }
+    .fk-panel.fk-target { animation: fkTarget 1.5s ease; }
+    @keyframes fkTarget { 0%,100% { box-shadow: 0 24px 60px rgba(0,0,0,.5);} 30%,70% { box-shadow: 0 0 0 3px var(--fk-accent), 0 0 44px -4px var(--fk-accent);} }
+
+    /* ---------- logbook lab (compare) ---------- */
+    .fk-lab { margin-top:20px; border-top:1px solid var(--hud-border); padding-top:18px; }
+    .fk-lab h3 { font-family:var(--font-game); color:#fff; font-size:1rem; margin:0 0 10px; }
+    .fk-lab select { background:#0a1122; color:#e8f4ff; border:1px solid var(--hud-border); border-radius:10px; padding:10px 12px; font-family:var(--font-code); font-size:.82rem; max-width:100%; }
+    .fk-cmp-row { margin:12px 0; }
+    .fk-cmp-row .fk-cmp-label { font-family:var(--font-code); font-size:.8rem; color:#c6d6ee; margin-bottom:5px; }
+    .fk-cmp-bar { height:20px; border-radius:7px; background:rgba(255,255,255,.06); border:1px solid var(--hud-border); overflow:hidden; }
+    .fk-cmp-bar i { display:block; height:100%; border-radius:7px; transition: width .8s cubic-bezier(.2,.9,.3,1); }
+    .fk-cmp-verdict { font-family:var(--font-code); color:var(--neon-amber); font-size:.88rem; margin-top:10px; }
+
     @media (prefers-reduced-motion: reduce) {
       .fk-ring, .fk-orbit-dot, .fk-holo .fk-core, .fk-panel, .fk-panel.scanning .fk-sweep,
       .fk-panel.scanning .fk-chip::after, .fk-panel.scanning .fk-sweep-cone, .fk-led { animation: none !important; }
@@ -281,6 +307,17 @@
     <section class="mission-card" style="padding:28px;margin:26px 0;">
       <h2 style="font-family:var(--font-game);font-size:1.3rem;color:var(--neon-green);margin:0 0 6px;">🎯 FIELD MISSIONS</h2>
       <p class="fk-note">Every mission works the same way — the scientist's way: <b>Predict</b> first, then <b>Scan</b>, then <b>Explain</b> what the data showed. Teachers and guardians: any mission can be assigned as homework or a family challenge — just name the mission!</p>
+      <div class="fk-player" id="fk-player" hidden>
+        <div class="fk-player-top">
+          <span class="fk-chip" id="fk-player-chip" style="border-color:var(--fk-accent);">🎯</span>
+          <span id="fk-player-guide" style="font-family:var(--font-code);font-size:.78rem;color:var(--fk-accent);">GUIDE</span>
+          <span class="fk-dots" id="fk-player-dots"><b data-step="predict">1 · PREDICT</b><b data-step="scan">2 · SCAN</b><b data-step="explain">3 · EXPLAIN</b></span>
+          <button type="button" class="tactical-btn tactical-btn-ghost" id="fk-player-cancel" style="padding:5px 12px;font-size:.72rem;">✕ ABANDON</button>
+        </div>
+        <h3 id="fk-player-title">Mission</h3>
+        <div class="fk-step-label" id="fk-player-step">STEP 1</div>
+        <div id="fk-player-body"></div>
+      </div>
       <div class="fk-grid" style="margin-bottom:0;">
         <div class="fk-mission">
           <h3>📐 Mission 1 · The Pendulum Test <span style="color:#f97316;">(Gus)</span></h3>
@@ -290,6 +327,7 @@
             <li><b>Scan:</b> hold your phone gently, swing it like a pendulum, run Motion Lab for 10 swings. Count the glowing waves on the graph!</li>
             <li><b>Explain:</b> time ÷ swings = your period. Did it match your prediction?</li>
           </ol>
+          <div style="margin-top:14px;"><button type="button" class="tactical-btn tactical-btn-green fk-begin" data-mission="pendulum">▶ BEGIN MISSION</button></div>
         </div>
         <div class="fk-mission">
           <h3>🔊 Mission 2 · Sound Map of Your World <span style="color:#e879f9;">(Cadence)</span></h3>
@@ -299,6 +337,7 @@
             <li><b>Scan:</b> run Sound Lab in each place for 10 seconds and log the peak.</li>
             <li><b>Explain:</b> compare your logs with your prediction. Any surprises?</li>
           </ol>
+          <div style="margin-top:14px;"><button type="button" class="tactical-btn tactical-btn-green fk-begin" data-mission="soundmap">▶ BEGIN MISSION</button></div>
         </div>
         <div class="fk-mission">
           <h3>🧭 Mission 3 · The North Hunt <span style="color:#34d399;">(Rowan)</span></h3>
@@ -308,6 +347,7 @@
             <li><b>Scan:</b> start the Geo Compass — the amber line tells you live how many degrees you are from true north.</li>
             <li><b>Explain:</b> how far off were you? Log your true-north find.</li>
           </ol>
+          <div style="margin-top:14px;"><button type="button" class="tactical-btn tactical-btn-green fk-begin" data-mission="northhunt">▶ BEGIN MISSION</button></div>
         </div>
       </div>
     </section>
@@ -316,6 +356,18 @@
     <section class="mission-card" style="padding:28px;margin-bottom:26px;">
       <h2 style="font-family:var(--font-game);font-size:1.3rem;color:var(--neon-cyan);margin:0 0 6px;">📓 FIELD LOGBOOK</h2>
       <p class="fk-note" style="margin-bottom:16px;">Your scan logs live <b>on this device only</b> — nothing is uploaded, tracked, or shared. Show your logbook to your teacher or guardian to prove your field work!</p>
+      <div class="fk-lab">
+        <h3>🔬 DATA LAB · COMPARE TWO SCANS</h3>
+        <p class="fk-note" style="margin-bottom:12px;">Comparing is what scientists DO with data. Pick two scans of the same kind and see them head-to-head.</p>
+        <div class="fk-row">
+          <select id="fk-cmp-a" aria-label="First scan to compare"></select>
+          <span style="font-family:var(--font-code);color:#9cb5d6;">VS</span>
+          <select id="fk-cmp-b" aria-label="Second scan to compare"></select>
+          <button type="button" class="tactical-btn tactical-btn-cyan" id="fk-cmp-btn">⚖️ COMPARE</button>
+          <button type="button" class="tactical-btn tactical-btn-purple" id="fk-report-btn">🖨️ PRINT FIELD REPORT</button>
+        </div>
+        <div id="fk-cmp-out"></div>
+      </div>
       <div id="fk-log-list"><p class="fk-empty">No scans logged yet. Run a scanner above and tap “Log this scan.”</p></div>
       <div class="fk-row" style="margin-top:14px;">
         <button type="button" class="tactical-btn tactical-btn-ghost" id="fk-log-clear">🗑️ CLEAR LOGBOOK</button>
@@ -330,6 +382,6 @@
   </main>
 
   <script src="/assets/js/kids-mode.js"></script>
-  <script src="/assets/js/field-kit.js?v=20261029c"></script>
+  <script src="/assets/js/field-kit.js?v=20261029d"></script>
 </body>
 </html>
