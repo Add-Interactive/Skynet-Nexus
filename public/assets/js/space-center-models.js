@@ -23,6 +23,38 @@ const REGISTRY = {
   'proc:cubesat': null,
 };
 
+
+// ---- Texture decode path fix (2026-11-01) ----
+// Proven by the ?diag=1 A/B readout on Jeff's machine (Edge 156, Intel UHD
+// via ANGLE D3D11): GLTFLoader's default ImageBitmapLoader path FAILS on
+// the bay GLB's embedded blob images there — the console logs
+// "THREE.GLTFLoader: Couldn't load texture blob:…" and every material
+// arrives with NO texture slots, so the vista panels render as their raw
+// white emissive color (the plain-white windows) and the floor glows raw
+// white. The same parse with createImageBitmap hidden — GLTFLoader's
+// classic TextureLoader (img-tag) path — delivers every texture
+// (vista emissiveMaps 1024x512, floor maps present). So: hide
+// createImageBitmap while any model load in this module is in flight.
+// GLTFLoader picks its texture loader when the parse starts, and the
+// global stays hidden until the load's own callback fires, so the whole
+// fetch+parse is covered. Refcounted so overlapping loads can't restore
+// the global early or lose it.
+let ibLoads = 0, ibSaved;
+function loadGLTF(url, onLoad, onError) {
+  if (ibLoads === 0) { ibSaved = window.createImageBitmap; window.createImageBitmap = undefined; }
+  ibLoads++;
+  const done = () => {
+    ibLoads--;
+    if (ibLoads === 0 && ibSaved !== undefined) { window.createImageBitmap = ibSaved; ibSaved = undefined; }
+  };
+  try {
+    new GLTFLoader().load(url,
+      (gltf) => { done(); onLoad(gltf); },
+      undefined,
+      (err) => { done(); if (onError) onError(err); });
+  } catch (e) { done(); if (onError) onError(e); }
+}
+
 const cache = {};   // key -> { group, failed }
 let cur = null;     // { sp, key, group }
 let hintEl = null;
@@ -102,7 +134,7 @@ function loadModel(key, b) {
   const file = REGISTRY[key];
   if (!file) { cache[key].failed = true; rejectFn(new Error('no file')); return promise; }
   b.toast('🔭 Loading 3D model…');
-  new GLTFLoader().load(
+  loadGLTF(
     MODEL_BASE + file,
     (gltf) => {
       try {
@@ -241,7 +273,7 @@ function tick() {
 // builds its fallback room on a timer — nothing here can break the page.
 (function loadSpaceBay() {
   try {
-    new GLTFLoader().load(MODEL_BASE + 'space-bay-v2.glb', function (gltf) {
+    loadGLTF(MODEL_BASE + 'space-bay-v2.glb', function (gltf) {
       let tries = 0;
       (function hand() {
         if (window.__scBay && window.__scBay.attachSet) { window.__scBay.attachSet(gltf.scene); return; }
