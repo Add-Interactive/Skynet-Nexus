@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>▶ Watch — Skynet Nexus Episode Player</title>
+<meta name="description" content="Watch Skynet Nexus like a TV show: Marcus hosts, and every story plays as a narrated segment."/>
+<link rel="stylesheet" href="../assets/css/kids-mode.css"/>
+<script>
+  // Kids Mode: apply saved preference before first paint (same pattern as the rest of the site).
+  try {
+    var __kmLock = JSON.parse(localStorage.getItem('skynet.kidsModeLock') || '{}');
+    var __kmKid = localStorage.getItem('nexus_active_kid');
+    var __kmByKid = JSON.parse(localStorage.getItem('skynet.kidsModeByKid') || '{}');
+    var __kmOn = false;
+    if (__kmKid && __kmLock[__kmKid]) __kmOn = (__kmLock[__kmKid] === 'kids');
+    else if (__kmKid && __kmByKid[__kmKid]) __kmOn = true;
+    else __kmOn = (localStorage.getItem('skynet.kidsMode') === 'on');
+    if (__kmOn) document.documentElement.setAttribute('data-kids-mode', 'true');
+  } catch (e) { /* private mode etc. — straight version */ }
+</script>
+<style>
+  :root{
+    --ink:#eef3ff; --dim:#9fb2d8; --bg:#04060e; --panel:rgba(10,16,34,.82);
+    --neon:#39c6ff; --amber:#ffb64d; --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;overflow:hidden}
+  button{font-family:inherit}
+  #stage{position:fixed;inset:0;background:#000;overflow:hidden}
+  /* --- segment layers --- */
+  .layer{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .45s ease}
+  .layer.on{opacity:1;pointer-events:auto}
+  #heroImg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%}
+  #heroImg.kenburns{animation:kb 34s linear forwards}
+  @keyframes kb{from{transform:scale(1.0) translate(0,0)}to{transform:scale(1.09) translate(-1.2%,1.5%)}}
+  #scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,4,12,.42) 0%,rgba(2,4,12,0) 26%,rgba(2,4,12,0) 46%,rgba(2,4,12,.88) 100%)}
+  #hostVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+  .card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:24px;background:
+    radial-gradient(900px 480px at 50% 118%,rgba(57,198,255,.20),rgba(0,0,0,0) 60%),
+    radial-gradient(700px 420px at 82% -10%,rgba(255,182,77,.14),rgba(0,0,0,0) 55%),
+    linear-gradient(180deg,#070c1e,#04060e)}
+  .card .kicker{letter-spacing:.28em;text-transform:uppercase;font-size:.72rem;color:var(--neon);font-weight:700}
+  .card h1{font-size:clamp(1.9rem,5.4vw,3.4rem);margin:.35em 0 .15em;line-height:1.08}
+  .card p{color:var(--dim);font-size:clamp(1rem,2.2vw,1.2rem);margin:.2em 0}
+  .card .big-emoji{font-size:clamp(2.6rem,7vw,4.2rem);line-height:1}
+  /* --- story text --- */
+  #storyText{position:absolute;left:0;right:0;bottom:0;padding:20px clamp(16px,4vw,54px) calc(86px + env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;gap:10px;max-width:1060px}
+  #chipRow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .chip{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:999px;
+    font-weight:700;font-size:.82rem;color:#fff;background:rgba(20,30,58,.75);border:1px solid rgba(255,255,255,.22)}
+  .chip .dot{width:9px;height:9px;border-radius:50%}
+  #byline{color:var(--dim);font-size:.9rem;font-weight:600}
+  #storyTitle{font-size:clamp(1.45rem,3.6vw,2.5rem);line-height:1.14;margin:0;font-weight:800;
+    text-shadow:0 2px 22px rgba(0,0,0,.65)}
+  #storyCaption{font-size:clamp(.98rem,1.9vw,1.16rem);line-height:1.45;color:#dbe7ff;margin:0;max-width:62ch;
+    text-shadow:0 1px 14px rgba(0,0,0,.7)}
+  #segCounter{position:absolute;top:calc(14px + env(safe-area-inset-top));right:16px;padding:6px 12px;border-radius:999px;
+    background:var(--panel);border:1px solid rgba(255,255,255,.16);font-size:.8rem;font-weight:700;color:var(--dim)}
+  /* --- poster / start --- */
+  #poster{position:absolute;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(1000px 560px at 50% 115%,rgba(57,198,255,.24),rgba(0,0,0,0) 62%),
+    radial-gradient(760px 460px at 85% -10%,rgba(255,182,77,.16),rgba(0,0,0,0) 55%),linear-gradient(180deg,#081026,#04060e)}
+  #posterCard{text-align:center;padding:28px;max-width:640px}
+  #posterCard img{width:118px;height:118px;object-fit:cover;border-radius:50%;border:3px solid rgba(57,198,255,.65);
+    box-shadow:0 0 44px rgba(57,198,255,.35);background:#0a1230}
+  #posterCard .kicker{letter-spacing:.3em;text-transform:uppercase;font-size:.72rem;color:var(--neon);font-weight:700;margin-top:18px}
+  #posterTitle{font-size:clamp(2rem,6vw,3.2rem);margin:.25em 0 .1em;line-height:1.06}
+  #posterMeta{color:var(--dim);font-size:1.02rem;margin:0 0 8px}
+  #playBtn{margin-top:20px;display:inline-flex;align-items:center;gap:12px;border:0;cursor:pointer;
+    background:linear-gradient(180deg,#57d4ff,#1d9fe0);color:#031322;font-weight:800;font-size:1.22rem;
+    padding:16px 34px;border-radius:999px;box-shadow:0 10px 34px rgba(57,198,255,.4)}
+  #playBtn:active{transform:scale(.97)}
+  #posterErr{color:#ff9c9c;min-height:1.2em;margin-top:12px;font-size:.95rem}
+  #epPickerRow{margin-top:22px;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}
+  #epPickerRow label{color:var(--dim);font-size:.86rem;font-weight:600}
+  #epSelect{background:#0b1430;color:var(--ink);border:1px solid rgba(255,255,255,.25);border-radius:10px;
+    padding:9px 10px;font-size:.92rem;max-width:min(78vw,420px)}
+  /* --- controls --- */
+  #controls{position:absolute;left:0;right:0;bottom:0;z-index:20;padding:10px clamp(10px,3vw,26px) calc(12px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,rgba(0,0,0,0),rgba(2,4,12,.88) 38%);transition:opacity .3s ease}
+  #controls.hidden{opacity:0;pointer-events:none}
+  #ticks{display:flex;gap:4px;margin-bottom:10px}
+  .tick{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.22);overflow:hidden;position:relative}
+  .tick > i{position:absolute;inset:0;width:0%;background:linear-gradient(90deg,var(--neon),#7fe3ff);display:block}
+  .tick.done > i{width:100%}
+  #ctlRow{display:flex;align-items:center;gap:8px}
+  .cbtn{appearance:none;border:1px solid rgba(255,255,255,.18);background:var(--panel);color:var(--ink);
+    width:46px;height:46px;border-radius:50%;font-size:1.05rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+  .cbtn:active{transform:scale(.94)}
+  #epLabel{flex:1;min-width:0;font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px}
+  #epLabel small{display:block;color:var(--dim);font-weight:600;font-size:.76rem}
+  a.cbtn{text-decoration:none}
+  /* --- outro --- */
+  .outroBtns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px}
+  .outroBtns a,.outroBtns button{display:inline-flex;align-items:center;gap:9px;text-decoration:none;cursor:pointer;
+    padding:13px 22px;border-radius:999px;font-weight:800;font-size:1rem;border:1px solid rgba(255,255,255,.25);
+    background:rgba(16,26,54,.85);color:var(--ink)}
+  .outroBtns .primary{background:linear-gradient(180deg,#57d4ff,#1d9fe0);color:#031322;border:0}
+  @media (max-width:640px){
+    #storyText{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+    #epLabel{font-size:.85rem}
+    .cbtn{width:42px;height:42px}
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <!-- story layer -->
+  <div class="layer" id="storyLayer">
+    <img id="heroImg" alt=""/>
+    <div id="scrim"></div>
+    <div id="segCounter"></div>
+    <div id="storyText">
+      <div id="chipRow"><span class="chip" id="catChip"><span class="dot" id="catDot"></span><span id="catLabel"></span></span><span id="byline"></span></div>
+      <h2 id="storyTitle"></h2>
+      <p id="storyCaption"></p>
+    </div>
+  </div>
+  <!-- host open layer -->
+  <div class="layer" id="videoLayer">
+    <video id="hostVideo" src="/assets/video/marcus-reed-intro-40s-v2.mp4" playsinline preload="auto"></video>
+  </div>
+  <!-- title card layer -->
+  <div class="layer" id="titleLayer">
+    <div class="card">
+      <div class="big-emoji">🛰️</div>
+      <div class="kicker">Skynet Nexus presents</div>
+      <h1 id="titleCardName"></h1>
+      <p id="titleCardMeta"></p>
+    </div>
+  </div>
+  <!-- outro layer -->
+  <div class="layer" id="outroLayer">
+    <div class="card">
+      <div class="big-emoji">🎬</div>
+      <div class="kicker">That's the show</div>
+      <h1>Thanks for watching!</h1>
+      <p id="outroMeta"></p>
+      <div class="outroBtns">
+        <button type="button" class="primary" id="replayBtn">↻ Watch again</button>
+        <a href="/index.html">📰 Read the stories</a>
+        <a href="/pages/space-center.html">🛰️ Space Center</a>
+      </div>
+    </div>
+  </div>
+  <!-- poster / start -->
+  <div id="poster">
+    <div id="posterCard">
+      <img src="/assets/img/host/marcus-reed-portrait.webp" alt="Marcus Reed, your host"
+           onerror="this.style.display='none'"/>
+      <div class="kicker">Skynet Nexus · Watch</div>
+      <h1 id="posterTitle">Loading the latest episode…</h1>
+      <p id="posterMeta">Marcus hosts — every story plays as a narrated segment.</p>
+      <button type="button" id="playBtn" disabled>▶ Play episode</button>
+      <div id="posterErr" role="alert"></div>
+      <div id="epPickerRow" hidden>
+        <label for="epSelect">Pick an episode:</label>
+        <select id="epSelect"></select>
+      </div>
+    </div>
+  </div>
+  <!-- controls -->
+  <div id="controls" class="hidden">
+    <div id="ticks"></div>
+    <div id="ctlRow">
+      <a class="cbtn" href="/index.html" aria-label="Exit to home" title="Exit">✕</a>
+      <button type="button" class="cbtn" id="prevBtn" aria-label="Previous segment">⏮</button>
+      <button type="button" class="cbtn" id="playPauseBtn" aria-label="Play or pause">⏸</button>
+      <button type="button" class="cbtn" id="nextBtn" aria-label="Next segment">⏭</button>
+      <div id="epLabel"></div>
+      <button type="button" class="cbtn" id="fsBtn" aria-label="Fullscreen" title="Fullscreen">⛶</button>
+    </div>
+  </div>
+  <audio id="narrAudio" preload="auto"></audio>
+</div>
+<script src="../assets/js/episode-player.js"></script>
+</body>
+</html>
