@@ -40,6 +40,7 @@
     var gpu = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : '(masked)';
     out.push('VISTA DIAG — screenshot this whole box');
     out.push('GPU: ' + gpu);
+    out.push('UA: ' + navigator.userAgent);
     out.push('WebGL2: ' + !!renderer.capabilities.isWebGL2 + ' | maxTex: ' + gl.getParameter(gl.MAX_TEXTURE_SIZE) + ' | pixelRatio: ' + renderer.getPixelRatio());
     out.push('toneMapping: ' + renderer.toneMapping + ' | exposure: ' + renderer.toneMappingExposure + ' | outputCS: ' + renderer.outputColorSpace);
     out.push('setLoaded: ' + bayState.setLoaded + ' | scene: ' + bayState.sceneName + ' | cam: ' + camera.position.toArray().map(fmt).join(','));
@@ -98,6 +99,55 @@
     return out.join('\n');
   }
 
+  function dumpParse(tag, gltf, lines) {
+    var set = gltf.scene;
+    ['VistaEarth', 'VistaMoon', 'VistaMars'].forEach(function (name) {
+      var o = set.getObjectByName(name);
+      if (!o) { lines.push(tag + ' ' + name + ': NOT FOUND'); return; }
+      var m = o.material || {};
+      lines.push(tag + ' ' + name + ': mat=' + (m.type || '?') +
+        ' emissiveMap=' + (m.emissiveMap ? ((m.emissiveMap.image ? (m.emissiveMap.image.width + 'x' + m.emissiveMap.image.height) : 'noimg')) : 'NONE') +
+        ' map=' + (m.map ? 'yes' : 'NONE'));
+    });
+    var floorDone = false;
+    set.traverse(function (o) {
+      if (!floorDone && o.isMesh && o.material && o.material.name === 'FloorMat') {
+        floorDone = true;
+        lines.push(tag + ' Floor: map=' + (o.material.map ? 'yes' : 'NONE') + ' emissiveMap=' + (o.material.emissiveMap ? 'yes' : 'NONE'));
+      }
+    });
+  }
+  async function freshParse() {
+    var lines = [];
+    try {
+      var entries = performance.getEntriesByType('resource').filter(function (e) { return e.name.indexOf('space-bay') !== -1; });
+      lines.push('NET: ' + (entries.length ? entries.map(function (e) {
+        return e.name.split('/').pop() + ' transfer=' + e.transferSize + ' decoded=' + e.decodedBodySize;
+      }).join(' ; ') : 'no space-bay fetch seen'));
+      var mod = await import('/vendor/three/addons/loaders/GLTFLoader.js');
+      var errs = [];
+      var origErr = console.error;
+      console.error = function () { errs.push(Array.prototype.map.call(arguments, String).join(' ').slice(0, 120)); return origErr.apply(console, arguments); };
+      var glbUrl = '/assets/models/space-bay-v2.glb';
+      try {
+        var g1 = await new mod.GLTFLoader().loadAsync(glbUrl);
+        dumpParse('A[bitmap]', g1, lines);
+      } catch (e) { lines.push('A[bitmap] ERROR: ' + (e && e.message)); }
+      var saved = window.createImageBitmap;
+      try {
+        window.createImageBitmap = undefined;
+        var g2 = await new mod.GLTFLoader().loadAsync(glbUrl + '?diagB=1');
+        dumpParse('B[imgtag]', g2, lines);
+      } catch (e) { lines.push('B[imgtag] ERROR: ' + (e && e.message)); }
+      window.createImageBitmap = saved;
+      console.error = origErr;
+      if (errs.length) lines.push('console.errors: ' + errs.slice(0, 3).join(' | '));
+    } catch (e) {
+      lines.push('FRESH PARSE failed: ' + (e && e.message));
+    }
+    return lines;
+  }
+
   var tries = 0;
   var timer = setInterval(function () {
     tries++;
@@ -113,12 +163,18 @@
       return;
     }
     clearInterval(timer);
+    var base = '', extra = null;
+    function render() {
+      box.textContent = base + '\n--- FRESH PARSE (this browser, just now) ---\n' +
+        (extra === null ? 'running…' : extra.join('\n'));
+    }
     var runs = 0;
     var iv = setInterval(function () {
       runs++;
-      try { box.textContent = build(refs); } catch (e) { box.textContent = 'VISTA DIAG error: ' + (e && e.message); }
+      try { base = build(refs); render(); } catch (e) { box.textContent = 'VISTA DIAG error: ' + (e && e.message); }
       if (runs >= 4) clearInterval(iv);
     }, 1800);
-    try { box.textContent = build(refs); } catch (e) { box.textContent = 'VISTA DIAG error: ' + (e && e.message); }
+    try { base = build(refs); render(); } catch (e) { box.textContent = 'VISTA DIAG error: ' + (e && e.message); }
+    freshParse().then(function (lines) { extra = lines; render(); });
   }, 250);
 })();
