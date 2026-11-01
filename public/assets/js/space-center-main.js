@@ -374,7 +374,7 @@
       });
       if (bayState.light) bayState.light.color.setHex(name === 'moon' ? 0xbfd4e6 : name === 'mars' ? 0xffb37a : 0x66d9ff);
     }
-    window.__scBay = { setScene: baySetScene, sceneFor: baySceneFor, attachSet: bayAttachSet, get sceneName() { return bayState.sceneName; } };
+    window.__scBay = { setScene: baySetScene, sceneFor: baySceneFor, attachSet: bayAttachSet, diagRefs: function () { return { bayState: bayState, bayGroup: bayGroup, scene: scene, camera: camera, renderer: renderer, THREE: THREE }; }, get sceneName() { return bayState.sceneName; } };
     function bayPulse(t) {
       try { bayPulseInner(t); } catch (e) { /* the pulse must never break the render loop */ }
     }
