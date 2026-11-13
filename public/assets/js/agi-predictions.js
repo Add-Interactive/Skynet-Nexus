@@ -1,5 +1,5 @@
 // AGI/ASI countdown predictions — loaded before app.js
-// Updated 2026-10-30. Source: public statements from each predictor.
+// Updated 2026-11-06. Source: public statements from each predictor.
 const AGI_PREDICTIONS = {
   elon: {
     name: 'Elon Musk',
@@ -117,8 +117,8 @@ const AGI_PREDICTIONS = {
     name: 'Geoffrey Hinton',
     credits: 'Professor Emeritus at Univ. of Toronto. Turing Award winner. Pioneer of deep learning, backpropagation, and neural nets.',
     date: new Date('2033-12-31T23:59:59'),
-    desc: 'Hinton told CNN (Oct 2026) machines significantly more intelligent than humans could emerge within the next decade, noting most experts expect superintelligence within ~10 years — tightening his July 2026 "within 20 years" framing.',
-    link: 'https://energynow.com/2026/10/perspective-godfather-of-ai-geoffrey-hinton-warns-superintelligence-could-arrive-within-10-years-and-humanity-may-not-be-ready/'
+    desc: 'Hinton told The Guardian (Nov 3, 2026) that "either later this year or next year we\'ll see Chornobyl" — an AI-enabled attack causing a massive power brownout or a week-long financial-system outage — and that within a decade humanity will know if it can manage AI\'s risks. He still expects superintelligence within ~10 years.',
+    link: 'https://www.theguardian.com/uk-news/2026/nov/03/ai-godfather-geoffrey-hinton-better-off-without-ai'
   },
   bengio: {
     name: 'Yoshua Bengio',
@@ -131,21 +131,21 @@ const AGI_PREDICTIONS = {
     name: 'Bill Gates',
     credits: 'Co-founder of Microsoft & Gates Foundation. Prominent advisor and philanthropist guiding AI deployment in education and health.',
     date: new Date('2035-12-31T23:59:59'),
-    desc: 'Gates told The Verge\'s Decoder podcast (Oct 22, 2026) to brace for 20 "tumultuous" years of AI disruption — some may opt out of AI society "like the Amish," AI is "the most dangerous weapon ever," and meaningful change will probably only come after a disaster. Same ~20-year frame as his Sept 2026 Meet the Press call, with a bleaker edge.',
-    link: 'https://madrobot.blog/2026/10/22/bill-gates-20-years-tumultuous-ai-disruption-amish-decoder/'
+    desc: 'Gates told the FT Future of AI Summit (Nov 4, 2026) that the "problem of the model itself getting out of control" could become serious "as soon as the next AI models are released," warning an AI-enabled bioweapon incident could be "far more severe than COVID-19" — keeping his ~20-year frame of tumultuous AI disruption (Decoder, Oct 2026).',
+    link: 'https://www.youtube.com/watch?v=g3wyStng7_M'
   },
   kurzweil_asi: {
     name: 'Ray Kurzweil (ASI)',
     credits: 'Director of Engineering at Google. Famous for predicting human-level AI by 2029 and Singularity (ASI) by 2045.',
     date: new Date('2045-12-31T23:59:59'),
-    desc: 'Kurzweil reaffirmed the Singularity by 2045 on the Moonshots podcast (Jan 2026), with humans merging with AI to become 1,000x smarter.',
-    link: 'https://pjfp.com/ray-kurzweil-2026-agi-by-2029-singularity-by-2045-and-the-merger-of-human-and-ai-intelligence/'
+    desc: 'Kurzweil reaffirmed the Singularity by 2045 on the Moonshots podcast (June 2026, ep. 261): "isn\'t backing off a single prediction. AGI by 2029. The singularity by 2045." Humans merge with AI to become 1,000x smarter; 2026–2029 is a three-year window of multiplying AGI declarations.',
+    link: 'https://metatrends.substack.com/p/this-week-on-moonshots-ray-kurzweil'
   },
   lecun: {
     name: 'Yann LeCun',
     credits: 'Chief AI Scientist at Meta & NYU Professor. Turing Award winner for CNNs. Pioneer in self-supervised learning and robotics.',
     date: new Date('2032-12-31T23:59:59'),
-    desc: 'LeCun (departed Meta late 2025) re-stated in Oct 2026 interviews that "AGI" is a dangerous misnomer — human-level-feeling systems won\'t appear in "less than five or six years," and that\'s the best case. Separately: "not a chance in hell" AI drives human extinction in the next three years.',
-    link: 'https://ceointerviews.ai/interview/1322883/'
+    desc: 'LeCun told Dartmouth\'s AI at 70 keynote (Oct 29, 2026) that "despite what you might hear from some of the more optimistic CEOs of Silicon Valley, we\'re not anywhere close to human-level AI" — LLMs alone will never reach it; world models are the path. His best case stands: human-level-feeling systems not in "less than five or six years."',
+    link: 'https://ai.dartmouth.edu/news/2026/10/dartmouth-convenes-landmark-ai-70-conference'
   }
 };
