@@ -1,5 +1,5 @@
 // AGI/ASI countdown predictions — loaded before app.js
-// Updated 2026-11-06. Source: public statements from each predictor.
+// Updated 2026-11-13. Source: public statements from each predictor.
 const AGI_PREDICTIONS = {
   elon: {
     name: 'Elon Musk',
@@ -10,7 +10,7 @@ const AGI_PREDICTIONS = {
   },
   jensen: {
     name: 'Jensen Huang',
-    credits: 'CEO & Founder of NVIDIA. Global leader in AI hardware and GPU chip manufacturing (H100/Blackwell) powering modern LLMs.',
+    credits: 'Co-founder of NVIDIA — resigned as CEO, president & board member Nov 12, 2026. Global leader in AI hardware and GPU chip manufacturing (H100/Blackwell) powering modern LLMs.',
     date: new Date('2026-09-30T23:59:59'),
     desc: 'Huang declared \'AGI has arrived\' on X following OpenAI\'s GPT-6 Astra launch (Sept 2026), trained on 100K+ NVIDIA Blackwell GPUs.',
     link: 'https://explainx.ai/blog/jensen-huang-agi-has-arrived-gpt-6-astra-nvidia-september-2026'
@@ -40,8 +40,8 @@ const AGI_PREDICTIONS = {
     name: 'Shane Legg',
     credits: 'Co-founder & Chief AGI Scientist at Google DeepMind. Pioneer in formal mathematical definitions and tests of AGI.',
     date: new Date('2028-12-31T23:59:59'),
-    desc: 'Legg remains \'comfortable\' with his 50% chance of minimal AGI by 2028, saying it\'s premature to declare AGI achieved (Sept 2026).',
-    link: 'https://www.reuters.com/business/deepmind-co-founder-warns-ai-capabilities-must-not-outrun-safety-controls-ft-2026-09-16/'
+    desc: 'Legg reaffirmed at the University of Auckland (Nov 11, 2026) that he hasn\'t changed his mind on his 50% chance of human-level machine intelligence by 2028: "I think we\'re getting very close and will probably reach this next year or the year after." His "minimal bar" for AGI: an AI that can do all the cognitive tasks people typically can.',
+    link: 'https://www.auckland.ac.nz/en/news/2026/11/11/shane-legg-google-university-auckland-business-school.html'
   },
   suleyman: {
     name: 'Mustafa Suleyman',
@@ -89,8 +89,8 @@ const AGI_PREDICTIONS = {
     name: 'Paul Christiano',
     credits: 'Founder of Alignment Research Center (ARC). Former OpenAI alignment researcher. Leading figure in LLM evaluation and testing.',
     date: new Date('2028-12-31T23:59:59'),
-    desc: 'Christiano (joined OpenAI Foundation board Sept 2026) puts full automation of AI R&D at \'months to several years,\' warning it could ignite a rapid intelligence explosion.',
-    link: 'https://www.explainx.ai/blog/paul-christiano-openai-foundation-board-safety-committee-2026'
+    desc: 'Christiano warned at the Hinton Lectures in Toronto (Nov 10, 2026) of a "high risk" of AI takeover within three years — roughly a coin flip if labs build unconstrained — with "meaningful risk" even in the next 6–12 months, and AI broadly superhuman in 6–24 months. A sharp escalation from his Sept 2026 estimates (4% loss-of-control risk in 1 year, 15% in 3 years).',
+    link: 'https://gizmodo.com/openai-board-member-tells-audience-an-ai-accident-is-the-most-likely-thing-to-kill-them-2000838491'
   },
   yudkowsky: {
     name: 'Eliezer Yudkowsky',
@@ -117,8 +117,8 @@ const AGI_PREDICTIONS = {
     name: 'Geoffrey Hinton',
     credits: 'Professor Emeritus at Univ. of Toronto. Turing Award winner. Pioneer of deep learning, backpropagation, and neural nets.',
     date: new Date('2033-12-31T23:59:59'),
-    desc: 'Hinton told The Guardian (Nov 3, 2026) that "either later this year or next year we\'ll see Chornobyl" — an AI-enabled attack causing a massive power brownout or a week-long financial-system outage — and that within a decade humanity will know if it can manage AI\'s risks. He still expects superintelligence within ~10 years.',
-    link: 'https://www.theguardian.com/uk-news/2026/nov/03/ai-godfather-geoffrey-hinton-better-off-without-ai'
+    desc: 'Hinton told the Hinton Lectures in Toronto (Nov 11, 2026) that after hearing Christiano\'s warning he no longer thinks the risk is distant: "I go to Paul\'s lectures and he says this stuff might happen in the next 18 months and that\'s terrifying." He carried the warning to EU leaders at the Dublin AI summit on Nov 13 — a sharp pull-forward from his Nov 3 Guardian "within a decade" framing, though his own stated figure remains ~10 years.',
+    link: 'https://www.tbsnews.net/world/godfather-ai-hinton-warns-ai-could-take-over-world-within-3-years-threaten-humanity-1601376'
   },
   bengio: {
     name: 'Yoshua Bengio',
