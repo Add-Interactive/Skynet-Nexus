@@ -1,5 +1,5 @@
 // AGI/ASI countdown predictions — loaded before app.js
-// Updated 2026-11-13. Source: public statements from each predictor.
+// Updated 2026-11-27. Source: public statements from each predictor.
 const AGI_PREDICTIONS = {
   elon: {
     name: 'Elon Musk',
@@ -10,7 +10,7 @@ const AGI_PREDICTIONS = {
   },
   jensen: {
     name: 'Jensen Huang',
-    credits: 'Co-founder of NVIDIA — resigned as CEO, president & board member Nov 12, 2026. Global leader in AI hardware and GPU chip manufacturing (H100/Blackwell) powering modern LLMs.',
+    credits: 'Co-founder of NVIDIA — reinstated as CEO, president & board member Nov 23, 2026, 11 days after resigning Nov 12. Global leader in AI hardware and GPU chip manufacturing (H100/Blackwell) powering modern LLMs.',
     date: new Date('2026-09-30T23:59:59'),
     desc: 'Huang declared \'AGI has arrived\' on X following OpenAI\'s GPT-6 Astra launch (Sept 2026), trained on 100K+ NVIDIA Blackwell GPUs.',
     link: 'https://explainx.ai/blog/jensen-huang-agi-has-arrived-gpt-6-astra-nvidia-september-2026'
@@ -19,8 +19,8 @@ const AGI_PREDICTIONS = {
     name: 'Sam Altman',
     credits: 'CEO of OpenAI. Creator of ChatGPT, GPT-4, and Sora. Pioneer in scaling reinforcement learning models.',
     date: new Date('2026-12-31T23:59:59'),
-    desc: 'Altman told Vanity Fair (taped Sept 11 and Oct 2, 2026) that whether AGI has already arrived is "subjective" but "it\'s close" — reaffirming his TIME (Aug 2026) call of an internal system he\'d call AGI by end of 2026.',
-    link: 'https://pjfp.com/sam-altman-vanity-fair-interview-musk-paused-models-extinction-risk/'
+    desc: 'Altman told Vanity Fair (taped Sept 11 and Oct 2, 2026) that whether AGI has already arrived is "subjective" but "it\'s close" — reaffirming his TIME (Aug 2026) call of an internal system he\'d call AGI by end of 2026. At Semafor\'s Silicon Valley & The World event (Nov 16, 2026) he clarified a viral misreading: AGI has no clean demarcation and OpenAI has not achieved it — AI is not yet autonomously designing and improving its successor without human oversight ("absolutely not"), and OpenAI has slowed recursive self-improvement work because it cannot yet guarantee it is safe.',
+    link: 'https://www.kucoin.com/news/flash/openai-ceo-sam-altman-clarifies-agi-misinterpretation-at-semafor-event'
   },
   dario: {
     name: 'Dario Amodei',
@@ -40,8 +40,8 @@ const AGI_PREDICTIONS = {
     name: 'Shane Legg',
     credits: 'Co-founder & Chief AGI Scientist at Google DeepMind. Pioneer in formal mathematical definitions and tests of AGI.',
     date: new Date('2028-12-31T23:59:59'),
-    desc: 'Legg reaffirmed at the University of Auckland (Nov 11, 2026) that he hasn\'t changed his mind on his 50% chance of human-level machine intelligence by 2028: "I think we\'re getting very close and will probably reach this next year or the year after." His "minimal bar" for AGI: an AI that can do all the cognitive tasks people typically can.',
-    link: 'https://www.auckland.ac.nz/en/news/2026/11/11/shane-legg-google-university-auckland-business-school.html'
+    desc: 'Legg raised his long-held forecast on X (Nov 25, 2026): "I now think it\'s over 50% likely that we\'ll have Minimal AGI before 2028. We\'re getting close now" — giving a provisional estimate of ~65%, up from the 50% chance of human-level machine intelligence by 2028 he had held since ~2009 and reaffirmed at the University of Auckland (Nov 11, 2026). His "minimal bar" for AGI: an AI that can do all the cognitive tasks people typically can.',
+    link: 'https://officechai.com/ai/around-65-likely-well-get-minimal-agi-before-2028-google-deepminds-shane-legg/'
   },
   suleyman: {
     name: 'Mustafa Suleyman',
@@ -82,15 +82,15 @@ const AGI_PREDICTIONS = {
     name: 'Max Tegmark',
     credits: 'MIT Physics Professor & President of Future of Life Institute. Author of "Life 3.0". Leading advocate for AI safety controls.',
     date: new Date('2030-06-30T23:59:59'),
-    desc: 'Max Tegmark warns AGI is highly likely by 2030, calling for rapid safety regulations.',
-    link: 'https://time.com/6266395/max-tegmark-ai-extinction-risk/'
+    desc: 'Tegmark warned on Rai\'s In mezz\'ora (Nov 22, 2026) that "the biggest risk is that we think we have 5 years to solve it; that is not the case" — relaying that many people in the AI companies think 2027 will be the year "we will begin to lose control of the machines," possibly within 6–12 months, and urging governments to act now. His standing warning that AGI is highly likely by 2030 is unchanged; the 2027 figure is a loss-of-control horizon he attributes to people inside the companies, not a new personal AGI date.',
+    link: 'https://ceointerviews.ai/interview/3414455/'
   },
   christiano: {
     name: 'Paul Christiano',
     credits: 'Founder of Alignment Research Center (ARC). Former OpenAI alignment researcher. Leading figure in LLM evaluation and testing.',
     date: new Date('2028-12-31T23:59:59'),
-    desc: 'Christiano warned at the Hinton Lectures in Toronto (Nov 10, 2026) of a "high risk" of AI takeover within three years — roughly a coin flip if labs build unconstrained — with "meaningful risk" even in the next 6–12 months, and AI broadly superhuman in 6–24 months. A sharp escalation from his Sept 2026 estimates (4% loss-of-control risk in 1 year, 15% in 3 years).',
-    link: 'https://gizmodo.com/openai-board-member-tells-audience-an-ai-accident-is-the-most-likely-thing-to-kill-them-2000838491'
+    desc: 'Christiano warned at the Hinton Lectures in Toronto (Nov 10, 2026) of a "high risk" of AI takeover within three years — roughly a coin flip if labs build unconstrained — with "meaningful risk" even in the next 6–12 months, and AI broadly superhuman in 6–24 months. On the Dwarkesh Podcast (aired Nov 16, 2026) he sharpened the numbers further: a ~10% chance of AI takeover within one year (up from 4% in Sept 2026) and roughly a 1-in-3 chance of superintelligence powerful enough to "overthrow the government" within a year on the current trajectory, citing AI systems producing "a decade of progress in a month."',
+    link: 'https://dealroom.co/news/talk-SyHM5hNPAEo-paul-christiano-superintelligence-is-a-1-in-3-bet-within-a-year-and-a-10/'
   },
   yudkowsky: {
     name: 'Eliezer Yudkowsky',
@@ -117,8 +117,8 @@ const AGI_PREDICTIONS = {
     name: 'Geoffrey Hinton',
     credits: 'Professor Emeritus at Univ. of Toronto. Turing Award winner. Pioneer of deep learning, backpropagation, and neural nets.',
     date: new Date('2033-12-31T23:59:59'),
-    desc: 'Hinton told the Hinton Lectures in Toronto (Nov 11, 2026) that after hearing Christiano\'s warning he no longer thinks the risk is distant: "I go to Paul\'s lectures and he says this stuff might happen in the next 18 months and that\'s terrifying." He carried the warning to EU leaders at the Dublin AI summit on Nov 13 — a sharp pull-forward from his Nov 3 Guardian "within a decade" framing, though his own stated figure remains ~10 years.',
-    link: 'https://www.tbsnews.net/world/godfather-ai-hinton-warns-ai-could-take-over-world-within-3-years-threaten-humanity-1601376'
+    desc: 'Hinton told the Hinton Lectures in Toronto (Nov 11, 2026) that after hearing Christiano\'s warning he no longer thinks the risk is distant: "I go to Paul\'s lectures and he says this stuff might happen in the next 18 months and that\'s terrifying." He carried the warning to EU leaders at the Dublin AI summit on Nov 13 — a sharp pull-forward from his Nov 3 Guardian "within a decade" framing, though his own stated figure remains ~10 years. At the ALDE Party Council in Dublin (Nov 13–14, 2026) he put his own range at "two to 10 years" for superintelligent AI — "it\'s going to get here in between two and 10 years" — and repeated "10 years or less" on the I\'ve Got Questions podcast (Nov 24, 2026).',
+    link: 'https://www.aldeparty.eu/blog/news-11/superintelligent-ai-could-be-two-years-away-is-europe-prepared-637'
   },
   bengio: {
     name: 'Yoshua Bengio',
@@ -143,9 +143,9 @@ const AGI_PREDICTIONS = {
   },
   lecun: {
     name: 'Yann LeCun',
-    credits: 'Chief AI Scientist at Meta & NYU Professor. Turing Award winner for CNNs. Pioneer in self-supervised learning and robotics.',
+    credits: 'Executive Chairman & co-founder of AMI Labs (left Meta in Jan 2026, where he was Chief AI Scientist 2018–2025) & NYU Professor. Turing Award winner for CNNs. Pioneer in self-supervised learning and robotics.',
     date: new Date('2032-12-31T23:59:59'),
-    desc: 'LeCun told Dartmouth\'s AI at 70 keynote (Oct 29, 2026) that "despite what you might hear from some of the more optimistic CEOs of Silicon Valley, we\'re not anywhere close to human-level AI" — LLMs alone will never reach it; world models are the path. His best case stands: human-level-feeling systems not in "less than five or six years."',
-    link: 'https://ai.dartmouth.edu/news/2026/10/dartmouth-convenes-landmark-ai-70-conference'
+    desc: 'LeCun told Dartmouth\'s AI at 70 keynote (Oct 29, 2026) that "despite what you might hear from some of the more optimistic CEOs of Silicon Valley, we\'re not anywhere close to human-level AI" — LLMs alone will never reach it; world models are the path. He repeated the point at CoRL 2026 (Nov 13, 2026) — "if you are interested in human-level AI, don\'t work on LLMs" — and at Semafor (Nov 17), saying current agentic systems cannot predict the consequences of their actions. His best case stands: human-level-feeling systems not in "less than five or six years."',
+    link: 'https://explainx.ai/blog/yann-lecun-corl-2026-dont-work-on-llms-jepa-career-advice'
   }
 };
